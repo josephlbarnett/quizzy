@@ -2,11 +2,11 @@ package com.joe.quizzy.persistence.impl
 
 import assertk.all
 import assertk.assertThat
-import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.isEqualTo
-import com.joe.quizzy.api.models.Thing
-import com.trib3.testing.db.DAOTestBase
+import com.joe.quizzy.api.models.Instance
+import com.joe.quizzy.persistence.api.InstanceDAO
+import com.trib3.testing.LeakyMock.Companion.contains
 import kotlin.streams.toList
 import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
@@ -14,27 +14,27 @@ import org.testng.annotations.Test
 /**
  * Test the ThingDAO
  */
-class ThingDAOTest : DAOTestBase() {
-    lateinit var dao: ThingDAOJooq
+class InstanceDAOTest : PostgresDAOTestBase() {
+    lateinit var dao: InstanceDAO
 
     @BeforeClass
     override fun setUp() {
         super.setUp()
-        dao = ThingDAOJooq(ctx)
+        dao = InstanceDAOJooq(ctx)
     }
 
     @Test
     fun testRoundTrip() {
-        val thing = Thing(null, "billy")
-        val nextThing = Thing(null, "jimmy")
-        dao.save(thing)
+        val thing = Instance(null, "group1", "ACTIVE")
+        val nextThing = Instance(null, "group2", "ACTIVE")
+        val thingId = dao.save(thing).id!!
         dao.save(nextThing)
-        assertThat(dao.get(1)?.name).isEqualTo(thing.name)
+        assertThat(dao.get(thingId)?.name).isEqualTo(thing.name)
         assertThat(dao.all().map { it.name }).all {
             contains(thing.name)
             contains(nextThing.name)
         }
-        val updateThing = Thing(1, "william")
+        val updateThing = Instance(thingId, "group1 renamed", "ACTIVE")
         dao.save(updateThing)
         dao.stream().use { stream ->
             for (list in listOf(stream.toList(), dao.all())) {

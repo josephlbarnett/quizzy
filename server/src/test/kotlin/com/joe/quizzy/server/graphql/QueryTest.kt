@@ -2,20 +2,60 @@ package com.joe.quizzy.server.graphql
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
-import com.joe.quizzy.api.models.Thing
-import com.joe.quizzy.persistence.api.ThingDAO
+import com.joe.quizzy.api.models.Question
+import com.joe.quizzy.api.models.Response
+import com.joe.quizzy.api.models.User
+import com.joe.quizzy.persistence.api.QuestionDAO
+import com.joe.quizzy.persistence.api.ResponseDAO
+import com.joe.quizzy.persistence.api.SessionDAO
+import com.joe.quizzy.persistence.api.UserDAO
+import com.trib3.graphql.resources.GraphQLResourceContext
+import com.trib3.testing.LeakyMock
+import java.time.LocalDateTime
+import java.util.UUID
 import org.easymock.EasyMock
 import org.testng.annotations.Test
 
 class QueryTest {
     @Test
     fun testQuery() {
-        val mockDAO = EasyMock.createMock<ThingDAO>(ThingDAO::class.java)
-        EasyMock.expect(mockDAO.get(1)).andReturn(Thing(1, "billy"))
-        EasyMock.replay(mockDAO)
-        val query = Query(mockDAO)
-        val result = query.thing(1)
-        assertThat(result?.id).isEqualTo(1)
-        assertThat(result?.name).isEqualTo("billy")
+        val iUUID = UUID.randomUUID()
+        val qUUID = UUID.randomUUID()
+        val uUUID = UUID.randomUUID()
+        val rUUID = UUID.randomUUID()
+        val qDAO = LeakyMock.mock<QuestionDAO>()
+        val uDAO = LeakyMock.mock<UserDAO>()
+        val sDAO = LeakyMock.mock<SessionDAO>()
+        val rDAO = LeakyMock.mock<ResponseDAO>()
+        EasyMock.expect(qDAO.get(EasyMock.anyObject() ?: UUID.randomUUID())).andReturn(
+            Question(
+                qUUID,
+                uUUID,
+                "question",
+                "answer",
+                "refs",
+                LocalDateTime.now(),
+                LocalDateTime.now()
+            )
+        )
+        EasyMock.expect(uDAO.get(EasyMock.anyObject() ?: UUID.randomUUID())).andReturn(
+            User(uUUID, iUUID, "billy", "billy@gmail.com", "", false, "UTC")
+        )
+        EasyMock.expect(rDAO.get(EasyMock.anyObject() ?: UUID.randomUUID())).andReturn(
+            Response(rUUID, uUUID, qUUID, "response", "responseRefs", true, 5)
+        )
+        EasyMock.replay(qDAO, uDAO, sDAO, rDAO)
+        val query = Query(qDAO, uDAO, rDAO)
+        val question = query.question(qUUID)
+        assertThat(question?.id).isEqualTo(qUUID)
+        assertThat(question?.body).isEqualTo("question")
+
+        val user = query.user(GraphQLResourceContext(null), uUUID)
+        assertThat(user?.id).isEqualTo(uUUID)
+        assertThat(user?.name).isEqualTo("billy")
+
+        val response = query.response(rUUID)
+        assertThat(response?.id).isEqualTo(rUUID)
+        assertThat(response?.response).isEqualTo("response")
     }
 }

@@ -71,18 +71,12 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <!-- test -->
         <dependency>
             <groupId>com.trib3</groupId>
             <artifactId>testing</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -122,6 +116,10 @@
                     <locations>
                         <location>filesystem:src/main/resources/db/migration</location>
                     </locations>
+                    <sqlMigrationSuffixes>
+                        <sqlMigrationSuffix>.sql</sqlMigrationSuffix>
+                        <sqlMigrationSuffix>.h2sql</sqlMigrationSuffix>
+                    </sqlMigrationSuffixes>
                 </configuration>
                 <dependencies>
                     <dependency>

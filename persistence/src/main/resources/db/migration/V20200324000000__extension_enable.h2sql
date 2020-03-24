@@ -1,0 +1,5 @@
+CREATE ALIAS uuid_generate_v4 AS $$
+UUID uuid_generate_v4() {
+    return null;
+}
+$$;
