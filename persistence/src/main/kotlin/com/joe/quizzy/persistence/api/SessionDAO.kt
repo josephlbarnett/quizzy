@@ -12,4 +12,5 @@ interface SessionDAO {
     fun stream(): Stream<Session>
     fun get(id: UUID): Session?
     fun save(thing: Session): Session
+    fun delete(thing: Session): Int
 }

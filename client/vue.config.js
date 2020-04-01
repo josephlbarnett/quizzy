@@ -1,4 +1,4 @@
 module.exports = {
-  transpileDependencies: ["vuetify"],
+  transpileDependencies: ["vuetify", "apollo"],
   publicPath: "/app/assets"
 };

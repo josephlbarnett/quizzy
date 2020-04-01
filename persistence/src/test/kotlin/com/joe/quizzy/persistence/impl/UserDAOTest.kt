@@ -44,7 +44,7 @@ class UserDAOTest : PostgresDAOTestBase() {
         dao.save(updateThing)
         dao.stream().use { stream ->
             for (list in listOf(stream.toList(), dao.all())) {
-                assertThat(list.map { it.name }).all {
+                assertThat(list.filter { it.instanceId == instanceId }.map { it.name }).all {
                     contains(updateThing.name)
                     doesNotContain(thing.name)
                     contains(nextThing.name)
@@ -55,19 +55,19 @@ class UserDAOTest : PostgresDAOTestBase() {
 
     @Test
     fun testPartialUpdateRoundTrip() {
-        val instance = Instance(null, "group", "ACTIVE")
+        val instance = Instance(null, "group2", "ACTIVE")
         val instanceId = instanceDao.save(instance).id!!
-        val thing = User(null, instanceId, "billy", "billy@gmail.com", "crypt1", false, "UTC")
+        val thing = User(null, instanceId, "billy", "billy2@gmail.com", "crypt1", false, "UTC")
         val thingId = dao.save(thing).id!!
         assertThat(dao.get(thingId)?.name).isEqualTo(thing.name)
         assertThat(dao.all().map { it.name }).all {
             contains(thing.name)
         }
-        val updateThing = User(thingId, instanceId, "william", "billy@gmail.com", null, false, "UTC")
+        val updateThing = User(thingId, instanceId, "william", "billy2@gmail.com", null, false, "UTC")
         dao.save(updateThing)
         dao.stream().use { stream ->
             for (list in listOf(stream.toList(), dao.all())) {
-                assertThat(list.map { it.name }).all {
+                assertThat(list.filter { it.instanceId == instanceId }.map { it.name }).all {
                     contains(updateThing.name)
                     doesNotContain(thing.name)
                 }
