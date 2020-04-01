@@ -2,6 +2,7 @@ package com.joe.quizzy.persistence.impl
 
 import com.codahale.metrics.annotation.Timed
 import com.joe.quizzy.api.models.Response
+import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.ResponsesRecord
@@ -53,6 +54,13 @@ open class ResponseDAOJooq
             record.store()
             record.into(Response::class.java)
         }
+    }
+
+    override fun byUserQuestion(user: User, questionId: UUID): Response? {
+        val query = ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
+            .where(Tables.RESPONSES.USER_ID.eq(user.id).and(Tables.RESPONSES.QUESTION_ID.eq(questionId)))
+        log.info("responses query : $query")
+        return query.fetchOneInto(Response::class.java)
     }
 
     @Timed

@@ -11,7 +11,8 @@ import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.trib3.testing.LeakyMock.Companion.contains
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import java.util.UUID
 import kotlin.streams.toList
 import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
@@ -33,13 +34,18 @@ class QuestionDAOTest : PostgresDAOTestBase() {
     }
 
     @Test
+    fun testActiveQuestions() {
+        println(dao.active(User(UUID.randomUUID(), UUID.randomUUID(), "abc", "abc@def.com", "", false, "UTC")))
+    }
+
+    @Test
     fun testRoundTrip() {
         val instance = Instance(null, "group", "ACTIVE")
         val instanceId = instanceDao.save(instance).id!!
         val user = User(null, instanceId, "billy", "billy@gmail.com", null, false, "UTC")
         val userId = userDao.save(user).id!!
         val q1 =
-            Question(null, userId, "a question", "an answer", "some refs", LocalDateTime.now(), LocalDateTime.now())
+            Question(null, userId, "a question", "an answer", "some refs", OffsetDateTime.now(), OffsetDateTime.now())
         val q2 =
             Question(
                 null,
@@ -47,8 +53,8 @@ class QuestionDAOTest : PostgresDAOTestBase() {
                 "another question",
                 "another answer",
                 "some more refs",
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                OffsetDateTime.now(),
+                OffsetDateTime.now()
             )
         val qId = dao.save(q1).id!!
         dao.save(q2)
@@ -64,8 +70,8 @@ class QuestionDAOTest : PostgresDAOTestBase() {
                 "an updated question",
                 "an answer",
                 "some refs",
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                OffsetDateTime.now(),
+                OffsetDateTime.now()
             )
         dao.save(updateThing)
         dao.stream().use { stream ->

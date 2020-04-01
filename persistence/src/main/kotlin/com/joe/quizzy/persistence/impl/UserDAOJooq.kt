@@ -31,7 +31,12 @@ open class UserDAOJooq
 
     @Timed
     override fun getByEmail(email: String): User? {
-        return ctx.selectFrom(Tables.USERS).where(Tables.USERS.EMAIL.eq(email)).fetchOne()?.into(User::class.java)
+        return ctx.selectFrom(Tables.USERS).where(Tables.USERS.EMAIL.eq(email)).fetchOneInto(User::class.java)
+    }
+
+    @Timed
+    override fun getByInstance(instanceId: UUID): List<User> {
+        return ctx.selectFrom(Tables.USERS).where(Tables.USERS.INSTANCE_ID.eq(instanceId)).fetchInto(User::class.java)
     }
 
     @Timed
@@ -46,7 +51,11 @@ open class UserDAOJooq
             } else {
                 val existing = getRecord(config.dsl(), thingId)
                 if (existing != null) {
-                    existing.from(thing)
+                    // don't allow overwriting authCrypt with generic save()
+                    existing.from(
+                        thing,
+                        *existing.fields().filter { it != Tables.USERS.AUTH_CRYPT }.toTypedArray()
+                    )
                     existing
                 } else {
                     config.dsl().newRecord(

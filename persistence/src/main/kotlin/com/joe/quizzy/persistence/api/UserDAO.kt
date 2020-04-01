@@ -14,4 +14,5 @@ interface UserDAO {
     fun save(thing: User): User
 
     fun getByEmail(email: String): User?
+    fun getByInstance(instanceId: UUID): List<User>
 }

@@ -4,7 +4,7 @@ import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import io.dropwizard.auth.Authenticator
 import java.time.Duration
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.Optional
 import java.util.UUID
 import javax.inject.Inject
@@ -23,7 +23,7 @@ class SessionAuthenticator
         val session = sessionId?.let { sessionDAO.get(it) }
         val user = session?.let { userDAO.get(it.userId) }
         return user?.let {
-            val now = LocalDateTime.now()
+            val now = OffsetDateTime.now()
             if (Duration.between(session.lastUsedAt, now).toMinutes() > 60) {
                 sessionDAO.save(session.copy(lastUsedAt = now))
             }

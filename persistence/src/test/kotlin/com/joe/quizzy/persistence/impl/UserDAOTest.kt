@@ -52,4 +52,27 @@ class UserDAOTest : PostgresDAOTestBase() {
             }
         }
     }
+
+    @Test
+    fun testPartialUpdateRoundTrip() {
+        val instance = Instance(null, "group", "ACTIVE")
+        val instanceId = instanceDao.save(instance).id!!
+        val thing = User(null, instanceId, "billy", "billy@gmail.com", "crypt1", false, "UTC")
+        val thingId = dao.save(thing).id!!
+        assertThat(dao.get(thingId)?.name).isEqualTo(thing.name)
+        assertThat(dao.all().map { it.name }).all {
+            contains(thing.name)
+        }
+        val updateThing = User(thingId, instanceId, "william", "billy@gmail.com", null, false, "UTC")
+        dao.save(updateThing)
+        dao.stream().use { stream ->
+            for (list in listOf(stream.toList(), dao.all())) {
+                assertThat(list.map { it.name }).all {
+                    contains(updateThing.name)
+                    doesNotContain(thing.name)
+                }
+            }
+        }
+        println(dao.all())
+    }
 }

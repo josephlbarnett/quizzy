@@ -14,10 +14,12 @@ import com.joe.quizzy.server.graphql.Mutation
 import com.joe.quizzy.server.graphql.Query
 import com.trib3.graphql.modules.GraphQLApplicationModule
 import com.trib3.server.filters.CookieTokenAuthFilter
+import com.trib3.server.modules.ServletConfig
 import io.dropwizard.auth.Auth
 import io.dropwizard.auth.AuthDynamicFeature
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter
 import io.dropwizard.auth.chained.ChainedAuthFilter
+import io.dropwizard.servlets.assets.AssetServlet
 import java.security.Principal
 import java.util.Optional
 import javax.inject.Named
@@ -51,6 +53,18 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
         // graphQLSubscriptionsBinder().addBinding().to<Subscription>()
         resourceBinder().addBinding().to<TestResource>()
         bind<Hasher>().to<Argon2Hasher>()
+        appServletBinder().addBinding().toInstance(
+            ServletConfig(
+                "AppAssets",
+                AssetServlet(
+                    "/assets",
+                    "/assets",
+                    "index.html",
+                    Charsets.UTF_8
+                ),
+                listOf("/assets", "/assets/*")
+            )
+        )
     }
 
     @ProvidesIntoSet

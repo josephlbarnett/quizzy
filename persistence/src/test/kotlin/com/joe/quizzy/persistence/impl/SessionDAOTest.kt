@@ -11,7 +11,7 @@ import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.streams.toList
 import org.testng.annotations.BeforeClass
@@ -39,9 +39,9 @@ class SessionDAOTest : PostgresDAOTestBase() {
         val instanceId = instanceDao.save(instance).id!!
         val user = User(null, instanceId, "billy", "billy@gmail.com", null, false, "UTC")
         val userId = userDao.save(user).id!!
-        val hourAgo = LocalDateTime.now().minusHours(1).truncatedTo(ChronoUnit.MILLIS)
-        val twoHoursAgo = LocalDateTime.now().minusHours(2).truncatedTo(ChronoUnit.MILLIS)
-        val threeHoursAgo = LocalDateTime.now().minusHours(3).truncatedTo(ChronoUnit.MILLIS)
+        val hourAgo = OffsetDateTime.now().minusHours(1).truncatedTo(ChronoUnit.MILLIS)
+        val twoHoursAgo = OffsetDateTime.now().minusHours(2).truncatedTo(ChronoUnit.MILLIS)
+        val threeHoursAgo = OffsetDateTime.now().minusHours(3).truncatedTo(ChronoUnit.MILLIS)
         val s1 = Session(null, userId, hourAgo, hourAgo)
         val s2 = Session(null, userId, twoHoursAgo, twoHoursAgo)
         val sId = dao.save(s1).id!!
