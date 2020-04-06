@@ -85,31 +85,29 @@ export function createProvider(options = {}) {
     }
   });
 }
-
-// Manually call this when user log in
-// @ts-ignore
-export async function onLogin(apolloClient, token: string) {
-  if (typeof localStorage !== "undefined" && token) {
-    localStorage.setItem(AUTH_TOKEN, token);
-  }
-  try {
-    await apolloClient.resetStore();
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log("%cError on cache reset (login)", "color: orange;", e.message);
-  }
-}
-
-// Manually call this when user log out
-// @ts-ignore
-export async function onLogout(apolloClient) {
-  if (typeof localStorage !== "undefined") {
-    localStorage.removeItem(AUTH_TOKEN);
-  }
-  try {
-    await apolloClient.resetStore();
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.log("%cError on cache reset (logout)", "color: orange;", e.message);
-  }
-}
+//
+// // Manually call this when user log in
+// export async function onLogin(apolloClient, token: string) {
+//   if (typeof localStorage !== "undefined" && token) {
+//     localStorage.setItem(AUTH_TOKEN, token);
+//   }
+//   try {
+//     await apolloClient.resetStore();
+//   } catch (e) {
+//     // eslint-disable-next-line no-console
+//     console.log("%cError on cache reset (login)", "color: orange;", e.message);
+//   }
+// }
+//
+// // Manually call this when user log out
+// export async function onLogout(apolloClient) {
+//   if (typeof localStorage !== "undefined") {
+//     localStorage.removeItem(AUTH_TOKEN);
+//   }
+//   try {
+//     await apolloClient.resetStore();
+//   } catch (e) {
+//     // eslint-disable-next-line no-console
+//     console.log("%cError on cache reset (logout)", "color: orange;", e.message);
+//   }
+// }

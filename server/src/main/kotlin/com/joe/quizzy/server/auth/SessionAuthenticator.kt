@@ -27,7 +27,7 @@ class SessionAuthenticator
             if (Duration.between(session.lastUsedAt, now).toMinutes() > 60) {
                 sessionDAO.save(session.copy(lastUsedAt = now))
             }
-            Optional.of(UserPrincipal(it))
+            Optional.of(UserPrincipal(it, session))
         } ?: Optional.empty()
     }
 }

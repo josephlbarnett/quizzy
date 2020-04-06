@@ -1,0 +1,24 @@
+mutation updateUser(
+    $name: String!,
+    $id: UUID!,
+    $instanceId: UUID!,
+    $email: String!,
+    $admin: Boolean!,
+    $timeZoneId: String!
+) {
+    user(thing: {
+        id: $id
+        instanceId: $instanceId
+        email: $email
+        name: $name
+        admin: $admin
+        timeZoneId: $timeZoneId
+    }) {
+      id
+      instanceId
+      email
+      name
+      admin
+      timeZoneId
+    }
+}

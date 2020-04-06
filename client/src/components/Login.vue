@@ -1,8 +1,8 @@
 <template>
-  <ApolloQuery :query="userQuery">
+  <ApolloQuery :query="require('../graphql/CurrentUser.gql')">
     <template v-slot="{ result: { error, data }, isLoading }">
       <!-- Loading -->
-      <v-progress-circular indeterminate="true" v-if="isLoading" />
+      <v-progress-circular :indeterminate="true" v-if="isLoading" />
 
       <!-- Error -->
       <div v-else-if="error" class="error apollo">An error occurred</div>
@@ -17,7 +17,7 @@
       <!-- No result -->
       <div v-else class="no-result apollo">
         <ApolloMutation
-          :mutation="loginQuery"
+          :mutation="require('../graphql/Login.gql')"
           :variables="{
             email,
             pass
@@ -29,16 +29,22 @@
         >
           <template v-slot="{ mutate, loading /*, error*/ }">
             <v-container>
-              <v-text-field v-model="email" label="Email" @keypress="key" />
+              <v-text-field
+                v-model="email"
+                label="Email"
+                @keypress="e => key(e, mutate)"
+              />
               <v-text-field
                 v-model="pass"
                 label="Password"
                 type="password"
-                @keypress="key"
+                @keypress="e => key(e, mutate)"
               />
               <v-btn
                 :disabled="loading"
                 label="Login"
+                block="true"
+                color="accent"
                 @click="clickLogin(mutate)"
                 >Login</v-btn
               >
@@ -46,7 +52,7 @@
                 Couldn't log in, try again.
                 <v-btn @click="failedLogin = false">OK</v-btn>
               </v-snackbar>
-              <v-progress-circular indeterminate="true" v-if="loading" />
+              <v-progress-circular :indeterminate="true" v-if="loading" />
             </v-container>
           </template>
         </ApolloMutation>
@@ -56,36 +62,15 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
-import gql from "graphql-tag";
 
 export default Vue.extend({
   name: "Login",
   data: () => ({
     email: "",
     pass: "",
-    failedLogin: false,
-    userQuery: gql`
-      query currentUser {
-        user {
-          name
-        }
-      }
-    `,
-    loginQuery: gql`
-      mutation login($email: String!, $pass: String!) {
-        login(email: $email, pass: $pass)
-      }
-    `,
-    logoutQuery: gql`
-      mutation logout {
-        logout
-      }
-    `
+    failedLogin: false
   }),
   methods: {
-    submit() {
-      console.log(`submit ${this.email}`);
-    },
     clickLogin(mutate: Function) {
       this.failedLogin = false;
       mutate();
@@ -93,9 +78,9 @@ export default Vue.extend({
     loggedin({ data: { login } }: { data: { login: boolean } }) {
       this.failedLogin = !login;
     },
-    key({ key }: { key: string }) {
+    key({ key }: { key: string }, mutate: Function) {
       if (key == "Enter") {
-        this.submit();
+        mutate();
       }
     }
   }

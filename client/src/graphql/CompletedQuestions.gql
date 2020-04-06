@@ -1,0 +1,18 @@
+query CompletedQuestions {
+    closedQuestions {
+        id,
+        authorId,
+        body,
+        activeAt,
+        closedAt,
+        answer,
+        ruleReferences,
+        response {
+            id
+            response,
+            ruleReferences,
+            correct,
+            bonus
+        }
+    }
+}

@@ -1,0 +1,12 @@
+query CurrentQuestions {
+    activeQuestions {
+        id,
+        authorId,
+        body,
+        activeAt,
+        closedAt,
+        response {
+            id
+        }
+    }
+}

@@ -16,7 +16,7 @@ class UserAuthenticator
         val userCrypt = user?.authCrypt
         if (userCrypt != null) {
             if (hasher.verify(userCrypt, credentials.password)) {
-                return Optional.of(UserPrincipal(user))
+                return Optional.of(UserPrincipal(user, null))
             }
         }
         return Optional.empty()

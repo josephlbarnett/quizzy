@@ -5,38 +5,62 @@ import gql from "graphql-tag";
       <div class="d-flex align-center">
         <v-img
           alt="Quizzy"
-          class="shrink mr-2"
+          class="shrink"
           contain
           src="./assets/logo.png"
           transition="scale-transition"
           width="40"
         />
       </div>
-      <ApolloQuery :query="userQuery">
+      <ApolloQuery :query="require('@/graphql/CurrentUser.gql')">
         <template v-slot="{ result: { error, data } /*, isLoading*/ }">
-          <ApolloMutation
-            :mutation="logoutQuery"
-            :refetch-queries="() => [`currentUser`]"
-            :await-refetch-queries="true"
-            v-if="data.user"
-          >
-            <template v-slot="{ mutate, loading /*, error*/ }">
-              {{ data.user.name }}
-              <v-btn :disabled="loading" label="Logout" @click="mutate()"
-                >Logout</v-btn
-              >
-            </template>
-          </ApolloMutation>
+          <div v-if="data && data.user">
+            <v-btn-toggle>
+              <v-btn to="/" color="accent">
+                <span>current questions</span>
+              </v-btn>
+              <v-btn to="/review" color="accent">
+                <span>completed questions</span>
+              </v-btn>
+              <v-btn to="/write" color="accent" v-if="data.user.admin">
+                <span>future questions</span>
+              </v-btn>
+              <v-btn to="/users" color="accent" v-if="data.user.admin">
+                <span>users</span>
+              </v-btn>
+            </v-btn-toggle>
+          </div>
+          <div v-else>
+            Please login.
+          </div>
         </template>
       </ApolloQuery>
       <v-spacer />
-      <v-btn to="/">
-        <span>home</span>
-      </v-btn>
-
-      <v-btn to="/about">
-        <span>about</span>
-      </v-btn>
+      <ApolloQuery :query="require('@/graphql/CurrentUser.gql')">
+        <template v-slot="{ result: { error, data } /*, isLoading*/ }">
+          <div v-if="data && data.user">
+            <ApolloMutation
+              :mutation="require('@/graphql/Logout.gql')"
+              :refetch-queries="() => [`currentUser`]"
+              :await-refetch-queries="true"
+            >
+              <template v-slot="{ mutate, loading /*, error*/ }">
+                <v-btn-toggle>
+                  <v-btn text to="/me">{{ data.user.name }}</v-btn>
+                  <v-btn
+                    :disabled="loading"
+                    label="Logout"
+                    @click="mutate()"
+                    color="error"
+                    outlined
+                    >Logout</v-btn
+                  >
+                </v-btn-toggle>
+              </template>
+            </ApolloMutation>
+          </div>
+        </template>
+      </ApolloQuery>
     </v-app-bar>
 
     <v-content>
@@ -48,29 +72,10 @@ import gql from "graphql-tag";
 <script lang="ts">
 import Vue from "vue";
 import Login from "@/components/Login.vue";
-import gql from "graphql-tag";
 
 export default Vue.extend({
   name: "App",
-  data: () => ({
-    userQuery: gql`
-      query currentUser {
-        user {
-          name
-        }
-      }
-    `,
-    loginQuery: gql`
-      mutation login($email: String!, $pass: String!) {
-        login(email: $email, pass: $pass)
-      }
-    `,
-    logoutQuery: gql`
-      mutation logout {
-        logout
-      }
-    `
-  }),
+  data: () => ({}),
   components: {
     Login
   }

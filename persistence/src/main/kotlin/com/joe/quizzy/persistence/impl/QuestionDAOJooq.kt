@@ -6,14 +6,14 @@ import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.QuestionsRecord
-import java.time.OffsetDateTime
-import java.util.UUID
-import java.util.stream.Stream
-import javax.inject.Inject
 import mu.KotlinLogging
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.SelectOnConditionStep
+import java.time.OffsetDateTime
+import java.util.UUID
+import java.util.stream.Stream
+import javax.inject.Inject
 
 private val log = KotlinLogging.logger { }
 
@@ -74,7 +74,7 @@ open class QuestionDAOJooq
             .where(
                 Tables.QUESTIONS.ACTIVE_AT.le(now)
                     .and(Tables.QUESTIONS.CLOSED_AT.ge(now))
-            )
+            ).orderBy(Tables.QUESTIONS.CLOSED_AT)
         log.info("active questions query: $query")
         return query.fetchInto(Question::class.java)
     }
@@ -82,18 +82,19 @@ open class QuestionDAOJooq
     override fun closed(user: User): List<Question> {
         val now = OffsetDateTime.now()
         val query = instanceQuestions(user)
-            .where(Tables.QUESTIONS.CLOSED_AT.le(now))
+            .where(Tables.QUESTIONS.CLOSED_AT.le(now)).orderBy(Tables.QUESTIONS.CLOSED_AT)
         log.info("active questions query: $query")
         return query.fetchInto(Question::class.java)
     }
 
     @Timed
     override fun all(): List<Question> {
-        return ctx.select().from(Tables.QUESTIONS).fetchInto(Question::class.java)
+        return ctx.select().from(Tables.QUESTIONS).orderBy(Tables.QUESTIONS.CLOSED_AT).fetchInto(Question::class.java)
     }
 
     @Timed
     override fun stream(): Stream<Question> {
-        return ctx.select().from(Tables.QUESTIONS).fetchSize(1000).fetchStreamInto(Question::class.java)
+        return ctx.select().from(Tables.QUESTIONS).orderBy(Tables.QUESTIONS.CLOSED_AT).fetchSize(1000)
+            .fetchStreamInto(Question::class.java)
     }
 }

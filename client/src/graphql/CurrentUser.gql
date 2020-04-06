@@ -1,0 +1,10 @@
+query currentUser {
+    user {
+      id
+      instanceId
+      email
+      name
+      admin
+      timeZoneId
+    }
+}

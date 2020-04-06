@@ -5,11 +5,12 @@ import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.UsersRecord
+import mu.KotlinLogging
+import org.jooq.DSLContext
+import org.jooq.impl.DSL
 import java.util.UUID
 import java.util.stream.Stream
 import javax.inject.Inject
-import mu.KotlinLogging
-import org.jooq.DSLContext
 
 private val log = KotlinLogging.logger { }
 
@@ -36,7 +37,9 @@ open class UserDAOJooq
 
     @Timed
     override fun getByInstance(instanceId: UUID): List<User> {
-        return ctx.selectFrom(Tables.USERS).where(Tables.USERS.INSTANCE_ID.eq(instanceId)).fetchInto(User::class.java)
+        return ctx.selectFrom(Tables.USERS).where(Tables.USERS.INSTANCE_ID.eq(instanceId))
+            .orderBy(DSL.lower(Tables.USERS.NAME))
+            .fetchInto(User::class.java)
     }
 
     @Timed
@@ -71,11 +74,12 @@ open class UserDAOJooq
 
     @Timed
     override fun all(): List<User> {
-        return ctx.select().from(Tables.USERS).fetchInto(User::class.java)
+        return ctx.select().from(Tables.USERS).orderBy(DSL.lower(Tables.USERS.NAME)).fetchInto(User::class.java)
     }
 
     @Timed
     override fun stream(): Stream<User> {
-        return ctx.select().from(Tables.USERS).fetchSize(1000).fetchStreamInto(User::class.java)
+        return ctx.select().from(Tables.USERS).orderBy(DSL.lower(Tables.USERS.NAME)).fetchSize(1000)
+            .fetchStreamInto(User::class.java)
     }
 }

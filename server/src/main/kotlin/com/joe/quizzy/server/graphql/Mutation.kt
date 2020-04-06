@@ -21,6 +21,7 @@ import javax.ws.rs.core.NewCookie
 import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
+private const val COOKIE_NAME = "x-quizzy-session"
 
 /**
  * GraphQL entry point for [Thing] mutations.   Maps the DAO interfaces to the GraphQL models.
@@ -39,30 +40,44 @@ class Mutation @Inject constructor(
             return true // if already logged in, return
         }
         val principal = userAuthenticator.authenticate(BasicCredentials(email, pass)).orElse(null)
-        val userId = if (principal is UserPrincipal) {
-            principal.user.id
-        } else {
-            null
-        }
-        if (userId != null) {
-            val newSession = sessionDAO.save(Session(null, userId, OffsetDateTime.now(), OffsetDateTime.now()))
-            context.cookie = NewCookie("x-quizzy-session", newSession.id.toString())
-            return true
+        if (principal is UserPrincipal) {
+            val userId = principal.user.id
+            if (userId != null) {
+                val newSession = sessionDAO.save(Session(null, userId, OffsetDateTime.now(), OffsetDateTime.now()))
+                context.cookie = NewCookie(
+                    COOKIE_NAME,
+                    newSession.id.toString(),
+                    null,
+                    null,
+                    1,
+                    null,
+                    -1, // expire with session
+                    null,
+                    false,
+                    true
+                )
+                return true
+            }
         }
         return false
     }
 
     fun logout(context: GraphQLResourceContext): Boolean {
-        if (context.principal != null) {
+        val principal = context.principal
+        if (principal is UserPrincipal) {
             context.cookie =
                 NewCookie(
-                    Cookie("x-quizzy-session", ""),
+                    Cookie(COOKIE_NAME, ""),
                     null,
                     -1,
-                    Date(0), // 1970
+                    Date(0), // expire 1970
                     false,
-                    false
+                    true
                 )
+            val session = principal.session
+            if (session != null) {
+                sessionDAO.delete(session)
+            }
             return true
         }
         return false

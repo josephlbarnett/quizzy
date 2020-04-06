@@ -5,11 +5,11 @@ import com.joe.quizzy.api.models.Session
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.SessionsRecord
-import mu.KotlinLogging
-import org.jooq.DSLContext
 import java.util.UUID
 import java.util.stream.Stream
 import javax.inject.Inject
+import mu.KotlinLogging
+import org.jooq.DSLContext
 
 private val log = KotlinLogging.logger { }
 
@@ -67,6 +67,10 @@ open class SessionDAOJooq
 
     @Timed
     override fun delete(thing: Session): Int {
-        return ctx.deleteFrom(Tables.SESSIONS).where(Tables.SESSIONS.ID.eq(thing.id)).execute()
+        return ctx.transactionResult { config ->
+            val query = config.dsl().deleteFrom(Tables.SESSIONS).where(Tables.SESSIONS.ID.eq(thing.id))
+            log.info("$query")
+            query.execute()
+        }
     }
 }

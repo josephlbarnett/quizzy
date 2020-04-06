@@ -1,0 +1,12 @@
+{
+  "name": "quizzy schema",
+  "schemaPath": "quizzy.graphql",
+  "extensions": {
+    "endpoints": {
+      "Remote GraphQL Endpoint": {
+        "url": "http://localhost:8081/app/graphql",
+        "introspect": true
+      }
+    }
+  }
+}
