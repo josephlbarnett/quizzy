@@ -6,14 +6,14 @@ import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.QuestionsRecord
-import mu.KotlinLogging
-import org.jooq.DSLContext
-import org.jooq.Record
-import org.jooq.SelectOnConditionStep
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.stream.Stream
 import javax.inject.Inject
+import mu.KotlinLogging
+import org.jooq.DSLContext
+import org.jooq.Record
+import org.jooq.SelectOnConditionStep
 
 private val log = KotlinLogging.logger { }
 

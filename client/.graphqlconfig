@@ -4,7 +4,7 @@
   "extensions": {
     "endpoints": {
       "Remote GraphQL Endpoint": {
-        "url": "http://localhost:8081/app/graphql",
+        "url": "https://quizzy-joe.herokuapp.com/app/graphql",
         "introspect": true
       }
     }

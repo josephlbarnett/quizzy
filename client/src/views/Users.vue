@@ -3,7 +3,7 @@
     <ApolloQuery
       :query="require('../graphql/Users.gql')"
       @result="
-        result => {
+        (result) => {
           this.users = result.users;
         }
       "
@@ -95,16 +95,16 @@ export default Vue.extend({
       {
         text: "Name",
         value: "name",
-        sortable: false
+        sortable: false,
       },
       {
         text: "Admin",
         value: "admin",
-        sortable: false
-      }
+        sortable: false,
+      },
     ],
     selection: null as object | null,
-    deleteDialog: false
+    deleteDialog: false,
   }),
   methods: {
     selected(selection: Array<object>) {
@@ -118,7 +118,7 @@ export default Vue.extend({
       item: object,
       {
         select,
-        isSelected
+        isSelected,
       }: { select: (value: boolean) => void; isSelected: boolean }
     ) {
       select(!isSelected);
@@ -132,7 +132,7 @@ export default Vue.extend({
     remove() {
       console.log(JSON.stringify(this.selection));
       this.deleteDialog = false;
-    }
-  }
+    },
+  },
 });
 </script>

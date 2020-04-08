@@ -94,6 +94,7 @@ class Mutation @Inject constructor(
     }
 
     fun response(context: GraphQLResourceContext, thing: Response): Response? {
+        if (thing.response == "ERROR") throw IllegalStateException("bad response")
         val principal = context.principal
         if (principal is UserPrincipal) {
             // only let admins set bonus // correct

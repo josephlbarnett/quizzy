@@ -1,4 +1,4 @@
-query CurrentQuestions {
+query currentQuestions {
     activeQuestions {
         id,
         authorId,
@@ -6,7 +6,9 @@ query CurrentQuestions {
         activeAt,
         closedAt,
         response {
-            id
+            id,
+            response,
+            ruleReferences
         }
     }
 }

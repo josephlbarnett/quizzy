@@ -2,14 +2,19 @@
   <div class="home">
     <ApolloQuery
       :query="require('../graphql/CurrentUser.gql')"
-      @result="result => setTZ(result.data.user.timeZoneId)"
+      @result="
+        (result) => {
+          setTZ(result.data.user.timeZoneId);
+          this.userId = result.data.user.id;
+        }
+      "
     >
       <template v-slot="{}" />
     </ApolloQuery>
     <ApolloQuery
       :query="require('../graphql/CurrentQuestions.gql')"
       @result="
-        result => {
+        (result) => {
           this.activeQuestions = result.data.activeQuestions;
         }
       "
@@ -28,6 +33,7 @@
             :headers="headers"
             item-key="id"
             no-data-text="No active questions found"
+            @click:row="clickRow"
           >
             <template v-slot:item.closedAt="{ value }">
               {{ renderDateTime(value) }}
@@ -39,6 +45,53 @@
         </v-card>
       </template>
     </ApolloQuery>
+
+    <v-dialog v-model="responseDialog">
+      <v-card>
+        <v-card-title>Question </v-card-title>
+        <ApolloMutation
+          v-if="clickedQuestion"
+          :mutation="require('../graphql/SaveResponse.gql')"
+          :refetch-queries="() => [`currentQuestions`]"
+          :await-refetch-queries="true"
+          :variables="{
+            questionId: clickedQuestion.id,
+            response: clickedResponse ? clickedResponse.response : '',
+            ruleReferences: clickedResponse
+              ? clickedResponse.ruleReferences
+              : '',
+            id: clickedResponse ? clickedResponse.id : null,
+            userId,
+          }"
+          @error="saveError = true"
+        >
+          <template v-slot="{ mutate, loading }">
+            <v-card-text>
+              {{ clickedQuestion.body }}
+              <v-text-field
+                label="Response"
+                v-model="clickedResponse.response"
+              ></v-text-field>
+              <v-text-field
+                label="Rule Reference"
+                v-model="clickedResponse.ruleReferences"
+              ></v-text-field>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn @click="responseDialog = false">CANCEL</v-btn>
+              <v-btn @click="saveResponse(mutate)" color="accent"
+                >save response</v-btn
+              >
+              <v-progress-circular :indeterminate="true" v-if="loading"
+            /></v-card-actions>
+            <v-snackbar v-model="saveError">
+              Couldn't save, try again.
+              <v-btn @click="saveError = false">OK</v-btn>
+            </v-snackbar>
+          </template>
+        </ApolloMutation>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -55,24 +108,29 @@ export default Vue.extend({
       {
         text: "Question",
         value: "body",
-        sortable: false
+        sortable: false,
       },
       {
         text: "Date",
         value: "activeAt",
-        sortable: false
+        sortable: false,
       },
       {
         text: "Respond By",
         value: "closedAt",
-        sortable: false
+        sortable: false,
       },
       {
         text: "Your Response",
         value: "response.response",
-        sortable: false
-      }
-    ]
+        sortable: false,
+      },
+    ],
+    responseDialog: false,
+    clickedQuestion: null as object | null,
+    clickedResponse: {},
+    userId: "",
+    saveError: false,
   }),
   methods: {
     renderDateTime(date: string) {
@@ -93,7 +151,16 @@ export default Vue.extend({
     },
     setTZ(tz: string) {
       this.userTZ = tz;
-    }
-  }
+    },
+    clickRow(item: { response: { response: string; ruleReferences: string } }) {
+      this.clickedQuestion = item;
+      this.clickedResponse = item.response || {};
+      this.responseDialog = true;
+    },
+    saveResponse(mutate: Function) {
+      mutate();
+      this.responseDialog = false;
+    },
+  },
 });
 </script>

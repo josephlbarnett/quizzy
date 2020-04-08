@@ -77,7 +77,7 @@ export default Vue.extend({
   name: "App",
   data: () => ({}),
   components: {
-    Login
-  }
+    Login,
+  },
 });
 </script>

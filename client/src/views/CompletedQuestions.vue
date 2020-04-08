@@ -2,14 +2,14 @@
   <div class="home">
     <ApolloQuery
       :query="require('../graphql/CurrentUser.gql')"
-      @result="result => setTZ(result.data.user.timeZoneId)"
+      @result="(result) => setTZ(result.data.user.timeZoneId)"
     >
       <template v-slot="{}" />
     </ApolloQuery>
     <ApolloQuery
       :query="require('../graphql/CompletedQuestions.gql')"
       @result="
-        result => {
+        (result) => {
           this.completedQuestions = result.data.closedQuestions;
         }
       "
@@ -21,7 +21,7 @@
         <div v-else-if="error" class="error">An error occurred</div>
         <v-card v-if="data && data.closedQuestions">
           <v-card-title>
-            Current Questions
+            Completed Questions
           </v-card-title>
           <v-data-table
             :items="data.closedQuestions"
@@ -60,34 +60,34 @@ export default Vue.extend({
       {
         text: "Question",
         value: "body",
-        sortable: false
+        sortable: false,
       },
       {
         text: "Date",
         value: "activeAt",
-        sortable: false
+        sortable: false,
       },
       {
         text: "Answer Key",
         value: "answer",
-        sortable: false
+        sortable: false,
       },
       {
         text: "Your Response",
         value: "response.response",
-        sortable: false
+        sortable: false,
       },
       {
         text: "Correct",
         value: "response.correct",
-        sortable: false
+        sortable: false,
       },
       {
         text: "Score",
         value: "response.bonus",
-        sortable: false
-      }
-    ]
+        sortable: false,
+      },
+    ],
   }),
   methods: {
     renderDate(value: string) {
@@ -102,7 +102,7 @@ export default Vue.extend({
       response: { correct: boolean | null; bonus: number };
     }) {
       if (item.response && item.response.correct === true) {
-        return 5 + item.response.bonus;
+        return 15 + item.response.bonus;
       } else if (!item.response || item.response.correct == null) {
         return "";
       } else {
@@ -111,7 +111,7 @@ export default Vue.extend({
     },
     setTZ(tz: string) {
       this.userTZ = tz;
-    }
-  }
+    },
+  },
 });
 </script>

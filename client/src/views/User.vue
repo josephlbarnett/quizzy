@@ -3,7 +3,7 @@
     <ApolloQuery
       :query="require('../graphql/CurrentUser.gql')"
       @result="
-        result => {
+        (result) => {
           this.name = result.data.user.name;
           this.setTz(result.data.user.timeZoneId);
         }
@@ -28,7 +28,7 @@
               instanceId: data.user.instanceId,
               email: data.user.email,
               admin: data.user.admin,
-              timeZoneId: timezone
+              timeZoneId: timezone,
             }"
             :refetch-queries="() => [`currentUser`]"
             :await-refetch-queries="true"
@@ -39,7 +39,7 @@
               <v-text-field
                 v-model="name"
                 label="Name"
-                @keypress="e => key(e, mutate)"
+                @keypress="(e) => key(e, mutate)"
               ></v-text-field>
               <v-autocomplete
                 :items="tzs"
@@ -78,14 +78,14 @@ export default Vue.extend({
         name: `Autodetect -- ${moment.tz.guess()} (${moment
           .tz(moment.tz.guess())
           .zoneName()})`,
-        value: "Autodetect"
-      }
+        value: "Autodetect",
+      },
     ].concat(
-      moment.tz.names().map(name => ({
+      moment.tz.names().map((name) => ({
         name: `${name} (${moment.tz(name).zoneName()})`,
-        value: name
+        value: name,
       }))
-    )
+    ),
   }),
   methods: {
     done(success: boolean) {
@@ -97,12 +97,12 @@ export default Vue.extend({
       }
     },
     setTz(tz: string) {
-      if (this.tzs.map(x => x.value).indexOf(tz) > -1) {
+      if (this.tzs.map((x) => x.value).indexOf(tz) > -1) {
         this.timezone = tz;
       } else {
         this.timezone = "Autodetect";
       }
-    }
-  }
+    },
+  },
 });
 </script>

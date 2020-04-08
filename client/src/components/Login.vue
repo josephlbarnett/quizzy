@@ -20,7 +20,7 @@
           :mutation="require('../graphql/Login.gql')"
           :variables="{
             email,
-            pass
+            pass,
           }"
           :refetch-queries="() => [`currentUser`]"
           :await-refetch-queries="true"
@@ -32,13 +32,13 @@
               <v-text-field
                 v-model="email"
                 label="Email"
-                @keypress="e => key(e, mutate)"
+                @keypress="(e) => key(e, mutate)"
               />
               <v-text-field
                 v-model="pass"
                 label="Password"
                 type="password"
-                @keypress="e => key(e, mutate)"
+                @keypress="(e) => key(e, mutate)"
               />
               <v-btn
                 :disabled="loading"
@@ -68,7 +68,7 @@ export default Vue.extend({
   data: () => ({
     email: "",
     pass: "",
-    failedLogin: false
+    failedLogin: false,
   }),
   methods: {
     clickLogin(mutate: Function) {
@@ -82,7 +82,7 @@ export default Vue.extend({
       if (key == "Enter") {
         mutate();
       }
-    }
-  }
+    },
+  },
 });
 </script>
