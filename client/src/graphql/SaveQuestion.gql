@@ -1,0 +1,21 @@
+mutation SaveQuestion(
+    $activeAt: OffsetDateTime!
+    $answer: String!
+    $authorId: UUID!
+    $body: String!
+    $closedAt: OffsetDateTime!
+    $id: UUID
+    $ruleReferences: String!
+) {
+    question(question: {
+        activeAt: $activeAt
+        answer: $answer
+        authorId: $authorId
+        body: $body
+        closedAt: $closedAt
+        id: $id
+        ruleReferences: $ruleReferences
+    }) {
+        id
+    }
+}

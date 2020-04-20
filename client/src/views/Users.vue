@@ -102,6 +102,11 @@ export default Vue.extend({
         value: "admin",
         sortable: false,
       },
+      {
+        text: "Score",
+        value: "score",
+        sortable: false,
+      },
     ],
     selection: null as object | null,
     deleteDialog: false,

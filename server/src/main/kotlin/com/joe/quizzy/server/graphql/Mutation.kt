@@ -13,12 +13,12 @@ import com.joe.quizzy.server.auth.UserAuthenticator
 import com.joe.quizzy.server.auth.UserPrincipal
 import com.trib3.graphql.resources.GraphQLResourceContext
 import io.dropwizard.auth.basic.BasicCredentials
+import mu.KotlinLogging
 import java.time.OffsetDateTime
 import java.util.Date
 import javax.inject.Inject
 import javax.ws.rs.core.Cookie
 import javax.ws.rs.core.NewCookie
-import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 private const val COOKIE_NAME = "x-quizzy-session"
@@ -83,24 +83,23 @@ class Mutation @Inject constructor(
         return false
     }
 
-    fun user(context: GraphQLResourceContext, thing: User): User? {
+    fun user(context: GraphQLResourceContext, user: User): User? {
         val principal = context.principal
         if (principal is UserPrincipal) {
-            if (principal.user.admin || principal.user.id == thing.id) {
-                return userDAO.save(thing)
+            if (principal.user.admin || principal.user.id == user.id) {
+                return userDAO.save(user)
             }
         }
         return null
     }
 
-    fun response(context: GraphQLResourceContext, thing: Response): Response? {
-        if (thing.response == "ERROR") throw IllegalStateException("bad response")
+    fun response(context: GraphQLResourceContext, response: Response): Response? {
         val principal = context.principal
         if (principal is UserPrincipal) {
             // only let admins set bonus // correct
-            if (principal.user.admin || (thing.bonus == null && thing.correct == null)) {
+            if (principal.user.admin || (response.bonus == null && response.correct == null)) {
                 return responseDAO.save(
-                    thing.copy(
+                    response.copy(
                         userId = principal.user.id!!
                     )
                 )
@@ -109,10 +108,12 @@ class Mutation @Inject constructor(
         return null
     }
 
-    fun question(context: GraphQLResourceContext, thing: Question): Question? {
+    fun question(context: GraphQLResourceContext, question: Question): Question? {
         val principal = context.principal
         if (principal is UserPrincipal) {
-            return questionDAO.save(thing)
+            if (principal.user.admin) {
+                return questionDAO.save(question)
+            }
         }
         return null
     }

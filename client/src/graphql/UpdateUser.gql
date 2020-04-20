@@ -6,7 +6,7 @@ mutation updateUser(
     $admin: Boolean!,
     $timeZoneId: String!
 ) {
-    user(thing: {
+    user(user: {
         id: $id
         instanceId: $instanceId
         email: $email

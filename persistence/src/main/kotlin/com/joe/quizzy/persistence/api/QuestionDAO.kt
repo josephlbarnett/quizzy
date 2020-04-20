@@ -15,4 +15,5 @@ interface QuestionDAO {
     fun save(thing: Question): Question
     fun active(user: User): List<Question>
     fun closed(user: User): List<Question>
+    fun future(user: User): List<Question>
 }

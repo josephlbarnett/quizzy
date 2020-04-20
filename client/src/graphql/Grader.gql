@@ -1,0 +1,18 @@
+query Grade($includeGraded: Boolean!) {
+    responses(includeGraded: $includeGraded) {
+        bonus
+        correct
+        id
+        question {
+            body
+            activeAt
+            answer
+            ruleReferences
+        }
+        response
+        ruleReferences
+        user {
+            name
+        }
+    }
+}

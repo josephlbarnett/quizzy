@@ -63,6 +63,33 @@ open class ResponseDAOJooq
         return query.fetchOneInto(Response::class.java)
     }
 
+    override fun forInstance(user: User, regrade: Boolean): List<Response> {
+        val initialQuery = ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
+            .join(Tables.USERS).on(
+                Tables.RESPONSES.USER_ID.eq(Tables.USERS.ID).and(
+                    Tables.USERS.INSTANCE_ID.eq(user.instanceId)
+                )
+            )
+            .join(Tables.QUESTIONS).on(
+                Tables.QUESTIONS.ID.eq(Tables.RESPONSES.QUESTION_ID)
+            )
+        val query = if (regrade) {
+            initialQuery
+        } else {
+            initialQuery.where(Tables.RESPONSES.CORRECT.isNull)
+        }.orderBy(Tables.QUESTIONS.CLOSED_AT.desc(), Tables.USERS.NAME)
+
+        log.info("graded query : $query")
+        return query.fetchInto(Response::class.java)
+    }
+
+    override fun forUser(userId: UUID): List<Response> {
+        val query =
+            ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES).where(Tables.RESPONSES.USER_ID.eq(userId))
+        log.info("user responses query : $query")
+        return query.fetchInto(Response::class.java)
+    }
+
     @Timed
     override fun all(): List<Response> {
         return ctx.select().from(Tables.RESPONSES).fetchInto(Response::class.java)

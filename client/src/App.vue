@@ -22,10 +22,28 @@ import gql from "graphql-tag";
               <v-btn to="/review" color="accent">
                 <span>completed questions</span>
               </v-btn>
-              <v-btn to="/write" color="accent" v-if="data.user.admin">
+              <v-btn
+                to="/write"
+                :outlined="true"
+                color="error"
+                v-if="data.user.admin"
+              >
                 <span>future questions</span>
               </v-btn>
-              <v-btn to="/users" color="accent" v-if="data.user.admin">
+              <v-btn
+                to="/grade"
+                :outlined="true"
+                color="error"
+                v-if="data.user.admin"
+              >
+                <span>grading</span>
+              </v-btn>
+              <v-btn
+                to="/users"
+                :outlined="true"
+                color="error"
+                v-if="data.user.admin"
+              >
                 <span>users</span>
               </v-btn>
             </v-btn-toggle>

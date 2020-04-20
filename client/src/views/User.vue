@@ -52,7 +52,7 @@
               <div v-if="loading">
                 <v-progress-circular :indeterminate="true" />
               </div>
-              <v-snackbar v-model="saveError"
+              <v-snackbar :top="true" v-model="saveError"
                 >An error occurred {{ error }}</v-snackbar
               >
             </template>

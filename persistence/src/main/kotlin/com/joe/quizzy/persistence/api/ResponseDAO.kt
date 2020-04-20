@@ -14,4 +14,6 @@ interface ResponseDAO {
     fun get(id: UUID): Response?
     fun save(thing: Response): Response
     fun byUserQuestion(user: User, questionId: UUID): Response?
+    fun forInstance(user: User, regrade: Boolean): List<Response>
+    fun forUser(userId: UUID): List<Response>
 }

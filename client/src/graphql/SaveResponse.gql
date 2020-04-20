@@ -1,5 +1,5 @@
 mutation SaveResponse($id: UUID, $questionId: UUID!, $response: String!, $ruleReferences: String!, $userId: UUID!) {
-    response(thing: {
+    response(response: {
         id: $id,
         questionId: $questionId
         response: $response

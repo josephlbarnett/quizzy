@@ -6,6 +6,10 @@
       "Remote GraphQL Endpoint": {
         "url": "https://quizzy-joe.herokuapp.com/app/graphql",
         "introspect": true
+      },
+      "Local GraphQL Endpoint": {
+        "url": "http://localhost:8081/app/graphql",
+        "introspect": true
       }
     }
   }

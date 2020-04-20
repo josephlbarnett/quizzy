@@ -87,6 +87,14 @@ open class QuestionDAOJooq
         return query.fetchInto(Question::class.java)
     }
 
+    override fun future(user: User): List<Question> {
+        val now = OffsetDateTime.now()
+        val query = instanceQuestions(user)
+            .where(Tables.QUESTIONS.ACTIVE_AT.gt(now)).orderBy(Tables.QUESTIONS.CLOSED_AT)
+        log.info("future questions query: $query")
+        return query.fetchInto(Question::class.java)
+    }
+
     @Timed
     override fun all(): List<Question> {
         return ctx.select().from(Tables.QUESTIONS).orderBy(Tables.QUESTIONS.CLOSED_AT).fetchInto(Question::class.java)

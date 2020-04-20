@@ -68,14 +68,14 @@
           <template v-slot="{ mutate, loading }">
             <v-card-text>
               {{ clickedQuestion.body }}
-              <v-text-field
+              <v-textarea
                 label="Response"
                 v-model="clickedResponse.response"
-              ></v-text-field>
-              <v-text-field
+              ></v-textarea>
+              <v-textarea
                 label="Rule Reference"
                 v-model="clickedResponse.ruleReferences"
-              ></v-text-field>
+              ></v-textarea>
             </v-card-text>
             <v-card-actions>
               <v-btn @click="responseDialog = false">CANCEL</v-btn>
@@ -84,7 +84,7 @@
               >
               <v-progress-circular :indeterminate="true" v-if="loading"
             /></v-card-actions>
-            <v-snackbar v-model="saveError">
+            <v-snackbar :top="true" v-model="saveError">
               Couldn't save, try again.
               <v-btn @click="saveError = false">OK</v-btn>
             </v-snackbar>

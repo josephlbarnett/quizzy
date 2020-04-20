@@ -10,10 +10,11 @@ import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.server.auth.UserPrincipal
 import com.trib3.graphql.resources.GraphQLResourceContext
+import graphql.schema.DataFetchingEnvironment
+import mu.KotlinLogging
 import java.time.OffsetDateTime
 import java.util.UUID
 import javax.inject.Inject
-import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 
@@ -29,7 +30,7 @@ data class ApiQuestion(
     val activeAt: OffsetDateTime,
     val closedAt: OffsetDateTime,
 
-    @GraphQLIgnore val responseDAO: ResponseDAO
+    @GraphQLIgnore private val responseDAO: ResponseDAO
 ) {
     constructor(question: Question, responseDAO: ResponseDAO) : this(
         question.id,
@@ -42,7 +43,7 @@ data class ApiQuestion(
         responseDAO
     )
 
-    fun response(context: GraphQLResourceContext): Response? {
+    suspend fun response(context: GraphQLResourceContext): Response? {
         val principal = context.principal
         if (principal is UserPrincipal && id != null) {
             return responseDAO.byUserQuestion(principal.user, id)
@@ -50,6 +51,91 @@ data class ApiQuestion(
         return null
     }
 }
+
+data class ApiResponse(
+    val id: UUID?,
+    val userId: UUID,
+    val questionId: UUID,
+    val response: String,
+    val ruleReferences: String,
+    val correct: Boolean?,
+    val bonus: Int?,
+
+    @GraphQLIgnore private val userDAO: UserDAO,
+    @GraphQLIgnore private val questionDAO: QuestionDAO
+) {
+    constructor(response: Response, userDAO: UserDAO, questionDAO: QuestionDAO) :
+        this(
+            response.id,
+            response.userId,
+            response.questionId,
+            response.response,
+            response.ruleReferences,
+            response.correct,
+            response.bonus,
+            userDAO,
+            questionDAO
+        )
+
+    suspend fun user(context: GraphQLResourceContext): User? {
+        val principal = context.principal
+        if (principal is UserPrincipal) {
+            return userDAO.get(userId)
+        }
+        return null
+    }
+
+    suspend fun question(context: GraphQLResourceContext): Question? {
+        val principal = context.principal
+        if (principal is UserPrincipal) {
+            return questionDAO.get(questionId)
+        }
+        return null
+    }
+}
+
+data class ApiUser(
+    val id: UUID?,
+    val instanceId: UUID,
+    val name: String,
+    val email: String,
+    val authCrypt: String?,
+    val admin: Boolean,
+    val timeZoneId: String,
+
+    @GraphQLIgnore private val responseDAO: ResponseDAO
+) {
+    constructor(
+        user: User,
+        responseDAO: ResponseDAO
+    ) : this(
+        user.id,
+        user.instanceId,
+        user.name,
+        user.email,
+        user.authCrypt,
+        user.admin,
+        user.timeZoneId,
+        responseDAO
+    )
+
+    suspend fun score(context: GraphQLResourceContext): Int {
+        val principal = context.principal
+        if (principal is UserPrincipal) {
+            if (principal.user.admin && id != null) {
+                return responseDAO.forUser(id).fold(0) { score, response ->
+                    score + if (response.correct == true) {
+                        (response.bonus ?: 0) + 15
+                    } else {
+                        0
+                    }
+                }
+            }
+        }
+        return 0
+    }
+}
+
 
 /**
  * GraphQL entry point for queries.  Maps the DAO interfaces to the GraphQL models.
@@ -68,10 +154,11 @@ class Query @Inject constructor(
         return null
     }
 
-    fun users(context: GraphQLResourceContext): List<User> {
+    fun users(context: GraphQLResourceContext, dfe: DataFetchingEnvironment): List<ApiUser> {
         val principal = context.principal
         if (principal is UserPrincipal) {
-            return userDAO.getByInstance(principal.user.instanceId)
+            log.trace("$dfe")
+            return userDAO.getByInstance(principal.user.instanceId).map { ApiUser(it, responseDAO) }
         }
         return emptyList()
     }
@@ -105,6 +192,27 @@ class Query @Inject constructor(
         if (principal is UserPrincipal) {
             return questionDAO.closed(principal.user).map {
                 ApiQuestion(it, responseDAO)
+            }
+        }
+        return emptyList()
+    }
+
+    fun futureQuestions(context: GraphQLResourceContext): List<Question> {
+        val principal = context.principal
+        if (principal is UserPrincipal) {
+            if (principal.user.admin) {
+                return questionDAO.future(principal.user)
+            }
+        }
+        return emptyList()
+    }
+
+    fun responses(context: GraphQLResourceContext, includeGraded: Boolean): List<ApiResponse> {
+        val principal = context.principal
+        if (principal is UserPrincipal) {
+            if (principal.user.admin) {
+                return responseDAO.forInstance(principal.user, includeGraded)
+                    .map { ApiResponse(it, userDAO, questionDAO) }
             }
         }
         return emptyList()

@@ -1,0 +1,11 @@
+query futureQuestions {
+    futureQuestions {
+        id,
+        authorId,
+        body,
+        activeAt,
+        closedAt,
+        answer,
+        ruleReferences
+    }
+}
