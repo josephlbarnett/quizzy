@@ -10,6 +10,7 @@ import com.joe.quizzy.server.auth.SessionAuthenticator
 import com.joe.quizzy.server.auth.UserAuthenticator
 import com.joe.quizzy.server.auth.UserAuthorizer
 import com.joe.quizzy.server.auth.UserPrincipal
+import com.joe.quizzy.server.graphql.DataLoaderRegistryFactoryProvider
 import com.joe.quizzy.server.graphql.Mutation
 import com.joe.quizzy.server.graphql.Query
 import com.trib3.graphql.modules.GraphQLApplicationModule
@@ -65,6 +66,7 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
                 listOf("/assets", "/assets/*")
             )
         )
+        dataLoaderRegistryFactoryBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()
     }
 
     @ProvidesIntoSet

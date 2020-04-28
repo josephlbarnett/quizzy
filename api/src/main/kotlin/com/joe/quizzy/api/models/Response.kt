@@ -7,7 +7,5 @@ data class Response(
     val userId: UUID,
     val questionId: UUID,
     val response: String,
-    val ruleReferences: String,
-    val correct: Boolean?,
-    val bonus: Int?
+    val ruleReferences: String
 )

@@ -11,8 +11,11 @@ query CompletedQuestions {
             id
             response,
             ruleReferences,
-            correct,
-            bonus
+            grade {
+                id,
+                correct,
+                bonus
+            }
         }
     }
 }

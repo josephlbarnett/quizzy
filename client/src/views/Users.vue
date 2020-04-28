@@ -1,7 +1,9 @@
 <template>
   <div class="users">
+    <!-- fetch-policy=cache-and-network so that updated grades get picked up and bypass graphql cache -->
     <ApolloQuery
       :query="require('../graphql/Users.gql')"
+      fetch-policy="cache-and-network"
       @result="
         (result) => {
           this.users = result.users;
@@ -129,13 +131,12 @@ export default Vue.extend({
       select(!isSelected);
     },
     promote() {
-      alert(JSON.stringify(this.selection));
+      // TODO: implement
     },
     demote() {
-      alert(JSON.stringify(this.selection));
+      // TODO: implement
     },
     remove() {
-      console.log(JSON.stringify(this.selection));
       this.deleteDialog = false;
     },
   },

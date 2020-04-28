@@ -1,10 +1,12 @@
 package com.joe.quizzy.server.graphql
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
+import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.Session
 import com.joe.quizzy.api.models.User
+import com.joe.quizzy.persistence.api.GradeDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
@@ -31,6 +33,7 @@ class Mutation @Inject constructor(
     private val sessionDAO: SessionDAO,
     private val userDAO: UserDAO,
     private val responseDAO: ResponseDAO,
+    private val gradeDAO: GradeDAO,
     private val userAuthenticator: UserAuthenticator
 ) : GraphQLQueryResolver {
 
@@ -96,13 +99,20 @@ class Mutation @Inject constructor(
     fun response(context: GraphQLResourceContext, response: Response): Response? {
         val principal = context.principal
         if (principal is UserPrincipal) {
-            // only let admins set bonus // correct
-            if (principal.user.admin || (response.bonus == null && response.correct == null)) {
-                return responseDAO.save(
-                    response.copy(
-                        userId = principal.user.id!!
-                    )
+            return responseDAO.save(
+                response.copy(
+                    userId = principal.user.id!!
                 )
+            )
+        }
+        return null
+    }
+
+    fun grade(context: GraphQLResourceContext, grade: Grade): Grade? {
+        val principal = context.principal
+        if (principal is UserPrincipal) {
+            if (principal.user.admin) {
+                return gradeDAO.save(grade)
             }
         }
         return null

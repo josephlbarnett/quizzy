@@ -1,7 +1,10 @@
-query Grade($includeGraded: Boolean!) {
+query Grader($includeGraded: Boolean!) {
     responses(includeGraded: $includeGraded) {
-        bonus
-        correct
+        grade {
+            id
+            bonus
+            correct
+        }
         id
         question {
             body
@@ -13,6 +16,7 @@ query Grade($includeGraded: Boolean!) {
         ruleReferences
         user {
             name
+            email
         }
     }
 }

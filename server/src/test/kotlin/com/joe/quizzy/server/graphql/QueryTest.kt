@@ -39,7 +39,7 @@ class QueryTest {
             User(uUUID, iUUID, "billy", "billy@gmail.com", "", false, "UTC")
         )
         EasyMock.expect(rDAO.get(EasyMock.anyObject() ?: UUID.randomUUID())).andReturn(
-            Response(rUUID, uUUID, qUUID, "response", "responseRefs", true, 5)
+            Response(rUUID, uUUID, qUUID, "response", "responseRefs")
         )
         EasyMock.replay(qDAO, uDAO, sDAO, rDAO)
 //        val query = Query(qDAO, uDAO, rDAO)

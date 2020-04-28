@@ -1,9 +1,11 @@
 package com.joe.quizzy.persistence.modules
 
+import com.joe.quizzy.persistence.api.GradeDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
+import com.joe.quizzy.persistence.impl.GradeDAOJooq
 import com.joe.quizzy.persistence.impl.QuestionDAOJooq
 import com.joe.quizzy.persistence.impl.ResponseDAOJooq
 import com.joe.quizzy.persistence.impl.SessionDAOJooq
@@ -26,5 +28,6 @@ class QuizzyPersistenceModule : KotlinModule() {
         bind<ResponseDAO>().to<ResponseDAOJooq>()
         bind<SessionDAO>().to<SessionDAOJooq>()
         bind<UserDAO>().to<UserDAOJooq>()
+        bind<GradeDAO>().to<GradeDAOJooq>()
     }
 }

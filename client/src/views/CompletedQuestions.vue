@@ -27,17 +27,17 @@
             :items="data.closedQuestions"
             :headers="headers"
             item-key="id"
-            no-data-text="No active questions found"
+            no-data-text="No completed questions found"
           >
             <template v-slot:item.activeAt="{ value }">
               {{ renderDate(value) }}
             </template>
-            <template v-slot:item.response.correct="{ value }">
+            <template v-slot:item.response.grade.correct="{ value }">
               {{
                 value === true ? "YES" : value === false ? "NO" : "NOT GRADED"
               }}
             </template>
-            <template v-slot:item.response.bonus="{ item }">
+            <template v-slot:item.response.grade.bonus="{ item }">
               {{ renderScore(item) }}
             </template>
           </v-data-table>
@@ -79,12 +79,12 @@ export default Vue.extend({
       },
       {
         text: "Correct",
-        value: "response.correct",
+        value: "response.grade.correct",
         sortable: false,
       },
       {
         text: "Score",
-        value: "response.bonus",
+        value: "response.grade.bonus",
         sortable: false,
       },
     ],
@@ -99,11 +99,19 @@ export default Vue.extend({
       return zonedMoment.format("ddd, MMM D YYYY");
     },
     renderScore(item: {
-      response: { correct: boolean | null; bonus: number };
+      response: { grade: { correct: boolean | null; bonus: number } };
     }) {
-      if (item.response && item.response.correct === true) {
-        return 15 + item.response.bonus;
-      } else if (!item.response || item.response.correct == null) {
+      if (
+        item.response &&
+        item.response.grade &&
+        item.response.grade.correct === true
+      ) {
+        return 15 + item.response.grade.bonus;
+      } else if (
+        !item.response ||
+        !item.response.grade ||
+        item.response.grade.correct == null
+      ) {
         return "";
       } else {
         return 0;

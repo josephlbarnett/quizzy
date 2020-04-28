@@ -38,65 +38,105 @@
             <template v-slot:item.question.activeAt="{ value }">
               {{ renderDate(value) }}
             </template>
-            <template v-slot:item.correct="{ value }">
+            <template v-slot:item.grade.correct="{ value }">
               {{
                 value === true ? "YES" : value === false ? "NO" : "NOT GRADED"
               }}
             </template>
-            <template v-slot:item.bonus="{ item }">
+            <template v-slot:item.grade.bonus="{ item }">
               {{ renderScore(item) }}
             </template>
           </v-data-table>
         </v-card>
       </template>
     </ApolloQuery>
+    <v-dialog v-model="gradeDialog" v-if="clickedResponse">
+      <v-card>
+        <ApolloMutation
+          :refetch-queries="() => [`Grader`, `CompletedQuestions`, `Users`]"
+          :mutation="require('../graphql/Grade.gql')"
+          :variables="{
+            responseId: clickedResponse.id,
+            bonus: clickedResponse.bonus || null,
+            correct:
+              clickedResponse.correct === 'correct'
+                ? true
+                : clickedResponse.correct === 'incorrect'
+                ? false
+                : null,
+            id: clickedResponse.gradeId,
+          }"
+          :await-refetch-queries="true"
+          @error="saveError = true"
+          @done="gradeDialog = false"
+        >
+          <template v-slot="{ mutate, loading }">
+            <v-card-title
+              >Grade Response:
+              {{ renderDate(clickedResponse.question.activeAt) }}</v-card-title
+            >
+            <v-card-text>
+              <div>{{ clickedResponse.question.body }}</div>
+              <v-row>
+                <v-col cols="6">
+                  <v-textarea
+                    :readonly="true"
+                    v-model="clickedResponse.response"
+                    :label="clickedResponse.user.name + '\'s Response'"
+                  />
+                </v-col>
+                <v-col cols="6">
+                  <v-textarea
+                    :disabled="true"
+                    v-model="clickedResponse.question.answer"
+                    label="Answer Key"
+                  />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="6">
+                  <v-textarea
+                    :readonly="true"
+                    v-model="clickedResponse.ruleReferences"
+                    :label="clickedResponse.user.name + '\'s Rule References'"
+                  />
+                </v-col>
+                <v-col cols="6">
+                  <v-textarea
+                    :disabled="true"
+                    v-model="clickedResponse.question.ruleReferences"
+                    label="Answer Key Rule References"
+                  />
+                </v-col>
+              </v-row>
+              <a :href="`mailto:${mailToLink(clickedResponse)}`">
+                Email {{ clickedResponse.user.name }}
+              </a>
+              <v-radio-group v-model="clickedResponse.correct">
+                <v-radio label="Ungraded" value="ungraded" />
+                <v-radio label="Correct" value="correct" />
+                <v-radio label="Incorrect" value="incorrect" />
+              </v-radio-group>
 
-    <!--    <v-dialog v-model="responseDialog">-->
-    <!--      <v-card>-->
-    <!--        <v-card-title>Question </v-card-title>-->
-    <!--        <ApolloMutation-->
-    <!--          v-if="clickedQuestion"-->
-    <!--          :mutation="require('../graphql/SaveResponse.gql')"-->
-    <!--          :refetch-queries="() => [`currentQuestions`]"-->
-    <!--          :await-refetch-queries="true"-->
-    <!--          :variables="{-->
-    <!--            questionId: clickedQuestion.id,-->
-    <!--            response: clickedResponse ? clickedResponse.response : '',-->
-    <!--            ruleReferences: clickedResponse-->
-    <!--              ? clickedResponse.ruleReferences-->
-    <!--              : '',-->
-    <!--            id: clickedResponse ? clickedResponse.id : null,-->
-    <!--            userId,-->
-    <!--          }"-->
-    <!--          @error="saveError = true"-->
-    <!--        >-->
-    <!--          <template v-slot="{ mutate, loading }">-->
-    <!--            <v-card-text>-->
-    <!--              {{ clickedQuestion.body }}-->
-    <!--              <v-text-field-->
-    <!--                label="Response"-->
-    <!--                v-model="clickedResponse.response"-->
-    <!--              ></v-text-field>-->
-    <!--              <v-text-field-->
-    <!--                label="Rule Reference"-->
-    <!--                v-model="clickedResponse.ruleReferences"-->
-    <!--              ></v-text-field>-->
-    <!--            </v-card-text>-->
-    <!--            <v-card-actions>-->
-    <!--              <v-btn @click="responseDialog = false">CANCEL</v-btn>-->
-    <!--              <v-btn @click="saveResponse(mutate)" color="accent"-->
-    <!--                >save response</v-btn-->
-    <!--              >-->
-    <!--              <v-progress-circular :indeterminate="true" v-if="loading"-->
-    <!--            /></v-card-actions>-->
-    <!--            <v-snackbar :top="true" v-model="saveError">-->
-    <!--              Couldn't save, try again.-->
-    <!--              <v-btn @click="saveError = false">OK</v-btn>-->
-    <!--            </v-snackbar>-->
-    <!--          </template>-->
-    <!--        </ApolloMutation>-->
-    <!--      </v-card>-->
-    <!--    </v-dialog>-->
+              <v-text-field
+                type="number"
+                v-model.number="clickedResponse.bonus"
+                label="Bonus points"
+              />
+            </v-card-text>
+            <v-card-actions>
+              <v-btn @click="gradeDialog = false">CANCEL</v-btn>
+              <v-btn color="accent" @click="mutate()">GRADE</v-btn>
+              <v-progress-circular :indeterminate="true" v-if="loading" />
+            </v-card-actions>
+            <v-snackbar :top="true" v-model="saveError">
+              Couldn't save, try again.
+              <v-btn @click="saveError = false">OK</v-btn>
+            </v-snackbar>
+          </template>
+        </ApolloMutation>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -131,21 +171,20 @@ export default Vue.extend({
       },
       {
         text: "Correct",
-        value: "correct",
+        value: "grade.correct",
         sortable: false,
       },
       {
         text: "Score",
-        value: "bonus",
+        value: "grade.bonus",
         sortable: false,
       },
     ],
-    gradeDialog: false,
-    clickedQuestion: null as object | null,
-    clickedResponse: {},
     userId: "",
     saveError: false,
     hideGraded: true,
+    gradeDialog: false,
+    clickedResponse: null as {} | null,
   }),
   methods: {
     renderDateTime(date: string) {
@@ -167,23 +206,77 @@ export default Vue.extend({
     setTZ(tz: string) {
       this.userTZ = tz;
     },
-    clickRow(item: { response: { response: string; ruleReferences: string } }) {
-      this.clickedQuestion = item;
-      this.clickedResponse = item.response || {};
+    clickRow(item: {
+      grade: {
+        id: string | null;
+        correct: boolean | null;
+        bonus: number | null;
+      } | null;
+      question: {
+        body: string;
+        activeAt: string;
+        answer: string;
+        ruleReferences: string;
+      };
+      user: { name: string; email: string };
+      response: string;
+      ruleReferences: string;
+      id: string;
+    }) {
+      const clickedResponse = {
+        bonus: item.grade && item.grade.bonus,
+        correct:
+          item.grade === null || item.grade.correct === null
+            ? "ungraded"
+            : item.grade.correct
+            ? "correct"
+            : "incorrect",
+        question: Object.assign({}, item.question),
+        user: Object.assign({}, item.user),
+        id: item.id,
+        response: item.response,
+        ruleReferences: item.ruleReferences,
+        gradeId: item.grade && item.grade.id,
+      };
+      this.clickedResponse = clickedResponse;
       this.gradeDialog = true;
     },
     saveResponse(mutate: Function) {
       mutate();
       this.gradeDialog = false;
     },
-    renderScore(item: { correct: boolean | null; bonus: number }) {
-      if (item && item.correct === true) {
-        return 15 + item.bonus;
-      } else if (!item || item.correct == null) {
+    renderScore(item: {
+      grade: { correct: boolean | null; bonus: number } | null;
+    }) {
+      if (item && item.grade && item.grade.correct === true) {
+        return 15 + item.grade.bonus;
+      } else if (!item || !item.grade || item.grade.correct == null) {
         return "";
       } else {
         return 0;
       }
+    },
+    mailToLink(clickedResponse: {
+      user: { name: string; email: string };
+      question: {
+        body: string;
+        activeAt: string;
+        answer: string;
+        ruleReferences: string;
+      };
+      response: string;
+      ruleReferences: string;
+    }) {
+      const subject = encodeURIComponent(
+        `Re: ${this.renderDate(clickedResponse.question.activeAt)} Question`
+      );
+      const quotedResponse =
+        "> " + clickedResponse.response.replace(/(?:\r\n|\r|\n)/g, "\n> ");
+      const quotedRuleRefs =
+        "> " +
+        clickedResponse.ruleReferences.replace(/(?:\r\n|\r|\n)/g, "\n> ");
+      const body = encodeURIComponent(`${quotedResponse}\n` + quotedRuleRefs);
+      return `${clickedResponse.user.email}?subject=${subject}&body=${body}`;
     },
   },
 });

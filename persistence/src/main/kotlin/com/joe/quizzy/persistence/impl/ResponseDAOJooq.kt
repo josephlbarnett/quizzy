@@ -76,7 +76,9 @@ open class ResponseDAOJooq
         val query = if (regrade) {
             initialQuery
         } else {
-            initialQuery.where(Tables.RESPONSES.CORRECT.isNull)
+            initialQuery.leftJoin(Tables.GRADES).on(
+                Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID)
+            ).where(Tables.GRADES.CORRECT.isNull)
         }.orderBy(Tables.QUESTIONS.CLOSED_AT.desc(), Tables.USERS.NAME)
 
         log.info("graded query : $query")

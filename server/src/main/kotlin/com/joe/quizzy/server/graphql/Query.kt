@@ -2,24 +2,37 @@ package com.joe.quizzy.server.graphql
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
+import com.joe.quizzy.persistence.api.GradeDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.server.auth.UserPrincipal
+import com.trib3.graphql.modules.DataLoaderRegistryFactory
 import com.trib3.graphql.resources.GraphQLResourceContext
 import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.future.future
+import kotlinx.coroutines.slf4j.MDCContext
 import mu.KotlinLogging
+import org.dataloader.BatchLoader
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderRegistry
 import java.time.OffsetDateTime
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 import javax.inject.Inject
+import javax.inject.Provider
 
 private val log = KotlinLogging.logger {}
 
 /**
- * like a [Question] but can fetch current user's responses
+ * like a [Question] but can fetch current [User]'s [Response]s
  */
 data class ApiQuestion(
     val id: UUID?,
@@ -30,9 +43,18 @@ data class ApiQuestion(
     val activeAt: OffsetDateTime,
     val closedAt: OffsetDateTime,
 
-    @GraphQLIgnore private val responseDAO: ResponseDAO
+    @GraphQLIgnore private val responseDAO: ResponseDAO,
+    @GraphQLIgnore private val userDAO: UserDAO,
+    @GraphQLIgnore private val questionDAO: QuestionDAO,
+    @GraphQLIgnore private val gradeDAO: GradeDAO
 ) {
-    constructor(question: Question, responseDAO: ResponseDAO) : this(
+    constructor(
+        question: Question,
+        responseDAO: ResponseDAO,
+        userDAO: UserDAO,
+        questionDAO: QuestionDAO,
+        gradeDAO: GradeDAO
+    ) : this(
         question.id,
         question.authorId,
         question.body,
@@ -40,41 +62,47 @@ data class ApiQuestion(
         question.ruleReferences,
         question.activeAt,
         question.closedAt,
-        responseDAO
+        responseDAO,
+        userDAO,
+        questionDAO,
+        gradeDAO
     )
 
-    suspend fun response(context: GraphQLResourceContext): Response? {
+    suspend fun response(context: GraphQLResourceContext): ApiResponse? {
         val principal = context.principal
         if (principal is UserPrincipal && id != null) {
-            return responseDAO.byUserQuestion(principal.user, id)
+            return responseDAO.byUserQuestion(principal.user, id)?.let {
+                ApiResponse(it, userDAO, questionDAO, gradeDAO)
+            }
         }
         return null
     }
 }
 
+/**
+ * Like a [Response] but can dynamically fetch the associated [User]/[Question]/[Grade]
+ */
 data class ApiResponse(
     val id: UUID?,
     val userId: UUID,
     val questionId: UUID,
     val response: String,
     val ruleReferences: String,
-    val correct: Boolean?,
-    val bonus: Int?,
 
     @GraphQLIgnore private val userDAO: UserDAO,
-    @GraphQLIgnore private val questionDAO: QuestionDAO
+    @GraphQLIgnore private val questionDAO: QuestionDAO,
+    @GraphQLIgnore private val gradeDAO: GradeDAO
 ) {
-    constructor(response: Response, userDAO: UserDAO, questionDAO: QuestionDAO) :
+    constructor(response: Response, userDAO: UserDAO, questionDAO: QuestionDAO, gradeDAO: GradeDAO) :
         this(
             response.id,
             response.userId,
             response.questionId,
             response.response,
             response.ruleReferences,
-            response.correct,
-            response.bonus,
             userDAO,
-            questionDAO
+            questionDAO,
+            gradeDAO
         )
 
     suspend fun user(context: GraphQLResourceContext): User? {
@@ -92,8 +120,19 @@ data class ApiResponse(
         }
         return null
     }
+
+    suspend fun grade(context: GraphQLResourceContext): Grade? {
+        val principal = context.principal
+        if (principal is UserPrincipal && id != null) {
+            return gradeDAO.forResponse(id)
+        }
+        return null
+    }
 }
 
+/**
+ * Like a [User] but can dynamically calculate the overall score of [Response]s
+ */
 data class ApiUser(
     val id: UUID?,
     val instanceId: UUID,
@@ -102,12 +141,11 @@ data class ApiUser(
     val authCrypt: String?,
     val admin: Boolean,
     val timeZoneId: String,
-
-    @GraphQLIgnore private val responseDAO: ResponseDAO
+    val score: Int
 ) {
     constructor(
         user: User,
-        responseDAO: ResponseDAO
+        score: Int
     ) : this(
         user.id,
         user.instanceId,
@@ -116,26 +154,39 @@ data class ApiUser(
         user.authCrypt,
         user.admin,
         user.timeZoneId,
-        responseDAO
+        score
     )
+}
 
-    suspend fun score(context: GraphQLResourceContext): Int {
-        val principal = context.principal
-        if (principal is UserPrincipal) {
-            if (principal.user.admin && id != null) {
-                return responseDAO.forUser(id).fold(0) { score, response ->
-                    score + if (response.correct == true) {
-                        (response.bonus ?: 0) + 15
+class ApiUserLoader(val gradeDAO: GradeDAO) : BatchLoader<User, ApiUser> {
+    override fun load(users: List<User>): CompletionStage<List<ApiUser>> {
+        return CoroutineScope(Dispatchers.IO + MDCContext()).future {
+            val lookup = gradeDAO.forUsers(users.map { it.id!! })
+            users.map { user ->
+                ApiUser(user, lookup[user.id]?.fold(0) { acc, grade ->
+                    acc + if (grade.correct == true) {
+                        15 + (grade.bonus ?: 0)
                     } else {
                         0
                     }
-                }
+                } ?: 0)
             }
         }
-        return 0
     }
+
 }
 
+class DataLoaderRegistryFactoryProvider @Inject constructor(
+    val gradeDAO: GradeDAO
+) : Provider<DataLoaderRegistryFactory> {
+    override fun get(): DataLoaderRegistryFactory {
+        return { _, _ ->
+            val registry = DataLoaderRegistry()
+            registry.register("usergrades", DataLoader.newDataLoader(ApiUserLoader(gradeDAO)))
+            registry
+        }
+    }
+}
 
 /**
  * GraphQL entry point for queries.  Maps the DAO interfaces to the GraphQL models.
@@ -143,7 +194,8 @@ data class ApiUser(
 class Query @Inject constructor(
     private val questionDAO: QuestionDAO,
     private val userDAO: UserDAO,
-    private val responseDAO: ResponseDAO
+    private val responseDAO: ResponseDAO,
+    private val gradeDAO: GradeDAO
 ) : GraphQLQueryResolver {
 
     fun user(context: GraphQLResourceContext): User? {
@@ -154,18 +206,22 @@ class Query @Inject constructor(
         return null
     }
 
-    fun users(context: GraphQLResourceContext, dfe: DataFetchingEnvironment): List<ApiUser> {
+    fun users(
+        context: GraphQLResourceContext,
+        dfe: DataFetchingEnvironment
+    ): CompletableFuture<List<ApiUser>> {
         val principal = context.principal
         if (principal is UserPrincipal) {
-            log.trace("$dfe")
-            return userDAO.getByInstance(principal.user.instanceId).map { ApiUser(it, responseDAO) }
+            val users = userDAO.getByInstance(principal.user.instanceId)
+            return if (dfe.selectionSet.arguments.containsKey("score")) {
+                val futureUsers = dfe.getDataLoader<User, ApiUser>("usergrades").loadMany(users)
+                // dfe.dataLoaderRegistry.dispatchAll()
+                futureUsers// .await()
+            } else {
+                CompletableFuture.completedFuture(users.map { ApiUser(it, 0) })
+            }
         }
-        return emptyList()
-    }
-
-    fun response(context: GraphQLResourceContext, question: UUID): Response? {
-        log.info("$context")
-        return responseDAO.get(question)
+        return CompletableFuture.completedFuture(emptyList<ApiUser>())
     }
 
     fun activeQuestions(context: GraphQLResourceContext): List<ApiQuestion> {
@@ -180,7 +236,10 @@ class Query @Inject constructor(
                     ruleReferences = "",
                     activeAt = it.activeAt,
                     closedAt = it.closedAt,
-                    responseDAO = responseDAO
+                    responseDAO = responseDAO,
+                    userDAO = userDAO,
+                    questionDAO = questionDAO,
+                    gradeDAO = gradeDAO
                 )
             }
         }
@@ -191,7 +250,7 @@ class Query @Inject constructor(
         val principal = context.principal
         if (principal is UserPrincipal) {
             return questionDAO.closed(principal.user).map {
-                ApiQuestion(it, responseDAO)
+                ApiQuestion(it, responseDAO, userDAO, questionDAO, gradeDAO)
             }
         }
         return emptyList()
@@ -212,7 +271,7 @@ class Query @Inject constructor(
         if (principal is UserPrincipal) {
             if (principal.user.admin) {
                 return responseDAO.forInstance(principal.user, includeGraded)
-                    .map { ApiResponse(it, userDAO, questionDAO) }
+                    .map { ApiResponse(it, userDAO, questionDAO, gradeDAO) }
             }
         }
         return emptyList()

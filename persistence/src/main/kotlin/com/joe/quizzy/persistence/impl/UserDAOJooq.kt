@@ -37,8 +37,10 @@ open class UserDAOJooq
 
     @Timed
     override fun getByInstance(instanceId: UUID): List<User> {
-        return ctx.selectFrom(Tables.USERS).where(Tables.USERS.INSTANCE_ID.eq(instanceId))
+        val query = ctx.selectFrom(Tables.USERS).where(Tables.USERS.INSTANCE_ID.eq(instanceId))
             .orderBy(DSL.lower(Tables.USERS.NAME))
+        log.info("get users by instance: $query")
+        return query
             .fetchInto(User::class.java)
     }
 

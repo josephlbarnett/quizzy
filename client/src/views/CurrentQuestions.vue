@@ -64,6 +64,7 @@
             userId,
           }"
           @error="saveError = true"
+          @done="responseDialog = false"
         >
           <template v-slot="{ mutate, loading }">
             <v-card-text>
@@ -153,13 +154,12 @@ export default Vue.extend({
       this.userTZ = tz;
     },
     clickRow(item: { response: { response: string; ruleReferences: string } }) {
-      this.clickedQuestion = item;
-      this.clickedResponse = item.response || {};
+      this.clickedQuestion = Object.assign({}, item);
+      this.clickedResponse = Object.assign({}, item.response);
       this.responseDialog = true;
     },
     saveResponse(mutate: Function) {
       mutate();
-      this.responseDialog = false;
     },
   },
 });
