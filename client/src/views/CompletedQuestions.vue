@@ -33,12 +33,12 @@
               {{ renderDate(value) }}
             </template>
             <template v-slot:item.response.grade.correct="{ value }">
-              {{
-                value === true ? "YES" : value === false ? "NO" : "NOT GRADED"
-              }}
-            </template>
-            <template v-slot:item.response.grade.bonus="{ item }">
-              {{ renderScore(item) }}
+              <v-icon v-if="value === true" color="green darken-2"
+                >mdi-check-circle</v-icon
+              >
+              <v-icon v-if="value === false" color="red darken-2"
+                >mdi-close-circle</v-icon
+              >
             </template>
           </v-data-table>
         </v-card>
@@ -58,13 +58,13 @@ export default Vue.extend({
     completedQuestions: [],
     headers: [
       {
-        text: "Question",
-        value: "body",
+        text: "Date",
+        value: "activeAt",
         sortable: false,
       },
       {
-        text: "Date",
-        value: "activeAt",
+        text: "Question",
+        value: "body",
         sortable: false,
       },
       {
@@ -84,7 +84,7 @@ export default Vue.extend({
       },
       {
         text: "Score",
-        value: "response.grade.bonus",
+        value: "response.grade.score",
         sortable: false,
       },
     ],
@@ -97,25 +97,6 @@ export default Vue.extend({
           : moment.tz.guess();
       const zonedMoment = moment.tz(value, browserTZ);
       return zonedMoment.format("ddd, MMM D YYYY");
-    },
-    renderScore(item: {
-      response: { grade: { correct: boolean | null; bonus: number } };
-    }) {
-      if (
-        item.response &&
-        item.response.grade &&
-        item.response.grade.correct === true
-      ) {
-        return 15 + item.response.grade.bonus;
-      } else if (
-        !item.response ||
-        !item.response.grade ||
-        item.response.grade.correct == null
-      ) {
-        return "";
-      } else {
-        return 0;
-      }
     },
     setTZ(tz: string) {
       this.userTZ = tz;

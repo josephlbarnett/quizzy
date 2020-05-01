@@ -39,12 +39,12 @@
               {{ renderDate(value) }}
             </template>
             <template v-slot:item.grade.correct="{ value }">
-              {{
-                value === true ? "YES" : value === false ? "NO" : "NOT GRADED"
-              }}
-            </template>
-            <template v-slot:item.grade.bonus="{ item }">
-              {{ renderScore(item) }}
+              <v-icon v-if="value === true" color="green darken-2"
+                >mdi-check-circle</v-icon
+              >
+              <v-icon v-if="value === false" color="red darken-2"
+                >mdi-close-circle</v-icon
+              >
             </template>
           </v-data-table>
         </v-card>
@@ -176,7 +176,7 @@ export default Vue.extend({
       },
       {
         text: "Score",
-        value: "grade.bonus",
+        value: "grade.score",
         sortable: false,
       },
     ],
@@ -245,16 +245,9 @@ export default Vue.extend({
       mutate();
       this.gradeDialog = false;
     },
-    renderScore(item: {
-      grade: { correct: boolean | null; bonus: number } | null;
-    }) {
-      if (item && item.grade && item.grade.correct === true) {
-        return 15 + item.grade.bonus;
-      } else if (!item || !item.grade || item.grade.correct == null) {
-        return "";
-      } else {
-        return 0;
-      }
+    color(value: boolean) {
+      alert(value);
+      return value ? "green" : "red";
     },
     mailToLink(clickedResponse: {
       user: { name: string; email: string };

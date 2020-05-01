@@ -164,11 +164,7 @@ class ApiUserLoader(val gradeDAO: GradeDAO) : BatchLoader<User, ApiUser> {
             val lookup = gradeDAO.forUsers(users.map { it.id!! })
             users.map { user ->
                 ApiUser(user, lookup[user.id]?.fold(0) { acc, grade ->
-                    acc + if (grade.correct == true) {
-                        15 + (grade.bonus ?: 0)
-                    } else {
-                        0
-                    }
+                    acc + grade.score()
                 } ?: 0)
             }
         }
@@ -214,9 +210,7 @@ class Query @Inject constructor(
         if (principal is UserPrincipal) {
             val users = userDAO.getByInstance(principal.user.instanceId)
             return if (dfe.selectionSet.arguments.containsKey("score")) {
-                val futureUsers = dfe.getDataLoader<User, ApiUser>("usergrades").loadMany(users)
-                // dfe.dataLoaderRegistry.dispatchAll()
-                futureUsers// .await()
+                dfe.getDataLoader<User, ApiUser>("usergrades").loadMany(users)
             } else {
                 CompletableFuture.completedFuture(users.map { ApiUser(it, 0) })
             }

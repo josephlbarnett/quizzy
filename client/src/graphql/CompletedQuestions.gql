@@ -14,7 +14,8 @@ query CompletedQuestions {
             grade {
                 id,
                 correct,
-                bonus
+                bonus,
+                score
             }
         }
     }

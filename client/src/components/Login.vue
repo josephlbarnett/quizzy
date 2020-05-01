@@ -43,7 +43,7 @@
               <v-btn
                 :disabled="loading"
                 label="Login"
-                block="true"
+                :block="true"
                 color="accent"
                 @click="clickLogin(mutate)"
                 >Login</v-btn

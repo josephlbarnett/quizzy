@@ -115,7 +115,7 @@
                         <template v-slot="{ result: { data } }">
                           <v-autocomplete
                             v-model="addDialogAuthor"
-                            :items="data.users"
+                            :items="data && data.users"
                             item-value="id"
                             item-text="name"
                           />

@@ -107,11 +107,6 @@ export default Vue.extend({
     activeQuestions: [],
     headers: [
       {
-        text: "Question",
-        value: "body",
-        sortable: false,
-      },
-      {
         text: "Date",
         value: "activeAt",
         sortable: false,
@@ -119,6 +114,11 @@ export default Vue.extend({
       {
         text: "Respond By",
         value: "closedAt",
+        sortable: false,
+      },
+      {
+        text: "Question",
+        value: "body",
         sortable: false,
       },
       {

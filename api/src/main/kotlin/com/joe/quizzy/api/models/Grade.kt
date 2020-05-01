@@ -7,4 +7,12 @@ data class Grade(
     val responseId: UUID,
     val correct: Boolean?,
     val bonus: Int?
-)
+) {
+    fun score(): Int {
+        return if (correct == true) {
+            15 + (bonus ?: 0)
+        } else {
+            0
+        }
+    }
+}

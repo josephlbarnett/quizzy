@@ -4,6 +4,7 @@ query Grader($includeGraded: Boolean!) {
             id
             bonus
             correct
+            score
         }
         id
         question {

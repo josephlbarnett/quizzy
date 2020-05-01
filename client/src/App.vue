@@ -68,7 +68,7 @@ import gql from "graphql-tag";
                   <v-btn
                     :disabled="loading"
                     label="Logout"
-                    @click="mutate()"
+                    @click="doLogout(mutate)"
                     color="error"
                     outlined
                     >Logout</v-btn
@@ -96,6 +96,12 @@ export default Vue.extend({
   data: () => ({}),
   components: {
     Login,
+  },
+  methods: {
+    doLogout(mutate: Function) {
+      this.$apollo.getClient().resetStore();
+      mutate();
+    },
   },
 });
 </script>
