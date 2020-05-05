@@ -159,13 +159,16 @@
                       ruleReferences: addDialogRuleReferences,
                     }"
                   >
-                    <template v-slot="{ mutate, loading, error }">
+                    <template v-slot="{ mutate, loading }">
                       <v-btn color="accent" @click="mutate()">ADD</v-btn>
                       <div v-if="loading">
                         <v-progress-circular :indeterminate="true" />
                       </div>
-                      <v-snackbar :top="true" v-model="addDialogError"
-                        >An error occurred {{ error }}</v-snackbar
+                      <v-snackbar v-model="addDialogError" color="error"
+                        >Could not add question, try again.
+                        <v-btn @click="addDialogError = false"
+                          >OK</v-btn
+                        ></v-snackbar
                       >
                     </template>
                   </ApolloMutation>

@@ -18,21 +18,21 @@
       }"
     >
       <template v-slot="{ result: { error, data }, isLoading }">
+        <div v-if="isLoading">
+          <v-progress-circular :indeterminate="true" />
+        </div>
+        <div v-else-if="error" class="error">An error occurred</div>
         <v-card v-if="data && data.responses">
           <v-card-title>
             Responses to grade
             <v-spacer />
             <v-checkbox v-model="hideGraded" />Hide graded responses
           </v-card-title>
-          <div v-if="isLoading">
-            <v-progress-circular :indeterminate="true" />
-          </div>
-          <div v-else-if="error" class="error">An error occurred</div>
           <v-data-table
             :items="data.responses"
             :headers="headers"
             item-key="id"
-            no-data-text="No responses  to grade found"
+            no-data-text="No responses to grade found"
             @click:row="clickRow"
           >
             <template v-slot:item.question.activeAt="{ value }">
@@ -129,7 +129,7 @@
               <v-btn color="accent" @click="mutate()">GRADE</v-btn>
               <v-progress-circular :indeterminate="true" v-if="loading" />
             </v-card-actions>
-            <v-snackbar :top="true" v-model="saveError">
+            <v-snackbar v-model="saveError" color="error">
               Couldn't save, try again.
               <v-btn @click="saveError = false">OK</v-btn>
             </v-snackbar>

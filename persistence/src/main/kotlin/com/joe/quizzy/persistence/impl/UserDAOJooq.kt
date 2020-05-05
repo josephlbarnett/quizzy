@@ -5,12 +5,12 @@ import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.UsersRecord
-import java.util.UUID
-import java.util.stream.Stream
-import javax.inject.Inject
 import mu.KotlinLogging
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
+import java.util.UUID
+import java.util.stream.Stream
+import javax.inject.Inject
 
 private val log = KotlinLogging.logger { }
 
@@ -42,6 +42,19 @@ open class UserDAOJooq
         log.info("get users by instance: $query")
         return query
             .fetchInto(User::class.java)
+    }
+
+    @Timed
+    override fun savePassword(user: User, cryptedPass: String): Int {
+        return ctx.transactionResult { config ->
+            config.dsl().update(Tables.USERS).set(Tables.USERS.AUTH_CRYPT, cryptedPass)
+                .where(Tables.USERS.ID.eq(user.id))
+                .execute().also {
+                    if (it != 1) {
+                        throw IllegalStateException("Password update updated $it rows, rolling back")
+                    }
+                }
+        }
     }
 
     @Timed

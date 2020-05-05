@@ -38,7 +38,6 @@ class Mutation @Inject constructor(
 ) : GraphQLQueryResolver {
 
     fun login(context: GraphQLResourceContext, email: String, pass: String): Boolean {
-        log.info("logging in with context $context")
         if (context.principal != null) {
             return true // if already logged in, return
         }
@@ -59,6 +58,20 @@ class Mutation @Inject constructor(
                     false,
                     true
                 )
+                return true
+            }
+        }
+        return false
+    }
+
+    fun changePassword(context: GraphQLResourceContext, oldPass: String, newPass: String): Boolean {
+        val principal = context.principal
+        if (principal is UserPrincipal) {
+            val passCheck = userAuthenticator.authenticate(
+                BasicCredentials(principal.user.email, oldPass)
+            ).orElse(null)
+            if (passCheck != null && passCheck.user.id != null && passCheck.user.id == principal.user.id) {
+                userDAO.savePassword(passCheck.user, userAuthenticator.hasher.hash(newPass))
                 return true
             }
         }

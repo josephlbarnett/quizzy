@@ -85,7 +85,7 @@
               >
               <v-progress-circular :indeterminate="true" v-if="loading"
             /></v-card-actions>
-            <v-snackbar :top="true" v-model="saveError">
+            <v-snackbar v-model="saveError" color="error">
               Couldn't save, try again.
               <v-btn @click="saveError = false">OK</v-btn>
             </v-snackbar>

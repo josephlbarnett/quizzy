@@ -15,4 +15,5 @@ interface UserDAO {
 
     fun getByEmail(email: String): User?
     fun getByInstance(instanceId: UUID): List<User>
+    fun savePassword(user: User, cryptedPass: String): Int
 }

@@ -17,11 +17,6 @@
         </div>
         <div v-else-if="error" class="error">An error occurred</div>
         <v-container v-else-if="data.user">
-          <v-text-field
-            v-model="data.user.email"
-            label="Email"
-            disabled
-          ></v-text-field>
           <ApolloMutation
             :mutation="require('../graphql/UpdateUser.gql')"
             :variables="{
@@ -37,26 +32,96 @@
             @error="done(false)"
             @done="done(true)"
           >
-            <template v-slot="{ mutate, loading, error }">
-              <v-text-field
-                v-model="name"
-                label="Name"
-                @keypress="(e) => key(e, mutate)"
-              ></v-text-field>
-              <v-autocomplete
-                :items="tzs"
-                label="Timezone"
-                v-model="timezone"
-                item-text="name"
-                item-value="value"
-              ></v-autocomplete>
-              <v-btn @click="mutate()" color="accent">Save</v-btn>
-              <div v-if="loading">
-                <v-progress-circular :indeterminate="true" />
-              </div>
-              <v-snackbar :top="true" v-model="saveError"
-                >An error occurred {{ error }}</v-snackbar
-              >
+            <template v-slot="{ mutate, loading }">
+              <v-card>
+                <v-card-title>User Settings</v-card-title>
+                <v-card-text>
+                  <v-text-field
+                    v-model="data.user.email"
+                    label="Email"
+                    disabled
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="name"
+                    label="Name"
+                    @keypress="(e) => key(e, mutate)"
+                  ></v-text-field>
+                  <v-autocomplete
+                    :items="tzs"
+                    label="Timezone"
+                    v-model="timezone"
+                    item-text="name"
+                    item-value="value"
+                  ></v-autocomplete
+                ></v-card-text>
+                <v-card-actions>
+                  <v-btn @click="mutate()" color="accent">Save</v-btn>
+                  <div v-if="loading">
+                    <v-progress-circular :indeterminate="true" />
+                  </div>
+                </v-card-actions>
+                <v-snackbar v-model="saveError" color="error"
+                  >Could not save settings, try again.
+                  <v-btn @click="saveError = false">OK</v-btn></v-snackbar
+                >
+                <v-snackbar v-model="saveConfirm" color="accent"
+                  >Settings saved.
+                  <v-btn @click="saveConfirm = false">OK</v-btn></v-snackbar
+                >
+              </v-card>
+            </template>
+          </ApolloMutation>
+
+          <ApolloMutation
+            :mutation="require('../graphql/ChangePassword.gql')"
+            :variables="{
+              old: oldPassword,
+              new: newPassword,
+            }"
+            :refetch-queries="() => [`currentUser`]"
+            :await-refetch-queries="true"
+            @error="donePass({ data: { changePassword: false } })"
+            @done="donePass"
+          >
+            <template v-slot="{ mutate, loading }">
+              <v-card>
+                <v-card-title>Change Password</v-card-title>
+                <v-card-text>
+                  <v-text-field
+                    v-model="oldPassword"
+                    label="Current Password"
+                    type="password"
+                    @keypress="(e) => key(e, mutate)"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="newPasswordOne"
+                    label="New Password"
+                    type="password"
+                    @keypress="(e) => key(e, mutate)"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="newPasswordTwo"
+                    label="Confirm New Password"
+                    type="password"
+                    @keypress="(e) => key(e, mutate)"
+                  ></v-text-field>
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn @click="mutate()" color="accent">Save</v-btn>
+                  <div v-if="loading">
+                    <v-progress-circular :indeterminate="true" />
+                  </div>
+                </v-card-actions>
+                <v-snackbar v-model="passError" color="error"
+                  >Could not change password, try again.
+                  <v-btn @click="passError = false">OK</v-btn></v-snackbar
+                >
+                <v-snackbar v-model="passConfirm" color="accent"
+                  >Password changed.<v-btn @click="passConfirm = false"
+                    >OK</v-btn
+                  ></v-snackbar
+                >
+              </v-card>
             </template>
           </ApolloMutation>
         </v-container>
@@ -73,8 +138,14 @@ export default Vue.extend({
   name: "User",
   data: () => ({
     saveError: false,
+    saveConfirm: false,
+    passError: false,
+    passConfirm: false,
     name: "",
     timezone: "",
+    oldPassword: "",
+    newPasswordOne: "",
+    newPasswordTwo: "",
     tzs: [
       {
         name: `Autodetect -- ${moment.tz.guess()} (${moment
@@ -89,9 +160,28 @@ export default Vue.extend({
       }))
     ),
   }),
+  computed: {
+    newPassword: function (): string | null {
+      if (this.newPasswordOne == this.newPasswordTwo) {
+        return this.newPasswordOne;
+      } else {
+        return null;
+      }
+    },
+  },
   methods: {
     done(success: boolean) {
       this.saveError = !success;
+      this.saveConfirm = success;
+    },
+    donePass(ret: { data: { changePassword: boolean } }) {
+      this.passError = !ret.data.changePassword;
+      this.passConfirm = ret.data.changePassword;
+      if (this.passConfirm) {
+        this.newPasswordOne = "";
+        this.newPasswordTwo = "";
+        this.oldPassword = "";
+      }
     },
     key({ key }: { key: string }, mutate: Function) {
       if (key == "Enter") {

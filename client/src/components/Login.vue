@@ -48,7 +48,7 @@
                 @click="clickLogin(mutate)"
                 >Login</v-btn
               >
-              <v-snackbar :top="true" v-model="failedLogin">
+              <v-snackbar v-model="failedLogin" color="error">
                 Couldn't log in, try again.
                 <v-btn @click="failedLogin = false">OK</v-btn>
               </v-snackbar>
