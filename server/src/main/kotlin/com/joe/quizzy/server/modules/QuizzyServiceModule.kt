@@ -16,26 +16,25 @@ import com.joe.quizzy.server.graphql.Query
 import com.trib3.graphql.modules.GraphQLApplicationModule
 import com.trib3.server.filters.CookieTokenAuthFilter
 import com.trib3.server.modules.ServletConfig
-import io.dropwizard.auth.Auth
 import io.dropwizard.auth.AuthDynamicFeature
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter
 import io.dropwizard.auth.chained.ChainedAuthFilter
 import io.dropwizard.servlets.assets.AssetServlet
-import java.security.Principal
-import java.util.Optional
+import java.net.URI
 import javax.inject.Named
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
+import javax.ws.rs.core.Response
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
-class TestResource {
-    @Path("/test")
+class RedirectResource {
+    @Path("/")
     @GET
-    fun test(@Auth user: Optional<Principal>): Any? {
-        return user.orElse(null)
+    fun root(): Response {
+        return Response.status(Response.Status.FOUND).location(URI("/app/assets")).build()
     }
 }
 
@@ -52,7 +51,7 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
         graphQLQueriesBinder().addBinding().to<Query>()
         graphQLMutationsBinder().addBinding().to<Mutation>()
         // graphQLSubscriptionsBinder().addBinding().to<Subscription>()
-        resourceBinder().addBinding().to<TestResource>()
+        resourceBinder().addBinding().to<RedirectResource>()
         bind<Hasher>().to<Argon2Hasher>()
         appServletBinder().addBinding().toInstance(
             ServletConfig(

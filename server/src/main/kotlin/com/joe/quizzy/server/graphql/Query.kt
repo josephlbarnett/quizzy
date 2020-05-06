@@ -14,6 +14,12 @@ import com.joe.quizzy.server.auth.UserPrincipal
 import com.trib3.graphql.modules.DataLoaderRegistryFactory
 import com.trib3.graphql.resources.GraphQLResourceContext
 import graphql.schema.DataFetchingEnvironment
+import java.time.OffsetDateTime
+import java.util.UUID
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
+import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
@@ -22,12 +28,6 @@ import mu.KotlinLogging
 import org.dataloader.BatchLoader
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
-import java.time.OffsetDateTime
-import java.util.UUID
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
-import javax.inject.Inject
-import javax.inject.Provider
 
 private val log = KotlinLogging.logger {}
 
@@ -169,7 +169,6 @@ class ApiUserLoader(val gradeDAO: GradeDAO) : BatchLoader<User, ApiUser> {
             }
         }
     }
-
 }
 
 class DataLoaderRegistryFactoryProvider @Inject constructor(

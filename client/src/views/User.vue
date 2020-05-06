@@ -33,42 +33,46 @@
             @done="done(true)"
           >
             <template v-slot="{ mutate, loading }">
-              <v-card>
-                <v-card-title>User Settings</v-card-title>
-                <v-card-text>
-                  <v-text-field
-                    v-model="data.user.email"
-                    label="Email"
-                    disabled
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="name"
-                    label="Name"
-                    @keypress="(e) => key(e, mutate)"
-                  ></v-text-field>
-                  <v-autocomplete
-                    :items="tzs"
-                    label="Timezone"
-                    v-model="timezone"
-                    item-text="name"
-                    item-value="value"
-                  ></v-autocomplete
-                ></v-card-text>
-                <v-card-actions>
-                  <v-btn @click="mutate()" color="accent">Save</v-btn>
-                  <div v-if="loading">
-                    <v-progress-circular :indeterminate="true" />
-                  </div>
-                </v-card-actions>
-                <v-snackbar v-model="saveError" color="error"
-                  >Could not save settings, try again.
-                  <v-btn @click="saveError = false">OK</v-btn></v-snackbar
-                >
-                <v-snackbar v-model="saveConfirm" color="accent"
-                  >Settings saved.
-                  <v-btn @click="saveConfirm = false">OK</v-btn></v-snackbar
-                >
-              </v-card>
+              <v-row>
+                <v-col cols="12">
+                  <v-card>
+                    <v-card-title>User Settings</v-card-title>
+                    <v-card-text>
+                      <v-text-field
+                        v-model="data.user.email"
+                        label="Email"
+                        disabled
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="name"
+                        label="Name"
+                        @keypress="(e) => key(e, mutate)"
+                      ></v-text-field>
+                      <v-autocomplete
+                        :items="tzs"
+                        label="Timezone"
+                        v-model="timezone"
+                        item-text="name"
+                        item-value="value"
+                      ></v-autocomplete>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-btn @click="mutate()" color="accent">Save</v-btn>
+                      <div v-if="loading">
+                        <v-progress-circular :indeterminate="true" />
+                      </div>
+                    </v-card-actions>
+                    <v-snackbar v-model="saveError" color="error"
+                      >Could not save settings, try again.
+                      <v-btn @click="saveError = false">OK</v-btn>
+                    </v-snackbar>
+                    <v-snackbar v-model="saveConfirm" color="accent"
+                      >Settings saved.
+                      <v-btn @click="saveConfirm = false">OK</v-btn>
+                    </v-snackbar>
+                  </v-card>
+                </v-col>
+              </v-row>
             </template>
           </ApolloMutation>
 
@@ -84,44 +88,47 @@
             @done="donePass"
           >
             <template v-slot="{ mutate, loading }">
-              <v-card>
-                <v-card-title>Change Password</v-card-title>
-                <v-card-text>
-                  <v-text-field
-                    v-model="oldPassword"
-                    label="Current Password"
-                    type="password"
-                    @keypress="(e) => key(e, mutate)"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="newPasswordOne"
-                    label="New Password"
-                    type="password"
-                    @keypress="(e) => key(e, mutate)"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="newPasswordTwo"
-                    label="Confirm New Password"
-                    type="password"
-                    @keypress="(e) => key(e, mutate)"
-                  ></v-text-field>
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn @click="mutate()" color="accent">Save</v-btn>
-                  <div v-if="loading">
-                    <v-progress-circular :indeterminate="true" />
-                  </div>
-                </v-card-actions>
-                <v-snackbar v-model="passError" color="error"
-                  >Could not change password, try again.
-                  <v-btn @click="passError = false">OK</v-btn></v-snackbar
-                >
-                <v-snackbar v-model="passConfirm" color="accent"
-                  >Password changed.<v-btn @click="passConfirm = false"
-                    >OK</v-btn
-                  ></v-snackbar
-                >
-              </v-card>
+              <v-row>
+                <v-col cols="12">
+                  <v-card>
+                    <v-card-title>Change Password</v-card-title>
+                    <v-card-text>
+                      <v-text-field
+                        v-model="oldPassword"
+                        label="Current Password"
+                        type="password"
+                        @keypress="(e) => key(e, mutate)"
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="newPasswordOne"
+                        label="New Password"
+                        type="password"
+                        @keypress="(e) => key(e, mutate)"
+                      ></v-text-field>
+                      <v-text-field
+                        v-model="newPasswordTwo"
+                        label="Confirm New Password"
+                        type="password"
+                        @keypress="(e) => key(e, mutate)"
+                      ></v-text-field>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-btn @click="mutate()" color="accent">Save</v-btn>
+                      <div v-if="loading">
+                        <v-progress-circular :indeterminate="true" />
+                      </div>
+                    </v-card-actions>
+                    <v-snackbar v-model="passError" color="error"
+                      >Could not change password, try again.
+                      <v-btn @click="passError = false">OK</v-btn>
+                    </v-snackbar>
+                    <v-snackbar v-model="passConfirm" color="accent"
+                      >Password changed.
+                      <v-btn @click="passConfirm = false">OK </v-btn>
+                    </v-snackbar>
+                  </v-card>
+                </v-col>
+              </v-row>
             </template>
           </ApolloMutation>
         </v-container>

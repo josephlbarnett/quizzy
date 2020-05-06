@@ -15,12 +15,12 @@ import com.joe.quizzy.server.auth.UserAuthenticator
 import com.joe.quizzy.server.auth.UserPrincipal
 import com.trib3.graphql.resources.GraphQLResourceContext
 import io.dropwizard.auth.basic.BasicCredentials
-import mu.KotlinLogging
 import java.time.OffsetDateTime
 import java.util.Date
 import javax.inject.Inject
 import javax.ws.rs.core.Cookie
 import javax.ws.rs.core.NewCookie
+import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 private const val COOKIE_NAME = "x-quizzy-session"
