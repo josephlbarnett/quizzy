@@ -2,15 +2,14 @@ package com.joe.quizzy.persistence.impl
 
 import com.codahale.metrics.annotation.Timed
 import com.joe.quizzy.api.models.Response
-import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.ResponsesRecord
+import mu.KotlinLogging
+import org.jooq.DSLContext
 import java.util.UUID
 import java.util.stream.Stream
 import javax.inject.Inject
-import mu.KotlinLogging
-import org.jooq.DSLContext
 
 private val log = KotlinLogging.logger { }
 
@@ -56,18 +55,28 @@ open class ResponseDAOJooq
         }
     }
 
-    override fun byUserQuestion(user: User, questionId: UUID): Response? {
+    @Timed
+    override fun byUserQuestion(userId: UUID, questionId: UUID): Response? {
         val query = ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
-            .where(Tables.RESPONSES.USER_ID.eq(user.id).and(Tables.RESPONSES.QUESTION_ID.eq(questionId)))
-        log.info("responses query : $query")
+            .where(Tables.RESPONSES.USER_ID.eq(userId).and(Tables.RESPONSES.QUESTION_ID.eq(questionId)))
+        log.info("user question responses query : $query")
         return query.fetchOneInto(Response::class.java)
     }
 
-    override fun forInstance(user: User, regrade: Boolean): List<Response> {
+    @Timed
+    override fun byUserQuestions(userId: UUID, questionIds: List<UUID>): Map<UUID, Response> {
+        val query = ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
+            .where(Tables.RESPONSES.USER_ID.eq(userId).and(Tables.RESPONSES.QUESTION_ID.`in`(questionIds)))
+        log.info("batch user question responses query : $query")
+        return query.fetch().intoMap(Tables.RESPONSES.QUESTION_ID, Response::class.java)
+    }
+
+    @Timed
+    override fun forInstance(instanceId: UUID, regrade: Boolean): List<Response> {
         val initialQuery = ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
             .join(Tables.USERS).on(
                 Tables.RESPONSES.USER_ID.eq(Tables.USERS.ID).and(
-                    Tables.USERS.INSTANCE_ID.eq(user.instanceId)
+                    Tables.USERS.INSTANCE_ID.eq(instanceId)
                 )
             )
             .join(Tables.QUESTIONS).on(
@@ -85,6 +94,7 @@ open class ResponseDAOJooq
         return query.fetchInto(Response::class.java)
     }
 
+    @Timed
     override fun forUser(userId: UUID): List<Response> {
         val query =
             ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES).where(Tables.RESPONSES.USER_ID.eq(userId))

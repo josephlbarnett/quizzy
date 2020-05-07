@@ -15,4 +15,5 @@ interface GradeDAO {
     fun forUser(userId: UUID): List<Grade>
     fun forUsers(userIds: List<UUID>): Map<UUID, List<Grade>>
     fun forResponse(responseId: UUID): Grade?
+    fun forResponses(responseIds: List<UUID>): Map<UUID, Grade>
 }

@@ -12,6 +12,7 @@ interface QuestionDAO {
     fun all(): List<Question>
     fun stream(): Stream<Question>
     fun get(id: UUID): Question?
+    fun get(ids: List<UUID>): List<Question>
     fun save(thing: Question): Question
     fun active(user: User): List<Question>
     fun closed(user: User): List<Question>

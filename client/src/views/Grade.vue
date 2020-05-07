@@ -87,7 +87,7 @@
                 </v-col>
                 <v-col cols="6">
                   <v-textarea
-                    :disabled="true"
+                    :readonly="true"
                     v-model="clickedResponse.question.answer"
                     label="Answer Key"
                   />
@@ -103,7 +103,7 @@
                 </v-col>
                 <v-col cols="6">
                   <v-textarea
-                    :disabled="true"
+                    :readonly="true"
                     v-model="clickedResponse.question.ruleReferences"
                     label="Answer Key Rule References"
                   />

@@ -1,7 +1,6 @@
 package com.joe.quizzy.persistence.api
 
 import com.joe.quizzy.api.models.Response
-import com.joe.quizzy.api.models.User
 import java.util.UUID
 import java.util.stream.Stream
 
@@ -13,7 +12,8 @@ interface ResponseDAO {
     fun stream(): Stream<Response>
     fun get(id: UUID): Response?
     fun save(thing: Response): Response
-    fun byUserQuestion(user: User, questionId: UUID): Response?
-    fun forInstance(user: User, regrade: Boolean): List<Response>
+    fun byUserQuestion(userId: UUID, questionId: UUID): Response?
+    fun byUserQuestions(userId: UUID, questionIds: List<UUID>): Map<UUID, Response>
+    fun forInstance(instanceId: UUID, regrade: Boolean): List<Response>
     fun forUser(userId: UUID): List<Response>
 }

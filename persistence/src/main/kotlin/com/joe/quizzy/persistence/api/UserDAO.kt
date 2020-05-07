@@ -11,6 +11,7 @@ interface UserDAO {
     fun all(): List<User>
     fun stream(): Stream<User>
     fun get(id: UUID): User?
+    fun get(ids: List<UUID>): List<User>
     fun save(thing: User): User
 
     fun getByEmail(email: String): User?

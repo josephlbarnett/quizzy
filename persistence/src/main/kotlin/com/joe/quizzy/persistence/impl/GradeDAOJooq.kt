@@ -5,11 +5,11 @@ import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.persistence.api.GradeDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.GradesRecord
+import mu.KotlinLogging
+import org.jooq.DSLContext
 import java.util.UUID
 import java.util.stream.Stream
 import javax.inject.Inject
-import mu.KotlinLogging
-import org.jooq.DSLContext
 
 private val log = KotlinLogging.logger { }
 
@@ -55,6 +55,7 @@ open class GradeDAOJooq
         }
     }
 
+    @Timed
     override fun forUser(userId: UUID): List<Grade> {
         return ctx.select(Tables.GRADES.asterisk())
             .from(Tables.GRADES)
@@ -62,6 +63,7 @@ open class GradeDAOJooq
             .where(Tables.RESPONSES.USER_ID.eq(userId)).fetchInto(Grade::class.java)
     }
 
+    @Timed
     override fun forUsers(userIds: List<UUID>): Map<UUID, List<Grade>> {
         val query = ctx.select(Tables.RESPONSES.USER_ID, Tables.GRADES.asterisk())
             .from(Tables.GRADES)
@@ -72,10 +74,23 @@ open class GradeDAOJooq
             .intoGroups(Tables.RESPONSES.USER_ID, Grade::class.java)
     }
 
+    @Timed
     override fun forResponse(responseId: UUID): Grade? {
-        return ctx.select(Tables.GRADES.asterisk())
+        val query = ctx.select(Tables.GRADES.asterisk())
             .from(Tables.GRADES)
-            .where(Tables.GRADES.RESPONSE_ID.eq(responseId)).fetchOneInto(Grade::class.java)
+            .where(Tables.GRADES.RESPONSE_ID.eq(responseId))
+        log.info("get grade for response: $query")
+        return query.fetchOneInto(Grade::class.java)
+    }
+
+    @Timed
+    override fun forResponses(responseIds: List<UUID>): Map<UUID, Grade> {
+        val query = ctx.select(Tables.GRADES.asterisk())
+            .from(Tables.GRADES)
+            .where(Tables.GRADES.RESPONSE_ID.`in`(responseIds))
+        log.info("get grade for responses: $query")
+        return query.fetch()
+            .intoMap(Tables.GRADES.RESPONSE_ID, Grade::class.java)
     }
 
     @Timed

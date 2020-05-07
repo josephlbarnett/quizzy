@@ -31,6 +31,14 @@ open class UserDAOJooq
     }
 
     @Timed
+    override fun get(ids: List<UUID>): List<User> {
+        val query = ctx.selectFrom(Tables.USERS).where(Tables.USERS.ID.`in`(ids))
+        log.info("Batch get users: $query")
+        return query.fetch()
+            .into(User::class.java)
+    }
+
+    @Timed
     override fun getByEmail(email: String): User? {
         return ctx.selectFrom(Tables.USERS).where(Tables.USERS.EMAIL.eq(email)).fetchOneInto(User::class.java)
     }

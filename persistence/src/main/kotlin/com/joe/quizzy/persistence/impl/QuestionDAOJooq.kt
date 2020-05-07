@@ -6,14 +6,14 @@ import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.QuestionsRecord
-import java.time.OffsetDateTime
-import java.util.UUID
-import java.util.stream.Stream
-import javax.inject.Inject
 import mu.KotlinLogging
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.SelectOnConditionStep
+import java.time.OffsetDateTime
+import java.util.UUID
+import java.util.stream.Stream
+import javax.inject.Inject
 
 private val log = KotlinLogging.logger { }
 
@@ -31,6 +31,13 @@ open class QuestionDAOJooq
     @Timed
     override fun get(id: UUID): Question? {
         return getRecord(ctx, id)?.into(Question::class.java)
+    }
+
+    @Timed
+    override fun get(ids: List<UUID>): List<Question> {
+        val query = ctx.selectFrom(Tables.QUESTIONS).where(Tables.QUESTIONS.ID.`in`(ids))
+        log.info("batch get questions: $query")
+        return query.fetchInto(Question::class.java)
     }
 
     @Timed
@@ -59,6 +66,7 @@ open class QuestionDAOJooq
         }
     }
 
+    @Timed
     private fun instanceQuestions(user: User): SelectOnConditionStep<Record> {
         return ctx.select(Tables.QUESTIONS.asterisk()).from(Tables.QUESTIONS)
             .join(Tables.USERS)
@@ -68,6 +76,7 @@ open class QuestionDAOJooq
             )
     }
 
+    @Timed
     override fun active(user: User): List<Question> {
         val now = OffsetDateTime.now()
         val query = instanceQuestions(user)
@@ -79,6 +88,7 @@ open class QuestionDAOJooq
         return query.fetchInto(Question::class.java)
     }
 
+    @Timed
     override fun closed(user: User): List<Question> {
         val now = OffsetDateTime.now()
         val query = instanceQuestions(user)
@@ -87,6 +97,7 @@ open class QuestionDAOJooq
         return query.fetchInto(Question::class.java)
     }
 
+    @Timed
     override fun future(user: User): List<Question> {
         val now = OffsetDateTime.now()
         val query = instanceQuestions(user)
