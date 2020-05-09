@@ -22,6 +22,9 @@ import io.dropwizard.auth.chained.ChainedAuthFilter
 import io.dropwizard.servlets.assets.AssetServlet
 import java.net.URI
 import javax.inject.Named
+import javax.servlet.http.HttpServlet
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
@@ -58,11 +61,21 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
                 "AppAssets",
                 AssetServlet(
                     "/assets",
-                    "/assets",
+                    "/app/assets",
                     "index.html",
                     Charsets.UTF_8
                 ),
-                listOf("/assets", "/assets/*")
+                listOf("/app/assets", "/app/assets/*")
+            )
+        )
+        appServletBinder().addBinding().toInstance(
+            ServletConfig(
+                "root-redirect",
+                object : HttpServlet() {
+                    override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
+                        resp.sendRedirect("/app/")
+                    }
+                }, listOf("")
             )
         )
         dataLoaderRegistryFactoryBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()

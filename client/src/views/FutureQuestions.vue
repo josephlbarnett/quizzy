@@ -4,8 +4,12 @@
       :query="require('../graphql/CurrentUser.gql')"
       @result="
         (result) => {
-          setTZ(result.data.user.timeZoneId);
-          this.userId = result.data.user.id;
+          result &&
+            result.data &&
+            result.data.user &&
+            setTZ(result.data.user.timeZoneId);
+          this.userId =
+            result && result.data && result.data.user && result.data.user.id;
         }
       "
     >

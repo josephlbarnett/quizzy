@@ -2,7 +2,13 @@
   <div class="home">
     <ApolloQuery
       :query="require('../graphql/CurrentUser.gql')"
-      @result="(result) => setTZ(result.data.user.timeZoneId)"
+      @result="
+        (result) =>
+          result &&
+          result.data &&
+          result.data.user &&
+          setTZ(result.data.user.timeZoneId)
+      "
     >
       <template v-slot="{}" />
     </ApolloQuery>

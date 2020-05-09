@@ -6,7 +6,7 @@
       fetch-policy="cache-and-network"
       @result="
         (result) => {
-          this.users = result.users;
+          this.users = result && result.users;
         }
       "
     >

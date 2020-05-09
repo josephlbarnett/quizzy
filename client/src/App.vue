@@ -27,6 +27,7 @@
                 :mutation="require('@/graphql/Logout.gql')"
                 :refetch-queries="() => [`currentUser`]"
                 :await-refetch-queries="true"
+                @done="loggedOut"
               >
                 <template v-slot="{ mutate, loading /*, error*/ }">
                   <v-list-item
@@ -54,7 +55,7 @@
           permanent
         >
           <v-list nav>
-            <v-list-item two-line>
+            <v-list-item two-line @click="navDrawMini = !navDrawMini">
               <v-list-item-icon>
                 <v-img alt="Quizzy" src="./assets/logo.png" width="24" />
               </v-list-item-icon>
@@ -143,6 +144,9 @@ export default Vue.extend({
     doLogout(mutate: Function) {
       this.$apollo.getClient().resetStore();
       mutate();
+    },
+    loggedOut() {
+      window.location.reload();
     },
     setTitle(obj: { data: { user: { instance: { name: string } } } }) {
       if (obj.data && obj.data.user && obj.data.user.instance) {
