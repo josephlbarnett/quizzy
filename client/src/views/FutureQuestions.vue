@@ -21,50 +21,29 @@
           <v-card-title>
             Upcoming Questions
             <v-spacer />
-            <v-dialog v-model="addDialog">
+            <v-dialog
+              v-model="addDialog"
+              @click:outside="addDialogError = false"
+            >
               <template v-slot:activator="{ on }">
-                <v-btn color="accent" v-on="on" @click="resetAddDialogState"
-                  >ADD QUESTION</v-btn
-                >
+                <v-btn color="accent" v-on="on" @click="resetAddDialogState">
+                  ADD QUESTION
+                </v-btn>
               </template>
-              <v-card>
-                <v-card-title>Add Question</v-card-title>
+              <v-card v-if="addDialog">
+                <v-card-title
+                  ><span v-if="addDialogId">Edit Question</span
+                  ><span v-else>Add Question</span></v-card-title
+                >
                 <v-card-text>
                   <v-row>
                     <v-col :cols="1">Date:</v-col>
                     <v-col :cols="4">
                       <v-row>
-                        <v-menu
-                          v-model="addDialogActiveDateMenu"
-                          :close-on-click="true"
-                          :close-on-content-click="false"
-                        >
-                          <template v-slot:activator="{ on }">
-                            <v-text-field
-                              readonly
-                              :value="renderDialogDate(addDialogActiveDate)"
-                              v-on="on"
-                            />
-                          </template>
-                          <v-date-picker v-model="addDialogActiveDate" />
-                        </v-menu>
-                        <v-menu
-                          v-model="addDialogActiveTimeMenu"
-                          :close-on-click="true"
-                          :close-on-content-click="false"
-                        >
-                          <template v-slot:activator="{ on }">
-                            <v-text-field
-                              readonly
-                              :value="renderDialogTime(addDialogActiveTime)"
-                              v-on="on"
-                            />
-                          </template>
-                          <v-time-picker
-                            v-model="addDialogActiveTime"
-                            :allowed-minutes="(x) => x % 5 === 0"
-                          />
-                        </v-menu>
+                        <date-time-picker
+                          v-model="addDialogActive"
+                          :timezone="timezone"
+                        />
                       </v-row>
                     </v-col>
                     <v-col :cols="7" />
@@ -73,37 +52,10 @@
                     <v-col :cols="1">Respond By:</v-col>
                     <v-col :cols="4">
                       <v-row>
-                        <v-menu
-                          v-model="addDialogCloseDateMenu"
-                          :close-on-click="true"
-                          :close-on-content-click="false"
-                        >
-                          <template v-slot:activator="{ on }">
-                            <v-text-field
-                              readonly
-                              :value="renderDialogDate(addDialogCloseDate)"
-                              v-on="on"
-                            />
-                          </template>
-                          <v-date-picker v-model="addDialogCloseDate" />
-                        </v-menu>
-                        <v-menu
-                          v-model="addDialogCloseTimeMenu"
-                          :close-on-click="true"
-                          :close-on-content-click="false"
-                        >
-                          <template v-slot:activator="{ on }">
-                            <v-text-field
-                              readonly
-                              :value="renderDialogTime(addDialogCloseTime)"
-                              v-on="on"
-                            />
-                          </template>
-                          <v-time-picker
-                            v-model="addDialogCloseTime"
-                            :allowed-minutes="(x) => x % 5 === 0"
-                          />
-                        </v-menu>
+                        <date-time-picker
+                          v-model="addDialogClose"
+                          :timezone="timezone"
+                        />
                       </v-row>
                     </v-col>
                     <v-col :cols="7" />
@@ -143,29 +95,34 @@
                   </v-row>
                 </v-card-text>
                 <v-card-actions>
-                  <v-btn @click="addDialog = false">CANCEL</v-btn>
                   <ApolloMutation
                     :mutation="require('../graphql/SaveQuestion.gql')"
                     @done="addDialog = false"
                     @error="addDialogError = true"
                     :refetch-queries="() => [`futureQuestions`]"
                     :variables="{
+                      id: addDialogId,
                       activeAt: addDialogActive,
                       answer: addDialogAnswer,
                       authorId: addDialogAuthor,
                       body: addDialogBody,
                       closedAt: addDialogClose,
-                      id: null,
                       ruleReferences: addDialogRuleReferences,
                     }"
                   >
                     <template v-slot="{ mutate, loading }">
-                      <v-btn color="accent" @click="mutate()">ADD</v-btn>
-                      <div v-if="loading">
-                        <v-progress-circular :indeterminate="true" />
-                      </div>
+                      <v-btn @click="addDialog = false">CANCEL</v-btn>
+                      <v-btn color="accent" @click="mutate()"
+                        ><span v-if="addDialogId">SAVE</span
+                        ><span v-else>ADD</span></v-btn
+                      >
+                      <v-progress-circular
+                        v-if="loading"
+                        :indeterminate="true"
+                      />
                       <v-snackbar v-model="addDialogError" color="error"
-                        >Could not add question, try again.
+                        >Could not <span v-if="addDialogId">edit</span
+                        ><span v-else>add</span> question, try again.
                         <v-btn @click="addDialogError = false"
                           >OK</v-btn
                         ></v-snackbar
@@ -181,6 +138,7 @@
             :headers="headers"
             item-key="id"
             no-data-text="No upcoming questions found"
+            @click:row="clickRow"
           >
             <template v-slot:item.closedAt="{ value }">
               {{ renderDateTime(value) }}
@@ -198,37 +156,20 @@
 <script lang="ts">
 import Vue from "vue";
 import moment from "moment-timezone";
+import DateTimePicker from "@/components/DateTimePicker.vue";
 export default Vue.extend({
   name: "FutureQuestions",
+  components: { DateTimePicker },
   data: () => ({
     addDialogError: false,
     addDialog: false,
     addDialogBody: "",
     addDialogAnswer: "",
     addDialogAuthor: "",
-    addDialogActiveDate: "",
-    addDialogActiveTime: "",
-    addDialogActiveDateMenu: false,
-    addDialogActiveTimeMenu: false,
-    addDialogCloseDate: "",
-    addDialogCloseTime: "",
-    addDialogCloseDateMenu: false,
-    addDialogCloseTimeMenu: false,
+    addDialogActive: "",
+    addDialogClose: "",
+    addDialogId: null as string | null,
     addDialogRuleReferences: "",
-    editDialogError: false,
-    editDialog: false,
-    editDialogBody: "",
-    editDialogAnswer: "",
-    editDialogAuthor: "",
-    editDialogActiveDate: "",
-    editDialogActiveTime: "",
-    editDialogActiveDateMenu: false,
-    editDialogActiveTimeMenu: false,
-    editDialogCloseDate: "",
-    editDialogCloseTime: "",
-    editDialogCloseDateMenu: false,
-    editDialogCloseTimeMenu: false,
-    editDialogRuleReferences: "",
     headers: [
       {
         text: "Date",
@@ -261,76 +202,39 @@ export default Vue.extend({
     ),
     timezone: "Autodetect",
   }),
-  computed: {
-    addDialogActive: function () {
-      const browserTZ =
-        this.timezone != null && this.timezone != "Autodetect"
-          ? this.timezone
-          : moment.tz.guess();
-      const parsed = moment.tz(
-        `${this.addDialogActiveDate} ${this.addDialogActiveTime}`,
-        "YYYY-MM-DD HH:mm",
-        browserTZ
-      );
-      return parsed.format();
-    },
-    addDialogClose: function () {
-      const browserTZ =
-        this.timezone != null && this.timezone != "Autodetect"
-          ? this.timezone
-          : moment.tz.guess();
-      const parsed = moment.tz(
-        `${this.addDialogCloseDate} ${this.addDialogCloseTime}`,
-        "YYYY-MM-DD HH:mm",
-        browserTZ
-      );
-      return parsed.format();
-    },
-  },
   methods: {
     resetAddDialogState() {
+      this.addDialogId = null;
       this.addDialogBody = "";
       this.addDialogAnswer = "";
       this.addDialogAuthor = "";
-      this.addDialogActiveDate = "";
-      this.addDialogActiveTime = "";
-      this.addDialogActiveDateMenu = false;
-      this.addDialogActiveTimeMenu = false;
-      this.addDialogCloseDate = "";
-      this.addDialogCloseTime = "";
-      this.addDialogCloseDateMenu = false;
-      this.addDialogCloseTimeMenu = false;
+      this.addDialogActive = "";
+      this.addDialogClose = "";
       this.addDialogRuleReferences = "";
+    },
+    clickRow(item: {
+      id: string;
+      authorId: string;
+      body: string;
+      activeAt: string;
+      closedAt: string;
+      answer: string;
+      ruleReferences: string;
+    }) {
+      this.addDialogId = item.id;
+      this.addDialogBody = item.body;
+      this.addDialogAnswer = item.answer;
+      this.addDialogAuthor = item.authorId;
+      this.addDialogActive = item.activeAt;
+      this.addDialogClose = item.closedAt;
+      this.addDialogRuleReferences = item.ruleReferences;
+      this.addDialog = true;
     },
     setTZ(tz: string) {
       if (this.tzs.map((x) => x.value).indexOf(tz) > -1) {
         this.timezone = tz;
       } else {
         this.timezone = "Autodetect";
-      }
-    },
-    renderDialogTime(date: string) {
-      const browserTZ =
-        this.timezone != null && this.timezone != "Autodetect"
-          ? this.timezone
-          : moment.tz.guess();
-      const zonedMoment = moment.utc(date, "HH:mm");
-      const formatted = `${zonedMoment.format("h:mm A")} (${moment
-        .tz(browserTZ)
-        .zoneName()})`;
-      if (formatted.indexOf("Invalid date") >= 0) {
-        return "--:-- --";
-      } else {
-        return formatted;
-      }
-    },
-    renderDialogDate(date: string) {
-      const zonedMoment = moment.utc(date, "YYYY-MM-DD");
-      const formatted = `${zonedMoment.format("MM/DD/YYYY")}`;
-      if (formatted.indexOf("Invalid date") >= 0) {
-        return "mm/dd/yyyy";
-      } else {
-        return formatted;
       }
     },
     renderDateTime(date: string) {
