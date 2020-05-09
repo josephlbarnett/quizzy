@@ -42,9 +42,10 @@
               <v-icon v-if="value === true" color="green darken-2"
                 >mdi-check-circle</v-icon
               >
-              <v-icon v-if="value === false" color="red darken-2"
+              <v-icon v-else-if="value === false" color="red darken-2"
                 >mdi-close-circle</v-icon
               >
+              <v-icon v-else color="grey darken-2">mdi-help-circle</v-icon>
             </template>
           </v-data-table>
         </v-card>
@@ -120,6 +121,8 @@
 
               <v-text-field
                 type="number"
+                min="0"
+                max="5"
                 v-model.number="clickedResponse.bonus"
                 label="Bonus points"
               />

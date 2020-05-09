@@ -17,6 +17,9 @@ query CompletedQuestions {
                 bonus,
                 score
             }
+            user {
+                name
+            }
         }
     }
 }

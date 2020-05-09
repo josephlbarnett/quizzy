@@ -47,8 +47,10 @@
     </ApolloQuery>
 
     <v-dialog v-model="responseDialog">
-      <v-card>
-        <v-card-title>Question </v-card-title>
+      <v-card v-if="clickedQuestion">
+        <v-card-title
+          >Question: {{ renderDate(clickedQuestion.activeAt) }}</v-card-title
+        >
         <ApolloMutation
           v-if="clickedQuestion"
           :mutation="require('../graphql/SaveResponse.gql')"
