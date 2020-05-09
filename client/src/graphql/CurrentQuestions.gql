@@ -2,6 +2,10 @@ query currentQuestions {
     activeQuestions {
         id,
         authorId,
+        author {
+            id
+            name
+        }
         body,
         activeAt,
         closedAt,

@@ -47,10 +47,10 @@
       </template>
     </ApolloQuery>
     <v-dialog v-model="detailDialog">
-      <v-card>
+      <v-card v-if="clickedQuestion && clickedQuestion.author">
         <v-card-title
-          >Review Question:
-          {{ renderDate(clickedQuestion.activeAt) }}</v-card-title
+          >Review Question: {{ renderDate(clickedQuestion.activeAt) }} by
+          {{ clickedQuestion.author.name }}</v-card-title
         >
         <v-card-text>
           <div>{{ clickedQuestion.body }}</div>

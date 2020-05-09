@@ -51,7 +51,14 @@
         </v-card>
       </template>
     </ApolloQuery>
-    <v-dialog v-model="gradeDialog" v-if="clickedResponse">
+    <v-dialog
+      v-model="gradeDialog"
+      v-if="
+        clickedResponse &&
+        clickedResponse.question &&
+        clickedResponse.question.author
+      "
+    >
       <v-card>
         <ApolloMutation
           :refetch-queries="() => [`Grader`, `CompletedQuestions`, `Users`]"
@@ -74,7 +81,8 @@
           <template v-slot="{ mutate, loading }">
             <v-card-title
               >Grade Response:
-              {{ renderDate(clickedResponse.question.activeAt) }}</v-card-title
+              {{ renderDate(clickedResponse.question.activeAt) }} by
+              {{ clickedResponse.question.author.name }}</v-card-title
             >
             <v-card-text>
               <div>{{ clickedResponse.question.body }}</div>
@@ -153,13 +161,13 @@ export default Vue.extend({
     userTZ: "Autodetect",
     headers: [
       {
-        text: "Question",
-        value: "question.body",
+        text: "Date",
+        value: "question.activeAt",
         sortable: false,
       },
       {
-        text: "Date",
-        value: "question.activeAt",
+        text: "Question",
+        value: "question.body",
         sortable: false,
       },
       {

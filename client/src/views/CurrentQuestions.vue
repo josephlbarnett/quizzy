@@ -49,7 +49,8 @@
     <v-dialog v-model="responseDialog">
       <v-card v-if="clickedQuestion">
         <v-card-title
-          >Question: {{ renderDate(clickedQuestion.activeAt) }}</v-card-title
+          >Question: {{ renderDate(clickedQuestion.activeAt) }} by
+          {{ clickedQuestion.author.name }}</v-card-title
         >
         <ApolloMutation
           v-if="clickedQuestion"

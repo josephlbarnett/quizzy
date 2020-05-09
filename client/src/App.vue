@@ -1,89 +1,116 @@
-import gql from "graphql-tag";
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
-        <v-img
-          alt="Quizzy"
-          class="shrink"
-          contain
-          src="./assets/logo.png"
-          transition="scale-transition"
-          width="40"
-        />
-      </div>
-      <ApolloQuery :query="require('@/graphql/CurrentUser.gql')">
-        <template v-slot="{ result: { error, data } /*, isLoading*/ }">
-          <div v-if="data && data.user">
-            <v-btn-toggle>
-              <v-btn to="/" color="accent">
-                <span>current questions</span>
-              </v-btn>
-              <v-btn to="/review" color="accent">
-                <span>completed questions</span>
-              </v-btn>
-              <v-btn
-                to="/write"
-                :outlined="true"
-                color="error"
-                v-if="data.user.admin"
+    <ApolloQuery
+      :query="require('@/graphql/CurrentUser.gql')"
+      @result="(result) => setTitle(result)"
+    >
+      <template v-slot="{ result: { error, data } /*, isLoading*/ }">
+        <v-app-bar app color="primary" dark>
+          <v-app-bar-nav-icon
+            v-if="data && data.user"
+            @click="navDrawMini = !navDrawMini"
+          ></v-app-bar-nav-icon>
+          <span v-else>Please login.</span>
+          <v-spacer />
+          <v-menu v-if="data && data.user" open-on-hover>
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on">mdi-account</v-icon>
+            </template>
+            <v-list>
+              <v-list-item text to="/me">
+                <v-list-item-icon
+                  ><v-icon>mdi-account</v-icon></v-list-item-icon
+                >
+                <v-list-item-title>{{ data.user.name }}</v-list-item-title>
+              </v-list-item>
+              <ApolloMutation
+                :mutation="require('@/graphql/Logout.gql')"
+                :refetch-queries="() => [`currentUser`]"
+                :await-refetch-queries="true"
               >
-                <span>future questions</span>
-              </v-btn>
-              <v-btn
-                to="/grade"
-                :outlined="true"
-                color="error"
-                v-if="data.user.admin"
-              >
-                <span>grading</span>
-              </v-btn>
-              <v-btn
-                to="/users"
-                :outlined="true"
-                color="error"
-                v-if="data.user.admin"
-              >
-                <span>users</span>
-              </v-btn>
-            </v-btn-toggle>
-          </div>
-          <div v-else>
-            Please login.
-          </div>
-        </template>
-      </ApolloQuery>
-      <v-spacer />
-      <ApolloQuery :query="require('@/graphql/CurrentUser.gql')">
-        <template v-slot="{ result: { error, data } /*, isLoading*/ }">
-          <div v-if="data && data.user">
-            <ApolloMutation
-              :mutation="require('@/graphql/Logout.gql')"
-              :refetch-queries="() => [`currentUser`]"
-              :await-refetch-queries="true"
-            >
-              <template v-slot="{ mutate, loading /*, error*/ }">
-                <v-btn-toggle>
-                  <v-btn text to="/me">{{ data.user.name }}</v-btn>
-                  <v-btn
+                <template v-slot="{ mutate, loading /*, error*/ }">
+                  <v-list-item
                     :disabled="loading"
                     label="Logout"
                     @click="doLogout(mutate)"
                     color="error"
                     outlined
-                    >Logout</v-btn
                   >
-                </v-btn-toggle>
-              </template>
-            </ApolloMutation>
-          </div>
-        </template>
-      </ApolloQuery>
-    </v-app-bar>
-
-    <v-content>
-      <Login> </Login>
-    </v-content>
+                    <v-list-item-icon
+                      ><v-icon>mdi-logout-variant</v-icon></v-list-item-icon
+                    >
+                    <v-list-item-title>Logout</v-list-item-title></v-list-item
+                  >
+                </template>
+              </ApolloMutation></v-list
+            >
+          </v-menu>
+        </v-app-bar>
+        <v-navigation-drawer
+          v-if="data && data.user"
+          :mini-variant="navDrawMini"
+          app
+          stateless
+          permanent
+        >
+          <v-list nav>
+            <v-list-item two-line>
+              <v-list-item-icon>
+                <v-img alt="Quizzy" src="./assets/logo.png" width="24" />
+              </v-list-item-icon>
+              <v-list-item-title>{{
+                data.user.instance.name
+              }}</v-list-item-title>
+            </v-list-item>
+            <v-divider />
+            <v-list-item
+              v-for="navLink in commonLinks"
+              :to="navLink.link"
+              color="accent"
+              :key="navLink.link"
+              @click="navDrawMini = true"
+            >
+              <v-list-item-icon>
+                <v-tooltip :disabled="!navDrawMini" bottom>
+                  <template v-slot:activator="{ on }">
+                    <v-icon v-on="on">{{ navLink.icon }}</v-icon></template
+                  >
+                  {{ navLink.title }}
+                </v-tooltip></v-list-item-icon
+              >
+              <v-list-item-title>{{ navLink.title }}</v-list-item-title>
+            </v-list-item>
+            <span v-if="data && data.user && data.user.admin">
+              <v-divider />
+              <v-list-item
+                v-for="navLink in adminLinks"
+                :to="navLink.link"
+                :outlined="true"
+                color="error"
+                :key="navLink.link"
+                @click="navDrawMini = true"
+              >
+                <v-list-item-icon>
+                  <v-tooltip :disabled="!navDrawMini" bottom>
+                    <template v-slot:activator="{ on }">
+                      <v-icon v-on="on">{{ navLink.icon }}</v-icon></template
+                    >
+                    {{ navLink.title }}
+                  </v-tooltip></v-list-item-icon
+                >
+                <v-list-item-title>{{ navLink.title }}</v-list-item-title>
+              </v-list-item></span
+            >
+          </v-list>
+        </v-navigation-drawer>
+        <div v-else>
+          Please login.
+        </div>
+        <v-content>
+          <Login> </Login>
+        </v-content>
+      </template>
+    </ApolloQuery>
   </v-app>
 </template>
 
@@ -93,7 +120,22 @@ import Login from "@/components/Login.vue";
 
 export default Vue.extend({
   name: "App",
-  data: () => ({}),
+  data: () => ({
+    navDrawMini: true,
+    commonLinks: [
+      { title: "Current Questions", link: "/", icon: "mdi-file-find" },
+      { title: "Completed Questions", link: "/review", icon: "mdi-history" },
+    ],
+    adminLinks: [
+      { title: "Future Questions", link: "/write", icon: "mdi-pencil" },
+      {
+        title: "Grading",
+        link: "/grade",
+        icon: "mdi-checkbox-multiple-marked-circle",
+      },
+      { title: "Users", link: "/users", icon: "mdi-account-multiple" },
+    ],
+  }),
   components: {
     Login,
   },
@@ -101,6 +143,11 @@ export default Vue.extend({
     doLogout(mutate: Function) {
       this.$apollo.getClient().resetStore();
       mutate();
+    },
+    setTitle(obj: { data: { user: { instance: { name: string } } } }) {
+      if (obj.data && obj.data.user && obj.data.user.instance) {
+        document.title = obj.data.user.instance.name;
+      }
     },
   },
 });

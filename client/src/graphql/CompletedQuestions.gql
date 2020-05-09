@@ -2,6 +2,10 @@ query CompletedQuestions {
     closedQuestions {
         id,
         authorId,
+        author {
+            id
+            name
+        }
         body,
         activeAt,
         closedAt,
@@ -18,6 +22,7 @@ query CompletedQuestions {
                 score
             }
             user {
+                id
                 name
             }
         }

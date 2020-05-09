@@ -8,14 +8,20 @@ query Grader($includeGraded: Boolean!) {
         }
         id
         question {
+            id
             body
             activeAt
             answer
             ruleReferences
+            author {
+                id
+                name
+            }
         }
         response
         ruleReferences
         user {
+            id
             name
             email
         }

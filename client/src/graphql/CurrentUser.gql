@@ -2,6 +2,10 @@ query currentUser {
     user {
       id
       instanceId
+      instance {
+        id
+        name
+      }
       email
       name
       admin

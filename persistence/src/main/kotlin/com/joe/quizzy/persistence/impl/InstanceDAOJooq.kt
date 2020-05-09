@@ -5,11 +5,11 @@ import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.InstancesRecord
+import mu.KotlinLogging
+import org.jooq.DSLContext
 import java.util.UUID
 import java.util.stream.Stream
 import javax.inject.Inject
-import mu.KotlinLogging
-import org.jooq.DSLContext
 
 private val log = KotlinLogging.logger { }
 
@@ -27,6 +27,13 @@ open class InstanceDAOJooq
     @Timed
     override fun get(id: UUID): Instance? {
         return getRecord(ctx, id)?.into(Instance::class.java)
+    }
+
+    @Timed
+    override fun get(ids: List<UUID>): List<Instance> {
+        val query = ctx.selectFrom(Tables.INSTANCES).where(Tables.INSTANCES.ID.`in`(ids))
+        log.info("batch get instances: $query")
+        return query.fetchInto(Instance::class.java)
     }
 
     @Timed

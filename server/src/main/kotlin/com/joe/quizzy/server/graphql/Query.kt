@@ -2,10 +2,12 @@ package com.joe.quizzy.server.graphql
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
 import com.joe.quizzy.api.models.Grade
+import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.GradeDAO
+import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
@@ -18,7 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
 import kotlinx.coroutines.slf4j.MDCContext
 import mu.KotlinLogging
-import org.dataloader.BatchLoader
 import org.dataloader.BatchLoaderEnvironment
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderOptions
@@ -66,6 +67,10 @@ data class ApiQuestion(
                 .thenApply { it?.let(::ApiResponse) }
         }
         return CompletableFuture.completedFuture(null)
+    }
+
+    fun author(dfe: DataFetchingEnvironment): CompletableFuture<ApiUser?> {
+        return dfe.getDataLoader<UUID, User>("batchusers").load(authorId).thenApply { it?.let(::ApiUser) }
     }
 }
 
@@ -142,6 +147,10 @@ data class ApiUser(
             it?.map(Grade::score)?.fold(0, Int::plus) ?: 0
         }
     }
+
+    fun instance(dfe: DataFetchingEnvironment): CompletableFuture<Instance> {
+        return dfe.getDataLoader<UUID, Instance>("batchinstances").load(instanceId)
+    }
 }
 
 /**
@@ -170,10 +179,10 @@ class ResponseGradeLoader(val gradeDAO: GradeDAO) : MappedBatchLoader<UUID, Grad
 /**
  * Batch load Users by ID
  */
-class BatchUserLoader(val userDAO: UserDAO) : BatchLoader<UUID, User> {
-    override fun load(keys: List<UUID>): CompletionStage<List<User>> {
+class BatchUserLoader(val userDAO: UserDAO) : MappedBatchLoader<UUID, User> {
+    override fun load(keys: Set<UUID>): CompletionStage<Map<UUID, User>> {
         return CoroutineScope(Dispatchers.IO + MDCContext()).future {
-            userDAO.get(keys)
+            userDAO.get(keys.toList()).associateBy { it.id!! }
         }
     }
 }
@@ -181,10 +190,10 @@ class BatchUserLoader(val userDAO: UserDAO) : BatchLoader<UUID, User> {
 /**
  * Batch load Questions by ID
  */
-class BatchQuestionLoader(val questionDAO: QuestionDAO) : BatchLoader<UUID, Question> {
-    override fun load(keys: List<UUID>): CompletionStage<List<Question>> {
+class BatchQuestionLoader(val questionDAO: QuestionDAO) : MappedBatchLoader<UUID, Question> {
+    override fun load(keys: Set<UUID>): CompletionStage<Map<UUID, Question>> {
         return CoroutineScope(Dispatchers.IO + MDCContext()).future {
-            questionDAO.get(keys)
+            questionDAO.get(keys.toList()).associateBy { it.id!! }
         }
     }
 }
@@ -209,6 +218,17 @@ class QuestionResponseLoader(val responseDAO: ResponseDAO) : MappedBatchLoaderWi
 }
 
 /**
+ * Batch load Instance by Id
+ */
+class BulkInstanceLoader(val instanceDAO: InstanceDAO) : MappedBatchLoader<UUID, Instance> {
+    override fun load(keys: Set<UUID>): CompletionStage<Map<UUID, Instance>> {
+        return CoroutineScope(Dispatchers.IO + MDCContext()).future {
+            instanceDAO.get(keys.toList()).associateBy { it.id!! }
+        }
+    }
+}
+
+/**
  * Provide a DataLoaderRegistry per request that forwards
  * the graphQL context object to each dataloader registered.
  * DataLoaders that fetch child objects are MappedDataLoaders,
@@ -218,7 +238,8 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
     private val gradeDAO: GradeDAO,
     private val userDAO: UserDAO,
     private val questionDAO: QuestionDAO,
-    private val responseDAO: ResponseDAO
+    private val responseDAO: ResponseDAO,
+    private val instanceDAO: InstanceDAO
 ) : Provider<DataLoaderRegistryFactory> {
     override fun get(): DataLoaderRegistryFactory {
         return { _, context ->
@@ -236,15 +257,19 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
             )
             registry.register(
                 "batchusers",
-                DataLoader.newDataLoader(BatchUserLoader(userDAO), dataLoaderOptions)
+                DataLoader.newMappedDataLoader(BatchUserLoader(userDAO), dataLoaderOptions)
             )
             registry.register(
                 "batchquestions",
-                DataLoader.newDataLoader(BatchQuestionLoader(questionDAO), dataLoaderOptions)
+                DataLoader.newMappedDataLoader(BatchQuestionLoader(questionDAO), dataLoaderOptions)
             )
             registry.register(
                 "questionresponses",
                 DataLoader.newMappedDataLoader(QuestionResponseLoader(responseDAO), dataLoaderOptions)
+            )
+            registry.register(
+                "batchinstances",
+                DataLoader.newMappedDataLoader(BulkInstanceLoader(instanceDAO), dataLoaderOptions)
             )
         }
     }
