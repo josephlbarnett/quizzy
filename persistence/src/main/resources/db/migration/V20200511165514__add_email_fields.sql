@@ -1,0 +1,1 @@
+alter table instances add column gmail_refresh_token text default null;

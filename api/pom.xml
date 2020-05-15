@@ -14,6 +14,17 @@
     <groupId>com.joe.quizzy</groupId>
     <artifactId>api</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-schema-generator</artifactId>
+        </dependency>
+    </dependencies>
+
     <build>
         <pluginManagement>
             <plugins>

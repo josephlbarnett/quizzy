@@ -3,3 +3,4 @@ target/
 .attach_pid*
 *.iml
 service.log*
+gmail-credentials.json
