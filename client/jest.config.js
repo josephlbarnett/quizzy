@@ -1,4 +1,4 @@
 module.exports = {
   collectCoverage: true,
-  coverageReporters: ['lcov', 'text-summary']
-}
+  coverageReporters: ["lcov", "text-summary"],
+};

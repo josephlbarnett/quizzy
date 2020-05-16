@@ -68,7 +68,7 @@
                                 <argument>run</argument>
                                 <argument>lint</argument>
                             </arguments>
-                            <skip>${skip.source}</skip>
+                            <skip>${skip.checks}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -83,7 +83,6 @@
                                 <argument>run</argument>
                                 <argument>build</argument>
                             </arguments>
-                            <skip>${skip.source}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -98,7 +97,7 @@
                                 <argument>run</argument>
                                 <argument>test:unit</argument>
                             </arguments>
-                            <skip>${skip.source}</skip>
+                            <skip>${skip.tests}</skip>
                         </configuration>
                     </execution>
                 </executions>

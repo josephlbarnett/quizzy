@@ -48,7 +48,7 @@ class GmailService @Inject constructor(
                 .setAccessType("offline")
                 .build(),
             LocalServerReceiver.Builder().setPort(8888)
-                .build()// < --to allow for setting refresh token w / localhost server
+                .build() // < --to allow for setting refresh token w / localhost server
 //                object : VerificationCodeReceiver { // <-- don't get new tokens
 //                    override fun waitForCode(): String {
 //                        throw IOException("Can't wait for code, need a refresh token persisted")

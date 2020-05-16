@@ -173,7 +173,6 @@ class ResponseGradeLoader(val gradeDAO: GradeDAO) : MappedBatchLoader<UUID, Grad
             gradeDAO.forResponses(keys.toList())
         }
     }
-
 }
 
 /**

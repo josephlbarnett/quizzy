@@ -2,20 +2,21 @@ package com.joe.quizzy.persistence.impl
 
 import assertk.all
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNull
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.UserDAO
-import com.trib3.testing.LeakyMock.Companion.contains
+import org.testng.annotations.BeforeClass
+import org.testng.annotations.Test
 import java.time.OffsetDateTime
 import java.util.UUID
 import kotlin.streams.toList
-import org.testng.annotations.BeforeClass
-import org.testng.annotations.Test
 
 /**
  * Test the ThingDAO
@@ -34,13 +35,28 @@ class QuestionDAOTest : PostgresDAOTestBase() {
     }
 
     @Test
-    fun testActiveQuestions() {
-        println(dao.active(User(UUID.randomUUID(), UUID.randomUUID(), "abc", "abc@def.com", "", false, "UTC")))
+    fun testActiveClosedFutureQuestions() {
+        val instance = Instance(null, "questiondao active/closed/future", "ACTIVE")
+        val instanceId = instanceDao.save(instance).id!!
+        val user = User(null, instanceId, "abc", "abc@gmail.com", null, false, "UTC")
+        val userId = userDao.save(user).id!!
+        val oneHourAgo = OffsetDateTime.now().minusHours(1)
+        val oneHourFromNow = OffsetDateTime.now().plusHours(1)
+        val questions = listOf(
+            Question(null, userId, "current", "", "", oneHourAgo, oneHourFromNow),
+            Question(null, userId, "past", "", "", oneHourAgo, oneHourAgo),
+            Question(null, userId, "future", "", "", oneHourFromNow, oneHourFromNow)
+        )
+        questions.forEach { dao.save(it) }
+        assertThat(dao.active(user.copy(id = userId)).map { it.body }.first()).isEqualTo("current")
+        assertThat(dao.closed(user.copy(id = userId)).map { it.body }.first()).isEqualTo("past")
+        assertThat(dao.future(user.copy(id = userId)).map { it.body }.first()).isEqualTo("future")
     }
 
     @Test
     fun testRoundTrip() {
-        val instance = Instance(null, "group", "ACTIVE")
+        assertThat(dao.get(UUID.randomUUID())).isNull()
+        val instance = Instance(null, "question dao round trip", "ACTIVE")
         val instanceId = instanceDao.save(instance).id!!
         val user = User(null, instanceId, "billy", "billy@gmail.com", null, false, "UTC")
         val userId = userDao.save(user).id!!
@@ -48,7 +64,7 @@ class QuestionDAOTest : PostgresDAOTestBase() {
             Question(null, userId, "a question", "an answer", "some refs", OffsetDateTime.now(), OffsetDateTime.now())
         val q2 =
             Question(
-                null,
+                UUID.randomUUID(),
                 userId,
                 "another question",
                 "another answer",
@@ -83,5 +99,7 @@ class QuestionDAOTest : PostgresDAOTestBase() {
                 }
             }
         }
+        val all = dao.all()
+        assertThat(all.toSet()).isEqualTo(dao.get(all.mapNotNull { it.id }).toSet())
     }
 }
