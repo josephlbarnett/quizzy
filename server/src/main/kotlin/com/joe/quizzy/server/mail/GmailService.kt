@@ -2,7 +2,7 @@ package com.joe.quizzy.server.mail
 
 import com.google.api.client.auth.oauth2.StoredCredential
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
-import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver
+import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
@@ -18,7 +18,9 @@ import com.google.inject.assistedinject.FactoryModuleBuilder
 import com.joe.quizzy.persistence.api.InstanceDAO
 import dev.misfitlabs.kotlinguice4.KotlinModule
 import mu.KotlinLogging
+import java.io.IOException
 import java.io.InputStreamReader
+import java.io.StringReader
 import java.util.UUID
 import javax.inject.Inject
 
@@ -33,10 +35,15 @@ class GmailService @Inject constructor(
     val oauth: Oauth2
 
     init {
-        val secrets = InputStreamReader(this::class.java.getResourceAsStream("/gmail-credentials.json"))
-            .use { secretsReader ->
-                GoogleClientSecrets.load(jacksonFactory, secretsReader)
-            }
+        val envSecrets = System.getenv("GMAIL_CREDENTIALS_JSON")
+        val secretsReader = if (envSecrets.isNullOrBlank()) {
+            InputStreamReader(this::class.java.getResourceAsStream("/gmail-credentials.json"))
+        } else {
+            StringReader(envSecrets)
+        }
+        val secrets = secretsReader.use { reader ->
+            GoogleClientSecrets.load(jacksonFactory, reader)
+        }
         val credential = AuthorizationCodeInstalledApp(
             GoogleAuthorizationCodeFlow.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
@@ -47,21 +54,20 @@ class GmailService @Inject constructor(
                 .setDataStoreFactory(dataStoreFactory)
                 .setAccessType("offline")
                 .build(),
-            LocalServerReceiver.Builder().setPort(8888)
-                .build() // < --to allow for setting refresh token w / localhost server
-//                object : VerificationCodeReceiver { // <-- don't get new tokens
-//                    override fun waitForCode(): String {
-//                        throw IOException("Can't wait for code, need a refresh token persisted")
-//                    }
-//
-//                    override fun stop() {
-//                    }
-//
-//                    override fun getRedirectUri(): String {
-//                        throw IOException("No redirect URI, need a refresh token persisted")
-//                    }
-//
-//                }
+//            LocalServerReceiver.Builder().setPort(8888)
+//                .build() // < --to allow for setting refresh token w / localhost server
+            object : VerificationCodeReceiver { // <-- don't get new tokens
+                override fun waitForCode(): String {
+                    throw IOException("Can't wait for code, need a refresh token persisted")
+                }
+
+                override fun stop() {
+                }
+
+                override fun getRedirectUri(): String {
+                    throw IOException("No redirect URI, need a refresh token persisted")
+                }
+            }
         ).authorize(instanceId.toString())
 
         gmail = Gmail.Builder(
@@ -83,9 +89,9 @@ interface InternalGmailMailServiceFactory {
 }
 
 class GmailServiceFactory @Inject constructor(
-    val factory: InternalGmailMailServiceFactory,
-    val dataStoreFactory: DataStoreFactory,
-    val instanceDAO: InstanceDAO
+    private val factory: InternalGmailMailServiceFactory,
+    private val dataStoreFactory: DataStoreFactory,
+    private val instanceDAO: InstanceDAO
 ) {
     fun getService(instanceId: UUID): GmailService? {
         val credStore = StoredCredential.getDefaultDataStore(dataStoreFactory)

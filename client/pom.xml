@@ -83,6 +83,7 @@
                                 <argument>run</argument>
                                 <argument>build</argument>
                             </arguments>
+                            <skip>${skip.tests}</skip>
                         </configuration>
                     </execution>
                     <execution>
@@ -124,4 +125,24 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <!--
+            can't run npm from maven due to circle memory issues, so disable those
+            and run the npm commands in the .circleci/config.yml before running the
+            maven build
+            -->
+            <id>circle-build-skip-npms</id>
+            <activation>
+                <property>
+                    <name>env.CI</name>
+                </property>
+            </activation>
+            <properties>
+                <skip.tests>true</skip.tests>
+                <skip.source>true</skip.source>
+                <skip.checks>true</skip.checks>
+            </properties>
+        </profile>
+    </profiles>
 </project>

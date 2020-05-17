@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class UserAuthenticator
 @Inject constructor(
-    val userDAO: UserDAO,
+    private val userDAO: UserDAO,
     val hasher: Hasher
 ) : Authenticator<BasicCredentials, UserPrincipal> {
     override fun authenticate(credentials: BasicCredentials): Optional<UserPrincipal> {
