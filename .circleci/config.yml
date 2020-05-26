@@ -99,8 +99,8 @@ jobs:
           name: Create Release Notes
           command: |
             CURRENT_VERSION=$(cat ~/jars/release/current_version.txt)
-            if [ -f ~/jars/release/release-notes.txt ]; then 
-              RELEASE_NOTES=$(cat ~/jars/release/release-notes.txt)
+            if [ -f ~/jars/release/release_notes.txt ]; then 
+              RELEASE_NOTES=$(cat ~/jars/release/release_notes.txt)
             else
               RELEASE_NOTES="Initial Release"
             fi
