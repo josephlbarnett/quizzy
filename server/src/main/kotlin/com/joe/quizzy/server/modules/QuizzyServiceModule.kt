@@ -75,7 +75,8 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
                     override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
                         resp.sendRedirect("/app/")
                     }
-                }, listOf("")
+                },
+                listOf("")
             )
         )
         dataLoaderRegistryFactoryBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()

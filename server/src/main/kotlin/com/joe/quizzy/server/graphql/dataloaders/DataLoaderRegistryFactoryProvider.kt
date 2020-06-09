@@ -36,7 +36,8 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
                 DataLoader.newMappedDataLoader(
                     ResponseGradeLoader(
                         gradeDAO
-                    ), dataLoaderOptions
+                    ),
+                    dataLoaderOptions
                 )
             )
             registry.register(
@@ -44,7 +45,8 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
                 DataLoader.newMappedDataLoader(
                     UserGradeLoader(
                         gradeDAO
-                    ), dataLoaderOptions
+                    ),
+                    dataLoaderOptions
                 )
             )
             registry.register(
@@ -52,7 +54,8 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
                 DataLoader.newMappedDataLoader(
                     BatchUserLoader(
                         userDAO
-                    ), dataLoaderOptions
+                    ),
+                    dataLoaderOptions
                 )
             )
             registry.register(
@@ -60,7 +63,8 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
                 DataLoader.newMappedDataLoader(
                     BatchQuestionLoader(
                         questionDAO
-                    ), dataLoaderOptions
+                    ),
+                    dataLoaderOptions
                 )
             )
             registry.register(
@@ -72,7 +76,8 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
                 DataLoader.newMappedDataLoader(
                     BulkInstanceLoader(
                         instanceDAO
-                    ), dataLoaderOptions
+                    ),
+                    dataLoaderOptions
                 )
             )
         }

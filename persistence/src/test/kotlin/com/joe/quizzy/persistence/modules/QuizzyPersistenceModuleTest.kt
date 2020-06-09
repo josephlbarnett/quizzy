@@ -4,10 +4,10 @@ import assertk.assertThat
 import assertk.assertions.isNotNull
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.trib3.db.config.DbConfig
-import javax.inject.Inject
 import org.jooq.DSLContext
 import org.testng.annotations.Guice
 import org.testng.annotations.Test
+import javax.inject.Inject
 
 @Guice(modules = [QuizzyPersistenceModule::class])
 class QuizzyPersistenceModuleTest
