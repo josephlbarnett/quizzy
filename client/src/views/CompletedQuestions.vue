@@ -146,20 +146,14 @@
 <script lang="ts">
 import Vue from "vue";
 import moment from "moment-timezone";
+import { ApiQuestion } from "@/generated/types";
 
 export default Vue.extend({
   name: "CompletedQuestions",
   data: () => ({
     userTZ: "Autodetect",
     detailDialog: false,
-    clickedQuestion: {
-      response: {
-        grade: {
-          bonus: null as number | null,
-          correct: null as boolean | null,
-        },
-      },
-    },
+    clickedQuestion: null as ApiQuestion | null,
     completedQuestions: [],
     headers: [
       {
@@ -196,19 +190,9 @@ export default Vue.extend({
   }),
   computed: {
     clickedQuestionBonus() {
-      if (
-        this.clickedQuestion &&
-        this.clickedQuestion.response &&
-        this.clickedQuestion.response.grade &&
-        this.clickedQuestion.response.grade.correct
-      ) {
+      if (this.clickedQuestion?.response?.grade?.correct) {
         return this.clickedQuestion.response.grade.bonus;
-      } else if (
-        this.clickedQuestion &&
-        this.clickedQuestion.response &&
-        this.clickedQuestion.response.grade &&
-        this.clickedQuestion.response.grade.correct === false
-      ) {
+      } else if (this.clickedQuestion?.response?.grade?.correct === false) {
         return "0";
       }
       return "";
@@ -223,12 +207,12 @@ export default Vue.extend({
       const zonedMoment = moment.tz(value, browserTZ);
       return zonedMoment.format("ddd, MMM D YYYY");
     },
-    setTZ(tz: string) {
-      this.userTZ = tz;
+    setTZ(tz: string | null) {
+      if (tz) {
+        this.userTZ = tz;
+      }
     },
-    clickRow(item: {
-      response: { grade: { bonus: number | null; correct: boolean | null } };
-    }) {
+    clickRow(item: ApiQuestion) {
       this.clickedQuestion = item;
       this.detailDialog = true;
     },

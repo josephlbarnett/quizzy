@@ -1,0 +1,5 @@
+schema: https://fb-rules-exchange.herokuapp.com/app/graphql
+generates:
+  ./src/generated/types.d.ts:
+    plugins:
+      - typescript

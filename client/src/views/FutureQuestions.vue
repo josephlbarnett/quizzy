@@ -161,6 +161,7 @@
 import Vue from "vue";
 import moment from "moment-timezone";
 import DateTimePicker from "@/components/DateTimePicker.vue";
+import { Question } from "@/generated/types";
 export default Vue.extend({
   name: "FutureQuestions",
   components: { DateTimePicker },
@@ -216,15 +217,7 @@ export default Vue.extend({
       this.addDialogClose = "";
       this.addDialogRuleReferences = "";
     },
-    clickRow(item: {
-      id: string;
-      authorId: string;
-      body: string;
-      activeAt: string;
-      closedAt: string;
-      answer: string;
-      ruleReferences: string;
-    }) {
+    clickRow(item: Question) {
       this.addDialogId = item.id;
       this.addDialogBody = item.body;
       this.addDialogAnswer = item.answer;
@@ -234,8 +227,8 @@ export default Vue.extend({
       this.addDialogRuleReferences = item.ruleReferences;
       this.addDialog = true;
     },
-    setTZ(tz: string) {
-      if (this.tzs.map((x) => x.value).indexOf(tz) > -1) {
+    setTZ(tz: string | null) {
+      if (tz && this.tzs.map((x) => x.value).indexOf(tz) > -1) {
         this.timezone = tz;
       } else {
         this.timezone = "Autodetect";

@@ -158,6 +158,7 @@
 <script lang="ts">
 import Vue from "vue";
 import moment from "moment-timezone";
+import { ApiResponse } from "@/generated/types";
 
 export default Vue.extend({
   name: "Grader",
@@ -218,32 +219,18 @@ export default Vue.extend({
       const zonedMoment = moment.tz(date, browserTZ);
       return zonedMoment.format("ddd, MMM D YYYY");
     },
-    setTZ(tz: string) {
-      this.userTZ = tz;
+    setTZ(tz: string | null) {
+      if (tz) {
+        this.userTZ = tz;
+      }
     },
-    clickRow(item: {
-      grade: {
-        id: string | null;
-        correct: boolean | null;
-        bonus: number | null;
-      } | null;
-      question: {
-        body: string;
-        activeAt: string;
-        answer: string;
-        ruleReferences: string;
-      };
-      user: { name: string; email: string };
-      response: string;
-      ruleReferences: string;
-      id: string;
-    }) {
+    clickRow(item: ApiResponse) {
       const clickedResponse = {
         bonus: item.grade && item.grade.bonus,
         correct:
-          item.grade === null || item.grade.correct === null
+          item.grade === null || item.grade?.correct === null
             ? "ungraded"
-            : item.grade.correct
+            : item.grade?.correct
             ? "correct"
             : "incorrect",
         question: Object.assign({}, item.question),
@@ -264,19 +251,9 @@ export default Vue.extend({
       alert(value);
       return value ? "green" : "red";
     },
-    mailToLink(clickedResponse: {
-      user: { name: string; email: string };
-      question: {
-        body: string;
-        activeAt: string;
-        answer: string;
-        ruleReferences: string;
-      };
-      response: string;
-      ruleReferences: string;
-    }) {
+    mailToLink(clickedResponse: ApiResponse) {
       const subject = encodeURIComponent(
-        `Re: ${this.renderDate(clickedResponse.question.activeAt)} Question`
+        `Re: ${this.renderDate(clickedResponse.question?.activeAt)} Question`
       );
       const quotedResponse =
         "> " + clickedResponse.response.replace(/(?:\r\n|\r|\n)/g, "\n> ");
@@ -284,7 +261,7 @@ export default Vue.extend({
         "> " +
         clickedResponse.ruleReferences.replace(/(?:\r\n|\r|\n)/g, "\n> ");
       const body = encodeURIComponent(`${quotedResponse}\n` + quotedRuleRefs);
-      return `${clickedResponse.user.email}?subject=${subject}&body=${body}`;
+      return `${clickedResponse.user?.email}?subject=${subject}&body=${body}`;
     },
   },
 });

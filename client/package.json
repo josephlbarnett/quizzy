@@ -6,9 +6,12 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "generate": "graphql-codegen"
   },
   "dependencies": {
+    "@graphql-codegen/cli": "^1.15.1",
+    "@graphql-codegen/typescript": "^1.15.1",
     "@types/moment-timezone": "^0.5.13",
     "core-js": "^3.6.5",
     "eslint-plugin-graphql": "^4.0.0",
@@ -62,6 +65,9 @@
     "parserOptions": {
       "ecmaVersion": 2020
     },
+    "ignorePatterns": [
+      "**/generated/**"
+    ],
     "rules": {
       "@typescript-eslint/ban-ts-ignore": "off"
     },

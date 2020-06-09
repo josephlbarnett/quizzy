@@ -87,6 +87,7 @@
 
 <script lang="ts">
 import Vue from "vue";
+import { ApiUser } from "@/generated/types";
 
 export default Vue.extend({
   name: "Users",
@@ -110,11 +111,11 @@ export default Vue.extend({
         sortable: false,
       },
     ],
-    selection: null as object | null,
+    selection: null as ApiUser | null,
     deleteDialog: false,
   }),
   methods: {
-    selected(selection: Array<object>) {
+    selected(selection: Array<ApiUser>) {
       if (selection.length > 0) {
         this.selection = selection[0];
       } else {
@@ -122,7 +123,7 @@ export default Vue.extend({
       }
     },
     rowToggle(
-      item: object,
+      item: ApiUser,
       {
         select,
         isSelected,

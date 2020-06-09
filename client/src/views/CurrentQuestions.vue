@@ -106,6 +106,7 @@
 <script lang="ts">
 import Vue from "vue";
 import moment from "moment-timezone";
+import { ApiQuestion, ApiResponse } from "@/generated/types";
 
 export default Vue.extend({
   name: "CurrentQuestions",
@@ -136,7 +137,7 @@ export default Vue.extend({
     ],
     responseDialog: false,
     clickedQuestion: null as object | null,
-    clickedResponse: {},
+    clickedResponse: null as ApiResponse | null,
     userId: "",
     saveError: false,
   }),
@@ -157,10 +158,12 @@ export default Vue.extend({
       const zonedMoment = moment.tz(date, browserTZ);
       return zonedMoment.format("ddd, MMM D YYYY");
     },
-    setTZ(tz: string) {
-      this.userTZ = tz;
+    setTZ(tz: string | null) {
+      if (tz) {
+        this.userTZ = tz;
+      }
     },
-    clickRow(item: { response: { response: string; ruleReferences: string } }) {
+    clickRow(item: ApiQuestion) {
       this.clickedQuestion = Object.assign({}, item);
       this.clickedResponse = Object.assign({}, item.response);
       this.responseDialog = true;
