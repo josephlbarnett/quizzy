@@ -107,9 +107,9 @@
         <div v-else>
           Please login.
         </div>
-        <v-content>
+        <v-main>
           <Login> </Login>
-        </v-content>
+        </v-main>
       </template>
     </ApolloQuery>
   </v-app>

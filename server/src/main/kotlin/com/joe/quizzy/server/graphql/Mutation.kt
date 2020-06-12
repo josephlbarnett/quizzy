@@ -53,7 +53,7 @@ class Mutation @Inject constructor(
                     null,
                     -1, // expire with session
                     null,
-                    false,
+                    true,
                     true
                 )
                 return true
