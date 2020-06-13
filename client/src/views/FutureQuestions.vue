@@ -127,8 +127,10 @@
                       <v-snackbar v-model="addDialogError" color="error"
                         >Could not <span v-if="addDialogId">edit</span
                         ><span v-else>add</span> question, try again.
-                        <v-btn @click="addDialogError = false"
-                          >OK</v-btn
+                        <template v-slot:action="{ attrs }">
+                          <v-btn v-bind="attrs" @click="addDialogError = false"
+                            >OK</v-btn
+                          ></template
                         ></v-snackbar
                       >
                     </template>

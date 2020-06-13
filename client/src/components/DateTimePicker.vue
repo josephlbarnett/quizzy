@@ -9,6 +9,7 @@
         <v-text-field readonly :value="renderDate(dateTime)" v-on="on" />
       </template>
       <v-date-picker
+        class="date-picker"
         v-model="date"
         @change="onChange"
         @click:date="dateClicked"
@@ -25,6 +26,7 @@
         <v-text-field readonly :value="renderTime(dateTime)" v-on="on" />
       </template>
       <v-time-picker
+        class="time-picker"
         v-model="time"
         v-if="timeMenu"
         @input="onChange"
@@ -82,19 +84,20 @@ export default Vue.extend({
       );
       return parsed.format();
     },
+    tz(): string {
+      return this.timezone != null && this.timezone != "Autodetect"
+        ? this.timezone
+        : moment.tz.guess();
+    },
   },
   methods: {
     onChange() {
       this.$emit("input", this.dateTime);
     },
     renderTime(date: string): string {
-      const browserTZ =
-        this.timezone != null && this.timezone != "Autodetect"
-          ? this.timezone
-          : moment.tz.guess();
-      const zonedMoment = moment(date);
+      const zonedMoment = moment(date).tz(this.tz);
       const formatted = `${zonedMoment.format("h:mm A")} (${moment
-        .tz(browserTZ)
+        .tz(this.tz)
         .zoneName()})`;
       if (formatted.indexOf("Invalid date") >= 0) {
         return "--:-- --";
@@ -103,7 +106,7 @@ export default Vue.extend({
       }
     },
     renderDate(date: string): string {
-      const zonedMoment = moment(date);
+      const zonedMoment = moment(date).tz(this.tz);
       const formatted = `${zonedMoment.format("MM/DD/YYYY")}`;
       if (formatted.indexOf("Invalid date") >= 0) {
         return "mm/dd/yyyy";

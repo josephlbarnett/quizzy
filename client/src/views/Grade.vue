@@ -146,7 +146,11 @@
             </v-card-actions>
             <v-snackbar v-model="saveError" color="error">
               Couldn't save, try again.
-              <v-btn @click="saveError = false">OK</v-btn>
+              <template v-slot:action="{ attrs }">
+                <v-btn v-bind="attrs" @click="saveError = false"
+                  >OK</v-btn
+                ></template
+              >
             </v-snackbar>
           </template>
         </ApolloMutation>
