@@ -1,6 +1,5 @@
 import Vue from "vue";
 import VueApollo, { ApolloProvider } from "vue-apollo";
-// @ts-ignore
 import { createApolloClient } from "vue-cli-plugin-apollo/graphql-client";
 
 // Install the vue plugin
