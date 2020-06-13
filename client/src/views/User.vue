@@ -64,11 +64,19 @@
                     </v-card-actions>
                     <v-snackbar v-model="saveError" color="error"
                       >Could not save settings, try again.
-                      <v-btn @click="saveError = false">OK</v-btn>
+                      <template v-slot:action="{ attrs }">
+                        <v-btn v-bind="attrs" @click="saveError = false"
+                          >OK</v-btn
+                        ></template
+                      >
                     </v-snackbar>
                     <v-snackbar v-model="saveConfirm" color="accent"
                       >Settings saved.
-                      <v-btn @click="saveConfirm = false">OK</v-btn>
+                      <template v-slot:action="{ attrs }">
+                        <v-btn v-bind="attrs" @click="saveConfirm = false"
+                          >OK</v-btn
+                        ></template
+                      >
                     </v-snackbar>
                   </v-card>
                 </v-col>
@@ -120,11 +128,19 @@
                     </v-card-actions>
                     <v-snackbar v-model="passError" color="error"
                       >Could not change password, try again.
-                      <v-btn @click="passError = false">OK</v-btn>
+                      <template v-slot:action="{ attrs }">
+                        <v-btn v-bind="attrs" @click="passError = false"
+                          >OK</v-btn
+                        ></template
+                      >
                     </v-snackbar>
                     <v-snackbar v-model="passConfirm" color="accent"
                       >Password changed.
-                      <v-btn @click="passConfirm = false">OK </v-btn>
+                      <template v-slot:action="{ attrs }">
+                        <v-btn v-bind="attrs" @click="passConfirm = false"
+                          >OK
+                        </v-btn></template
+                      >
                     </v-snackbar>
                   </v-card>
                 </v-col>

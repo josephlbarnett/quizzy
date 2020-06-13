@@ -50,7 +50,9 @@
               >
               <v-snackbar v-model="failedLogin" color="error">
                 Couldn't log in, try again.
-                <v-btn @click="failedLogin = false">OK</v-btn>
+                <template v-slot:action="{ attrs }">
+                  <v-btn v-bind="attrs" @click="failedLogin = false">OK</v-btn>
+                </template>
               </v-snackbar>
               <v-progress-circular :indeterminate="true" v-if="loading" />
             </v-container>

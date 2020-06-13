@@ -10,6 +10,7 @@
     "generate": "graphql-codegen"
   },
   "dependencies": {
+    "@babel/preset-typescript": "^7.10.1",
     "@graphql-codegen/cli": "^1.15.3",
     "@graphql-codegen/typescript": "^1.15.3",
     "@types/moment-timezone": "^0.5.13",
@@ -68,8 +69,7 @@
     "ignorePatterns": [
       "**/generated/**"
     ],
-    "rules": {
-    },
+    "rules": {},
     "overrides": [
       {
         "files": [
