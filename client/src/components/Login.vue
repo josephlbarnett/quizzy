@@ -71,14 +71,14 @@ export default Vue.extend({
     failedLogin: false,
   }),
   methods: {
-    clickLogin(mutate: Function) {
+    clickLogin(mutate: () => void) {
       this.failedLogin = false;
       mutate();
     },
     loggedin({ data: { login } }: { data: { login: boolean } }) {
       this.failedLogin = !login;
     },
-    key({ key }: { key: string }, mutate: Function) {
+    key({ key }: { key: string }, mutate: () => void) {
       if (key == "Enter") {
         mutate();
       }

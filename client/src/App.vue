@@ -141,7 +141,7 @@ export default Vue.extend({
     Login,
   },
   methods: {
-    doLogout(mutate: Function) {
+    doLogout(mutate: () => void) {
       this.$apollo.getClient().resetStore();
       mutate();
     },

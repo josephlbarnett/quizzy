@@ -190,7 +190,7 @@ export default Vue.extend({
         this.oldPassword = "";
       }
     },
-    key({ key }: { key: string }, mutate: Function) {
+    key({ key }: { key: string }, mutate: () => void) {
       if (key == "Enter") {
         mutate();
       }

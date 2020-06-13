@@ -200,7 +200,7 @@ export default Vue.extend({
     saveError: false,
     hideGraded: true,
     gradeDialog: false,
-    clickedResponse: null as {} | null,
+    clickedResponse: null as Record<string, unknown> | null,
   }),
   methods: {
     renderDateTime(date: string) {
@@ -243,7 +243,7 @@ export default Vue.extend({
       this.clickedResponse = clickedResponse;
       this.gradeDialog = true;
     },
-    saveResponse(mutate: Function) {
+    saveResponse(mutate: () => void) {
       mutate();
       this.gradeDialog = false;
     },

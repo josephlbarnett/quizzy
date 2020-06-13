@@ -136,7 +136,7 @@ export default Vue.extend({
       },
     ],
     responseDialog: false,
-    clickedQuestion: null as object | null,
+    clickedQuestion: null as ApiQuestion | null,
     clickedResponse: null as ApiResponse | null,
     userId: "",
     saveError: false,
@@ -168,7 +168,7 @@ export default Vue.extend({
       this.clickedResponse = Object.assign({}, item.response);
       this.responseDialog = true;
     },
-    saveResponse(mutate: Function) {
+    saveResponse(mutate: () => void) {
       mutate();
     },
   },

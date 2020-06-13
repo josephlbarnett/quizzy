@@ -19,14 +19,14 @@
     "vue": "^2.6.11",
     "vue-apollo": "^3.0.3",
     "vue-class-component": "^7.2.3",
-    "vue-property-decorator": "^8.4.2",
-    "vue-router": "^3.3.2",
+    "vue-property-decorator": "^8.5.0",
+    "vue-router": "^3.3.3",
     "vuetify": "^2.3.0"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
-    "@typescript-eslint/eslint-plugin": "^2.34.0",
-    "@typescript-eslint/parser": "^2.34.0",
+    "@typescript-eslint/eslint-plugin": "^3.2.0",
+    "@typescript-eslint/parser": "^3.2.0",
     "@vue/cli-plugin-babel": "~4.4.4",
     "@vue/cli-plugin-eslint": "~4.4.4",
     "@vue/cli-plugin-router": "~4.4.4",
@@ -36,11 +36,11 @@
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/eslint-config-typescript": "^5.0.2",
     "@vue/test-utils": "1.0.3",
-    "eslint": "^6.8.0",
+    "eslint": "^7.2.0",
     "eslint-plugin-prettier": "^3.1.3",
     "eslint-plugin-vue": "^6.2.2",
     "graphql-tag": "^2.10.3",
-    "lint-staged": "^10.2.9",
+    "lint-staged": "^10.2.10",
     "prettier": "^2.0.5",
     "sass": "^1.26.8",
     "sass-loader": "^8.0.2",
@@ -69,7 +69,7 @@
       "**/generated/**"
     ],
     "rules": {
-      "@typescript-eslint/ban-ts-ignore": "off"
+      "@typescript-eslint/ban-ts-comment": "off"
     },
     "overrides": [
       {
