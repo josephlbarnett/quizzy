@@ -23,7 +23,7 @@
     "vue-class-component": "^7.2.3",
     "vue-property-decorator": "^8.5.0",
     "vue-router": "^3.3.4",
-    "vuetify": "^2.3.0"
+    "vuetify": "^2.3.1"
   },
   "devDependencies": {
     "@types/jest": "^26.0.0",
