@@ -18,6 +18,7 @@ module.exports = {
     "^.+\\.js$": "babel-jest",
     "^.+\\.ts$": "babel-jest",
     "^.+\\.vue$": "vue-jest",
+    "^.+\\.gql$": "jest-transform-graphql",
   },
   setupFilesAfterEnv: ["<rootDir>/tests/unit/setup.ts"],
 };

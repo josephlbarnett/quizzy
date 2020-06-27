@@ -9,7 +9,7 @@
 
       <!-- Result -->
       <!--            <v-app-bar v-else-if="data.user" class="result apollo">-->
-      <div v-else-if="data.user" class="result apollo">
+      <div v-else-if="data && data.user" class="result apollo">
         <router-view />
       </div>
       <!--              </v-app-bar>-->
@@ -48,7 +48,11 @@
                 @click="clickLogin(mutate)"
                 >Login</v-btn
               >
-              <v-snackbar v-model="failedLogin" color="error">
+              <v-snackbar
+                v-if="failedLogin"
+                v-model="failedLogin"
+                color="error"
+              >
                 Couldn't log in, try again.
                 <template v-slot:action="{ attrs }">
                   <v-btn v-bind="attrs" @click="failedLogin = false">OK</v-btn>
