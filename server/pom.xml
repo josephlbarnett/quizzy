@@ -11,6 +11,11 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <properties>
+        <version.google-http-client>1.35.0</version.google-http-client>
+        <version.google-oauth-client>1.31.0</version.google-oauth-client>
+    </properties>
+
     <groupId>com.joe.quizzy</groupId>
     <artifactId>server</artifactId>
 
@@ -154,7 +159,7 @@
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-java6</artifactId>
-            <version>1.30.6</version>
+            <version>${version.google-oauth-client}</version>
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>com.google.oauth-client</groupId>-->
@@ -174,7 +179,7 @@
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client</artifactId>
-            <version>1.30.6</version>
+            <version>${version.google-oauth-client}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
@@ -193,7 +198,7 @@
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client</artifactId>
-            <version>1.35.0</version>
+            <version>${version.google-http-client}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.apache.httpcomponents</groupId>
@@ -208,7 +213,7 @@
         <dependency>
             <groupId>com.google.http-client</groupId>
             <artifactId>google-http-client-jackson2</artifactId>
-            <version>1.35.0</version>
+            <version>${version.google-http-client}</version>
         </dependency>
         <!--        <dependency>-->
         <!--            <groupId>com.google.auth</groupId>-->
