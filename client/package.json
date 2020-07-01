@@ -11,7 +11,7 @@
     "generate": "graphql-codegen"
   },
   "dependencies": {
-    "@babel/preset-typescript": "^7.10.1",
+    "@babel/preset-typescript": "^7.10.4",
     "@graphql-codegen/cli": "^1.15.4",
     "@graphql-codegen/typescript": "^1.15.4",
     "@types/moment-timezone": "^0.5.13",
