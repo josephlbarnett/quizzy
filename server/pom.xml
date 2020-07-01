@@ -12,7 +12,7 @@
     </parent>
 
     <properties>
-        <version.google-http-client>1.35.0</version.google-http-client>
+        <version.google-http-client>1.36.0</version.google-http-client>
         <version.google-oauth-client>1.31.0</version.google-oauth-client>
     </properties>
 
