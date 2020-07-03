@@ -9,8 +9,10 @@ module.exports = {
     "!**/dist/**",
     "!**/target/**",
     "!**/*.spec.{js,jsx,vue,ts}",
+    "!**/*.config.js",
   ],
   coverageReporters: ["lcov", "text-summary"],
+  moduleFileExtensions: ["js", "json", "jsx", "ts", "tsx", "node", "vue"],
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },

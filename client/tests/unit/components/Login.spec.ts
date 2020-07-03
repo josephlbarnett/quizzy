@@ -58,6 +58,23 @@ describe("Login Tests", () => {
     );
   });
 
+  it("error state", async () => {
+    const mockClient = createMockClient();
+    mockClient.setRequestHandler(currentUserQuery, () =>
+      Promise.resolve({ errors: [{ message: "Some Error" }], data: null })
+    );
+    const login = mount(Login, {
+      stubs: ["router-view"],
+      created() {
+        this.$apolloProvider = new VueApollo({
+          defaultClient: mockClient,
+        });
+      },
+    });
+    await login.vm.$nextTick();
+    expect(login.text()).toBe("An error occurred");
+  });
+
   it("shows login screen when no user", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
