@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import Login from "@/components/Login.vue";
-import { createMockClient } from "mock-apollo-client";
+import {createMockClient, MockApolloClient} from "mock-apollo-client";
 import VueApollo from "vue-apollo";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import loginMutation from "@/graphql/Login.gql";
@@ -19,20 +19,22 @@ const mockUser = {
   __typename: "ApiUser",
 };
 
+function mountLogin(mockClient: MockApolloClient) {
+  return mount(Login, {
+    stubs: ["router-view", "v-snackbar"],
+    apolloProvider: new VueApollo({
+      defaultClient: mockClient,
+    }),
+  });
+}
+
 describe("Login Tests", () => {
   it("shows router stub when user returned", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const login = mount(Login, {
-      stubs: ["router-view"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const login = mountLogin(mockClient);
     expect(login.find("router-view-stub")).toBeTruthy();
   });
 
@@ -45,14 +47,7 @@ describe("Login Tests", () => {
           // never fulfill promise
         })
     );
-    const login = mount(Login, {
-      stubs: ["router-view"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const login = mountLogin(mockClient);
     expect(login.find(".v-progress-circular").vm.$props.indeterminate).toBe(
       true
     );
@@ -63,14 +58,7 @@ describe("Login Tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ errors: [{ message: "Some Error" }], data: null })
     );
-    const login = mount(Login, {
-      stubs: ["router-view"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const login = mountLogin(mockClient);
     await login.vm.$nextTick();
     expect(login.text()).toBe("An error occurred");
   });
@@ -80,14 +68,7 @@ describe("Login Tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: null } })
     );
-    const login = mount(Login, {
-      stubs: ["router-view", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const login = mountLogin(mockClient);
     await login.vm.$nextTick();
     const inputs = login.findAll(".v-text-field");
     expect(inputs.length).toBe(2);
@@ -109,14 +90,7 @@ describe("Login Tests", () => {
       Promise.resolve({ data: { login: false } })
     );
     mockClient.setRequestHandler(loginMutation, mutationMock);
-    const login = mount(Login, {
-      stubs: ["router-view", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const login = mountLogin(mockClient);
     await login.vm.$nextTick();
     const button = login.find("button");
     await button.trigger("click");
@@ -139,14 +113,7 @@ describe("Login Tests", () => {
     );
     mockClient.setRequestHandler(loginMutation, mutationMock);
 
-    const login = mount(Login, {
-      stubs: ["router-view", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const login = mountLogin(mockClient);
     await login.vm.$nextTick();
     const userInput = login.findAll(".v-text-field").at(0);
     await userInput.vm.$emit("keypress", { key: "a" });

@@ -17,10 +17,11 @@ module.exports = {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
   transform: {
-    "^.+\\.js$": "babel-jest",
-    "^.+\\.ts$": "babel-jest",
+    "^.+\\.(js|ts)$": "babel-jest",
+    "^.+\\.sass$": "jest-transform-stub",
     "^.+\\.vue$": "vue-jest",
     "^.+\\.gql$": "jest-transform-graphql",
   },
+  transformIgnorePatterns: ["/node_modules/(?!vuetify)/"],
   setupFilesAfterEnv: ["<rootDir>/tests/unit/setup.ts"],
 };

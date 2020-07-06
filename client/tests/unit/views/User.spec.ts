@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import User from "@/views/User.vue";
-import { createMockClient } from "mock-apollo-client";
+import { createMockClient, MockApolloClient } from "mock-apollo-client";
 import VueApollo from "vue-apollo";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import updateUserMutation from "@/graphql/UpdateUser.gql";
@@ -21,6 +21,15 @@ const mockUser = {
   __typename: "ApiUser",
 };
 
+function mountUser(mockClient: MockApolloClient) {
+  return mount(User, {
+    stubs: ["v-autocomplete", "v-snackbar"],
+    apolloProvider: new VueApollo({
+      defaultClient: mockClient,
+    }),
+  });
+}
+
 describe("user page tests", () => {
   it("loading state", async () => {
     const mockClient = createMockClient();
@@ -31,14 +40,7 @@ describe("user page tests", () => {
           // never resolve
         })
     );
-    const userPage = mount(User, {
-      stubs: ["v-autocomplete", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const userPage = mountUser(mockClient);
     expect(userPage.find(".v-progress-circular").vm.$props.indeterminate).toBe(
       true
     );
@@ -49,14 +51,7 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ errors: [{ message: "Some Error" }], data: null })
     );
-    const userPage = mount(User, {
-      stubs: ["v-autocomplete", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const userPage = mountUser(mockClient);
     await userPage.vm.$nextTick();
     expect(userPage.text()).toBe("An error occurred");
   });
@@ -66,14 +61,7 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const userPage = mount(User, {
-      stubs: ["v-autocomplete", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const userPage = mountUser(mockClient);
     await userPage.vm.$nextTick();
     expect(userPage.vm.$data.timezone).toBe(mockUser.timeZoneId);
     expect(userPage.vm.$data.name).toBe(mockUser.name);
@@ -92,14 +80,7 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: userWithBadTimezone } })
     );
-    const userPage = mount(User, {
-      stubs: ["v-autocomplete", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const userPage = mountUser(mockClient);
     await userPage.vm.$nextTick();
     expect(userPage.vm.$data.timezone).toBe("Autodetect");
   });
@@ -113,14 +94,7 @@ describe("user page tests", () => {
       Promise.resolve({ data: { user: mockUser } })
     );
     mockClient.setRequestHandler(updateUserMutation, mutationMock);
-    const userPage = mount(User, {
-      stubs: ["v-autocomplete", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const userPage = mountUser(mockClient);
     await userPage.vm.$nextTick();
     const button = userPage.findAll("button").at(0);
     await button.trigger("click");
@@ -137,14 +111,7 @@ describe("user page tests", () => {
     );
     const mutationMock = jest.fn(() => Promise.reject("Error saving"));
     mockClient.setRequestHandler(updateUserMutation, mutationMock);
-    const userPage = mount(User, {
-      stubs: ["v-autocomplete", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const userPage = mountUser(mockClient);
     await userPage.vm.$nextTick();
     const button = userPage.findAll("button").at(0);
     await button.trigger("click");
@@ -163,14 +130,7 @@ describe("user page tests", () => {
       Promise.resolve({ data: { changePassword: true } })
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
-    const userPage = mount(User, {
-      stubs: ["v-autocomplete", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const userPage = mountUser(mockClient);
     await userPage.vm.$nextTick();
     const button = userPage.findAll("button").at(1);
     await button.trigger("click");
@@ -189,14 +149,7 @@ describe("user page tests", () => {
       Promise.resolve({ data: { changePassword: false }, rawInput: request })
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
-    const userPage = mount(User, {
-      stubs: ["v-autocomplete", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const userPage = mountUser(mockClient);
     await userPage.vm.$nextTick();
     const oldPass = userPage
       .findAll(".v-text-field")
@@ -233,14 +186,7 @@ describe("user page tests", () => {
       Promise.resolve({ data: { changePassword: true }, rawInput: request })
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
-    const userPage = mount(User, {
-      stubs: ["v-autocomplete", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const userPage = mountUser(mockClient);
     await userPage.vm.$nextTick();
     const oldPass = userPage
       .findAll(".v-text-field")
@@ -281,14 +227,7 @@ describe("user page tests", () => {
       Promise.resolve({ data: { user: mockUser } })
     );
     mockClient.setRequestHandler(updateUserMutation, userMutationMock);
-    const userPage = mount(User, {
-      stubs: ["v-autocomplete", "v-snackbar"],
-      created() {
-        this.$apolloProvider = new VueApollo({
-          defaultClient: mockClient,
-        });
-      },
-    });
+    const userPage = mountUser(mockClient);
     await userPage.vm.$nextTick();
     const inputs = userPage.findAll(".v-text-field");
     const nameInput = inputs.filter((x) => x.text() == "Name").at(0);
