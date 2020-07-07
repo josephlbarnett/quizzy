@@ -1,6 +1,6 @@
 import { mount } from "@vue/test-utils";
 import Login from "@/components/Login.vue";
-import {createMockClient, MockApolloClient} from "mock-apollo-client";
+import { createMockClient, MockApolloClient } from "mock-apollo-client";
 import VueApollo from "vue-apollo";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import loginMutation from "@/graphql/Login.gql";
