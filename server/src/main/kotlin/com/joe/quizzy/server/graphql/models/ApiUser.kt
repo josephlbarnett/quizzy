@@ -15,7 +15,6 @@ data class ApiUser(
     val instanceId: UUID,
     val name: String,
     val email: String,
-    val authCrypt: String?,
     val admin: Boolean,
     val timeZoneId: String
 ) {
@@ -26,7 +25,6 @@ data class ApiUser(
         user.instanceId,
         user.name,
         user.email,
-        user.authCrypt,
         user.admin,
         user.timeZoneId
     )

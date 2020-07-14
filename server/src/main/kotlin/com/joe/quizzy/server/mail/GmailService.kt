@@ -7,10 +7,13 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.util.Base64
 import com.google.api.client.util.store.DataStoreFactory
 import com.google.api.client.util.store.MemoryDataStoreFactory
 import com.google.api.services.gmail.Gmail
+import com.google.api.services.gmail.Gmail.Users.Messages.Send
 import com.google.api.services.gmail.GmailScopes
+import com.google.api.services.gmail.model.Message
 import com.google.api.services.oauth2.Oauth2
 import com.google.api.services.oauth2.Oauth2Scopes
 import com.google.inject.assistedinject.Assisted
@@ -18,21 +21,23 @@ import com.google.inject.assistedinject.FactoryModuleBuilder
 import com.joe.quizzy.persistence.api.InstanceDAO
 import dev.misfitlabs.kotlinguice4.KotlinModule
 import mu.KotlinLogging
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStreamReader
 import java.io.StringReader
 import java.util.UUID
 import javax.inject.Inject
+import javax.mail.internet.MimeMessage
 
 private val log = KotlinLogging.logger {}
 
-class GmailService @Inject constructor(
+open class GmailService @Inject constructor(
     jacksonFactory: JacksonFactory,
     dataStoreFactory: DataStoreFactory,
     @Assisted instanceId: UUID
 ) {
-    val gmail: Gmail
-    val oauth: Oauth2
+    open val gmail: Gmail
+    open val oauth: Oauth2
 
     init {
         val envSecrets = System.getenv("GMAIL_CREDENTIALS_JSON")
@@ -88,12 +93,12 @@ interface InternalGmailMailServiceFactory {
     fun create(instanceId: UUID): GmailService
 }
 
-class GmailServiceFactory @Inject constructor(
+open class GmailServiceFactory @Inject constructor(
     private val factory: InternalGmailMailServiceFactory,
     private val dataStoreFactory: DataStoreFactory,
     private val instanceDAO: InstanceDAO
 ) {
-    fun getService(instanceId: UUID): GmailService? {
+    open fun getService(instanceId: UUID): GmailService? {
         val credStore = StoredCredential.getDefaultDataStore(dataStoreFactory)
         val instance = instanceDAO.get(instanceId)
         val existingToken = instance?.gmailRefreshToken
@@ -122,4 +127,16 @@ class GmailServiceModule : KotlinModule() {
         bind<DataStoreFactory>().to<MemoryDataStoreFactory>().asEagerSingleton()
         install(FactoryModuleBuilder().build(InternalGmailMailServiceFactory::class.java))
     }
+}
+
+/**
+ * Convenience extension method to send a [MimeMessage] instead of a [Message]
+ */
+fun Gmail.sendEmail(userId: String, message: MimeMessage): Send {
+    val buffer = ByteArrayOutputStream()
+    message.writeTo(buffer)
+    val encodedEmail = Base64.encodeBase64URLSafeString(buffer.toByteArray())
+    val messageToSend = Message()
+    messageToSend.raw = encodedEmail
+    return this.users().messages().send(userId, messageToSend)
 }

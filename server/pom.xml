@@ -14,6 +14,7 @@
     <properties>
         <version.google-http-client>1.36.0</version.google-http-client>
         <version.google-oauth-client>1.31.0</version.google-oauth-client>
+        <version.jakarta-mail>1.6.5</version.jakarta-mail>
     </properties>
 
     <groupId>com.joe.quizzy</groupId>
@@ -38,6 +39,12 @@
         <dependency>
             <groupId>com.trib3</groupId>
             <artifactId>graphql</artifactId>
+            <version>${version.leakycauldron}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.trib3</groupId>
+            <artifactId>config</artifactId>
             <version>${version.leakycauldron}</version>
         </dependency>
 
@@ -239,6 +246,18 @@
             <groupId>com.google.inject.extensions</groupId>
             <artifactId>guice-assistedinject</artifactId>
             <version>${version.guice}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <!-- jakarta.mail artifact includes actual providers but not needed for gmail so just use mailapi -->
+            <artifactId>mailapi</artifactId>
+            <version>${version.jakarta-mail}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun.activation</groupId>
+                    <artifactId>jakarta.activation</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

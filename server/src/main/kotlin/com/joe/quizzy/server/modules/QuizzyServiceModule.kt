@@ -13,6 +13,7 @@ import com.joe.quizzy.server.auth.UserPrincipal
 import com.joe.quizzy.server.graphql.Mutation
 import com.joe.quizzy.server.graphql.Query
 import com.joe.quizzy.server.graphql.dataloaders.DataLoaderRegistryFactoryProvider
+import com.joe.quizzy.server.mail.GmailServiceModule
 import com.trib3.graphql.modules.GraphQLApplicationModule
 import com.trib3.server.filters.CookieTokenAuthFilter
 import com.trib3.server.modules.ServletConfig
@@ -47,6 +48,7 @@ class RedirectResource {
 class QuizzyServiceModule : GraphQLApplicationModule() {
     override fun configureApplication() {
         install(QuizzyPersistenceModule())
+        install(GmailServiceModule())
 
         graphQLPackagesBinder().addBinding().toInstance("com.joe.quizzy.api")
         graphQLPackagesBinder().addBinding().toInstance("com.joe.quizzy.server.graphql")

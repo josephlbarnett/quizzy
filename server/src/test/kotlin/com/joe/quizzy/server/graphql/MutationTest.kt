@@ -1,17 +1,24 @@
 package com.joe.quizzy.server.graphql
 
 import assertk.assertThat
+import assertk.assertions.contains
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import com.google.api.services.gmail.Gmail
+import com.google.api.services.gmail.model.Message
+import com.google.api.services.oauth2.Oauth2
+import com.google.api.services.oauth2.model.Userinfoplus
 import com.joe.quizzy.api.models.Grade
+import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.Session
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.GradeDAO
+import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
@@ -19,13 +26,22 @@ import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.server.auth.Hasher
 import com.joe.quizzy.server.auth.UserAuthenticator
 import com.joe.quizzy.server.auth.UserPrincipal
+import com.joe.quizzy.server.mail.GmailService
+import com.joe.quizzy.server.mail.GmailServiceFactory
+import com.trib3.config.ConfigLoader
 import com.trib3.graphql.resources.GraphQLResourceContext
+import com.trib3.server.config.TribeApplicationConfig
+import com.trib3.testing.LeakyMock
 import com.trib3.testing.mock
 import org.easymock.EasyMock
 import org.easymock.EasyMockSupport
 import org.testng.annotations.Test
+import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
+import java.util.Properties
 import java.util.UUID
+import javax.mail.Message.RecipientType
+import javax.mail.internet.MimeMessage
 
 /**
  * Support class to set up a mock Mutation per test with access to various
@@ -42,13 +58,25 @@ class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
     val gradeDAO: GradeDAO = mock()
     val hasher: Hasher = mock()
     val userAuthenticator = UserAuthenticator(userDAO, hasher)
-    val mutation = Mutation(questionDAO, sessionDAO, userDAO, responseDAO, gradeDAO, userAuthenticator)
+    val instanceDAO: InstanceDAO = mock()
+    val gmailServiceFactory: GmailServiceFactory = mock()
+    val mutation = Mutation(
+        questionDAO,
+        sessionDAO,
+        userDAO,
+        responseDAO,
+        gradeDAO,
+        userAuthenticator,
+        instanceDAO,
+        gmailServiceFactory,
+        TribeApplicationConfig(ConfigLoader())
+    )
     val emptyContext = GraphQLResourceContext(null)
     val user = User(
         UUID.randomUUID(), UUID.randomUUID(), "user", "user", "pass", false, "UTC"
     )
     val admin = User(
-        UUID.randomUUID(), UUID.randomUUID(), "admin", "admin", "pass", true, "UTC"
+        UUID.randomUUID(), UUID.randomUUID(), "admin", "admin@admin.com", "pass", true, "UTC"
     )
     val session = Session(
         UUID.randomUUID(), user.id!!, OffsetDateTime.now(), OffsetDateTime.now()
@@ -461,7 +489,7 @@ class MutationTest {
         lateinit var userToEdit: User
         MockMutation {
             userToEdit = User(user.id, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC")
-            EasyMock.expect(userDAO.save(userToEdit)).andReturn(userToEdit)
+            EasyMock.expect(userDAO.save(userToEdit)).andReturn(userToEdit).times(2)
         }.test {
             assertThat(
                 mutation.user(
@@ -469,6 +497,117 @@ class MutationTest {
                     userToEdit
                 )
             ).isEqualTo(userToEdit)
+            assertThat(
+                mutation.users(
+                    adminContext,
+                    listOf(userToEdit)
+                )
+            ).isEqualTo(listOf(userToEdit))
+        }
+    }
+
+    /**
+     * Test that an admin can create other users
+     */
+    @Test
+    fun testUserCreateOtherAsAdminWithNoEmail() {
+        lateinit var userToEdit: User
+        MockMutation {
+            userToEdit = User(null, user.instanceId, "bill", "bill@gmail.com", "pass", false, "UTC")
+            EasyMock.expect(hasher.hash(LeakyMock.anyString())).andReturn("hashedsecret")
+            EasyMock.expect(userDAO.save(userToEdit.copy(authCrypt = "hashedsecret")))
+                .andReturn(
+                    userToEdit.copy(
+                        id = UUID.fromString("9eed42c1-4469-4b36-8417-e7e35fe45bd5"),
+                        authCrypt = "hashedsecret"
+                    )
+                )
+            EasyMock.expect(gmailServiceFactory.getService(admin.instanceId)).andReturn(null)
+        }.test {
+            assertThat(
+                mutation.user(
+                    adminContext,
+                    userToEdit
+                )
+            ).isEqualTo(
+                userToEdit.copy(
+                    id = UUID.fromString("9eed42c1-4469-4b36-8417-e7e35fe45bd5"),
+                    authCrypt = "hashedsecret"
+                )
+            )
+        }
+    }
+
+    /**
+     * Test that an admin can create other users and send email
+     */
+    @Test
+    fun testUserCreateOtherAsAdminWithWelcomeEmail() {
+        lateinit var userToEdit: User
+        val sentMessageCapture = EasyMock.newCapture<Message>()
+        MockMutation {
+            userToEdit = User(null, user.instanceId, "bill", "bill@gmail.com", "pass", false, "UTC")
+            EasyMock.expect(hasher.hash(LeakyMock.anyString())).andReturn("hashedsecret")
+            EasyMock.expect(userDAO.save(userToEdit.copy(authCrypt = "hashedsecret")))
+                .andReturn(
+                    userToEdit.copy(
+                        id = UUID.fromString("9eed42c1-4469-4b36-8417-e7e35fe45bd5"),
+                        authCrypt = "hashedsecret"
+                    )
+                )
+            val gmsMock: GmailService = mock()
+            val gmailMock: Gmail = mock()
+            val usersMock: Gmail.Users = mock()
+            val messagesMock: Gmail.Users.Messages = mock()
+            val sendMock: Gmail.Users.Messages.Send = mock()
+
+            val oauthMock: Oauth2 = mock()
+            val userInfoMock: Oauth2.Userinfo = mock()
+            val uiv2Mock: Oauth2.Userinfo.V2 = mock()
+            val meMock: Oauth2.Userinfo.V2.Me = mock()
+            val meGetMock: Oauth2.Userinfo.V2.Me.Get = mock()
+            EasyMock.expect(gmailServiceFactory.getService(admin.instanceId)).andReturn(gmsMock)
+            EasyMock.expect(gmsMock.gmail).andReturn(gmailMock)
+            EasyMock.expect(gmailMock.users()).andReturn(usersMock)
+            EasyMock.expect(usersMock.messages()).andReturn(messagesMock)
+            EasyMock.expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
+                .andReturn(sendMock)
+            EasyMock.expect(sendMock.execute()).andReturn(Message())
+            EasyMock.expect(gmsMock.oauth).andReturn(oauthMock)
+            EasyMock.expect(oauthMock.userinfo()).andReturn(userInfoMock)
+            EasyMock.expect(userInfoMock.v2()).andReturn(uiv2Mock)
+            EasyMock.expect(uiv2Mock.me()).andReturn(meMock)
+            EasyMock.expect(meMock.get()).andReturn(meGetMock)
+            EasyMock.expect(meGetMock.execute()).andReturn(Userinfoplus().apply { email = admin.email })
+            EasyMock.expect(instanceDAO.get(admin.instanceId))
+                .andReturn(Instance(admin.instanceId, "Instance Name", "ACTIVE"))
+        }.test {
+            assertThat(
+                mutation.user(
+                    adminContext,
+                    userToEdit
+                )
+            ).isEqualTo(
+                userToEdit.copy(
+                    id = UUID.fromString("9eed42c1-4469-4b36-8417-e7e35fe45bd5"),
+                    authCrypt = "hashedsecret"
+                )
+            )
+            val message = sentMessageCapture.value
+            val mimeMessage = MimeMessage(
+                javax.mail.Session.getDefaultInstance(Properties()),
+                ByteArrayInputStream(message.decodeRaw())
+            )
+            assertThat(mimeMessage.getRecipients(RecipientType.TO).toList().map { it.toString() })
+                .isEqualTo(listOf("bill <bill@gmail.com>"))
+            assertThat(mimeMessage.from.toList().map { it.toString() })
+                .isEqualTo(listOf("Instance Name <admin@admin.com>"))
+            assertThat(mimeMessage.subject).isEqualTo("Welcome to Instance Name")
+            assertThat(mimeMessage.content.toString()).contains("Welcome bill")
+            assertThat(mimeMessage.content.toString())
+                .contains("admin has invited you to participate in Instance Name")
+            assertThat(mimeMessage.content.toString()).contains("User: bill@gmail.com")
+            assertThat(mimeMessage.content.toString()).contains("Password: ")
         }
     }
 
@@ -480,7 +619,7 @@ class MutationTest {
         lateinit var userToEdit: User
         MockMutation {
             userToEdit = User(user.id, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC")
-            EasyMock.expect(userDAO.save(userToEdit)).andReturn(userToEdit)
+            EasyMock.expect(userDAO.save(userToEdit)).andReturn(userToEdit).times(2)
         }.test {
             assertThat(
                 mutation.user(
@@ -488,6 +627,12 @@ class MutationTest {
                     userToEdit
                 )
             ).isEqualTo(userToEdit)
+            assertThat(
+                mutation.users(
+                    userSessionContext,
+                    listOf(userToEdit)
+                )
+            ).isEqualTo(listOf(userToEdit))
         }
     }
 
@@ -503,6 +648,12 @@ class MutationTest {
                     User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC")
                 )
             ).isNull()
+            assertThat(
+                mutation.users(
+                    userSessionContext,
+                    listOf(User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC"))
+                )
+            ).isEqualTo(listOf(null))
         }
     }
 
@@ -518,6 +669,12 @@ class MutationTest {
                     User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC")
                 )
             ).isNull()
+            assertThat(
+                mutation.users(
+                    emptyContext,
+                    listOf(User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC"))
+                )
+            ).isEqualTo(listOf(null))
         }
     }
 }

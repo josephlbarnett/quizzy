@@ -1,5 +1,7 @@
 package com.joe.quizzy.api.models
 
+import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.UUID
 
 data class User(
@@ -7,7 +9,7 @@ data class User(
     val instanceId: UUID,
     val name: String,
     val email: String,
-    val authCrypt: String?,
+    @get:JsonIgnore @GraphQLIgnore val authCrypt: String?,
     val admin: Boolean,
     val timeZoneId: String
 )

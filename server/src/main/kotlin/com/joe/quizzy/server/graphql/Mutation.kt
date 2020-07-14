@@ -7,17 +7,25 @@ import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.Session
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.GradeDAO
+import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.server.auth.UserAuthenticator
 import com.joe.quizzy.server.auth.UserPrincipal
+import com.joe.quizzy.server.mail.GmailServiceFactory
+import com.joe.quizzy.server.mail.sendEmail
 import com.trib3.graphql.resources.GraphQLResourceContext
+import com.trib3.server.config.TribeApplicationConfig
 import io.dropwizard.auth.basic.BasicCredentials
 import java.time.OffsetDateTime
 import java.util.Date
+import java.util.Properties
+import java.util.UUID
 import javax.inject.Inject
+import javax.mail.Message
+import javax.mail.internet.MimeMessage
 import javax.ws.rs.core.Cookie
 import javax.ws.rs.core.NewCookie
 
@@ -32,7 +40,10 @@ class Mutation @Inject constructor(
     private val userDAO: UserDAO,
     private val responseDAO: ResponseDAO,
     private val gradeDAO: GradeDAO,
-    private val userAuthenticator: UserAuthenticator
+    private val userAuthenticator: UserAuthenticator,
+    private val instanceDAO: InstanceDAO,
+    private val gmailServiceFactory: GmailServiceFactory,
+    private val appConfig: TribeApplicationConfig
 ) : GraphQLQueryResolver {
 
     fun login(context: GraphQLResourceContext, email: String, pass: String): Boolean {
@@ -97,11 +108,49 @@ class Mutation @Inject constructor(
         return false
     }
 
+    fun users(context: GraphQLResourceContext, users: List<User>): List<User?> {
+        return users.map { user(context, it) }
+    }
+
     fun user(context: GraphQLResourceContext, user: User): User? {
         val principal = context.principal
         if (principal is UserPrincipal) {
-            if (principal.user.admin || principal.user.id == user.id) {
-                return userDAO.save(user)
+            if (principal.user.admin || (principal.user.id != null && principal.user.id == user.id)) {
+                val password = if (user.id == null) {
+                    // generate new password
+                    UUID.randomUUID().toString()
+                } else {
+                    null
+                }
+                val savedUser = if (password != null) {
+                    user.copy(authCrypt = userAuthenticator.hasher.hash(password))
+                } else {
+                    user
+                }.let {
+                    userDAO.save(it)
+                }
+                if (savedUser.id != user.id) {
+                    // new user!
+                    gmailServiceFactory.getService(principal.user.instanceId)?.let { gmail ->
+                        val instanceAddress = gmail.oauth.userinfo().v2().me().get().execute().email
+                        val instanceName = instanceDAO.get(principal.user.instanceId)?.name ?: "Quizzy"
+                        val message = MimeMessage(javax.mail.Session.getDefaultInstance(Properties(), null))
+                        message.setFrom("$instanceName <$instanceAddress>")
+                        message.addRecipients(
+                            Message.RecipientType.TO, "${savedUser.name} <${savedUser.email}>"
+                        )
+                        message.subject = "Welcome to $instanceName"
+                        message.setText(
+                            "Welcome ${savedUser.name}!\n\n" +
+                                "${principal.user.name} has invited you to participate in $instanceName.\n\n" +
+                                "Go to https://${appConfig.corsDomains[0]} and login:\n\n" +
+                                "User: ${savedUser.email}\n" +
+                                "Password: ${password}\n"
+                        )
+                        gmail.gmail.sendEmail("me", message).execute()
+                    }
+                }
+                return savedUser
             }
         }
         return null
