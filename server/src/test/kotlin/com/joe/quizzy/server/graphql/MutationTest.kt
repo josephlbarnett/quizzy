@@ -10,7 +10,7 @@ import assertk.assertions.isTrue
 import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.model.Message
 import com.google.api.services.oauth2.Oauth2
-import com.google.api.services.oauth2.model.Userinfoplus
+import com.google.api.services.oauth2.model.Userinfo
 import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.Question
@@ -578,7 +578,7 @@ class MutationTest {
             EasyMock.expect(userInfoMock.v2()).andReturn(uiv2Mock)
             EasyMock.expect(uiv2Mock.me()).andReturn(meMock)
             EasyMock.expect(meMock.get()).andReturn(meGetMock)
-            EasyMock.expect(meGetMock.execute()).andReturn(Userinfoplus().apply { email = admin.email })
+            EasyMock.expect(meGetMock.execute()).andReturn(Userinfo().apply { email = admin.email })
             EasyMock.expect(instanceDAO.get(admin.instanceId))
                 .andReturn(Instance(admin.instanceId, "Instance Name", "ACTIVE"))
         }.test {
