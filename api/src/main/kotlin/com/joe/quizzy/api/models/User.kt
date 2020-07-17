@@ -11,5 +11,7 @@ data class User(
     val email: String,
     @get:JsonIgnore @GraphQLIgnore val authCrypt: String?,
     val admin: Boolean,
-    val timeZoneId: String
+    val timeZoneId: String,
+    val notifyViaEmail: Boolean = true,
+    @get:JsonIgnore @GraphQLIgnore val passwordResetToken: String? = null
 )

@@ -56,6 +56,7 @@ open class UserDAOJooq
     override fun savePassword(user: User, cryptedPass: String): Int {
         return ctx.transactionResult { config ->
             config.dsl().update(Tables.USERS).set(Tables.USERS.AUTH_CRYPT, cryptedPass)
+                .set(Tables.USERS.PASSWORD_RESET_TOKEN, null as String?)
                 .where(Tables.USERS.ID.eq(user.id))
                 .execute().also {
                     if (it != 1) {

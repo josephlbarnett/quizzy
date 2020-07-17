@@ -16,7 +16,8 @@ data class ApiUser(
     val name: String,
     val email: String,
     val admin: Boolean,
-    val timeZoneId: String
+    val timeZoneId: String,
+    val notifyViaEmail: Boolean
 ) {
     constructor(
         user: User
@@ -26,7 +27,8 @@ data class ApiUser(
         user.name,
         user.email,
         user.admin,
-        user.timeZoneId
+        user.timeZoneId,
+        user.notifyViaEmail
     )
 
     fun score(dfe: DataFetchingEnvironment): CompletableFuture<Int> {

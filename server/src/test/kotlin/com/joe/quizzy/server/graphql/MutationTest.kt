@@ -28,6 +28,7 @@ import com.joe.quizzy.server.auth.UserAuthenticator
 import com.joe.quizzy.server.auth.UserPrincipal
 import com.joe.quizzy.server.mail.GmailService
 import com.joe.quizzy.server.mail.GmailServiceFactory
+import com.joe.quizzy.server.mail.persistedInstance
 import com.trib3.config.ConfigLoader
 import com.trib3.graphql.resources.GraphQLResourceContext
 import com.trib3.server.config.TribeApplicationConfig
@@ -293,6 +294,145 @@ class MutationTest {
                     "pass",
                     "newpass"
                 )
+            ).isFalse()
+        }
+    }
+
+    @Test
+    fun testRequestPasswordResetEmail() {
+        val sentMessageCapture = EasyMock.newCapture<Message>()
+        val generatedCodeCapture = EasyMock.newCapture<String>()
+        MockMutation {
+            EasyMock.expect(userDAO.getByEmail(user.email)).andReturn(user)
+            EasyMock.expect(instanceDAO.get(user.instanceId)).andReturn(persistedInstance)
+            EasyMock.expect(userAuthenticator.hasher.hash(EasyMock.capture(generatedCodeCapture) ?: ""))
+                .andReturn("hashedCode")
+            EasyMock.expect(userDAO.save(user.copy(passwordResetToken = "hashedCode")))
+                .andReturn(user.copy(passwordResetToken = "hashedCode"))
+
+            val gmsMock: GmailService = mock()
+            val gmailMock: Gmail = mock()
+            val usersMock: Gmail.Users = mock()
+            val messagesMock: Gmail.Users.Messages = mock()
+            val sendMock: Gmail.Users.Messages.Send = mock()
+
+            val oauthMock: Oauth2 = mock()
+            val userInfoMock: Oauth2.Userinfo = mock()
+            val uiv2Mock: Oauth2.Userinfo.V2 = mock()
+            val meMock: Oauth2.Userinfo.V2.Me = mock()
+            val meGetMock: Oauth2.Userinfo.V2.Me.Get = mock()
+            EasyMock.expect(gmailServiceFactory.getService(user.instanceId)).andReturn(gmsMock)
+            EasyMock.expect(gmsMock.gmail).andReturn(gmailMock)
+            EasyMock.expect(gmailMock.users()).andReturn(usersMock)
+            EasyMock.expect(usersMock.messages()).andReturn(messagesMock)
+            EasyMock.expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
+                .andReturn(sendMock)
+            EasyMock.expect(sendMock.execute()).andReturn(Message())
+            EasyMock.expect(gmsMock.oauth).andReturn(oauthMock)
+            EasyMock.expect(oauthMock.userinfo()).andReturn(userInfoMock)
+            EasyMock.expect(userInfoMock.v2()).andReturn(uiv2Mock)
+            EasyMock.expect(uiv2Mock.me()).andReturn(meMock)
+            EasyMock.expect(meMock.get()).andReturn(meGetMock)
+            EasyMock.expect(meGetMock.execute()).andReturn(Userinfo().apply { email = admin.email })
+        }.test {
+            assertThat(
+                mutation.requestPasswordReset(user.email)
+            ).isTrue()
+            val message = sentMessageCapture.value
+            val mimeMessage = MimeMessage(
+                javax.mail.Session.getDefaultInstance(Properties()),
+                ByteArrayInputStream(message.decodeRaw())
+            )
+            assertThat(mimeMessage.getRecipients(RecipientType.TO).toList().map { it.toString() })
+                .isEqualTo(listOf("user <user>"))
+            assertThat(mimeMessage.from.toList().map { it.toString() })
+                .isEqualTo(listOf("persisted <admin@admin.com>"))
+            assertThat(mimeMessage.subject).isEqualTo("persisted Password Reset")
+            assertThat(mimeMessage.content.toString()).contains("Hello user")
+            assertThat(mimeMessage.content.toString())
+                .contains("We received a request to reset your password for persisted.")
+            assertThat(mimeMessage.content.toString())
+                .contains("Use the following code complete the password reset process: $generatedCodeCapture")
+            assertThat(mimeMessage.content.toString())
+                .contains(
+                    "Or click here: https://localhost/app/assets#/passreset?" +
+                        "code=$generatedCodeCapture&email=user"
+                )
+        }
+    }
+
+    @Test
+    fun testRequestPasswordResetNoUser() {
+        MockMutation {
+            EasyMock.expect(userDAO.getByEmail(user.email)).andReturn(null)
+        }.test {
+            assertThat(
+                mutation.requestPasswordReset(user.email)
+            ).isTrue()
+        }
+    }
+
+    @Test
+    fun testRequestPasswordResetNoGmailService() {
+        MockMutation {
+            EasyMock.expect(userDAO.getByEmail(user.email)).andReturn(user)
+            EasyMock.expect(gmailServiceFactory.getService(user.instanceId)).andReturn(null)
+        }.test {
+            assertThat(
+                mutation.requestPasswordReset(user.email)
+            ).isTrue()
+        }
+    }
+
+    @Test
+    fun testCompletePasswordReset() {
+        MockMutation {
+            EasyMock.expect(hasher.hash("newpassword")).andReturn("newhash")
+            EasyMock.expect(hasher.verify("secrethash", "secretcode")).andReturn(true)
+            EasyMock.expect(userDAO.getByEmail(user.email))
+                .andReturn(user.copy(passwordResetToken = "secrethash"))
+            EasyMock.expect(userDAO.savePassword(user.copy(passwordResetToken = "secrethash"), "newhash"))
+                .andReturn(1)
+        }.test {
+            assertThat(
+                mutation.completePasswordReset(user.email, "secretcode", "newpassword")
+            ).isTrue()
+        }
+    }
+
+    @Test
+    fun testCompletePasswordResetFailed() {
+        MockMutation {
+            EasyMock.expect(hasher.verify("secrethash", "wrongsecretcode")).andReturn(false)
+            EasyMock.expect(userDAO.getByEmail(user.email))
+                .andReturn(user.copy(passwordResetToken = "secrethash"))
+        }.test {
+            assertThat(
+                mutation.completePasswordReset(user.email, "wrongsecretcode", "newpassword")
+            ).isFalse()
+        }
+    }
+
+    @Test
+    fun testCompletePasswordResetNeverRequested() {
+        MockMutation {
+            EasyMock.expect(userDAO.getByEmail(user.email))
+                .andReturn(user)
+        }.test {
+            assertThat(
+                mutation.completePasswordReset(user.email, "norealcode", "newpassword")
+            ).isFalse()
+        }
+    }
+
+    @Test
+    fun testCompletePasswordResetNoUser() {
+        MockMutation {
+            EasyMock.expect(userDAO.getByEmail(user.email))
+                .andReturn(null)
+        }.test {
+            assertThat(
+                mutation.completePasswordReset(user.email, "norealcode", "newpassword")
             ).isFalse()
         }
     }

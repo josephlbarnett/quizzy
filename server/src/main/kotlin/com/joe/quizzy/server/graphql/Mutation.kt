@@ -19,6 +19,7 @@ import com.joe.quizzy.server.mail.sendEmail
 import com.trib3.graphql.resources.GraphQLResourceContext
 import com.trib3.server.config.TribeApplicationConfig
 import io.dropwizard.auth.basic.BasicCredentials
+import java.net.URLEncoder
 import java.time.OffsetDateTime
 import java.util.Date
 import java.util.Properties
@@ -104,6 +105,45 @@ class Mutation @Inject constructor(
                 sessionDAO.delete(session)
             }
             return true
+        }
+        return false
+    }
+
+    fun requestPasswordReset(email: String): Boolean {
+        val user = userDAO.getByEmail(email)
+        if (user != null) {
+            gmailServiceFactory.getService(user.instanceId)?.let { gmail ->
+                val instanceAddress = gmail.oauth.userinfo().v2().me().get().execute().email
+                val instanceName = instanceDAO.get(user.instanceId)?.name ?: "Quizzy"
+                val message = MimeMessage(javax.mail.Session.getDefaultInstance(Properties(), null))
+                val code = UUID.randomUUID().toString()
+                message.setFrom("$instanceName <$instanceAddress>")
+                message.addRecipients(
+                    Message.RecipientType.TO, "${user.name} <${user.email}>"
+                )
+                message.subject = "$instanceName Password Reset"
+                message.setText(
+                    "Hello ${user.name},\n\n" +
+                        "We received a request to reset your password for $instanceName.\n\n" +
+                        "Use the following code complete the password reset process: ${code}\n\n" +
+                        "Or click here: https://${appConfig.corsDomains[0]}/app/assets#/passreset" +
+                        "?code=$code&email=${URLEncoder.encode(user.email, "UTF-8")}"
+                )
+                userDAO.save(user.copy(passwordResetToken = userAuthenticator.hasher.hash(code)))
+                gmail.gmail.sendEmail("me", message).execute()
+            }
+        }
+        return true
+    }
+
+    fun completePasswordReset(email: String, code: String, newPass: String): Boolean {
+        val user = userDAO.getByEmail(email)
+        val existingCode = user?.passwordResetToken
+        if (existingCode != null) {
+            if (userAuthenticator.hasher.verify(existingCode, code)) {
+                userDAO.savePassword(user, userAuthenticator.hasher.hash(newPass))
+                return true
+            }
         }
         return false
     }
