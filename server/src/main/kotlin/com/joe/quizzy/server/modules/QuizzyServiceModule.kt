@@ -14,9 +14,13 @@ import com.joe.quizzy.server.graphql.Mutation
 import com.joe.quizzy.server.graphql.Query
 import com.joe.quizzy.server.graphql.dataloaders.DataLoaderRegistryFactoryProvider
 import com.joe.quizzy.server.mail.GmailServiceModule
+import com.joe.quizzy.server.mail.ScheduledEmailBundle
 import com.trib3.graphql.modules.GraphQLApplicationModule
 import com.trib3.server.filters.CookieTokenAuthFilter
 import com.trib3.server.modules.ServletConfig
+import dev.misfitlabs.kotlinguice4.multibindings.KotlinMultibinder
+import io.dropwizard.Configuration
+import io.dropwizard.ConfiguredBundle
 import io.dropwizard.auth.AuthDynamicFeature
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter
 import io.dropwizard.auth.chained.ChainedAuthFilter
@@ -56,6 +60,8 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
         graphQLQueriesBinder().addBinding().to<Query>()
         graphQLMutationsBinder().addBinding().to<Mutation>()
         // graphQLSubscriptionsBinder().addBinding().to<Subscription>()
+        KotlinMultibinder.newSetBinder<ConfiguredBundle<Configuration>>(kotlinBinder).addBinding()
+            .to<ScheduledEmailBundle>()
         resourceBinder().addBinding().to<RedirectResource>()
         bind<Hasher>().to<Argon2Hasher>()
         appServletBinder().addBinding().toInstance(

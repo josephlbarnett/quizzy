@@ -6,6 +6,7 @@
         (result) => {
           if (result && result.data && result.data.user) {
             this.name = result.data.user.name;
+            this.notifyViaEmail = result.data.user.notifyViaEmail;
             this.setTz(result.data.user.timeZoneId);
           }
         }
@@ -26,6 +27,7 @@
               email: data.user.email,
               admin: data.user.admin,
               timeZoneId: timezone,
+              notifyViaEmail: notifyViaEmail,
             }"
             :refetch-queries="() => [`currentUser`]"
             :await-refetch-queries="true"
@@ -55,6 +57,10 @@
                         item-text="name"
                         item-value="value"
                       ></v-autocomplete>
+                      <v-checkbox
+                        v-model="notifyViaEmail"
+                        label="Notify of new questions via email?"
+                      ></v-checkbox>
                     </v-card-text>
                     <v-card-actions>
                       <v-btn @click="mutate()" color="accent">Save</v-btn>
@@ -169,6 +175,7 @@ export default Vue.extend({
     oldPassword: "",
     newPasswordOne: "",
     newPasswordTwo: "",
+    notifyViaEmail: false,
     tzs: [
       {
         name: `Autodetect -- ${moment.tz.guess()} (${moment

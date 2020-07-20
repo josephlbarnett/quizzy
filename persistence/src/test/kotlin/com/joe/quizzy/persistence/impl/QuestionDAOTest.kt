@@ -48,6 +48,8 @@ class QuestionDAOTest : PostgresDAOTestBase() {
             Question(null, userId, "future", "", "", oneHourFromNow, oneHourFromNow)
         )
         questions.forEach { dao.save(it) }
+        assertThat(dao.active().map { it.body }.first()).isEqualTo("current")
+        assertThat(dao.closed().map { it.body }.first()).isEqualTo("past")
         assertThat(dao.active(user.copy(id = userId)).map { it.body }.first()).isEqualTo("current")
         assertThat(dao.closed(user.copy(id = userId)).map { it.body }.first()).isEqualTo("past")
         assertThat(dao.future(user.copy(id = userId)).map { it.body }.first()).isEqualTo("future")

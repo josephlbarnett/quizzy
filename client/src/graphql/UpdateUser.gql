@@ -4,7 +4,8 @@ mutation updateUser(
     $instanceId: UUID!,
     $email: String!,
     $admin: Boolean!,
-    $timeZoneId: String!
+    $timeZoneId: String!,
+    $notifyViaEmail: Boolean!
 ) {
     user(user: {
         id: $id
@@ -13,6 +14,7 @@ mutation updateUser(
         name: $name
         admin: $admin
         timeZoneId: $timeZoneId
+        notifyViaEmail: $notifyViaEmail
     }) {
       id
       instanceId

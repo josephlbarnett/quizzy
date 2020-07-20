@@ -20,6 +20,7 @@ const mockUser = {
   name: "me",
   admin: false,
   timeZoneId: "UTC",
+  notifyViaEmail: false,
   score: 18,
 };
 
@@ -80,6 +81,7 @@ describe("Future Questions page tests", () => {
     );
     const page = mountFutureQuestions(mockClient);
     await page.vm.$nextTick();
+    await page.vm.$nextTick();
     expect(page.text()).toBe("An error occurred");
   });
 
@@ -108,6 +110,7 @@ describe("Future Questions page tests", () => {
     );
     const page = mountFutureQuestions(mockClient);
     await page.vm.$nextTick();
+    await page.vm.$nextTick();
     expect(page.vm.$data.timezone).toBe("UTC");
     const rows = page.findAll("tbody tr");
     expect(rows.length).toBe(mockQuestions.length);
@@ -135,6 +138,7 @@ describe("Future Questions page tests", () => {
       Promise.resolve({ data: { futureQuestions: mockQuestions } })
     );
     const page = mountFutureQuestions(mockClient);
+    await page.vm.$nextTick();
     await page.vm.$nextTick();
     const table = page.find(".v-data-table");
 
@@ -184,6 +188,7 @@ describe("Future Questions page tests", () => {
     const mockMutation = jest.fn();
     mockClient.setRequestHandler(saveQuestionMutation, mockMutation);
     const page = mountFutureQuestions(mockClient);
+    await page.vm.$nextTick();
     await page.vm.$nextTick();
     const table = page.find(".v-data-table");
     table.vm.$emit("click:row", mockQuestions[0]);

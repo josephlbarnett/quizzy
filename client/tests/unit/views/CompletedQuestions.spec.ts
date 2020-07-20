@@ -21,6 +21,7 @@ const mockUser = {
   name: "me",
   admin: false,
   timeZoneId: "UTC",
+  notifyViaEmail: false,
   score: 18,
 };
 
@@ -228,6 +229,7 @@ describe("Completed Questions page tests", () => {
     );
     const page = mountCompletedQuestions(mockClient);
     await page.vm.$nextTick();
+    await page.vm.$nextTick();
     expect(page.text()).toBe("An error occurred");
   });
 
@@ -240,6 +242,7 @@ describe("Completed Questions page tests", () => {
       Promise.resolve({ data: { user: mockUser } })
     );
     const page = mountCompletedQuestions(mockClient);
+    await page.vm.$nextTick();
     await page.vm.$nextTick();
     expect(page.vm.$data.userTZ).toBe("UTC");
     const rows = page.findAll("tbody tr");
@@ -283,6 +286,7 @@ describe("Completed Questions page tests", () => {
       Promise.resolve({ data: { user: mockUser } })
     );
     const page = mountCompletedQuestions(mockClient);
+    await page.vm.$nextTick();
     await page.vm.$nextTick();
     const table = page.find(".v-data-table");
 

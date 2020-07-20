@@ -10,5 +10,6 @@ query currentUser {
       name
       admin
       timeZoneId
+      notifyViaEmail
     }
 }

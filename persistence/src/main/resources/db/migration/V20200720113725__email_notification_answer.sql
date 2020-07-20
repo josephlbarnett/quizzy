@@ -1,0 +1,1 @@
+alter table questions add column sent_answer boolean NOT NULL DEFAULT FALSE;

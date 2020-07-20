@@ -4,7 +4,7 @@
   "extensions": {
     "endpoints": {
       "Remote GraphQL Endpoint": {
-        "url": "https://quizzy-joe.herokuapp.com/app/graphql",
+        "url": "https://fb-rules-exchange.herokuapp.com/app/graphql",
         "introspect": true
       },
       "Local GraphQL Endpoint": {
