@@ -19,6 +19,7 @@ const mockUser = {
   name: "joe test",
   admin: false,
   timeZoneId: "America/Los_Angeles",
+  notifyViaEmail: false,
   __typename: "ApiUser",
 };
 
@@ -164,6 +165,7 @@ describe("Login Tests", () => {
     const button = login.find("button");
     await button.trigger("click");
     await login.vm.$nextTick();
+    await login.vm.$nextTick();
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(mutationMock.mock.calls[0][0].email).toBe("joe@joe.com");
     expect(pushMock.mock.calls.length).toBe(1);
@@ -233,6 +235,7 @@ describe("Login Tests", () => {
     await pw2Input.find("input").setValue("456");
     await button.trigger("click");
     await login.vm.$nextTick();
+    await login.vm.$nextTick();
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(mutationMock.mock.calls[0][0].email).toBe("joe@joe.com");
     expect(mutationMock.mock.calls[0][0].code).toBe("123");
@@ -272,6 +275,7 @@ describe("Login Tests", () => {
     await pw1Input.find("input").setValue("456");
     await pw2Input.find("input").setValue("456");
     await button.trigger("click");
+    await login.vm.$nextTick();
     await login.vm.$nextTick();
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(mutationMock.mock.calls[0][0].email).toBe("joe@joe.com");

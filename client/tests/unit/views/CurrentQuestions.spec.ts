@@ -21,6 +21,7 @@ const mockUser = {
   name: "me",
   admin: false,
   timeZoneId: "UTC",
+  notifyViaEmail: false,
   score: 18,
 };
 
@@ -91,6 +92,7 @@ describe("Current questions page tests", () => {
     );
     const page = mountCurrentQuestions(mockClient);
     await page.vm.$nextTick();
+    await page.vm.$nextTick();
     expect(page.text()).toBe("An error occurred");
   });
 
@@ -103,6 +105,7 @@ describe("Current questions page tests", () => {
       Promise.resolve({ data: { user: mockUser } })
     );
     const page = mountCurrentQuestions(mockClient);
+    await page.vm.$nextTick();
     await page.vm.$nextTick();
     const rows = page.findAll("tbody tr");
     expect(rows.length).toBe(mockQuestions.length);
@@ -133,9 +136,11 @@ describe("Current questions page tests", () => {
     mockClient.setRequestHandler(saveResponseMutation, mockMutation);
     const page = mountCurrentQuestions(mockClient);
     await page.vm.$nextTick();
+    await page.vm.$nextTick();
     const table = page.find(".v-data-table");
     for (let i = 0; i < mockQuestions.length; i++) {
       table.vm.$emit("click:row", mockQuestions[i]);
+      await page.vm.$nextTick();
       await page.vm.$nextTick();
       expect(page.find(".v-dialog .v-card__title").text()).toContain(
         mockQuestions[i].author.name

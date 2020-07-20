@@ -18,6 +18,7 @@ const mockUser = {
   name: "joe test",
   admin: false,
   timeZoneId: "America/Los_Angeles",
+  notifyViaEmail: false,
   __typename: "ApiUser",
 };
 
@@ -99,6 +100,7 @@ describe("user page tests", () => {
     const button = userPage.findAll("button").at(0);
     await button.trigger("click");
     await userPage.vm.$nextTick();
+    await userPage.vm.$nextTick();
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(userPage.vm.$data.saveConfirm).toBe(true);
     expect(userPage.vm.$data.saveError).toBe(false);
@@ -115,6 +117,7 @@ describe("user page tests", () => {
     await userPage.vm.$nextTick();
     const button = userPage.findAll("button").at(0);
     await button.trigger("click");
+    await userPage.vm.$nextTick();
     await userPage.vm.$nextTick();
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(userPage.vm.$data.saveConfirm).toBe(false);
@@ -134,6 +137,7 @@ describe("user page tests", () => {
     await userPage.vm.$nextTick();
     const button = userPage.findAll("button").at(1);
     await button.trigger("click");
+    await userPage.vm.$nextTick();
     await userPage.vm.$nextTick();
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(userPage.vm.$data.passConfirm).toBe(true);
@@ -169,6 +173,7 @@ describe("user page tests", () => {
     await userPage.vm.$nextTick();
     const button = userPage.findAll("button").at(1);
     await button.trigger("click");
+    await userPage.vm.$nextTick();
     await userPage.vm.$nextTick();
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(mutationMock.mock.calls[0][0].old).toBe("abcd");
@@ -206,6 +211,7 @@ describe("user page tests", () => {
     await userPage.vm.$nextTick();
     const button = userPage.findAll("button").at(1);
     await button.trigger("click");
+    await userPage.vm.$nextTick();
     await userPage.vm.$nextTick();
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(userPage.vm.$data.passConfirm).toBe(true);
