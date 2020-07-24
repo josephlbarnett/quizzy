@@ -1,5 +1,6 @@
 package com.joe.quizzy.server.mail
 
+import com.github.mustachejava.DefaultMustacheFactory
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
@@ -22,6 +23,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
 import mu.KotlinLogging
+import java.io.InputStreamReader
+import java.io.StringWriter
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.util.Properties
@@ -31,6 +34,7 @@ import javax.inject.Inject
 import javax.mail.Message
 import javax.mail.Session
 import javax.mail.internet.MimeMessage
+import javax.ws.rs.core.MediaType
 
 private val log = KotlinLogging.logger {}
 
@@ -69,6 +73,12 @@ class ScheduledEmailBundle(
     )
 
     internal var pollJob: Job? = null
+    private val htmlTemplate =
+        ScheduledEmailBundle::class.java.getResourceAsStream("/assets/emails/question.html").let {
+            InputStreamReader(it).use { reader ->
+                DefaultMustacheFactory().compile(reader, "question")
+            }
+        }
 
     /**
      * Sends an email to all users with notifications enabled containing
@@ -95,39 +105,37 @@ class ScheduledEmailBundle(
                 "Questions"
             }
             message.subject = "New $questionAnswerString Available from $instanceName"
-            val questionString = if (questions.isNotEmpty()) {
-                "\n\n${questions.size} new question${if (questions.size > 1) "s are" else " is"} " +
-                    "available from $instanceName." +
-                    questions.mapIndexed { i, it ->
-                        "\n\n${i + 1}: ${it.body}"
-                    }.joinToString("")
-            } else {
-                ""
+            val countObject = { size: Int ->
+                when (size) {
+                    0 -> null
+                    1 -> mapOf("num" to size, "plural" to " is")
+                    else -> mapOf("num" to size, "plural" to "s are")
+                }
             }
-            val answerString = if (answers.isNotEmpty()) {
-                "\n\n${answers.size} new answer${if (answers.size > 1) "s are" else " is"} " +
-                    "available from $instanceName." +
-                    answers.mapIndexed { i, it ->
-                        "\n\n${i + 1}: ${it.body}\n" +
-                            "Answer: ${it.answer}\n" +
-                            "Rule References: ${it.ruleReferences}"
-                    }.joinToString("")
-            } else {
-                ""
-            }
-            val submitString = if (questions.isNotEmpty()) {
-                " and submit your answer${if (questions.size > 1) "s" else ""}"
-            } else {
-                ""
-            }
-            message.setText(
-                "Hello,\n\n" +
-                    questionString +
-                    answerString +
-                    "\n\nClick here: https://${appConfig.corsDomains[0]} to view " +
-                    (if ((questions.size + answers.size) > 1) "them" else "it") +
-                    "$submitString."
+            message.setContent(
+                htmlTemplate.execute(
+                    StringWriter(),
+                    mapOf(
+                        "instanceName" to instanceName,
+                        "domainLink" to "https://${appConfig.corsDomains[0]}",
+                        "questionCount" to countObject(questions.size),
+                        "answerCount" to countObject(answers.size),
+                        "question" to questions.mapIndexed { index, question ->
+                            mapOf("index" to index + 1, "body" to question.body)
+                        },
+                        "answer" to answers.mapIndexed { index, question ->
+                            mapOf(
+                                "index" to index + 1,
+                                "body" to question.body,
+                                "answer" to question.answer,
+                                "ruleReferences" to question.ruleReferences
+                            )
+                        }
+                    )
+                ).toString(),
+                MediaType.TEXT_HTML
             )
+
             questions.forEach { questionDAO.save(it.copy(sentReminder = true)) }
             answers.forEach { questionDAO.save(it.copy(sentAnswer = true, sentReminder = true)) }
             log.info(

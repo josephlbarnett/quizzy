@@ -1,6 +1,7 @@
 package com.joe.quizzy.server.graphql
 
 import com.coxautodev.graphql.tools.GraphQLQueryResolver
+import com.github.mustachejava.DefaultMustacheFactory
 import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
@@ -15,10 +16,13 @@ import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.server.auth.UserAuthenticator
 import com.joe.quizzy.server.auth.UserPrincipal
 import com.joe.quizzy.server.mail.GmailServiceFactory
+import com.joe.quizzy.server.mail.ScheduledEmailBundle
 import com.joe.quizzy.server.mail.sendEmail
 import com.trib3.graphql.resources.GraphQLResourceContext
 import com.trib3.server.config.TribeApplicationConfig
 import io.dropwizard.auth.basic.BasicCredentials
+import java.io.InputStreamReader
+import java.io.StringWriter
 import java.net.URLEncoder
 import java.time.OffsetDateTime
 import java.util.Date
@@ -28,6 +32,7 @@ import javax.inject.Inject
 import javax.mail.Message
 import javax.mail.internet.MimeMessage
 import javax.ws.rs.core.Cookie
+import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.NewCookie
 
 private const val COOKIE_NAME = "x-quizzy-session"
@@ -46,6 +51,20 @@ class Mutation @Inject constructor(
     private val gmailServiceFactory: GmailServiceFactory,
     private val appConfig: TribeApplicationConfig
 ) : GraphQLQueryResolver {
+
+    private val newUserHtmlTemplate =
+        ScheduledEmailBundle::class.java.getResourceAsStream("/assets/emails/newuser.html").let {
+            InputStreamReader(it).use { reader ->
+                DefaultMustacheFactory().compile(reader, "newuser")
+            }
+        }
+
+    private val passwordResetHtmlTemplate =
+        ScheduledEmailBundle::class.java.getResourceAsStream("/assets/emails/passwordreset.html").let {
+            InputStreamReader(it).use { reader ->
+                DefaultMustacheFactory().compile(reader, "passwordreset")
+            }
+        }
 
     fun login(context: GraphQLResourceContext, email: String, pass: String): Boolean {
         if (context.principal != null) {
@@ -122,12 +141,18 @@ class Mutation @Inject constructor(
                     Message.RecipientType.TO, "${user.name} <${user.email}>"
                 )
                 message.subject = "$instanceName Password Reset"
-                message.setText(
-                    "Hello ${user.name},\n\n" +
-                        "We received a request to reset your password for $instanceName.\n\n" +
-                        "Use the following code complete the password reset process: ${code}\n\n" +
-                        "Or click here: https://${appConfig.corsDomains[0]}/app/assets#/passreset" +
-                        "?code=$code&email=${URLEncoder.encode(user.email, "UTF-8")}"
+                message.setContent(
+                    passwordResetHtmlTemplate.execute(
+                        StringWriter(),
+                        mapOf(
+                            "instanceName" to instanceName,
+                            "user" to user,
+                            "code" to code,
+                            "link" to "https://${appConfig.corsDomains[0]}/app/assets#/passreset" +
+                                "?code=$code&email=${URLEncoder.encode(user.email, "UTF-8")}"
+                        )
+                    ).toString(),
+                    MediaType.TEXT_HTML
                 )
                 userDAO.save(user.copy(passwordResetToken = userAuthenticator.hasher.hash(code)))
                 gmail.gmail.sendEmail("me", message).execute()
@@ -180,12 +205,18 @@ class Mutation @Inject constructor(
                             Message.RecipientType.TO, "${savedUser.name} <${savedUser.email}>"
                         )
                         message.subject = "Welcome to $instanceName"
-                        message.setText(
-                            "Welcome ${savedUser.name}!\n\n" +
-                                "${principal.user.name} has invited you to participate in $instanceName.\n\n" +
-                                "Go to https://${appConfig.corsDomains[0]} and login:\n\n" +
-                                "User: ${savedUser.email}\n" +
-                                "Password: ${password}\n"
+                        message.setContent(
+                            newUserHtmlTemplate.execute(
+                                StringWriter(),
+                                mapOf(
+                                    "instanceName" to instanceName,
+                                    "user" to savedUser,
+                                    "admin" to principal.user,
+                                    "password" to password,
+                                    "link" to "https://${appConfig.corsDomains[0]}"
+                                )
+                            ).toString(),
+                            MediaType.TEXT_HTML
                         )
                         gmail.gmail.sendEmail("me", message).execute()
                     }

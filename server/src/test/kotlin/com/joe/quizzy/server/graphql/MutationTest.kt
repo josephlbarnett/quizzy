@@ -352,11 +352,11 @@ class MutationTest {
             assertThat(mimeMessage.content.toString())
                 .contains("We received a request to reset your password for persisted.")
             assertThat(mimeMessage.content.toString())
-                .contains("Use the following code complete the password reset process: $generatedCodeCapture")
+                .contains(generatedCodeCapture.value)
             assertThat(mimeMessage.content.toString())
                 .contains(
-                    "Or click here: https://localhost/app/assets#/passreset?" +
-                        "code=$generatedCodeCapture&email=user"
+                    "https://localhost/app/assets#/passreset?" +
+                        "code&#61;$generatedCodeCapture&amp;email&#61;user"
                 )
         }
     }
@@ -746,8 +746,8 @@ class MutationTest {
             assertThat(mimeMessage.content.toString()).contains("Welcome bill")
             assertThat(mimeMessage.content.toString())
                 .contains("admin has invited you to participate in Instance Name")
-            assertThat(mimeMessage.content.toString()).contains("User: bill@gmail.com")
-            assertThat(mimeMessage.content.toString()).contains("Password: ")
+            assertThat(mimeMessage.content.toString()).contains("bill@gmail.com")
+            assertThat(mimeMessage.content.toString()).contains("<b>Password</b>: ")
         }
     }
 

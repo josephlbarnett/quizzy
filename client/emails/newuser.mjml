@@ -1,0 +1,25 @@
+<mjml>
+   <mj-head>
+    <mj-include path="./attributes.mjml"></mj-include>
+  </mj-head>
+  <mj-body>
+    <mj-include path="./header.mjml"></mj-include>
+    <mj-section>
+      <mj-column>
+        <mj-text>
+          Welcome {{#user}}{{name}}{{/user}}!
+        </mj-text>
+        <mj-text>
+          {{#admin}}{{name}}{{/admin}} has invited you to participate in {{instanceName}}.
+        </mj-text>
+        <mj-text align="left">
+          <b>User</b>: {{#user}}{{email}}{{/user}}
+        </mj-text>
+        <mj-text align="left">
+          <b>Password</b>: {{password}}
+        </mj-text>
+        <mj-button href="{{link}}">LOG IN</mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

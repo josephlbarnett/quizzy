@@ -87,6 +87,36 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>mkdir-mjml</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <executable>mkdir</executable>
+                            <arguments>
+                                <argument>-p</argument>
+                                <argument>dist/emails</argument>
+                            </arguments>
+                            <skip>${skip.tests}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>npm-mjml</id>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <executable>npm</executable>
+                            <arguments>
+                                <argument>run</argument>
+                                <argument>mjml</argument>
+                            </arguments>
+                            <skip>${skip.tests}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>npm-test</id>
                         <goals>
                             <goal>exec</goal>

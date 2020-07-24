@@ -1,0 +1,30 @@
+<mjml>
+  <mj-head>
+    <mj-include path="./attributes.mjml"></mj-include>
+  </mj-head>
+  <mj-body>
+    <mj-include path="./header.mjml"></mj-include>
+    <mj-section>
+      <mj-column>
+        <mj-text>Hello,</mj-text>
+        <mj-raw>{{#questionCount}}</mj-raw>
+        <mj-text>{{num}} new question{{plural}} available from {{instanceName}}:</mj-text>
+        <mj-raw>{{/questionCount}}
+        {{#question}}</mj-raw>
+        <mj-text align="left"><b>{{index}}</b>: {{body}}</mj-text>
+        <mj-divider/>
+        <mj-raw>{{/question}}
+        {{#answerCount}}</mj-raw>
+        <mj-text>{{num}} new answer{{plural}} available from {{instanceName}}:</mj-text>
+        <mj-raw>{{/answerCount}}
+        {{#answer}}</mj-raw>
+        <mj-text align="left"><b>{{index}}</b>: {{body}}</mj-text>
+        <mj-text align="left"><b>Answer</b>: {{answer}}</mj-text>
+        <mj-text align="left"><b>Rule References</b>: {{ruleReferences}}</mj-text>
+        <mj-divider/>
+        <mj-raw>{{/answer}}</mj-raw>
+        <mj-button href="{{domainLink}}">VIEW</mj-button>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>
