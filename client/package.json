@@ -14,7 +14,7 @@
   "dependencies": {
     "@babel/preset-typescript": "^7.10.4",
     "@graphql-codegen/cli": "^1.17.7",
-    "@graphql-codegen/typescript": "^1.17.3",
+    "@graphql-codegen/typescript": "^1.17.7",
     "@types/moment-timezone": "^0.5.13",
     "core-js": "^3.6.5",
     "eslint-plugin-graphql": "^4.0.0",
