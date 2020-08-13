@@ -1,9 +1,11 @@
-Example Leaky Cauldron Service
+Quizzy
 =======
 
 Description
 -----------
-An example service using [Leaky Cauldron](https://github.com/trib3/leakycauldron)
+A quiz application built using [Leaky Cauldron](https://github.com/trib3/leakycauldron)
+
+Built primarily to serve the needs of the College Football Rules Exchange.
 
 Getting Started
 ---------------
@@ -35,6 +37,10 @@ dependency injection of configured instances.
 * /api
 
 This contains the API layer definition (model classes, etc).
+
+* /client
+
+This contains the [Vue](https://vuejs.org) client application.
 
 * /persistence
 

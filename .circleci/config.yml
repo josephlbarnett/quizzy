@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  release: trib3/release@1.1.1
+  release: trib3/release@2.0.0
   heroku: circleci/heroku@1.0.1
 
 jobs:
@@ -45,7 +45,7 @@ jobs:
           name: Set Maven Version
           command: |
             BASE_VERSION=$(mvn -q  -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec|sed 's/-SNAPSHOT.*//')
-            if [ "$CIRCLE_BRANCH" = "master" ]; then
+            if [ "$CIRCLE_BRANCH" = "main" ]; then
               NEW_PROJECT_VERSION=${BASE_VERSION}.${CIRCLE_BUILD_NUM}
             else
               NEW_PROJECT_VERSION=${BASE_VERSION}-${CIRCLE_BRANCH}-SNAPSHOT
@@ -123,11 +123,11 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
       - deploy:
           requires:
             - hold
           filters:
             branches:
               only:
-                - master
+                - main
