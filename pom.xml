@@ -9,11 +9,11 @@
     <parent>
         <groupId>com.trib3</groupId>
         <artifactId>parent-pom</artifactId>
-        <version>[1.10.1,1.11-SNAPSHOT)</version>
+        <version>[1.11.1,1.12-SNAPSHOT)</version>
     </parent>
 
     <properties>
-        <version.leakycauldron>[1.10.1,1.11-SNAPSHOT)</version.leakycauldron>
+        <version.leakycauldron>[1.11.1,1.12-SNAPSHOT)</version.leakycauldron>
     </properties>
 
     <modules>
