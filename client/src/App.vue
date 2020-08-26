@@ -104,9 +104,7 @@
             >
           </v-list>
         </v-navigation-drawer>
-        <div v-else>
-          Please login.
-        </div>
+        <div v-else>Please login.</div>
         <v-main>
           <Login> </Login>
         </v-main>

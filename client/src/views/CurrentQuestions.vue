@@ -29,9 +29,7 @@
         </div>
         <div v-else-if="error" class="error">An error occurred</div>
         <v-card v-if="data && data.activeQuestions">
-          <v-card-title>
-            Current Questions
-          </v-card-title>
+          <v-card-title> Current Questions </v-card-title>
           <v-data-table
             :items="data.activeQuestions"
             :headers="headers"
