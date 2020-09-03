@@ -10,7 +10,5 @@ data class Question(
     val answer: String,
     val ruleReferences: String,
     val activeAt: OffsetDateTime,
-    val closedAt: OffsetDateTime,
-    val sentReminder: Boolean = false,
-    val sentAnswer: Boolean = false
+    val closedAt: OffsetDateTime
 )
