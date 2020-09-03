@@ -59,7 +59,10 @@ class QueryTest {
         EasyMock.expect(rDAO.forInstance(iUUID, true)).andReturn(listOf(response, gradedResponse))
         EasyMock.expect(rDAO.forInstance(iUUID, false)).andReturn(listOf(response))
         EasyMock.replay(
-            qDAO, uDAO, sDAO, rDAO
+            qDAO,
+            uDAO,
+            sDAO,
+            rDAO
         )
         query = Query(qDAO, uDAO, rDAO)
     }
@@ -118,13 +121,15 @@ class QueryTest {
     @Test
     fun testResponses() {
         val withGraded = query.responses(
-            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null)), true
+            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null)),
+            true
         )
         assertThat(withGraded).contains(ApiResponse(response))
         assertThat(withGraded).contains(ApiResponse(gradedResponse))
 
         val withoutGraded = query.responses(
-            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null)), false
+            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null)),
+            false
         )
         assertThat(withoutGraded).contains(ApiResponse(response))
         assertThat(withoutGraded).doesNotContain(ApiResponse(gradedResponse))

@@ -138,7 +138,8 @@ class Mutation @Inject constructor(
                 val code = UUID.randomUUID().toString()
                 message.setFrom("$instanceName <$instanceAddress>")
                 message.addRecipients(
-                    Message.RecipientType.TO, "${user.name} <${user.email}>"
+                    Message.RecipientType.TO,
+                    "${user.name} <${user.email}>"
                 )
                 message.subject = "$instanceName Password Reset"
                 message.setContent(
@@ -202,7 +203,8 @@ class Mutation @Inject constructor(
                         val message = MimeMessage(javax.mail.Session.getDefaultInstance(Properties(), null))
                         message.setFrom("$instanceName <$instanceAddress>")
                         message.addRecipients(
-                            Message.RecipientType.TO, "${savedUser.name} <${savedUser.email}>"
+                            Message.RecipientType.TO,
+                            "${savedUser.name} <${savedUser.email}>"
                         )
                         message.subject = "Welcome to $instanceName"
                         message.setContent(

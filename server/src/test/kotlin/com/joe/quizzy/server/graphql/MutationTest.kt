@@ -74,13 +74,28 @@ class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
     )
     val emptyContext = GraphQLResourceContext(null)
     val user = User(
-        UUID.randomUUID(), UUID.randomUUID(), "user", "user", "pass", false, "UTC"
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        "user",
+        "user",
+        "pass",
+        false,
+        "UTC"
     )
     val admin = User(
-        UUID.randomUUID(), UUID.randomUUID(), "admin", "admin@admin.com", "pass", true, "UTC"
+        UUID.randomUUID(),
+        UUID.randomUUID(),
+        "admin",
+        "admin@admin.com",
+        "pass",
+        true,
+        "UTC"
     )
     val session = Session(
-        UUID.randomUUID(), user.id!!, OffsetDateTime.now(), OffsetDateTime.now()
+        UUID.randomUUID(),
+        user.id!!,
+        OffsetDateTime.now(),
+        OffsetDateTime.now()
     )
     val userSessionContext = GraphQLResourceContext(UserPrincipal(user, session))
     val userNoSessionContext = GraphQLResourceContext(UserPrincipal(user, null))

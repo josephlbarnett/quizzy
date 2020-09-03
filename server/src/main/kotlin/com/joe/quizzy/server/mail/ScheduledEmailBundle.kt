@@ -94,7 +94,8 @@ class ScheduledEmailBundle(
             message.setFrom("$instanceName <$instanceAddress>")
             usersToNotify.forEach { user ->
                 message.addRecipients(
-                    Message.RecipientType.BCC, "${user.name} <${user.email}>"
+                    Message.RecipientType.BCC,
+                    "${user.name} <${user.email}>"
                 )
             }
             val questionAnswerString = if (questions.isNotEmpty() && answers.isNotEmpty()) {
