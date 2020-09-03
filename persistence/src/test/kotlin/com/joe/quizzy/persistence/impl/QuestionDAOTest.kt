@@ -4,11 +4,14 @@ import assertk.all
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
+import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import com.joe.quizzy.api.models.Instance
+import com.joe.quizzy.api.models.NotificationType
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.User
+import com.joe.quizzy.persistence.api.EmailNotificationDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.UserDAO
@@ -25,6 +28,7 @@ class QuestionDAOTest : PostgresDAOTestBase() {
     lateinit var userDao: UserDAO
     lateinit var instanceDao: InstanceDAO
     lateinit var dao: QuestionDAO
+    lateinit var notificationDao: EmailNotificationDAO
 
     @BeforeClass
     override fun setUp() {
@@ -32,6 +36,7 @@ class QuestionDAOTest : PostgresDAOTestBase() {
         userDao = UserDAOJooq(ctx)
         dao = QuestionDAOJooq(ctx)
         instanceDao = InstanceDAOJooq(ctx)
+        notificationDao = EmailNotificationDAOJooq(ctx)
     }
 
     @Test
@@ -48,11 +53,35 @@ class QuestionDAOTest : PostgresDAOTestBase() {
             Question(null, userId, "future", "", "", oneHourFromNow, oneHourFromNow)
         )
         questions.forEach { dao.save(it) }
-        assertThat(dao.active().map { it.body }.first()).isEqualTo("current")
-        assertThat(dao.closed().map { it.body }.first()).isEqualTo("past")
+        assertThat(dao.active().filter { it.authorId == userId }.map { it.body }.first()).isEqualTo("current")
+        assertThat(dao.closed().filter { it.authorId == userId }.map { it.body }.first()).isEqualTo("past")
         assertThat(dao.active(user.copy(id = userId)).map { it.body }.first()).isEqualTo("current")
         assertThat(dao.closed(user.copy(id = userId)).map { it.body }.first()).isEqualTo("past")
         assertThat(dao.future(user.copy(id = userId)).map { it.body }.first()).isEqualTo("future")
+    }
+
+    @Test
+    fun testActiveClosedNotifiedQuestions() {
+        val instance = Instance(null, "questiondao active/closed notified", "ACTIVE")
+        val instanceId = instanceDao.save(instance).id!!
+        val user = User(null, instanceId, "abcd", "abcd@gmail.com", null, false, "UTC")
+        val userId = userDao.save(user).id!!
+        val oneHourAgo = OffsetDateTime.now().minusHours(1)
+        val oneHourFromNow = OffsetDateTime.now().plusHours(1)
+        val questions = listOf(
+            Question(null, userId, "current1", "", "", oneHourAgo, oneHourFromNow),
+            Question(null, userId, "past1", "", "", oneHourAgo, oneHourAgo),
+            Question(null, userId, "current2", "", "", oneHourAgo, oneHourFromNow),
+            Question(null, userId, "past2", "", "", oneHourAgo, oneHourAgo)
+        ).map { dao.save(it) }
+        notificationDao.markNotified(NotificationType.REMINDER, listOf(questions[0].id!!))
+        notificationDao.markNotified(NotificationType.ANSWER, listOf(questions[1].id!!))
+        val needReminders = dao.active(NotificationType.REMINDER).filter { it.authorId == userId }
+        val needAnswers = dao.closed(NotificationType.ANSWER).filter { it.authorId == userId }
+        assertThat(needReminders).hasSize(1)
+        assertThat(needAnswers).hasSize(1)
+        assertThat(needReminders.map { it.body }.first()).isEqualTo("current2")
+        assertThat(needAnswers.map { it.body }.first()).isEqualTo("past2")
     }
 
     @Test

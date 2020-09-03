@@ -1,6 +1,7 @@
 package com.joe.quizzy.persistence.impl
 
 import com.codahale.metrics.annotation.Timed
+import com.joe.quizzy.api.models.NotificationType
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.QuestionDAO
@@ -99,6 +100,23 @@ open class QuestionDAOJooq
         return query.fetchInto(Question::class.java)
     }
 
+    override fun active(notificationType: NotificationType): List<Question> {
+        val now = OffsetDateTime.now()
+        val query = ctx.select(Tables.QUESTIONS.asterisk()).from(
+            Tables.QUESTIONS.leftJoin(Tables.EMAIL_NOTIFICATIONS)
+                .on(
+                    Tables.QUESTIONS.ID.eq(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID)
+                        .and(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE.eq(notificationType.name))
+                )
+        )
+            .where(
+                Tables.QUESTIONS.ACTIVE_AT.le(now)
+                    .and(Tables.QUESTIONS.CLOSED_AT.ge(now))
+                    .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull)
+            ).orderBy(Tables.QUESTIONS.CLOSED_AT)
+        return query.fetchInto(Question::class.java)
+    }
+
     @Timed
     override fun closed(): List<Question> {
         val now = OffsetDateTime.now()
@@ -113,6 +131,23 @@ open class QuestionDAOJooq
         val query = instanceQuestions(user)
             .where(Tables.QUESTIONS.CLOSED_AT.le(now)).orderBy(Tables.QUESTIONS.CLOSED_AT)
         log.info("closed questions query: $query")
+        return query.fetchInto(Question::class.java)
+    }
+
+    override fun closed(notificationType: NotificationType): List<Question> {
+        val now = OffsetDateTime.now()
+        val query = ctx.select(Tables.QUESTIONS.asterisk()).from(
+            Tables.QUESTIONS.leftJoin(Tables.EMAIL_NOTIFICATIONS)
+                .on(
+                    Tables.QUESTIONS.ID.eq(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID)
+                        .and(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE.eq(notificationType.name))
+                )
+        )
+            .where(
+                Tables.QUESTIONS.CLOSED_AT.le(now)
+                    .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull)
+            )
+            .orderBy(Tables.QUESTIONS.CLOSED_AT)
         return query.fetchInto(Question::class.java)
     }
 

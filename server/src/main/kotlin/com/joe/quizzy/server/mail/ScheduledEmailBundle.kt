@@ -1,7 +1,9 @@
 package com.joe.quizzy.server.mail
 
 import com.github.mustachejava.DefaultMustacheFactory
+import com.joe.quizzy.api.models.NotificationType
 import com.joe.quizzy.api.models.Question
+import com.joe.quizzy.persistence.api.EmailNotificationDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.UserDAO
@@ -45,6 +47,7 @@ class ScheduledEmailBundle(
     val questionDAO: QuestionDAO,
     val userDAO: UserDAO,
     val instanceDAO: InstanceDAO,
+    val emailNotificationDAO: EmailNotificationDAO,
     val gmailServiceFactory: GmailServiceFactory,
     val client: HttpClient,
     val dispatcher: ExecutorCoroutineDispatcher,
@@ -57,6 +60,7 @@ class ScheduledEmailBundle(
         questionDAO: QuestionDAO,
         userDAO: UserDAO,
         instanceDAO: InstanceDAO,
+        emailNotificationDAO: EmailNotificationDAO,
         gmailServiceFactory: GmailServiceFactory
     ) : this(
         configLoader,
@@ -64,6 +68,7 @@ class ScheduledEmailBundle(
         questionDAO,
         userDAO,
         instanceDAO,
+        emailNotificationDAO,
         gmailServiceFactory,
         HttpClient(CIO),
         Executors.newSingleThreadExecutor {
@@ -136,11 +141,10 @@ class ScheduledEmailBundle(
                 ).toString(),
                 MediaType.TEXT_HTML
             )
-
-            questions.forEach { questionDAO.save(it.copy(sentReminder = true)) }
-            answers.forEach { questionDAO.save(it.copy(sentAnswer = true, sentReminder = true)) }
+            emailNotificationDAO.markNotified(NotificationType.REMINDER, (questions + answers).map { it.id!! })
+            emailNotificationDAO.markNotified(NotificationType.ANSWER, answers.map { it.id!! })
             log.info(
-                "Sending email for ${questions.size} questions and ${answers.size} answers" +
+                "Sending email for ${questions.size} questions and ${answers.size} answers " +
                     "to ${usersToNotify.size} users for instance $instanceName"
             )
             gmail.gmail.sendEmail("me", message).execute()
@@ -152,8 +156,8 @@ class ScheduledEmailBundle(
      * by instanceId, and sends an email for each instanceId grouping.
      */
     internal fun sendEmails(now: OffsetDateTime) {
-        val activeNotifications = questionDAO.active().filter { !it.sentReminder }
-        val closedNotifications = questionDAO.closed().filter { !it.sentAnswer }
+        val activeNotifications = questionDAO.active(NotificationType.REMINDER)
+        val closedNotifications = questionDAO.closed(NotificationType.ANSWER)
         val authors = if (activeNotifications.isEmpty() && closedNotifications.isEmpty()) {
             mapOf()
         } else {
