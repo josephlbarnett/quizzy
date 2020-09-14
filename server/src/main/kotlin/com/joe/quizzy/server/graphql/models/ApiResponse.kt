@@ -33,7 +33,7 @@ data class ApiResponse(
         val principal = context.principal
         if (principal is UserPrincipal) {
             return dfe.getDataLoader<UUID, User>("batchusers").load(userId).thenApply {
-                ApiUser(it)
+                it?.let(::ApiUser)
             }
         }
         return CompletableFuture.completedFuture(null)
@@ -42,7 +42,8 @@ data class ApiResponse(
     fun question(context: GraphQLResourceContext, dfe: DataFetchingEnvironment): CompletableFuture<ApiQuestion?> {
         val principal = context.principal
         if (principal is UserPrincipal) {
-            return dfe.getDataLoader<UUID, Question>("batchquestions").load(questionId).thenApply { ApiQuestion(it) }
+            return dfe.getDataLoader<UUID, Question>("batchquestions").load(questionId)
+                .thenApply { it?.let(::ApiQuestion) }
         }
         return CompletableFuture.completedFuture(null)
     }

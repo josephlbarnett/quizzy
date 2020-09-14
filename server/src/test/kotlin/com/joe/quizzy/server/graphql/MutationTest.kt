@@ -268,7 +268,7 @@ class MutationTest {
         }.test {
             assertThat(
                 mutation.changePassword(
-                    GraphQLResourceContext(UserPrincipal(user.copy(id = UUID.randomUUID()), null), null),
+                    GraphQLResourceContext(UserPrincipal(user.copy(id = UUID.randomUUID()), null)),
                     "pass",
                     "newpass"
                 )
@@ -287,7 +287,7 @@ class MutationTest {
         }.test {
             assertThat(
                 mutation.changePassword(
-                    GraphQLResourceContext(UserPrincipal(user.copy(email = "user2"), null), null),
+                    GraphQLResourceContext(UserPrincipal(user.copy(email = "user2"), null)),
                     "pass",
                     "newpass"
                 )
@@ -305,7 +305,7 @@ class MutationTest {
         }.test {
             assertThat(
                 mutation.changePassword(
-                    GraphQLResourceContext(UserPrincipal(user.copy(email = "user3"), null), null),
+                    GraphQLResourceContext(UserPrincipal(user.copy(email = "user3"), null)),
                     "pass",
                     "newpass"
                 )

@@ -2,23 +2,15 @@ package com.joe.quizzy.server.graphql.dataloaders
 
 import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.persistence.api.GradeDAO
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.future.future
-import kotlinx.coroutines.slf4j.MDCContext
-import org.dataloader.MappedBatchLoader
+import org.dataloader.BatchLoaderEnvironment
 import java.util.UUID
-import java.util.concurrent.CompletionStage
 
 /**
  * Batch load User ID -> List<Grade>
  */
 class UserGradeLoader(private val gradeDAO: GradeDAO) :
-    MappedBatchLoader<UUID, List<Grade>> {
-    override fun load(userIds: Set<UUID>): CompletionStage<Map<UUID, List<Grade>>> {
-        return CoroutineScope(Dispatchers.IO + MDCContext())
-            .future {
-                gradeDAO.forUsers(userIds.toList())
-            }
+    CoroutineMappedBatchLoader<UUID, List<Grade>>() {
+    override suspend fun loadSuspend(keys: Set<UUID>, environment: BatchLoaderEnvironment): Map<UUID, List<Grade>> {
+        return gradeDAO.forUsers(keys.toList())
     }
 }
