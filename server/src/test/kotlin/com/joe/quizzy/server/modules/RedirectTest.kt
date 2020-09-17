@@ -13,6 +13,9 @@ import org.testng.annotations.Guice
 import org.testng.annotations.Test
 import javax.inject.Inject
 import javax.inject.Named
+import javax.servlet.FilterChain
+import javax.servlet.ServletRequest
+import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -44,5 +47,85 @@ class RedirectTest @Inject constructor(
         EasyMock.replay(req, res)
         servletConfig.servlet.service(req, res)
         EasyMock.verify(req, res)
+    }
+
+    @Test
+    fun testHttpsRedirectToHttps() {
+        val filter = HttpsFilter()
+        val req = LeakyMock.mock<HttpServletRequest>()
+        val res = LeakyMock.mock<HttpServletResponse>()
+        val chain = LeakyMock.mock<FilterChain>()
+        EasyMock.expect(req.getHeader("X-Forwarded-Proto")).andReturn("http").atLeastOnce()
+        EasyMock.expect(req.serverName).andReturn("blahblah").atLeastOnce()
+        EasyMock.expect(req.requestURI).andReturn("/deblah").atLeastOnce()
+        EasyMock.expect(res.sendRedirect("https://blahblah/deblah"))
+        EasyMock.replay(req, res, chain)
+        filter.doFilter(req, res, chain)
+        EasyMock.verify(req, res, chain)
+    }
+
+    @Test
+    fun testHttpsRedirectToHttpsRoot() {
+        val filter = HttpsFilter()
+        val req = LeakyMock.mock<HttpServletRequest>()
+        val res = LeakyMock.mock<HttpServletResponse>()
+        val chain = LeakyMock.mock<FilterChain>()
+        EasyMock.expect(req.getHeader("X-Forwarded-Proto")).andReturn("http").atLeastOnce()
+        EasyMock.expect(req.serverName).andReturn("blahblah").atLeastOnce()
+        EasyMock.expect(req.requestURI).andReturn(null).atLeastOnce()
+        EasyMock.expect(res.sendRedirect("https://blahblah"))
+        EasyMock.replay(req, res, chain)
+        filter.doFilter(req, res, chain)
+        EasyMock.verify(req, res, chain)
+    }
+
+    @Test
+    fun testHttpsRedirectLocalhost() {
+        val filter = HttpsFilter()
+        val req = LeakyMock.mock<HttpServletRequest>()
+        val res = LeakyMock.mock<HttpServletResponse>()
+        val chain = LeakyMock.mock<FilterChain>()
+        EasyMock.expect(req.getHeader("X-Forwarded-Proto")).andReturn(null).atLeastOnce()
+        EasyMock.expect(chain.doFilter(req, res))
+        EasyMock.replay(req, res, chain)
+        filter.doFilter(req, res, chain)
+        EasyMock.verify(req, res, chain)
+    }
+
+    @Test
+    fun testHttpsRedirectCantInspectReq() {
+        val filter = HttpsFilter()
+        val req = LeakyMock.mock<ServletRequest>()
+        val res = LeakyMock.mock<HttpServletResponse>()
+        val chain = LeakyMock.mock<FilterChain>()
+        EasyMock.expect(chain.doFilter(req, res))
+        EasyMock.replay(req, res, chain)
+        filter.doFilter(req, res, chain)
+        EasyMock.verify(req, res, chain)
+    }
+
+    @Test
+    fun testHttpsRedirectCantInspectRes() {
+        val filter = HttpsFilter()
+        val req = LeakyMock.mock<HttpServletRequest>()
+        val res = LeakyMock.mock<ServletResponse>()
+        val chain = LeakyMock.mock<FilterChain>()
+        EasyMock.expect(chain.doFilter(req, res))
+        EasyMock.replay(req, res, chain)
+        filter.doFilter(req, res, chain)
+        EasyMock.verify(req, res, chain)
+    }
+
+    @Test
+    fun testHttpsRedirectAlreadyHttps() {
+        val filter = HttpsFilter()
+        val req = LeakyMock.mock<HttpServletRequest>()
+        val res = LeakyMock.mock<HttpServletResponse>()
+        val chain = LeakyMock.mock<FilterChain>()
+        EasyMock.expect(req.getHeader("X-Forwarded-Proto")).andReturn("https").atLeastOnce()
+        EasyMock.expect(chain.doFilter(req, res))
+        EasyMock.replay(req, res, chain)
+        filter.doFilter(req, res, chain)
+        EasyMock.verify(req, res, chain)
     }
 }

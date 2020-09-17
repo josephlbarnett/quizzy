@@ -18,6 +18,7 @@ import com.joe.quizzy.server.mail.ScheduledEmailBundle
 import com.trib3.graphql.modules.GraphQLApplicationModule
 import com.trib3.server.filters.CookieTokenAuthFilter
 import com.trib3.server.modules.ServletConfig
+import com.trib3.server.modules.ServletFilterConfig
 import dev.misfitlabs.kotlinguice4.multibindings.KotlinMultibinder
 import io.dropwizard.Configuration
 import io.dropwizard.ConfiguredBundle
@@ -27,6 +28,10 @@ import io.dropwizard.auth.chained.ChainedAuthFilter
 import io.dropwizard.servlets.assets.AssetServlet
 import java.net.URI
 import javax.inject.Named
+import javax.servlet.Filter
+import javax.servlet.FilterChain
+import javax.servlet.ServletRequest
+import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -43,6 +48,22 @@ class RedirectResource {
     @GET
     fun root(): Response {
         return Response.status(Response.Status.FOUND).location(URI("/app/assets")).build()
+    }
+}
+
+private const val X_FORWARDED_PROTOCOL = "X-Forwarded-Proto"
+
+class HttpsFilter : Filter {
+    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+        if (request is HttpServletRequest && response is HttpServletResponse) {
+            if (request.getHeader(X_FORWARDED_PROTOCOL) != null) {
+                if (request.getHeader(X_FORWARDED_PROTOCOL).indexOf("https") != 0) {
+                    response.sendRedirect("https://${request.serverName}${request.requestURI ?: ""}")
+                    return
+                }
+            }
+        }
+        chain.doFilter(request, response)
     }
 }
 
@@ -86,6 +107,9 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
                 },
                 listOf("")
             )
+        )
+        KotlinMultibinder.newSetBinder<ServletFilterConfig>(kotlinBinder).addBinding().toInstance(
+            ServletFilterConfig(HttpsFilter::class.java.simpleName, HttpsFilter::class.java)
         )
         dataLoaderRegistryFactoryBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()
     }
