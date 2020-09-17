@@ -47,7 +47,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "graphql-tag": "^2.11.0",
     "jest-transform-graphql": "^2.1.0",
-    "lint-staged": "^10.3.0",
+    "lint-staged": "^10.4.0",
     "mjml": "^4.6.3",
     "mock-apollo-client": "^0.4.0",
     "prettier": "^2.1.1",
