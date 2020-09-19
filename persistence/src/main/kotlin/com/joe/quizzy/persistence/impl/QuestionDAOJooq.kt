@@ -121,7 +121,7 @@ open class QuestionDAOJooq
     override fun closed(): List<Question> {
         val now = OffsetDateTime.now()
         val query = ctx.select(Tables.QUESTIONS.asterisk()).from(Tables.QUESTIONS)
-            .where(Tables.QUESTIONS.CLOSED_AT.le(now)).orderBy(Tables.QUESTIONS.CLOSED_AT)
+            .where(Tables.QUESTIONS.CLOSED_AT.le(now)).orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
         return query.fetchInto(Question::class.java)
     }
 
@@ -129,7 +129,7 @@ open class QuestionDAOJooq
     override fun closed(user: User): List<Question> {
         val now = OffsetDateTime.now()
         val query = instanceQuestions(user)
-            .where(Tables.QUESTIONS.CLOSED_AT.le(now)).orderBy(Tables.QUESTIONS.CLOSED_AT)
+            .where(Tables.QUESTIONS.CLOSED_AT.le(now)).orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
         log.info("closed questions query: $query")
         return query.fetchInto(Question::class.java)
     }
@@ -147,7 +147,7 @@ open class QuestionDAOJooq
                 Tables.QUESTIONS.CLOSED_AT.le(now)
                     .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull)
             )
-            .orderBy(Tables.QUESTIONS.CLOSED_AT)
+            .orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
         return query.fetchInto(Question::class.java)
     }
 

@@ -82,7 +82,7 @@ class Mutation @Inject constructor(
                     null,
                     1,
                     null,
-                    -1, // expire with session
+                    60 * 60 * 24 * 30, // expire in 30 days
                     null,
                     true,
                     true

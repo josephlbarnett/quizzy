@@ -18,6 +18,7 @@
         <v-card v-if="data && data.users">
           <v-card-title>
             Users
+            <create-user-button />
             <v-btn
               color="accent"
               outlined
@@ -88,9 +89,11 @@
 <script lang="ts">
 import Vue from "vue";
 import { ApiUser } from "@/generated/types";
+import CreateUserButton from "@/components/CreateUserButton.vue";
 
 export default Vue.extend({
   name: "Users",
+  components: { CreateUserButton },
   data: () => ({
     users: [],
     search: "",

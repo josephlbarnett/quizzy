@@ -42,7 +42,7 @@ const mockUsers = [
 
 function mountUsers(mockClient: MockApolloClient) {
   return mount(Users, {
-    stubs: ["v-snackbar"],
+    stubs: ["v-snackbar", "create-user-button"],
     vuetify,
     apolloProvider: new VueApollo({
       defaultClient: mockClient,
