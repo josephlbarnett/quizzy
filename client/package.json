@@ -5,8 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "test:unit": "vue-cli-service test:unit",
-    "test": "vue-cli-service test:unit",
+    "test:unit": "vue-cli-service test:unit --runInBand",
+    "test": "npm run test:unit",
     "lint": "vue-cli-service lint",
     "generate": "graphql-codegen",
     "mjml": "mjml emails/* -o dist/emails/"
