@@ -13,7 +13,7 @@
 
     <properties>
         <version.google-http-client>1.37.0</version.google-http-client>
-        <version.google-oauth-client>1.31.0</version.google-oauth-client>
+        <version.google-oauth-client>1.31.1</version.google-oauth-client>
         <version.jakarta-mail>1.6.5</version.jakarta-mail>
         <version.ktor>1.4.1</version.ktor>
     </properties>
@@ -192,11 +192,23 @@
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-gmail</artifactId>
             <version>v1-rev20200919-1.30.10</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.api-client</groupId>
+                    <artifactId>google-api-client</artifactId>
+                </exclusion>
+	    </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-oauth2</artifactId>
             <version>v2-rev20200213-1.30.10</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.api-client</groupId>
+                    <artifactId>google-api-client</artifactId>
+                </exclusion>
+	    </exclusions>
         </dependency>
         <dependency>
             <groupId>com.google.oauth-client</groupId>
