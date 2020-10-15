@@ -12,7 +12,7 @@
     "mjml": "mjml emails/* -o dist/emails/"
   },
   "dependencies": {
-    "@babel/preset-typescript": "^7.10.4",
+    "@babel/preset-typescript": "^7.12.0",
     "@graphql-codegen/cli": "^1.17.10",
     "@graphql-codegen/typescript": "^1.17.10",
     "@types/moment-timezone": "^0.5.30",
