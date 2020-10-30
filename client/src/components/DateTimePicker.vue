@@ -43,7 +43,7 @@ import Vue from "vue";
 import moment from "moment-timezone";
 
 function modelTime(date: string): string {
-  const zonedMoment = moment(date);
+  const zonedMoment = moment(date, moment.ISO_8601);
   const formatted = zonedMoment.format("HH:mm");
   if (formatted.indexOf("Invalid date") >= 0) {
     return "";
@@ -52,7 +52,7 @@ function modelTime(date: string): string {
   }
 }
 function modelDate(date: string): string {
-  const zonedMoment = moment(date);
+  const zonedMoment = moment(date, moment.ISO_8601);
   const formatted = zonedMoment.format("YYYY-MM-DD");
   if (formatted.indexOf("Invalid date") >= 0) {
     return "";
@@ -95,7 +95,7 @@ export default Vue.extend({
       this.$emit("input", this.dateTime);
     },
     renderTime(date: string): string {
-      const zonedMoment = moment(date).tz(this.tz);
+      const zonedMoment = moment(date, moment.ISO_8601).tz(this.tz);
       const formatted = `${zonedMoment.format("h:mm A")} (${moment
         .tz(this.tz)
         .zoneName()})`;
@@ -106,7 +106,7 @@ export default Vue.extend({
       }
     },
     renderDate(date: string): string {
-      const zonedMoment = moment(date).tz(this.tz);
+      const zonedMoment = moment(date, moment.ISO_8601).tz(this.tz);
       const formatted = `${zonedMoment.format("MM/DD/YYYY")}`;
       if (formatted.indexOf("Invalid date") >= 0) {
         return "mm/dd/yyyy";

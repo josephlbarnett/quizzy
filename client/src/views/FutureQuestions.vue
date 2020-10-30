@@ -242,7 +242,7 @@ export default Vue.extend({
         this.timezone != null && this.timezone != "Autodetect"
           ? this.timezone
           : moment.tz.guess();
-      const zonedMoment = moment.tz(date, browserTZ);
+      const zonedMoment = moment.tz(date, moment.ISO_8601, browserTZ);
       return `${zonedMoment.format("ddd, MMM D YYYY, h:mmA")} (${browserTZ})`;
     },
     renderDate(date: string) {
@@ -250,7 +250,7 @@ export default Vue.extend({
         this.timezone != null && this.timezone != "Autodetect"
           ? this.timezone
           : moment.tz.guess();
-      const zonedMoment = moment.tz(date, browserTZ);
+      const zonedMoment = moment.tz(date, moment.ISO_8601, browserTZ);
       return zonedMoment.format("ddd, MMM D YYYY");
     },
   },
