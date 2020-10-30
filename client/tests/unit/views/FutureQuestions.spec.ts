@@ -7,6 +7,8 @@ import futureQuestionsQuery from "@/graphql/FutureQuestions.gql";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import saveQuestionMutation from "@/graphql/SaveQuestion.gql";
 import moment from "moment-timezone";
+// silence a VDialog warning!?
+document.body.setAttribute('data-app', 'true');
 
 const mockUser = {
   id: 987,

@@ -48,7 +48,7 @@
                 >
                 <v-card-actions>
                   <v-btn @click="deleteDialog = false">CANCEL</v-btn>
-                  <v-btn color="error" @click="remove"
+                  <v-btn color="error" @click="remove" data-jest="dialogDelete"
                     >DELETE</v-btn
                   ></v-card-actions
                 >

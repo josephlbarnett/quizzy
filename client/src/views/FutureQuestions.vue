@@ -70,6 +70,7 @@
                       <ApolloQuery :query="require('../graphql/Users.gql')">
                         <template v-slot="{ result: { data } }">
                           <v-autocomplete
+                            v-if="data"
                             v-model="addDialogAuthor"
                             :items="data && data.users"
                             item-value="id"

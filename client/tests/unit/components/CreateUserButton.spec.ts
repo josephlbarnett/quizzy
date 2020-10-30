@@ -4,6 +4,8 @@ import { createMockClient, MockApolloClient } from "mock-apollo-client";
 import VueApollo from "vue-apollo";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import vuetify from "@/plugins/vuetify";
+// silence a VDialog warning!?
+document.body.setAttribute('data-app', 'true');
 
 const mockUser = {
   id: 123,
@@ -177,7 +179,7 @@ describe("CreateUserButton tests", () => {
     await component.vm.$nextTick();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockClient.setRequestHandler((component.vm as any).getQueryDocument(), () =>
-      Promise.resolve({ data: { user_0: 1, user_1: 2, user_2: 3 } })
+      Promise.resolve({ data: { user_0: mockUser, user_1: mockUser, user_2: mockUser } })
     );
     await component
       .findAll("button")
@@ -212,7 +214,7 @@ describe("CreateUserButton tests", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockClient.setRequestHandler((component.vm as any).getQueryDocument(), () =>
       Promise.resolve({
-        data: { user_0: 1, user_1: null, user_2: 3 },
+        data: { user_0: mockUser, user_1: null, user_2: mockUser },
         errors: [{ message: "e" }],
       })
     );

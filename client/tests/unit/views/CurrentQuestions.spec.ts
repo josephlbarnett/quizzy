@@ -8,6 +8,8 @@ import vuetify from "@/plugins/vuetify";
 import VueApollo from "vue-apollo";
 import moment from "moment-timezone";
 import completedQuestionQuery from "@/graphql/CompletedQuestions.gql";
+// silence a VDialog warning!?
+document.body.setAttribute('data-app', 'true');
 
 const mockUser = {
   id: 987,

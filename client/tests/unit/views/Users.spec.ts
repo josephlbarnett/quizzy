@@ -4,6 +4,8 @@ import { createMockClient, MockApolloClient } from "mock-apollo-client";
 import VueApollo from "vue-apollo";
 import usersQuery from "@/graphql/Users.gql";
 import vuetify from "@/plugins/vuetify";
+// silence a VDialog warning!?
+document.body.setAttribute('data-app', 'true');
 
 const mockUsers = [
   {
@@ -144,13 +146,12 @@ describe("users page tests", () => {
       .filter((x) => x.text() == "DELETE");
     expect(deleteButton.length).toBe(1);
     const dialogButtonPreOpen = usersPage.findAll(
-      ".v-dialog__container button"
-    );
+      "[data-jest=dialogDelete]");
     expect(dialogButtonPreOpen.length).toBe(0);
     await deleteButton.at(0).trigger("click");
     expect(usersPage.vm.$data.deleteDialog).toBeTruthy();
     const dialogButton = usersPage
-      .findAll(".v-dialog__container button")
+      .findAll("[data-jest=dialogDelete]")
       .filter((x) => x.text() == "DELETE");
     expect(dialogButton.length).toBe(1);
     await dialogButton.at(0).trigger("click");
