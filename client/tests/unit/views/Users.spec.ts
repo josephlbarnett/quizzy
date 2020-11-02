@@ -5,7 +5,7 @@ import VueApollo from "vue-apollo";
 import usersQuery from "@/graphql/Users.gql";
 import vuetify from "@/plugins/vuetify";
 // silence a VDialog warning!?
-document.body.setAttribute('data-app', 'true');
+document.body.setAttribute("data-app", "true");
 
 const mockUsers = [
   {
@@ -145,8 +145,7 @@ describe("users page tests", () => {
       .findAll("button")
       .filter((x) => x.text() == "DELETE");
     expect(deleteButton.length).toBe(1);
-    const dialogButtonPreOpen = usersPage.findAll(
-      "[data-jest=dialogDelete]");
+    const dialogButtonPreOpen = usersPage.findAll("[data-jest=dialogDelete]");
     expect(dialogButtonPreOpen.length).toBe(0);
     await deleteButton.at(0).trigger("click");
     expect(usersPage.vm.$data.deleteDialog).toBeTruthy();

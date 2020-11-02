@@ -9,7 +9,7 @@ import vuetify from "@/plugins/vuetify";
 import { ApiQuestion } from "@/generated/types";
 import Vue from "vue";
 // silence a VDialog warning!?
-document.body.setAttribute('data-app', 'true');
+document.body.setAttribute("data-app", "true");
 
 const mockUser = {
   id: 987,
