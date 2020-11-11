@@ -15,7 +15,7 @@
         <version.google-http-client>1.37.0</version.google-http-client>
         <version.google-oauth-client>1.31.1</version.google-oauth-client>
         <version.jakarta-mail>1.6.5</version.jakarta-mail>
-        <version.ktor>1.4.1</version.ktor>
+        <version.ktor>1.4.2</version.ktor>
     </properties>
 
     <groupId>com.joe.quizzy</groupId>
