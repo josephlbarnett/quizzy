@@ -6,7 +6,12 @@
       :close-on-content-click="false"
     >
       <template v-slot:activator="{ on }">
-        <v-text-field readonly :value="renderDate(dateTime)" v-on="on" />
+        <v-text-field
+          readonly
+          :label="label"
+          :value="renderDate(dateTime)"
+          v-on="on"
+        />
       </template>
       <v-date-picker
         class="date-picker"
@@ -62,7 +67,7 @@ function modelDate(date: string): string {
 }
 
 export default Vue.extend({
-  props: ["value", "timezone"],
+  props: ["value", "timezone", "label"],
   data: function () {
     return {
       time: modelTime(this.value),

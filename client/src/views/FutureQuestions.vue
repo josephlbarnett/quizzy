@@ -41,35 +41,28 @@
                 >
                 <v-card-text>
                   <v-row>
-                    <v-col :cols="1">Date:</v-col>
-                    <v-col :cols="4">
-                      <v-row>
-                        <date-time-picker
-                          v-model="addDialogActive"
-                          :timezone="timezone"
-                        />
-                      </v-row>
-                    </v-col>
-                    <v-col :cols="7" />
+                    <v-col>
+                      <date-time-picker
+                        label="Date:"
+                        v-model="addDialogActive"
+                        :timezone="timezone"
+                    /></v-col>
                   </v-row>
                   <v-row>
-                    <v-col :cols="1">Respond By:</v-col>
-                    <v-col :cols="4">
-                      <v-row>
-                        <date-time-picker
-                          v-model="addDialogClose"
-                          :timezone="timezone"
-                        />
-                      </v-row>
+                    <v-col>
+                      <date-time-picker
+                        label="Respond By:"
+                        v-model="addDialogClose"
+                        :timezone="timezone"
+                      />
                     </v-col>
-                    <v-col :cols="7" />
                   </v-row>
                   <v-row>
-                    <v-col :cols="1">Question Author:</v-col>
-                    <v-col :cols="11">
+                    <v-col>
                       <ApolloQuery :query="require('../graphql/Users.gql')">
                         <template v-slot="{ result: { data } }">
                           <v-autocomplete
+                            label="Question Author:"
                             v-if="data"
                             v-model="addDialogAuthor"
                             :items="data && data.users"
@@ -81,21 +74,22 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col :cols="1">Question Body:</v-col
-                    ><v-col :cols="11"
-                      ><v-textarea v-model="addDialogBody"
+                    <v-col
+                      ><v-textarea
+                        label="Question Body:"
+                        v-model="addDialogBody"
                     /></v-col>
                   </v-row>
                   <v-row>
-                    <v-col :cols="1">Answer:</v-col
-                    ><v-col :cols="11"
-                      ><v-textarea v-model="addDialogAnswer"
+                    <v-col
+                      ><v-textarea label="Answer:" v-model="addDialogAnswer"
                     /></v-col>
                   </v-row>
                   <v-row>
-                    <v-col :cols="1">Rule References:</v-col
-                    ><v-col :cols="11"
-                      ><v-textarea v-model="addDialogRuleReferences"
+                    <v-col
+                      ><v-textarea
+                        label="Rule References:"
+                        v-model="addDialogRuleReferences"
                     /></v-col>
                   </v-row>
                 </v-card-text>
