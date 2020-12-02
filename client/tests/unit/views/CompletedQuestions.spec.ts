@@ -119,7 +119,7 @@ function assertDialogMatchesInputs<T extends Vue>(
       .format("ddd, MMM D YYYY")} by`
   );
   expect(page.find(".v-dialog .v-card__title").text()).toContain(
-    question.author?.name
+    question.author?.name || "no author!?"
   );
   expect(page.find(".v-dialog .v-card__text").text()).toMatch(
     new RegExp(`${question.body}.*`)
