@@ -4,13 +4,13 @@
       :query="require('@/graphql/CurrentUser.gql')"
       @result="(result) => setTitle(result)"
     >
-      <template v-slot="{ result: { /*error,*/ data } /*, isLoading*/ }">
+      <template v-slot="{ result: { /*error,*/ data }, isLoading }">
         <v-app-bar app color="primary" dark>
           <v-app-bar-nav-icon
             v-if="data && data.user"
             @click="navDrawMini = !navDrawMini"
           ></v-app-bar-nav-icon>
-          <span v-else>Please login.</span>
+          <span v-else-if="!isLoading">Please login.</span>
           <v-spacer />
           <v-menu v-if="data && data.user" open-on-hover>
             <template v-slot:activator="{ on }">
@@ -104,7 +104,6 @@
             >
           </v-list>
         </v-navigation-drawer>
-        <div v-else>Please login.</div>
         <v-main>
           <Login> </Login>
         </v-main>

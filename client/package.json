@@ -79,8 +79,20 @@
       "**/generated/**"
     ],
     "rules": {
-      "vue/custom-event-name-casing": ["error", {"ignores": ["/^[a-z]+(?:-[a-z]+)*:[a-z]+(?:-[a-z]+)*$/u"]}],
-      "vue/valid-v-slot": ["error", {"allowModifiers": true}]
+      "vue/custom-event-name-casing": [
+        "error",
+        {
+          "ignores": [
+            "/^[a-z]+(?:-[a-z]+)*:[a-z]+(?:-[a-z]+)*$/u"
+          ]
+        }
+      ],
+      "vue/valid-v-slot": [
+        "error",
+        {
+          "allowModifiers": true
+        }
+      ]
     },
     "overrides": [
       {
