@@ -18,14 +18,14 @@ jobs:
       # handle dependency caching and run build
       - restore_cache:
           keys:
-            - v1-dependencies-{{ .Branch }}-{{ .Revision }}
-            - v1-dependencies-{{ .Branch }}
-            - v1-dependencies-
+            - v2-dependencies-{{ .Branch }}-{{ .Revision }}
+            - v2-dependencies-{{ .Branch }}
+            - v2-dependencies-
       - restore_cache:
           keys:
-            - v1-npms-{{ .Branch }}-{{ .Revision }}
-            - v1-npms-{{ .Branch }}
-            - v1-npms-
+            - v2-npms-{{ .Branch }}-{{ .Revision }}
+            - v2-npms-{{ .Branch }}
+            - v2-npms-
       - run:
           name: npm build
           command: |
@@ -40,7 +40,7 @@ jobs:
       - save_cache:
           paths:
             - ~/repo/client/node_modules
-          key: v1-npms-{{ .Branch }}-{{ .Revision }}
+          key: v2-npms-{{ .Branch }}-{{ .Revision }}
       - run:
           name: Set Maven Version
           command: |
@@ -56,7 +56,7 @@ jobs:
       - save_cache:
           paths:
             - ~/.m2
-          key: v1-dependencies-{{ .Branch }}-{{ .Revision }}
+          key: v2-dependencies-{{ .Branch }}-{{ .Revision }}
       # collect test results and upload coverage
       - run: mkdir -p ~/test_results
       - run: find . -type f -regex ".*/target/surefire-reports/junitreports/.*xml" -exec cp {} ~/test_results/ \;
