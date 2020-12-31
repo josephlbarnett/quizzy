@@ -1,10 +1,6 @@
-<mjml>
-  <mj-head>
-    <mj-attributes>
-      <mj-text align="center" color="#555" />
-      <mj-section background-color="#fff" />
-      <mj-button background-color="#00897b" />
-      <mj-body background-color="#eee"/>
-    </mj-attributes>
-  </mj-head>
-</mjml>
+<mj-attributes>
+  <mj-text align="center" color="#555" />
+  <mj-section background-color="#fff" />
+  <mj-button background-color="#00897b" />
+  <mj-body background-color="#eee"/>
+</mj-attributes>
