@@ -99,38 +99,46 @@
             </v-col>
           </v-row>
           <v-row>
-            Correct?:
-            <span
-              v-if="
-                clickedQuestion.response &&
-                clickedQuestion.response.grade &&
-                clickedQuestion.response.grade.correct === true
-              "
-            >
-              <v-icon color="green darken-2">mdi-check-circle</v-icon>Yes</span
-            >
-            <span
-              v-else-if="
-                clickedQuestion.response &&
-                clickedQuestion.response.grade &&
-                clickedQuestion.response.grade.correct === false
-              "
-            >
-              <v-icon color="red darken-2">mdi-close-circle</v-icon>No</span
-            >
-            <span v-else>
-              <v-icon color="grey darken-2">mdi-help-circle</v-icon
-              >Ungraded</span
-            >
+            <v-col>Correct?:</v-col>
+            <v-col>
+              <span
+                v-if="
+                  clickedQuestion.response &&
+                  clickedQuestion.response.grade &&
+                  clickedQuestion.response.grade.correct === true
+                "
+              >
+                <v-icon color="green darken-2">mdi-check-circle</v-icon
+                >Yes</span
+              >
+              <span
+                v-else-if="
+                  clickedQuestion.response &&
+                  clickedQuestion.response.grade &&
+                  clickedQuestion.response.grade.correct === false
+                "
+              >
+                <v-icon color="red darken-2">mdi-close-circle</v-icon>No</span
+              >
+              <span v-else>
+                <v-icon color="grey darken-2">mdi-help-circle</v-icon
+                >Ungraded</span
+              >
+            </v-col>
           </v-row>
-          <v-row> Bonus: {{ clickedQuestionBonus }} </v-row>
           <v-row>
-            Score:
-            {{
-              clickedQuestion.response &&
-              clickedQuestion.response.grade &&
-              clickedQuestion.response.grade.score
-            }}
+            <v-col>Bonus:</v-col>
+            <v-col>{{ clickedQuestionBonus }}</v-col>
+          </v-row>
+          <v-row>
+            <v-col> Score: </v-col>
+            <v-col>
+              {{
+                clickedQuestion.response &&
+                clickedQuestion.response.grade &&
+                clickedQuestion.response.grade.score
+              }}
+            </v-col>
           </v-row>
         </v-card-text>
         <v-card-actions>

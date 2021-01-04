@@ -167,7 +167,10 @@ export default Vue.extend({
     },
     clickRow(item: ApiQuestion) {
       this.clickedQuestion = Object.assign({}, item);
-      this.clickedResponse = Object.assign({}, item.response);
+      this.clickedResponse = Object.assign(
+        { response: "", ruleReferences: "" },
+        item.response
+      );
       this.responseDialog = true;
     },
     saveResponse(mutate: () => void) {

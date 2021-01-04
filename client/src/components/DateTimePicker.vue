@@ -1,46 +1,52 @@
 <template>
   <v-row>
-    <v-menu
-      v-model="dateMenu"
-      :close-on-click="true"
-      :close-on-content-click="false"
-    >
-      <template v-slot:activator="{ on }">
-        <v-text-field
-          readonly
-          :label="label"
-          :value="renderDate(dateTime)"
-          v-on="on"
-        />
-      </template>
-      <v-date-picker
-        class="date-picker"
-        v-model="date"
-        @change="onChange"
-        @click:date="dateClicked"
+    <v-col>
+      <v-menu
+        v-model="dateMenu"
+        :close-on-click="true"
+        :close-on-content-click="false"
+        min-width="100px"
       >
-        <!--        <v-btn @click="dateClicked" color="accent">OK</v-btn>-->
-      </v-date-picker>
-    </v-menu>
-    <v-menu
-      v-model="timeMenu"
-      :close-on-click="true"
-      :close-on-content-click="false"
-    >
-      <template v-slot:activator="{ on }">
-        <v-text-field readonly :value="renderTime(dateTime)" v-on="on" />
-      </template>
-      <v-time-picker
-        class="time-picker"
-        v-model="time"
-        v-if="timeMenu"
-        @input="onChange"
-        :allowed-minutes="(x) => x % 5 === 0"
-        ><v-btn @click="timeMenu = false" color="accent"
-          >OK</v-btn
-        ></v-time-picker
+        <template v-slot:activator="{ on }">
+          <v-text-field
+            readonly
+            :label="label"
+            :value="renderDate(dateTime)"
+            v-on="on"
+          />
+        </template>
+        <v-date-picker
+          class="date-picker"
+          v-model="date"
+          @change="onChange"
+          @click:date="dateClicked"
+        >
+          <!--        <v-btn @click="dateClicked" color="accent">OK</v-btn>-->
+        </v-date-picker>
+      </v-menu>
+    </v-col>
+    <v-col>
+      <v-menu
+        v-model="timeMenu"
+        :close-on-click="true"
+        :close-on-content-click="false"
+        min-width="100px"
       >
-    </v-menu>
+        <template v-slot:activator="{ on }">
+          <v-text-field readonly :value="renderTime(dateTime)" v-on="on" />
+        </template>
+        <v-time-picker
+          class="time-picker"
+          v-model="time"
+          v-if="timeMenu"
+          @input="onChange"
+          :allowed-minutes="(x) => x % 5 === 0"
+          ><v-btn @click="timeMenu = false" color="accent"
+            >OK</v-btn
+          ></v-time-picker
+        >
+      </v-menu>
+    </v-col>
   </v-row>
 </template>
 <script lang="ts">
