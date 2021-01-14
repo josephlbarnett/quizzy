@@ -13,7 +13,7 @@
 
     <properties>
         <version.argon>2.9</version.argon>
-        <version.google-http-client>1.38.0</version.google-http-client>
+        <version.google-http-client>1.38.1</version.google-http-client>
         <version.google-oauth-client>1.31.4</version.google-oauth-client>
         <version.jakarta-mail>1.6.5</version.jakarta-mail>
         <version.ktor>1.5.0</version.ktor>
