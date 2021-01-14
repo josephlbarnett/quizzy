@@ -6,7 +6,8 @@ import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiv
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
-import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.client.json.JsonFactory
+import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.Base64
 import com.google.api.client.util.store.DataStoreFactory
 import com.google.api.client.util.store.MemoryDataStoreFactory
@@ -32,7 +33,7 @@ import javax.mail.internet.MimeMessage
 private val log = KotlinLogging.logger {}
 
 open class GmailService @Inject constructor(
-    jacksonFactory: JacksonFactory,
+    jsonFactory: JsonFactory,
     dataStoreFactory: DataStoreFactory,
     @Assisted instanceId: UUID
 ) {
@@ -47,12 +48,12 @@ open class GmailService @Inject constructor(
             StringReader(envSecrets)
         }
         val secrets = secretsReader.use { reader ->
-            GoogleClientSecrets.load(jacksonFactory, reader)
+            GoogleClientSecrets.load(jsonFactory, reader)
         }
         val credential = AuthorizationCodeInstalledApp(
             GoogleAuthorizationCodeFlow.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
-                jacksonFactory,
+                jsonFactory,
                 secrets,
                 listOf(GmailScopes.GMAIL_SEND, Oauth2Scopes.USERINFO_EMAIL)
             )
@@ -77,13 +78,13 @@ open class GmailService @Inject constructor(
 
         gmail = Gmail.Builder(
             GoogleNetHttpTransport.newTrustedTransport(),
-            JacksonFactory.getDefaultInstance(),
+            jsonFactory,
             credential
         ).setApplicationName("rules exchange").build()
 
         oauth = Oauth2.Builder(
             GoogleNetHttpTransport.newTrustedTransport(),
-            JacksonFactory.getDefaultInstance(),
+            jsonFactory,
             credential
         ).setApplicationName("rules exchange").build()
     }
@@ -125,6 +126,7 @@ open class GmailServiceFactory @Inject constructor(
 class GmailServiceModule : KotlinModule() {
     override fun configure() {
         bind<DataStoreFactory>().to<MemoryDataStoreFactory>().asEagerSingleton()
+        bind<JsonFactory>().to<GsonFactory>()
         install(FactoryModuleBuilder().build(InternalGmailMailServiceFactory::class.java))
     }
 }
