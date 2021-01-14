@@ -5,6 +5,7 @@ import VueApollo from "vue-apollo";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import updateUserMutation from "@/graphql/UpdateUser.gql";
 import changePasswordMutation from "@/graphql/ChangePassword.gql";
+import vuetify from "@/plugins/vuetify";
 
 const mockUser = {
   id: 123,
@@ -25,6 +26,7 @@ const mockUser = {
 function mountUser(mockClient: MockApolloClient) {
   return mount(User, {
     stubs: ["v-autocomplete", "v-snackbar"],
+    vuetify,
     apolloProvider: new VueApollo({
       defaultClient: mockClient,
     }),

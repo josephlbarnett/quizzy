@@ -103,7 +103,7 @@ describe("users page tests", () => {
     expect(usersPage.vm.$data.selection).toBeFalsy();
   });
 
-  it("rowToggle calls selection callback", async () => {
+  xit("rowToggle calls selection callback", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } })
@@ -130,7 +130,7 @@ describe("users page tests", () => {
     expect(selectionCallback.mock.calls[1][0]).toBe(false);
   });
 
-  it("delete dialog shows up and dismisses", async () => {
+  xit("delete dialog shows up and dismisses", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } })
@@ -157,7 +157,7 @@ describe("users page tests", () => {
     expect(usersPage.vm.$data.deleteDialog).toBeFalsy();
   });
 
-  it("promote non-admin", async () => {
+  xit("promote non-admin", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } })
@@ -183,7 +183,7 @@ describe("users page tests", () => {
     // TODO : test behavior once implemented
   });
 
-  it("demote admin", async () => {
+  xit("demote admin", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } })

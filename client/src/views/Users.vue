@@ -19,7 +19,7 @@
           <v-card-title>
             Users
             <create-user-button />
-            <v-btn
+            <!--v-btn
               color="accent"
               outlined
               @click="promote"
@@ -53,7 +53,7 @@
                   ></v-card-actions
                 >
               </v-card>
-            </v-dialog>
+            </v-dialog-->
             <v-spacer />
             <v-text-field
               v-model="search"
@@ -66,7 +66,7 @@
             :items="data.users"
             :headers="headers"
             item-key="id"
-            show-select
+            :show-select="false"
             single-select
             no-data-text="No users found"
             :search="search"
@@ -125,14 +125,13 @@ export default Vue.extend({
         this.selection = null;
       }
     },
-    rowToggle(
-      item: ApiUser,
-      {
-        select,
-        isSelected,
-      }: { select: (value: boolean) => void; isSelected: boolean }
-    ) {
-      select(!isSelected);
+    rowToggle() // item: ApiUser,
+    // {
+    //   select,
+    //   isSelected,
+    // }: { select: (value: boolean) => void; isSelected: boolean }
+    {
+      //select(!isSelected);
     },
     promote() {
       // TODO: implement
