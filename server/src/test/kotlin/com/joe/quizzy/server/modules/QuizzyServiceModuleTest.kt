@@ -4,12 +4,11 @@ import assertk.all
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isInstanceOf
-import assertk.assertions.isNotEmpty
+import assertk.assertions.isNotNull
 import com.joe.quizzy.server.graphql.Query
 import com.trib3.graphql.modules.GraphQLApplicationModule.Companion.GRAPHQL_PACKAGES_BIND_NAME
 import com.trib3.graphql.modules.GraphQLApplicationModule.Companion.GRAPHQL_QUERIES_BIND_NAME
-import com.trib3.server.modules.TribeApplicationModule.Companion.APPLICATION_RESOURCES_BIND_NAME
-import io.dropwizard.auth.AuthDynamicFeature
+import io.dropwizard.auth.AuthFilter
 import org.testng.annotations.Guice
 import org.testng.annotations.Test
 import javax.inject.Inject
@@ -22,8 +21,7 @@ class QuizzyServiceModuleTest
     val packages: Set<@JvmSuppressWildcards String>,
     @Named(GRAPHQL_QUERIES_BIND_NAME)
     val queries: Set<@JvmSuppressWildcards Any>,
-    @Named(APPLICATION_RESOURCES_BIND_NAME)
-    val resources: Set<@JvmSuppressWildcards Any>
+    val authFilter: AuthFilter<*, *>
 ) {
     @Test
     fun testResources() {
@@ -32,7 +30,6 @@ class QuizzyServiceModuleTest
             contains("com.joe.quizzy.server.graphql")
         }
         assertThat(queries.first()).isInstanceOf(Query::class)
-        val dynamicAuthFeatures = resources.filterIsInstance<AuthDynamicFeature>()
-        assertThat(dynamicAuthFeatures).isNotEmpty()
+        assertThat(authFilter).isNotNull()
     }
 }
