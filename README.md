@@ -5,7 +5,7 @@ Description
 -----------
 A quiz application built using [Leaky Cauldron](https://github.com/trib3/leakycauldron)
 
-Built primarily to serve the needs of the College Football Rules Exchange.
+Built primarily to serve the needs of an email based Rules Exchange.
 
 Getting Started
 ---------------
