@@ -8,7 +8,6 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.gson.GsonFactory
-import com.google.api.client.util.Base64
 import com.google.api.client.util.store.DataStoreFactory
 import com.google.api.client.util.store.MemoryDataStoreFactory
 import com.google.api.services.gmail.Gmail
@@ -17,6 +16,7 @@ import com.google.api.services.gmail.GmailScopes
 import com.google.api.services.gmail.model.Message
 import com.google.api.services.oauth2.Oauth2
 import com.google.api.services.oauth2.Oauth2Scopes
+import com.google.common.io.BaseEncoding
 import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.FactoryModuleBuilder
 import com.joe.quizzy.persistence.api.InstanceDAO
@@ -137,7 +137,7 @@ class GmailServiceModule : KotlinModule() {
 fun Gmail.sendEmail(userId: String, message: MimeMessage): Send {
     val buffer = ByteArrayOutputStream()
     message.writeTo(buffer)
-    val encodedEmail = Base64.encodeBase64URLSafeString(buffer.toByteArray())
+    val encodedEmail = BaseEncoding.base64Url().omitPadding().encode(buffer.toByteArray())
     val messageToSend = Message()
     messageToSend.raw = encodedEmail
     return this.users().messages().send(userId, messageToSend)
