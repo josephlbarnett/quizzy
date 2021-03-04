@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse
 @Guice(modules = [QuizzyServiceModule::class])
 class RedirectTest @Inject constructor(
     @Named(TribeApplicationModule.APPLICATION_SERVLETS_BIND_NAME)
-    val appServlets: Set<@JvmSuppressWildcards ServletConfig>
+    val appServlets: Set<ServletConfig>
 ) : ResourceTestBase<RedirectResource>() {
     override fun getResource(): RedirectResource {
         return RedirectResource()
