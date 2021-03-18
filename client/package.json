@@ -29,7 +29,7 @@
     "vuetify": "^2.4.5"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.20",
+    "@types/jest": "^26.0.21",
     "@types/papaparse": "^5.2.5",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
