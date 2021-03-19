@@ -18,7 +18,9 @@ class QuestionResponseLoader(private val responseDAO: ResponseDAO) :
     ): Map<UUID, Response> {
         val principal = environment.getContext<GraphQLResourceContext>().principal
         return if (principal is UserPrincipal) {
-            responseDAO.byUserQuestions(principal.user.id!!, keys.toList())
+            val id = principal.user.id
+            require(id != null)
+            responseDAO.byUserQuestions(id, keys.toList())
         } else {
             emptyMap()
         }

@@ -100,6 +100,6 @@ open class GradeDAOJooq
 
     @Timed
     override fun stream(): Stream<Grade> {
-        return ctx.select().from(Tables.GRADES).fetchSize(1000).fetchStreamInto(Grade::class.java)
+        return ctx.select().from(Tables.GRADES).fetchStreamInto(Grade::class.java)
     }
 }

@@ -15,10 +15,8 @@ interface QuestionDAO {
     fun get(id: UUID): Question?
     fun get(ids: List<UUID>): List<Question>
     fun save(thing: Question): Question
-    fun active(): List<Question>
     fun active(user: User): List<Question>
     fun active(notificationType: NotificationType): List<Question>
-    fun closed(): List<Question>
     fun closed(user: User): List<Question>
     fun closed(notificationType: NotificationType): List<Question>
     fun future(user: User): List<Question>

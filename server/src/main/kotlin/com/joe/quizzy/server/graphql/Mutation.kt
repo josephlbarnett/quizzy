@@ -24,6 +24,7 @@ import io.dropwizard.auth.basic.BasicCredentials
 import java.io.InputStreamReader
 import java.io.StringWriter
 import java.net.URLEncoder
+import java.security.Principal
 import java.time.OffsetDateTime
 import java.util.Date
 import java.util.Properties
@@ -36,6 +37,7 @@ import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.NewCookie
 
 private const val COOKIE_NAME = "x-quizzy-session"
+private const val MAX_COOKIE_AGE = 60 * 60 * 24 * 30 // expire in 30 days
 
 /**
  * GraphQL entry point for [Thing] mutations.   Maps the DAO interfaces to the GraphQL models.
@@ -66,11 +68,7 @@ class Mutation @Inject constructor(
             }
         }
 
-    fun login(context: GraphQLResourceContext, email: String, pass: String): Boolean {
-        if (context.principal != null) {
-            return true // if already logged in, return
-        }
-        val principal = userAuthenticator.authenticate(BasicCredentials(email, pass)).orElse(null)
+    private fun loginNewUser(principal: Principal?, context: GraphQLResourceContext): Boolean {
         if (principal is UserPrincipal) {
             val userId = principal.user.id
             if (userId != null) {
@@ -82,7 +80,7 @@ class Mutation @Inject constructor(
                     null,
                     1,
                     null,
-                    60 * 60 * 24 * 30, // expire in 30 days
+                    MAX_COOKIE_AGE,
                     null,
                     true,
                     true
@@ -91,6 +89,14 @@ class Mutation @Inject constructor(
             }
         }
         return false
+    }
+
+    fun login(context: GraphQLResourceContext, email: String, pass: String): Boolean {
+        if (context.principal != null) {
+            return true // if already logged in, return
+        }
+        val principal = userAuthenticator.authenticate(BasicCredentials(email, pass)).orElse(null)
+        return loginNewUser(principal, context)
     }
 
     fun changePassword(context: GraphQLResourceContext, oldPass: String, newPass: String): Boolean {
@@ -178,6 +184,34 @@ class Mutation @Inject constructor(
         return users.map { user(context, it) }
     }
 
+    private fun sendNewUserEmail(principal: UserPrincipal, savedUser: User, password: String?) {
+        gmailServiceFactory.getService(principal.user.instanceId)?.let { gmail ->
+            val instanceAddress = gmail.oauth.userinfo().v2().me().get().execute().email
+            val instanceName = instanceDAO.get(principal.user.instanceId)?.name ?: "Quizzy"
+            val message = MimeMessage(javax.mail.Session.getDefaultInstance(Properties(), null))
+            message.setFrom("$instanceName <$instanceAddress>")
+            message.addRecipients(
+                Message.RecipientType.TO,
+                "${savedUser.name} <${savedUser.email}>"
+            )
+            message.subject = "Welcome to $instanceName"
+            message.setContent(
+                newUserHtmlTemplate.execute(
+                    StringWriter(),
+                    mapOf(
+                        "instanceName" to instanceName,
+                        "user" to savedUser,
+                        "admin" to principal.user,
+                        "password" to password,
+                        "link" to "https://${appConfig.corsDomains[0]}"
+                    )
+                ).toString(),
+                MediaType.TEXT_HTML
+            )
+            gmail.gmail.sendEmail("me", message).execute()
+        }
+    }
+
     fun user(context: GraphQLResourceContext, user: User): User? {
         val principal = context.principal
         if (principal is UserPrincipal) {
@@ -197,31 +231,7 @@ class Mutation @Inject constructor(
                 }
                 if (savedUser.id != user.id) {
                     // new user!
-                    gmailServiceFactory.getService(principal.user.instanceId)?.let { gmail ->
-                        val instanceAddress = gmail.oauth.userinfo().v2().me().get().execute().email
-                        val instanceName = instanceDAO.get(principal.user.instanceId)?.name ?: "Quizzy"
-                        val message = MimeMessage(javax.mail.Session.getDefaultInstance(Properties(), null))
-                        message.setFrom("$instanceName <$instanceAddress>")
-                        message.addRecipients(
-                            Message.RecipientType.TO,
-                            "${savedUser.name} <${savedUser.email}>"
-                        )
-                        message.subject = "Welcome to $instanceName"
-                        message.setContent(
-                            newUserHtmlTemplate.execute(
-                                StringWriter(),
-                                mapOf(
-                                    "instanceName" to instanceName,
-                                    "user" to savedUser,
-                                    "admin" to principal.user,
-                                    "password" to password,
-                                    "link" to "https://${appConfig.corsDomains[0]}"
-                                )
-                            ).toString(),
-                            MediaType.TEXT_HTML
-                        )
-                        gmail.gmail.sendEmail("me", message).execute()
-                    }
+                    sendNewUserEmail(principal, savedUser, password)
                 }
                 return savedUser
             }
@@ -232,9 +242,11 @@ class Mutation @Inject constructor(
     fun response(context: GraphQLResourceContext, response: Response): Response? {
         val principal = context.principal
         if (principal is UserPrincipal) {
+            val id = principal.user.id
+            require(id != null)
             return responseDAO.save(
                 response.copy(
-                    userId = principal.user.id!!
+                    userId = id
                 )
             )
         }

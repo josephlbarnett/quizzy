@@ -68,6 +68,7 @@ open class GmailService @Inject constructor(
                 }
 
                 override fun stop() {
+                    // do nothing
                 }
 
                 override fun getRedirectUri(): String {

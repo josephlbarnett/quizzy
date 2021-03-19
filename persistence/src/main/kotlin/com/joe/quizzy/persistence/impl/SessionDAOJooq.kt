@@ -62,7 +62,7 @@ open class SessionDAOJooq
 
     @Timed
     override fun stream(): Stream<Session> {
-        return ctx.select().from(Tables.SESSIONS).fetchSize(1000).fetchStreamInto(Session::class.java)
+        return ctx.select().from(Tables.SESSIONS).fetchStreamInto(Session::class.java)
     }
 
     @Timed

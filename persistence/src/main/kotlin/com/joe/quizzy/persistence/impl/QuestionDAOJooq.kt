@@ -78,17 +78,6 @@ open class QuestionDAOJooq
     }
 
     @Timed
-    override fun active(): List<Question> {
-        val now = OffsetDateTime.now()
-        val query = ctx.select(Tables.QUESTIONS.asterisk()).from(Tables.QUESTIONS)
-            .where(
-                Tables.QUESTIONS.ACTIVE_AT.le(now)
-                    .and(Tables.QUESTIONS.CLOSED_AT.ge(now))
-            ).orderBy(Tables.QUESTIONS.CLOSED_AT)
-        return query.fetchInto(Question::class.java)
-    }
-
-    @Timed
     override fun active(user: User): List<Question> {
         val now = OffsetDateTime.now()
         val query = instanceQuestions(user)
@@ -114,14 +103,6 @@ open class QuestionDAOJooq
                     .and(Tables.QUESTIONS.CLOSED_AT.ge(now))
                     .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull)
             ).orderBy(Tables.QUESTIONS.CLOSED_AT)
-        return query.fetchInto(Question::class.java)
-    }
-
-    @Timed
-    override fun closed(): List<Question> {
-        val now = OffsetDateTime.now()
-        val query = ctx.select(Tables.QUESTIONS.asterisk()).from(Tables.QUESTIONS)
-            .where(Tables.QUESTIONS.CLOSED_AT.le(now)).orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
         return query.fetchInto(Question::class.java)
     }
 
@@ -167,7 +148,7 @@ open class QuestionDAOJooq
 
     @Timed
     override fun stream(): Stream<Question> {
-        return ctx.select().from(Tables.QUESTIONS).orderBy(Tables.QUESTIONS.CLOSED_AT).fetchSize(1000)
+        return ctx.select().from(Tables.QUESTIONS).orderBy(Tables.QUESTIONS.CLOSED_AT)
             .fetchStreamInto(Question::class.java)
     }
 }

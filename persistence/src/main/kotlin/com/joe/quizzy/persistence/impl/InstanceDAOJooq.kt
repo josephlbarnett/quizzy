@@ -69,6 +69,6 @@ open class InstanceDAOJooq
 
     @Timed
     override fun stream(): Stream<Instance> {
-        return ctx.select().from(Tables.INSTANCES).fetchSize(1000).fetchStreamInto(Instance::class.java)
+        return ctx.select().from(Tables.INSTANCES).fetchStreamInto(Instance::class.java)
     }
 }

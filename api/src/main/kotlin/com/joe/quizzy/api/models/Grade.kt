@@ -2,6 +2,8 @@ package com.joe.quizzy.api.models
 
 import java.util.UUID
 
+private const val CORRECT_POINTS = 15
+
 data class Grade(
     val id: UUID?,
     val responseId: UUID,
@@ -10,7 +12,7 @@ data class Grade(
 ) {
     fun score(): Int {
         return if (correct == true) {
-            15 + (bonus ?: 0)
+            CORRECT_POINTS + (bonus ?: 0)
         } else {
             0
         }

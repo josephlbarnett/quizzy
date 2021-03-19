@@ -103,7 +103,7 @@ open class UserDAOJooq
 
     @Timed
     override fun stream(): Stream<User> {
-        return ctx.select().from(Tables.USERS).orderBy(DSL.lower(Tables.USERS.NAME)).fetchSize(1000)
+        return ctx.select().from(Tables.USERS).orderBy(DSL.lower(Tables.USERS.NAME))
             .fetchStreamInto(User::class.java)
     }
 }

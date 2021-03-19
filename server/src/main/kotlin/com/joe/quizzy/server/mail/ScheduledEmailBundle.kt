@@ -39,8 +39,10 @@ import javax.mail.internet.MimeMessage
 import javax.ws.rs.core.MediaType
 
 private val log = KotlinLogging.logger {}
+private const val POLL_MINUTES = 5
 
 @OptIn(KtorExperimentalAPI::class)
+@Suppress("LongParameterList")
 class ScheduledEmailBundle(
     val configLoader: ConfigLoader,
     val appConfig: TribeApplicationConfig,
@@ -74,7 +76,7 @@ class ScheduledEmailBundle(
         Executors.newSingleThreadExecutor {
             Thread(it, "ScheduledEmailBundle").apply { isDaemon = true }
         }.asCoroutineDispatcher(),
-        5
+        POLL_MINUTES
     )
 
     internal var pollJob: Job? = null
@@ -84,6 +86,14 @@ class ScheduledEmailBundle(
                 DefaultMustacheFactory().compile(reader, "question")
             }
         }
+
+    private fun countObject(size: Int): Map<String, Any>? {
+        return when (size) {
+            0 -> null
+            1 -> mapOf("num" to size, "plural" to " is")
+            else -> mapOf("num" to size, "plural" to "s are")
+        }
+    }
 
     /**
      * Sends an email to all users with notifications enabled containing
@@ -111,13 +121,6 @@ class ScheduledEmailBundle(
                 "Questions"
             }
             message.subject = "New $questionAnswerString Available from $instanceName"
-            val countObject = { size: Int ->
-                when (size) {
-                    0 -> null
-                    1 -> mapOf("num" to size, "plural" to " is")
-                    else -> mapOf("num" to size, "plural" to "s are")
-                }
-            }
             message.setContent(
                 htmlTemplate.execute(
                     StringWriter(),
@@ -141,8 +144,8 @@ class ScheduledEmailBundle(
                 ).toString(),
                 MediaType.TEXT_HTML
             )
-            emailNotificationDAO.markNotified(NotificationType.REMINDER, (questions + answers).map { it.id!! })
-            emailNotificationDAO.markNotified(NotificationType.ANSWER, answers.map { it.id!! })
+            emailNotificationDAO.markNotified(NotificationType.REMINDER, (questions + answers).mapNotNull { it.id })
+            emailNotificationDAO.markNotified(NotificationType.ANSWER, answers.mapNotNull { it.id })
             log.info(
                 "Sending email for ${questions.size} questions and ${answers.size} answers " +
                     "to ${usersToNotify.size} users for instance $instanceName"

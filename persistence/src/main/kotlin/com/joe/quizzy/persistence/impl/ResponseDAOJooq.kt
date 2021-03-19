@@ -109,6 +109,6 @@ open class ResponseDAOJooq
 
     @Timed
     override fun stream(): Stream<Response> {
-        return ctx.select().from(Tables.RESPONSES).fetchSize(1000).fetchStreamInto(Response::class.java)
+        return ctx.select().from(Tables.RESPONSES).fetchStreamInto(Response::class.java)
     }
 }
