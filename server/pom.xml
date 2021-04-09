@@ -15,7 +15,7 @@
         <version.argon>2.10.1</version.argon>
         <version.google-http-client>1.39.2</version.google-http-client>
         <version.google-oauth-client>1.31.5</version.google-oauth-client>
-        <version.jakarta-mail>1.6.5</version.jakarta-mail>
+        <version.jakarta-mail>1.6.7</version.jakarta-mail>
         <version.ktor>1.5.3</version.ktor>
     </properties>
 
