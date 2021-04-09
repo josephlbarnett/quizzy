@@ -7,6 +7,10 @@ updates:
   pull-request-branch-name:
     separator: "-"
   open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: com.sun.mail:jakarta.mail
+    versions:
+    - ">= 2.0.0"
 - package-ecosystem: npm
   directory: "/client"
   schedule:
