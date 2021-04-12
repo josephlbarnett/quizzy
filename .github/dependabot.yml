@@ -18,3 +18,7 @@ updates:
   pull-request-branch-name:
     separator: "-"
   open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: mock-apollo-client
+    versions:
+    - ">= 1.0.0"
