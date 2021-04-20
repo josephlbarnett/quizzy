@@ -16,7 +16,7 @@
     "@graphql-codegen/cli": "^1.21.3",
     "@graphql-codegen/typescript": "^1.22.0",
     "@types/moment-timezone": "^0.5.30",
-    "core-js": "^3.10.1",
+    "core-js": "^3.10.2",
     "eslint-plugin-graphql": "^4.0.0",
     "graphql-combine-query": "^1.2.3",
     "moment-timezone": "^0.5.33",
