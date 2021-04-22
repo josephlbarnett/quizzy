@@ -1,6 +1,6 @@
 package com.joe.quizzy.api.models
 
-import com.expediagroup.graphql.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.fasterxml.jackson.annotation.JsonIgnore
 import java.util.UUID
 
