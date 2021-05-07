@@ -18,29 +18,30 @@ jobs:
       # handle dependency caching and run build
       - restore_cache:
           keys:
-            - v2-dependencies-{{ .Branch }}-{{ .Revision }}
-            - v2-dependencies-{{ .Branch }}
-            - v2-dependencies-
+            - v3-dependencies-{{ .Branch }}-{{ .Revision }}
+            - v3-dependencies-{{ .Branch }}
+            - v3-dependencies-
       - restore_cache:
           keys:
-            - v2-npms-{{ .Branch }}-{{ .Revision }}
-            - v2-npms-{{ .Branch }}
-            - v2-npms-
-      - run:
-          name: npm build
-          command: |
-            cd client
-            npm install
-            npm run generate
-            npm run lint
-            npm run test:unit
-            npm run build
-            mkdir -p dist/emails
-            npm run mjml
+            - v3-npms-{{ .Branch }}-{{ .Revision }}
+            - v3-npms-{{ .Branch }}
+            - v3-npms-
+      - restore_cache:
+          keys:
+            - v3-email-npms-{{ .Branch }}-{{ .Revision }}
+            - v3-email-npms-{{ .Branch }}
+            - v3-email-npms-
       - save_cache:
           paths:
-            - ~/repo/client/node_modules
-          key: v2-npms-{{ .Branch }}-{{ .Revision }}
+            - ~/repo/emails/node_modules
+          key: v3-email-npms-{{ .Branch }}-{{ .Revision }}
+      - run:
+          name: npm build emails
+          command: |
+            cd emails
+            npm install
+            mkdir -p dist/emails
+            npm run mjml
       - run:
           name: Set Maven Version
           command: |
@@ -52,11 +53,25 @@ jobs:
             fi
             mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${NEW_PROJECT_VERSION}
             echo ${NEW_PROJECT_VERSION} > ~/repo/current_version.txt
-      - run: mvn install -U
+      - run: mvn install -U -pl .,api,emails,persistence,graphql,client
+      - run:
+          name: npm build client
+          command: |
+            cd client
+            npm install
+            npm run generate
+            npm run lint
+            npm run test:unit
+            npm run build
+      - save_cache:
+          paths:
+            - ~/repo/client/node_modules
+          key: v3-npms-{{ .Branch }}-{{ .Revision }}
+      - run: mvn install -U -pl client,server
       - save_cache:
           paths:
             - ~/.m2
-          key: v2-dependencies-{{ .Branch }}-{{ .Revision }}
+          key: v3-dependencies-{{ .Branch }}-{{ .Revision }}
       # collect test results and upload coverage
       - run: mkdir -p ~/test_results
       - run: find . -type f -regex ".*/target/surefire-reports/junitreports/.*xml" -exec cp {} ~/test_results/ \;

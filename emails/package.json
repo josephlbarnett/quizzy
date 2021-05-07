@@ -1,0 +1,73 @@
+{
+  "name": "quizzy-emails",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "mjml": "mjml emails/* -o dist/emails/"
+  },
+  "devDependencies": {
+    "mjml": "^4.9.0"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended",
+      "@vue/typescript/recommended",
+      "@vue/prettier",
+      "@vue/prettier/@typescript-eslint"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2020
+    },
+    "ignorePatterns": [
+      "**/generated/**"
+    ],
+    "rules": {
+      "vue/custom-event-name-casing": [
+        "error",
+        {
+          "ignores": [
+            "/^[a-z]+(?:-[a-z]+)*:[a-z]+(?:-[a-z]+)*$/u"
+          ]
+        }
+      ],
+      "vue/valid-v-slot": [
+        "error",
+        {
+          "allowModifiers": true
+        }
+      ]
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/__tests__/*.{j,t}s?(x)",
+          "**/tests/unit/**/*.spec.{j,t}s?(x)"
+        ],
+        "env": {
+          "jest": true
+        }
+      }
+    ]
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ],
+  "jest": {
+    "preset": "@vue/cli-plugin-unit-jest/presets/typescript-and-babel"
+  },
+  "gitHooks": {
+    "pre-commit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,vue,ts,tsx}": [
+      "vue-cli-service lint",
+      "git add"
+    ]
+  }
+}

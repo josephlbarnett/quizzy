@@ -1,4 +1,4 @@
-schema: https://fb-rules-exchange.herokuapp.com/app/graphql
+schema: target/dependency/schema.graphql
 generates:
   ./src/generated/types.d.ts:
     plugins:

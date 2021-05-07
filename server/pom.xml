@@ -11,46 +11,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <properties>
-        <version.argon>2.10.1</version.argon>
-        <version.google-http-client>1.39.2</version.google-http-client>
-        <version.google-oauth-client>1.31.5</version.google-oauth-client>
-        <version.jakarta-mail>1.6.7</version.jakarta-mail>
-        <version.ktor>1.5.3</version.ktor>
-    </properties>
-
     <groupId>com.joe.quizzy</groupId>
     <artifactId>server</artifactId>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>net.java.dev.jna</groupId>
-                <artifactId>jna</artifactId>
-                <version>5.8.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.http-client</groupId>
-                <artifactId>google-http-client</artifactId>
-                <version>${version.google-http-client}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>httpclient</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>httpcore</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.google.http-client</groupId>
-                <artifactId>google-http-client-gson</artifactId>
-                <version>${version.google-http-client}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
 
@@ -69,14 +31,14 @@
         </dependency>
 
         <dependency>
-            <groupId>com.trib3</groupId>
+            <groupId>com.joe.quizzy</groupId>
             <artifactId>graphql</artifactId>
-            <version>${version.leakycauldron}</version>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.trib3</groupId>
-            <artifactId>config</artifactId>
+            <artifactId>graphql</artifactId>
             <version>${version.leakycauldron}</version>
         </dependency>
 
@@ -90,21 +52,6 @@
             <groupId>com.joe.quizzy</groupId>
             <artifactId>persistence</artifactId>
             <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.joe.quizzy</groupId>
-            <artifactId>api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.github.config4k</groupId>
-            <artifactId>config4k</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.typesafe</groupId>
-            <artifactId>config</artifactId>
         </dependency>
 
         <!-- dropwizard -->
@@ -133,18 +80,6 @@
             <artifactId>jakarta.ws.rs-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>de.mkammerer</groupId>
-            <artifactId>argon2-jvm</artifactId>
-            <version>${version.argon}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>de.mkammerer</groupId>
-            <artifactId>argon2-jvm-nolibs</artifactId>
-            <version>${version.argon}</version>
-        </dependency>
-
         <!-- guice -->
         <dependency>
             <groupId>com.google.inject</groupId>
@@ -163,186 +98,6 @@
             <groupId>com.trib3</groupId>
             <artifactId>testing</artifactId>
             <version>${version.leakycauldron}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- graphQL -->
-        <dependency>
-            <groupId>com.graphql-java</groupId>
-            <artifactId>graphql-java-tools</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-core-jvm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlinx</groupId>
-            <artifactId>kotlinx-coroutines-jdk8</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.graphql-java</groupId>
-            <artifactId>java-dataloader</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.graphql-java</groupId>
-            <artifactId>graphql-java</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-            <version>1.31.4</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpcore</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.oauth-client</groupId>
-                    <artifactId>google-oauth-client</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.http-client</groupId>
-                    <artifactId>google-http-client-jackson2</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpclient</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client-java6</artifactId>
-            <version>${version.google-oauth-client}</version>
-        </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>com.google.oauth-client</groupId>-->
-        <!--            <artifactId>google-oauth-client-servlet</artifactId>-->
-        <!--            <version>1.30.6</version>-->
-        <!--        </dependency>-->
-        <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-gmail</artifactId>
-            <version>v1-rev20210301-1.31.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.api-client</groupId>
-                    <artifactId>google-api-client</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-oauth2</artifactId>
-            <version>v2-rev20200213-1.31.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.google.api-client</groupId>
-                    <artifactId>google-api-client</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.google.oauth-client</groupId>
-            <artifactId>google-oauth-client</artifactId>
-            <version>${version.google-oauth-client}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpclient</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.httpcomponents</groupId>
-                    <artifactId>httpcore</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.google.http-client</groupId>
-                    <artifactId>google-http-client</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>com.google.http-client</groupId>
-            <artifactId>google-http-client</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.google.http-client</groupId>
-            <artifactId>google-http-client-gson</artifactId>
-        </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>com.google.auth</groupId>-->
-        <!--            <artifactId>google-auth-library-oauth2-http</artifactId>-->
-        <!--            <version>0.20.0</version>-->
-        <!--            <exclusions>-->
-        <!--                <exclusion>-->
-        <!--                    <groupId>com.google.http-client</groupId>-->
-        <!--                    <artifactId>google-http-client-jackson2</artifactId>-->
-        <!--                </exclusion>-->
-        <!--                <exclusion>-->
-        <!--                    <groupId>com.google.http-client</groupId>-->
-        <!--                    <artifactId>google-http-client</artifactId>-->
-        <!--                </exclusion>-->
-        <!--            </exclusions>-->
-        <!--        </dependency>-->
-        <!--        <dependency>-->
-        <!--            <groupId>com.sun.mail</groupId>-->
-        <!--            <artifactId>jakarta.mail</artifactId>-->
-        <!--            <version>1.6.5</version>-->
-        <!--        </dependency>-->
-        <dependency>
-            <groupId>com.google.inject.extensions</groupId>
-            <artifactId>guice-assistedinject</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.sun.mail</groupId>
-            <artifactId>jakarta.mail</artifactId>
-            <version>${version.jakarta-mail}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>com.sun.activation</groupId>
-                    <artifactId>jakarta.activation</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-client-core-jvm</artifactId>
-            <version>${version.ktor}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-client-cio-jvm</artifactId>
-            <version>${version.ktor}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-http-jvm</artifactId>
-            <version>${version.ktor}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.github.spullara.mustache.java</groupId>
-            <artifactId>compiler</artifactId>
-            <version>0.9.7</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.ktor</groupId>
-            <artifactId>ktor-client-mock-jvm</artifactId>
-            <version>${version.ktor}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

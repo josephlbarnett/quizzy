@@ -12,38 +12,10 @@
     </parent>
 
     <groupId>com.joe.quizzy</groupId>
-    <artifactId>client</artifactId>
-
-    <dependencies>
-        <dependency>
-            <groupId>com.joe.quizzy</groupId>
-            <artifactId>graphql</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+    <artifactId>emails</artifactId>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>unpack-schema</id>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <phase>initialize</phase>
-                        <configuration>
-                            <includeGroupIds>com.joe.quizzy</includeGroupIds>
-                            <includeArtifactIds>graphql</includeArtifactIds>
-                            <includes>schema.graphql</includes>
-			    <skip>false</skip>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -85,61 +57,31 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-generate</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>generate</argument>
-                            </arguments>
-                            <skip>${skip.source}</skip>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm-lint</id>
+                        <id>mkdir-mjml</id>
                         <goals>
                             <goal>exec</goal>
                         </goals>
                         <phase>compile</phase>
                         <configuration>
-                            <executable>npm</executable>
+                            <executable>mkdir</executable>
                             <arguments>
-                                <argument>run</argument>
-                                <argument>lint</argument>
-                            </arguments>
-                            <skip>${skip.checks}</skip>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm-build</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>compile</phase>
-                        <configuration>
-                            <executable>npm</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>build</argument>
+                                <argument>-p</argument>
+                                <argument>dist/emails</argument>
                             </arguments>
                             <skip>${skip.tests}</skip>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm-test</id>
+                        <id>npm-mjml</id>
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                        <phase>test</phase>
+                        <phase>compile</phase>
                         <configuration>
                             <executable>npm</executable>
                             <arguments>
                                 <argument>run</argument>
-                                <argument>test:unit</argument>
+                                <argument>mjml</argument>
                             </arguments>
                             <skip>${skip.tests}</skip>
                         </configuration>

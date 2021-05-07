@@ -5,7 +5,7 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
-import com.joe.quizzy.server.graphql.Query
+import com.joe.quizzy.graphql.Query
 import com.trib3.graphql.modules.GraphQLApplicationModule.Companion.GRAPHQL_PACKAGES_BIND_NAME
 import com.trib3.graphql.modules.GraphQLApplicationModule.Companion.GRAPHQL_QUERIES_BIND_NAME
 import io.dropwizard.auth.AuthFilter
@@ -27,7 +27,7 @@ class QuizzyServiceModuleTest
     fun testResources() {
         assertThat(packages).all {
             contains("com.joe.quizzy.api")
-            contains("com.joe.quizzy.server.graphql")
+            contains("com.joe.quizzy.graphql")
         }
         assertThat(queries.first()).isInstanceOf(Query::class)
         assertThat(authFilter).isNotNull()

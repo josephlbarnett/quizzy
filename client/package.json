@@ -8,8 +8,7 @@
     "test:unit": "vue-cli-service test:unit --runInBand",
     "test": "npm run test:unit",
     "lint": "vue-cli-service lint",
-    "generate": "graphql-codegen",
-    "mjml": "mjml emails/* -o dist/emails/"
+    "generate": "graphql-codegen"
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.13.0",
@@ -48,7 +47,6 @@
     "graphql-tag": "^2.11.0",
     "jest-transform-graphql": "^2.1.0",
     "lint-staged": "^10.5.4",
-    "mjml": "^4.9.0",
     "mock-apollo-client": "^0.6.0",
     "prettier": "^2.2.1",
     "sass": "^1.32.11",
