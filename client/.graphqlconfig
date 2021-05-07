@@ -1,15 +1,15 @@
 {
   "name": "quizzy schema",
-  "schemaPath": "quizzy.graphql",
+  "schemaPath": "target/depenencies/schema.graphql",
   "extensions": {
     "endpoints": {
       "Remote GraphQL Endpoint": {
         "url": "https://fb-rules-exchange.herokuapp.com/app/graphql",
-        "introspect": true
+        "introspect": false
       },
       "Local GraphQL Endpoint": {
         "url": "http://localhost:8081/app/graphql",
-        "introspect": true
+        "introspect": false
       }
     }
   }

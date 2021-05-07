@@ -1,19 +1,19 @@
 package com.joe.quizzy.server.modules
 
+import com.joe.quizzy.graphql.Mutation
+import com.joe.quizzy.graphql.Query
+import com.joe.quizzy.graphql.auth.Argon2Hasher
+import com.joe.quizzy.graphql.auth.Hasher
+import com.joe.quizzy.graphql.auth.SessionAuthenticator
+import com.joe.quizzy.graphql.auth.UserAuthenticator
+import com.joe.quizzy.graphql.auth.UserAuthorizer
+import com.joe.quizzy.graphql.auth.UserPrincipal
+import com.joe.quizzy.graphql.dataloaders.DataLoaderRegistryFactoryProvider
+import com.joe.quizzy.graphql.mail.GmailServiceModule
+import com.joe.quizzy.graphql.mail.ScheduledEmailBundle
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.persistence.modules.QuizzyPersistenceModule
-import com.joe.quizzy.server.auth.Argon2Hasher
-import com.joe.quizzy.server.auth.Hasher
-import com.joe.quizzy.server.auth.SessionAuthenticator
-import com.joe.quizzy.server.auth.UserAuthenticator
-import com.joe.quizzy.server.auth.UserAuthorizer
-import com.joe.quizzy.server.auth.UserPrincipal
-import com.joe.quizzy.server.graphql.Mutation
-import com.joe.quizzy.server.graphql.Query
-import com.joe.quizzy.server.graphql.dataloaders.DataLoaderRegistryFactoryProvider
-import com.joe.quizzy.server.mail.GmailServiceModule
-import com.joe.quizzy.server.mail.ScheduledEmailBundle
 import com.trib3.graphql.modules.GraphQLApplicationModule
 import com.trib3.server.filters.CookieTokenAuthFilter
 import com.trib3.server.modules.ServletConfig
@@ -103,7 +103,7 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
         install(GmailServiceModule())
 
         graphQLPackagesBinder().addBinding().toInstance("com.joe.quizzy.api")
-        graphQLPackagesBinder().addBinding().toInstance("com.joe.quizzy.server.graphql")
+        graphQLPackagesBinder().addBinding().toInstance("com.joe.quizzy.graphql")
 
         graphQLQueriesBinder().addBinding().to<Query>()
         graphQLMutationsBinder().addBinding().to<Mutation>()

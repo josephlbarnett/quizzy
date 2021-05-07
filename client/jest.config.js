@@ -16,6 +16,7 @@ module.exports = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
+  preset: "ts-jest",
   transform: {
     "^.+\\.(js|ts)$": "babel-jest",
     "^.+\\.sass$": "jest-transform-stub",

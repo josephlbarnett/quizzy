@@ -18,6 +18,8 @@
 
     <modules>
         <module>api</module>
+        <module>emails</module>
+        <module>graphql</module>
         <module>client</module>
         <module>persistence</module>
         <module>server</module>
