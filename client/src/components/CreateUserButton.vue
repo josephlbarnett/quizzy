@@ -146,9 +146,10 @@ export default Vue.extend({
       this.addedWithError = 0;
     },
     async recalculateUsers(): Promise<AddUserInfo[]> {
-      return (this.tabs == 1
-        ? await this.parsedEmails()
-        : [{ name: this.singleName, email: this.singleEmail }]
+      return (
+        this.tabs == 1
+          ? await this.parsedEmails()
+          : [{ name: this.singleName, email: this.singleEmail }]
       )
         .filter((item) => {
           return item.email.indexOf("@") > 0;
