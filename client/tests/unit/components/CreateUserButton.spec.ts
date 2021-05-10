@@ -81,10 +81,12 @@ describe("CreateUserButton tests", () => {
         .text()
     ).toContain("Create 0");
     expect(
-      (component
-        .findAll("button")
-        .filter((b) => b.text().indexOf("Create") == 0)
-        .at(0).element as HTMLButtonElement).disabled
+      (
+        component
+          .findAll("button")
+          .filter((b) => b.text().indexOf("Create") == 0)
+          .at(0).element as HTMLButtonElement
+      ).disabled
     ).toBeTruthy();
     await component
       .findAll(".v-text-field")
@@ -100,10 +102,12 @@ describe("CreateUserButton tests", () => {
         .text()
     ).toContain("Create 1");
     expect(
-      (component
-        .findAll("button")
-        .filter((b) => b.text().indexOf("Create") == 0)
-        .at(0).element as HTMLButtonElement).disabled
+      (
+        component
+          .findAll("button")
+          .filter((b) => b.text().indexOf("Create") == 0)
+          .at(0).element as HTMLButtonElement
+      ).disabled
     ).toBeFalsy();
     expect(component.vm.$data.singleName).toBe("A name");
     expect(component.vm.$data.singleEmail).toBe("a@b.com");

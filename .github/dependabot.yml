@@ -22,3 +22,10 @@ updates:
   - dependency-name: mock-apollo-client
     versions:
     - ">= 1.0.0"
+- package-ecosystem: npm
+  directory: "/emails"
+  schedule:
+    interval: daily
+  pull-request-branch-name:
+    separator: "-"
+  open-pull-requests-limit: 10

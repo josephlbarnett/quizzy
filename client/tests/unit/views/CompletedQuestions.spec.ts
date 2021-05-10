@@ -126,28 +126,36 @@ function assertDialogMatchesInputs<T extends Vue>(
   );
   const inputs = page.findAll(".v-dialog .v-textarea");
   expect(
-    (inputs
-      .filter((x) => x.text() == "Answer Key")
-      .at(0)
-      .find("textarea").element as HTMLTextAreaElement).value
+    (
+      inputs
+        .filter((x) => x.text() == "Answer Key")
+        .at(0)
+        .find("textarea").element as HTMLTextAreaElement
+    ).value
   ).toBe(question.answer);
   expect(
-    (inputs
-      .filter((x) => x.text() == "Answer Key Rule References")
-      .at(0)
-      .find("textarea").element as HTMLTextAreaElement).value
+    (
+      inputs
+        .filter((x) => x.text() == "Answer Key Rule References")
+        .at(0)
+        .find("textarea").element as HTMLTextAreaElement
+    ).value
   ).toBe(question.ruleReferences);
   expect(
-    (inputs
-      .filter((x) => x.text() == "Your Response")
-      .at(0)
-      .find("textarea").element as HTMLTextAreaElement).value
+    (
+      inputs
+        .filter((x) => x.text() == "Your Response")
+        .at(0)
+        .find("textarea").element as HTMLTextAreaElement
+    ).value
   ).toBe(question.response?.response);
   expect(
-    (inputs
-      .filter((x) => x.text() == "Your Rule References")
-      .at(0)
-      .find("textarea").element as HTMLTextAreaElement).value
+    (
+      inputs
+        .filter((x) => x.text() == "Your Rule References")
+        .at(0)
+        .find("textarea").element as HTMLTextAreaElement
+    ).value
   ).toBe(question.response?.ruleReferences);
   const correctness = question.response?.grade?.correct;
   if (correctness === undefined || correctness === null) {
