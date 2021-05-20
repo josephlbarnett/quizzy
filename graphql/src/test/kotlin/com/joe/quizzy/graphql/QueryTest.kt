@@ -19,12 +19,15 @@ import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.trib3.graphql.resources.GraphQLResourceContext
 import com.trib3.testing.LeakyMock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.easymock.EasyMock
 import org.testng.annotations.Test
 import java.time.OffsetDateTime
 import java.util.UUID
 
 class QueryTest {
+    val scope = CoroutineScope(Dispatchers.Default)
     val query: Query
     val uUUID = UUID.randomUUID()
     val iUUID = UUID.randomUUID()
@@ -69,75 +72,75 @@ class QueryTest {
 
     @Test
     fun testCurrentUserQuery() {
-        val apiUser = query.user(GraphQLResourceContext(UserPrincipal(user, null)))
+        val apiUser = query.user(GraphQLResourceContext(UserPrincipal(user, null), scope))
         assertThat(apiUser?.id).isEqualTo(uUUID)
         assertThat(apiUser?.name).isEqualTo("billy")
 
-        val noUser = query.user(GraphQLResourceContext(null))
+        val noUser = query.user(GraphQLResourceContext(null, scope))
         assertThat(noUser).isNull()
     }
 
     @Test
     fun testUsersQuery() {
-        val apiUsers = query.users(GraphQLResourceContext(UserPrincipal(user, null)))
+        val apiUsers = query.users(GraphQLResourceContext(UserPrincipal(user, null), scope))
         assertThat(apiUsers).contains(ApiUser(user))
 
-        val noUsers = query.users(GraphQLResourceContext(null))
+        val noUsers = query.users(GraphQLResourceContext(null, scope))
         assertThat(noUsers).isEmpty()
     }
 
     @Test
     fun testActiveQuestions() {
-        val apiQuestions = query.activeQuestions(GraphQLResourceContext(UserPrincipal(user, null)))
+        val apiQuestions = query.activeQuestions(GraphQLResourceContext(UserPrincipal(user, null), scope))
         assertThat(apiQuestions).contains(ApiQuestion(question.copy(answer = "", ruleReferences = "")))
 
-        val noQuestions = query.activeQuestions(GraphQLResourceContext(null))
+        val noQuestions = query.activeQuestions(GraphQLResourceContext(null, scope))
         assertThat(noQuestions).isEmpty()
     }
 
     @Test
     fun testClosedQuestions() {
-        val apiQuestions = query.closedQuestions(GraphQLResourceContext(UserPrincipal(user, null)))
+        val apiQuestions = query.closedQuestions(GraphQLResourceContext(UserPrincipal(user, null), scope))
         assertThat(apiQuestions).contains(ApiQuestion(question))
 
-        val noQuestions = query.closedQuestions(GraphQLResourceContext(null))
+        val noQuestions = query.closedQuestions(GraphQLResourceContext(null, scope))
         assertThat(noQuestions).isEmpty()
     }
 
     @Test
     fun testFutureQuestions() {
         val apiQuestions = query.futureQuestions(
-            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null))
+            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null), scope)
         )
         assertThat(apiQuestions.first()).isEqualTo(ApiQuestion(question))
 
-        val noPermissionsQuestions = query.futureQuestions(GraphQLResourceContext(UserPrincipal(user, null)))
+        val noPermissionsQuestions = query.futureQuestions(GraphQLResourceContext(UserPrincipal(user, null), scope))
         assertThat(noPermissionsQuestions).isEmpty()
 
-        val noQuestions = query.futureQuestions(GraphQLResourceContext(null))
+        val noQuestions = query.futureQuestions(GraphQLResourceContext(null, scope))
         assertThat(noQuestions).isEmpty()
     }
 
     @Test
     fun testResponses() {
         val withGraded = query.responses(
-            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null)),
+            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null), scope),
             true
         )
         assertThat(withGraded).contains(ApiResponse(response))
         assertThat(withGraded).contains(ApiResponse(gradedResponse))
 
         val withoutGraded = query.responses(
-            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null)),
+            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null), scope),
             false
         )
         assertThat(withoutGraded).contains(ApiResponse(response))
         assertThat(withoutGraded).doesNotContain(ApiResponse(gradedResponse))
 
-        val noPermissionsResponses = query.responses(GraphQLResourceContext(UserPrincipal(user, null)), true)
+        val noPermissionsResponses = query.responses(GraphQLResourceContext(UserPrincipal(user, null), scope), true)
         assertThat(noPermissionsResponses).isEmpty()
 
-        val noResponses = query.responses(GraphQLResourceContext(null), true)
+        val noResponses = query.responses(GraphQLResourceContext(null, scope), true)
         assertThat(noResponses).isEmpty()
     }
 }

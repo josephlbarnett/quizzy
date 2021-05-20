@@ -11,6 +11,8 @@ import com.joe.quizzy.graphql.auth.UserPrincipal
 import com.trib3.graphql.resources.GraphQLResourceContext
 import com.trib3.testing.LeakyMock
 import graphql.schema.DataFetchingEnvironment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.dataloader.DataLoader
@@ -21,6 +23,7 @@ import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 class ApiResponseTest {
+    val scope = CoroutineScope(Dispatchers.Default)
     val now = OffsetDateTime.now()
     val r = ApiResponse(
         UUID.randomUUID(),
@@ -38,7 +41,7 @@ class ApiResponseTest {
 
     @Test
     fun testUser() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null))
+        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, User>>()
         EasyMock.expect(mockEnv.getDataLoader<UUID, User>("batchusers")).andReturn(mockDataLoader)
@@ -52,7 +55,7 @@ class ApiResponseTest {
 
     @Test
     fun testNullUser() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null))
+        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, User>>()
         EasyMock.expect(mockEnv.getDataLoader<UUID, User>("batchusers")).andReturn(mockDataLoader)
@@ -66,7 +69,7 @@ class ApiResponseTest {
 
     @Test
     fun testNoContextUser() = runBlocking {
-        val context = GraphQLResourceContext(null)
+        val context = GraphQLResourceContext(null, scope)
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         EasyMock.replay(mockEnv)
         assertThat(r.user(context, mockEnv).await()).isNull()
@@ -75,7 +78,7 @@ class ApiResponseTest {
 
     @Test
     fun testQuestion() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null))
+        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Question>>()
         EasyMock.expect(mockEnv.getDataLoader<UUID, Question>("batchquestions")).andReturn(mockDataLoader)
@@ -90,7 +93,7 @@ class ApiResponseTest {
 
     @Test
     fun testNullQuestion() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null))
+        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Question>>()
         EasyMock.expect(mockEnv.getDataLoader<UUID, Question>("batchquestions")).andReturn(mockDataLoader)
@@ -104,7 +107,7 @@ class ApiResponseTest {
 
     @Test
     fun testNoContextQuestion() = runBlocking {
-        val context = GraphQLResourceContext(null)
+        val context = GraphQLResourceContext(null, scope)
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         EasyMock.replay(mockEnv)
         assertThat(r.question(context, mockEnv).await()).isNull()
@@ -113,7 +116,7 @@ class ApiResponseTest {
 
     @Test
     fun testGrade() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null))
+        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Grade>>()
         EasyMock.expect(mockEnv.getDataLoader<UUID, Grade>("responsegrades")).andReturn(mockDataLoader)
@@ -128,7 +131,7 @@ class ApiResponseTest {
 
     @Test
     fun testNullGrade() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null))
+        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Grade>>()
         EasyMock.expect(mockEnv.getDataLoader<UUID, Grade>("responsegrades")).andReturn(mockDataLoader)
@@ -142,7 +145,7 @@ class ApiResponseTest {
 
     @Test
     fun testNoContextGrade() = runBlocking {
-        val context = GraphQLResourceContext(null)
+        val context = GraphQLResourceContext(null, scope)
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         EasyMock.replay(mockEnv)
         assertThat(r.grade(context, mockEnv).await()).isNull()
@@ -151,7 +154,7 @@ class ApiResponseTest {
 
     @Test
     fun testNoIdGrade() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null))
+        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         EasyMock.replay(mockEnv)
         assertThat(r.copy(id = null).grade(context, mockEnv).await()).isNull()

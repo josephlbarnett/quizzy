@@ -13,6 +13,8 @@ import com.joe.quizzy.persistence.api.ResponseDAO
 import com.trib3.graphql.execution.GraphQLRequest
 import com.trib3.graphql.resources.GraphQLResourceContext
 import com.trib3.testing.mock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.easymock.EasyMock
@@ -39,13 +41,15 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
         ).andReturn(mapOf(questionUUID to Response(UUID.randomUUID(), userUUID, questionUUID, "r", "rr")))
         replayAll()
         val factory = factoryProvider.get()
+        val scope = CoroutineScope(Dispatchers.Default)
         val registry = factory(
             GraphQLRequest("{}", mapOf(), null),
             GraphQLResourceContext(
                 UserPrincipal(
                     User(userUUID, UUID.randomUUID(), "name", "email", "", false, ""),
                     null
-                )
+                ),
+                scope
             )
         )
 

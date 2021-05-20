@@ -37,7 +37,8 @@ class QuestionResponseLoaderTest {
                 UserPrincipal(
                     User(userId, UUID.randomUUID(), "user", "user@user.com", "", false, ""),
                     null
-                )
+                ),
+                this
             )
         ).atLeastOnce()
         EasyMock.replay(responseDAO, mockEnv)
@@ -51,7 +52,7 @@ class QuestionResponseLoaderTest {
         val responseDAO = LeakyMock.mock<ResponseDAO>()
         val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
         val loader = QuestionResponseLoader(responseDAO)
-        EasyMock.expect(mockEnv.getContext<Any?>()).andReturn(GraphQLResourceContext(null)).atLeastOnce()
+        EasyMock.expect(mockEnv.getContext<Any?>()).andReturn(GraphQLResourceContext(null, this)).atLeastOnce()
         EasyMock.replay(responseDAO, mockEnv)
         val insts = loader.load(setOf(UUID.randomUUID(), UUID.randomUUID()), mockEnv).await()
         assertThat(insts).isEqualTo(mapOf())

@@ -34,6 +34,8 @@ import com.trib3.graphql.resources.GraphQLResourceContext
 import com.trib3.server.config.TribeApplicationConfig
 import com.trib3.testing.LeakyMock
 import com.trib3.testing.mock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import org.easymock.EasyMock
 import org.easymock.EasyMockSupport
 import org.testng.annotations.Test
@@ -52,6 +54,7 @@ import javax.mail.internet.MimeMessage
  * and [EasyMock.verify] will be called on all mocks after [test] executes.
  */
 class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
+    val scope = CoroutineScope(Dispatchers.Default)
     val questionDAO: QuestionDAO = mock()
     val sessionDAO: SessionDAO = mock()
     val userDAO: UserDAO = mock()
@@ -72,7 +75,7 @@ class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
         gmailServiceFactory,
         TribeApplicationConfig(ConfigLoader())
     )
-    val emptyContext = GraphQLResourceContext(null)
+    val emptyContext = GraphQLResourceContext(null, scope)
     val user = User(
         UUID.randomUUID(),
         UUID.randomUUID(),
@@ -97,9 +100,9 @@ class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
         OffsetDateTime.now(),
         OffsetDateTime.now()
     )
-    val userSessionContext = GraphQLResourceContext(UserPrincipal(user, session))
-    val userNoSessionContext = GraphQLResourceContext(UserPrincipal(user, null))
-    val adminContext = GraphQLResourceContext(UserPrincipal(admin, null))
+    val userSessionContext = GraphQLResourceContext(UserPrincipal(user, session), scope)
+    val userNoSessionContext = GraphQLResourceContext(UserPrincipal(user, null), scope)
+    val adminContext = GraphQLResourceContext(UserPrincipal(admin, null), scope)
 
     init {
         initBlock()
@@ -136,7 +139,13 @@ class MutationTest {
     @Test
     fun testLoginAlreadyLoggedIn() {
         MockMutation { }.test {
-            assertThat(mutation.login(GraphQLResourceContext(UserPrincipal(user, null)), "notauser", "wrong")).isTrue()
+            assertThat(
+                mutation.login(
+                    GraphQLResourceContext(UserPrincipal(user, null), scope),
+                    "notauser",
+                    "wrong"
+                )
+            ).isTrue()
             assertThat(
                 mutation.login(
                     userNoSessionContext,
@@ -268,7 +277,7 @@ class MutationTest {
         }.test {
             assertThat(
                 mutation.changePassword(
-                    GraphQLResourceContext(UserPrincipal(user.copy(id = UUID.randomUUID()), null)),
+                    GraphQLResourceContext(UserPrincipal(user.copy(id = UUID.randomUUID()), null), scope),
                     "pass",
                     "newpass"
                 )
@@ -287,7 +296,7 @@ class MutationTest {
         }.test {
             assertThat(
                 mutation.changePassword(
-                    GraphQLResourceContext(UserPrincipal(user.copy(email = "user2"), null)),
+                    GraphQLResourceContext(UserPrincipal(user.copy(email = "user2"), null), scope),
                     "pass",
                     "newpass"
                 )
@@ -305,7 +314,7 @@ class MutationTest {
         }.test {
             assertThat(
                 mutation.changePassword(
-                    GraphQLResourceContext(UserPrincipal(user.copy(email = "user3"), null)),
+                    GraphQLResourceContext(UserPrincipal(user.copy(email = "user3"), null), scope),
                     "pass",
                     "newpass"
                 )
