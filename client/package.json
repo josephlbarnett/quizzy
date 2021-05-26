@@ -25,7 +25,7 @@
     "vue-class-component": "^7.2.6",
     "vue-property-decorator": "^9.1.2",
     "vue-router": "^3.5.1",
-    "vuetify": "^2.4.11"
+    "vuetify": "^2.5.1"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",
@@ -45,6 +45,7 @@
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-vue": "^7.9.0",
     "graphql-tag": "^2.12.4",
+    "jest": "^26.6.3",
     "jest-transform-graphql": "^2.1.0",
     "lint-staged": "^11.0.0",
     "mock-apollo-client": "^0.7.0",
