@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@babel/preset-typescript": "^7.13.0",
-    "@graphql-codegen/cli": "^1.21.4",
+    "@graphql-codegen/cli": "^1.21.5",
     "@graphql-codegen/typescript": "^1.22.0",
     "@types/moment-timezone": "^0.5.30",
     "core-js": "^3.12.1",
