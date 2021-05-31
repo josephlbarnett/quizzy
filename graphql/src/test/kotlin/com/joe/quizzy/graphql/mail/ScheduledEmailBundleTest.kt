@@ -29,7 +29,6 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIOEngineConfig
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.isActive
@@ -89,7 +88,6 @@ class ScheduledEmailBundleTest {
         support.verifyAll()
     }
 
-    @OptIn(KtorExperimentalAPI::class)
     @Test
     fun testInjectConstructorAndPollingLoopDisabledByConfig() {
         val support = EasyMockSupport()
