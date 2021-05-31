@@ -16,7 +16,7 @@
         <version.google-http-client>1.39.2</version.google-http-client>
         <version.google-oauth-client>1.31.5</version.google-oauth-client>
         <version.jakarta-mail>1.6.7</version.jakarta-mail>
-        <version.ktor>1.5.4</version.ktor>
+        <version.ktor>1.6.0</version.ktor>
     </properties>
 
     <groupId>com.joe.quizzy</groupId>
@@ -290,6 +290,12 @@
         <dependency>
             <groupId>io.ktor</groupId>
             <artifactId>ktor-client-core-jvm</artifactId>
+            <version>${version.ktor}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-utils-jvm</artifactId>
             <version>${version.ktor}</version>
         </dependency>
 

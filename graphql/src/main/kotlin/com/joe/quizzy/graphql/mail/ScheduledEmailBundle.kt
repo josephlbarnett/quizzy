@@ -16,7 +16,6 @@ import io.dropwizard.setup.Environment
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.get
-import io.ktor.util.KtorExperimentalAPI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -41,7 +40,6 @@ import javax.ws.rs.core.MediaType
 private val log = KotlinLogging.logger {}
 private const val POLL_MINUTES = 5
 
-@OptIn(KtorExperimentalAPI::class)
 @Suppress("LongParameterList")
 class ScheduledEmailBundle(
     val configLoader: ConfigLoader,
