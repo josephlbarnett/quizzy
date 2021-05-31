@@ -43,7 +43,7 @@
     "@vue/test-utils": "1.2.0",
     "eslint": "^7.26.0",
     "eslint-plugin-prettier": "^3.4.0",
-    "eslint-plugin-vue": "^7.9.0",
+    "eslint-plugin-vue": "^7.10.0",
     "graphql-tag": "^2.12.4",
     "jest-transform-graphql": "^2.1.0",
     "lint-staged": "^11.0.0",
