@@ -29,7 +29,7 @@ class SessionAuthTest {
         EasyMock.expect(sessionDAO.get(session.id!!)).andReturn(session)
         EasyMock.expect(userDAO.get(session.userId)).andReturn(user)
         EasyMock.replay(sessionDAO, userDAO)
-        val principal = authenticator.authenticate(session.id?.toString())
+        val principal = authenticator.authenticate(session.id?.toString()).map { it as UserPrincipal }
         assertThat(principal.isPresent).isTrue()
         assertThat(principal.get().session).isEqualTo(session)
         assertThat(principal.get().user).isEqualTo(user)
@@ -46,7 +46,7 @@ class SessionAuthTest {
         val updateCapture = EasyMock.newCapture<Session>()
         EasyMock.expect(sessionDAO.save(EasyMock.capture(updateCapture) ?: oldSession)).andReturn(oldSession.copy())
         EasyMock.replay(sessionDAO, userDAO)
-        val principal = authenticator.authenticate(oldSession.id?.toString())
+        val principal = authenticator.authenticate(oldSession.id?.toString()).map { it as UserPrincipal }
         assertThat(principal.isPresent).isTrue()
         assertThat(principal.get().session).isEqualTo(oldSession)
         assertThat(principal.get().user).isEqualTo(user)

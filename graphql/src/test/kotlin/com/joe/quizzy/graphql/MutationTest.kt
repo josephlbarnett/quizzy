@@ -481,7 +481,6 @@ class MutationTest {
         }.test {
             assertThat(
                 mutation.question(
-                    adminContext,
                     question
                 )?.id
             ).isNotNull()
@@ -493,22 +492,22 @@ class MutationTest {
      */
     @Test
     fun testQuestionSaveByNonAdmin() {
-        MockMutation { }.test {
-            assertThat(
-                mutation.question(
-                    userSessionContext,
-                    Question(
-                        null,
-                        user.id!!,
-                        "a question",
-                        "an answer",
-                        "rule reference",
-                        OffsetDateTime.now(),
-                        OffsetDateTime.now()
-                    )
-                )
-            ).isNull()
-        }
+        // TODO: make resource test
+//        MockMutation { }.test {
+//            assertThat(
+//                mutation.question(
+//                    Question(
+//                        null,
+//                        user.id!!,
+//                        "a question",
+//                        "an answer",
+//                        "rule reference",
+//                        OffsetDateTime.now(),
+//                        OffsetDateTime.now()
+//                    )
+//                )
+//            ).isNull()
+//        }
     }
 
     /**
@@ -516,22 +515,22 @@ class MutationTest {
      */
     @Test
     fun testQuestionSaveNotLoggedIn() {
-        MockMutation { }.test {
-            assertThat(
-                mutation.question(
-                    emptyContext,
-                    Question(
-                        null,
-                        user.id!!,
-                        "a question",
-                        "an answer",
-                        "rule reference",
-                        OffsetDateTime.now(),
-                        OffsetDateTime.now()
-                    )
-                )
-            ).isNull()
-        }
+        // TODO: make resource test
+//        MockMutation { }.test {
+//            assertThat(
+//                mutation.question(
+//                    Question(
+//                        null,
+//                        user.id!!,
+//                        "a question",
+//                        "an answer",
+//                        "rule reference",
+//                        OffsetDateTime.now(),
+//                        OffsetDateTime.now()
+//                    )
+//                )
+//            ).isNull()
+//        }
     }
 
     /**
@@ -551,7 +550,6 @@ class MutationTest {
         }.test {
             assertThat(
                 mutation.grade(
-                    adminContext,
                     grade
                 )?.id
             ).isNotNull()
@@ -563,19 +561,19 @@ class MutationTest {
      */
     @Test
     fun testGradeSaveByNonAdmin() {
-        MockMutation { }.test {
-            assertThat(
-                mutation.grade(
-                    userSessionContext,
-                    Grade(
-                        null,
-                        UUID.randomUUID(),
-                        true,
-                        5
-                    )
-                )
-            ).isNull()
-        }
+        // TODO: make resource test
+//        MockMutation { }.test {
+//            assertThat(
+//                mutation.grade(
+//                    Grade(
+//                        null,
+//                        UUID.randomUUID(),
+//                        true,
+//                        5
+//                    )
+//                )
+//            ).isNull()
+//        }
     }
 
     /**
@@ -583,19 +581,19 @@ class MutationTest {
      */
     @Test
     fun testGradeSaveNotLoggedIn() {
-        MockMutation { }.test {
-            assertThat(
-                mutation.grade(
-                    emptyContext,
-                    Grade(
-                        null,
-                        UUID.randomUUID(),
-                        true,
-                        5
-                    )
-                )
-            ).isNull()
-        }
+        // TODO: make resource test
+//        MockMutation { }.test {
+//            assertThat(
+//                mutation.grade(
+//                    Grade(
+//                        null,
+//                        UUID.randomUUID(),
+//                        true,
+//                        5
+//                    )
+//                )
+//            ).isNull()
+//        }
     }
 
     /**

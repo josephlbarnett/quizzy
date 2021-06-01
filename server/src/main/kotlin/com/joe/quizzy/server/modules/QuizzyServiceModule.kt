@@ -7,7 +7,6 @@ import com.joe.quizzy.graphql.auth.Hasher
 import com.joe.quizzy.graphql.auth.SessionAuthenticator
 import com.joe.quizzy.graphql.auth.UserAuthenticator
 import com.joe.quizzy.graphql.auth.UserAuthorizer
-import com.joe.quizzy.graphql.auth.UserPrincipal
 import com.joe.quizzy.graphql.dataloaders.DataLoaderRegistryFactoryProvider
 import com.joe.quizzy.graphql.mail.GmailServiceModule
 import com.joe.quizzy.graphql.mail.ScheduledEmailBundle
@@ -22,10 +21,12 @@ import dev.misfitlabs.kotlinguice4.multibindings.KotlinMultibinder
 import io.dropwizard.Configuration
 import io.dropwizard.ConfiguredBundle
 import io.dropwizard.auth.AuthFilter
+import io.dropwizard.auth.Authorizer
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter
 import io.dropwizard.auth.chained.ChainedAuthFilter
 import io.dropwizard.servlets.assets.AssetServlet
 import java.net.URI
+import java.security.Principal
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.servlet.Filter
@@ -70,24 +71,25 @@ class HttpsFilter : Filter {
 class QuizzyAuthFilterProvider @Inject constructor(
     val userDAO: UserDAO,
     val sessionDAO: SessionDAO,
-    val hasher: Hasher
+    val hasher: Hasher,
+    val authorizer: Authorizer<Principal>
 ) : Provider<AuthFilter<*, *>> {
     override fun get(): AuthFilter<*, *> {
-        return ChainedAuthFilter<Any, UserPrincipal>(
+        return ChainedAuthFilter<Any, Principal>(
             listOf(
                 // Use BASIC auth to get a User from credentials
-                BasicCredentialAuthFilter.Builder<UserPrincipal>()
+                BasicCredentialAuthFilter.Builder<Principal>()
                     .setAuthenticator(UserAuthenticator(userDAO, hasher))
-                    .setAuthorizer(UserAuthorizer())
+                    .setAuthorizer(authorizer)
                     .buildAuthFilter(),
                 // Use cookie-based session auth to get a User from browser session
-                CookieTokenAuthFilter.Builder<UserPrincipal>("x-quizzy-session")
+                CookieTokenAuthFilter.Builder<Principal>("x-quizzy-session")
                     .setAuthenticator(SessionAuthenticator(sessionDAO, userDAO))
-                    .setAuthorizer(UserAuthorizer())
+                    .setAuthorizer(authorizer)
                     .buildAuthFilter(),
-                CookieTokenAuthFilter.Builder<UserPrincipal>("QUIZZY_AUTHORIZATION")
+                CookieTokenAuthFilter.Builder<Principal>("QUIZZY_AUTHORIZATION")
                     .setAuthenticator(SessionAuthenticator(sessionDAO, userDAO))
-                    .setAuthorizer(UserAuthorizer())
+                    .setAuthorizer(authorizer)
                     .buildAuthFilter()
             )
         )
@@ -139,6 +141,7 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
             ServletFilterConfig(HttpsFilter::class.java.simpleName, HttpsFilter::class.java)
         )
         dataLoaderRegistryFactoryBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()
+        authorizerBinder().setBinding().to<UserAuthorizer>()
         authFilterBinder().setBinding().toProvider<QuizzyAuthFilterProvider>()
     }
 }

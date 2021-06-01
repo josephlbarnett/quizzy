@@ -17,6 +17,7 @@ import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
+import com.trib3.graphql.execution.GraphQLAuth
 import com.trib3.graphql.resources.GraphQLResourceContext
 import com.trib3.server.config.TribeApplicationConfig
 import io.dropwizard.auth.basic.BasicCredentials
@@ -103,7 +104,7 @@ class Mutation @Inject constructor(
         if (principal is UserPrincipal) {
             val passCheck = userAuthenticator.authenticate(
                 BasicCredentials(principal.user.email, oldPass)
-            ).orElse(null)
+            ).map { it as? UserPrincipal }.orElse(null)
             if (passCheck != null && passCheck.user.id != null && passCheck.user.id == principal.user.id) {
                 userDAO.savePassword(passCheck.user, userAuthenticator.hasher.hash(newPass))
                 return true
@@ -252,23 +253,13 @@ class Mutation @Inject constructor(
         return null
     }
 
-    fun grade(context: GraphQLResourceContext, grade: Grade): Grade? {
-        val principal = context.principal
-        if (principal is UserPrincipal) {
-            if (principal.user.admin) {
-                return gradeDAO.save(grade)
-            }
-        }
-        return null
+    @GraphQLAuth(["ADMIN"])
+    fun grade(grade: Grade): Grade? {
+        return gradeDAO.save(grade)
     }
 
-    fun question(context: GraphQLResourceContext, question: Question): Question? {
-        val principal = context.principal
-        if (principal is UserPrincipal) {
-            if (principal.user.admin) {
-                return questionDAO.save(question)
-            }
-        }
-        return null
+    @GraphQLAuth(["ADMIN"])
+    fun question(question: Question): Question? {
+        return questionDAO.save(question)
     }
 }

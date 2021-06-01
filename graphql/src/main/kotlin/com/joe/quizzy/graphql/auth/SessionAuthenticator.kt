@@ -4,6 +4,7 @@ import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import io.dropwizard.auth.Authenticator
 import mu.KotlinLogging
+import java.security.Principal
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.util.Optional
@@ -16,8 +17,8 @@ class SessionAuthenticator
 @Inject constructor(
     private val sessionDAO: SessionDAO,
     private val userDAO: UserDAO
-) : Authenticator<String?, UserPrincipal> {
-    override fun authenticate(credentials: String?): Optional<UserPrincipal> {
+) : Authenticator<String?, Principal> {
+    override fun authenticate(credentials: String?): Optional<Principal> {
         val sessionId = try {
             UUID.fromString(credentials)
         } catch (e: Exception) {

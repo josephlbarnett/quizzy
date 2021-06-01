@@ -1,9 +1,10 @@
 package com.joe.quizzy.graphql.auth
 
 import io.dropwizard.auth.Authorizer
+import java.security.Principal
 
-class UserAuthorizer : Authorizer<UserPrincipal> {
-    override fun authorize(principal: UserPrincipal, role: String): Boolean {
-        return role != "ADMIN" || principal.user.admin
+class UserAuthorizer : Authorizer<Principal> {
+    override fun authorize(principal: Principal, role: String): Boolean {
+        return principal is UserPrincipal && (role != "ADMIN" || principal.user.admin)
     }
 }
