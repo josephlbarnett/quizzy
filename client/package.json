@@ -19,7 +19,7 @@
     "eslint-plugin-graphql": "^4.0.0",
     "graphql-combine-query": "^1.2.3",
     "moment-timezone": "^0.5.33",
-    "papaparse": "^5.3.0",
+    "papaparse": "^5.3.1",
     "vue": "^2.6.12",
     "vue-apollo": "^3.0.7",
     "vue-class-component": "^7.2.6",
