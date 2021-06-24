@@ -6,7 +6,7 @@
     "mjml": "mjml emails/* -o dist/emails/"
   },
   "devDependencies": {
-    "mjml": "^4.10.0"
+    "mjml": "^4.10.1"
   },
   "eslintConfig": {
     "root": true,
