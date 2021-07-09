@@ -6,7 +6,7 @@ import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.trib3.graphql.modules.DataLoaderRegistryFactory
-import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderOptions
 import org.dataloader.DataLoaderRegistry
 import javax.inject.Inject
@@ -27,59 +27,35 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
 ) : Provider<DataLoaderRegistryFactory> {
     override fun get(): DataLoaderRegistryFactory {
         return { _, context ->
-            val registry = DataLoaderRegistry()
             val dataLoaderOptions = DataLoaderOptions.newOptions().setBatchLoaderContextProvider {
                 context
             }
-            registry.register(
-                "responsegrades",
-                DataLoader.newMappedDataLoader(
-                    ResponseGradeLoader(
-                        gradeDAO
-                    ),
-                    dataLoaderOptions
+            DataLoaderRegistry.newRegistry()
+                .register(
+                    "responsegrades",
+                    DataLoaderFactory.newMappedDataLoader(ResponseGradeLoader(gradeDAO), dataLoaderOptions)
                 )
-            )
-            registry.register(
-                "usergrades",
-                DataLoader.newMappedDataLoader(
-                    UserGradeLoader(
-                        gradeDAO
-                    ),
-                    dataLoaderOptions
+                .register(
+                    "usergrades",
+                    DataLoaderFactory.newMappedDataLoader(UserGradeLoader(gradeDAO), dataLoaderOptions)
                 )
-            )
-            registry.register(
-                "batchusers",
-                DataLoader.newMappedDataLoader(
-                    BatchUserLoader(
-                        userDAO
-                    ),
-                    dataLoaderOptions
+                .register(
+                    "batchusers",
+                    DataLoaderFactory.newMappedDataLoader(BatchUserLoader(userDAO), dataLoaderOptions)
                 )
-            )
-            registry.register(
-                "batchquestions",
-                DataLoader.newMappedDataLoader(
-                    BatchQuestionLoader(
-                        questionDAO
-                    ),
-                    dataLoaderOptions
+                .register(
+                    "batchquestions",
+                    DataLoaderFactory.newMappedDataLoader(BatchQuestionLoader(questionDAO), dataLoaderOptions)
                 )
-            )
-            registry.register(
-                "questionresponses",
-                DataLoader.newMappedDataLoader(QuestionResponseLoader(responseDAO), dataLoaderOptions)
-            )
-            registry.register(
-                "batchinstances",
-                DataLoader.newMappedDataLoader(
-                    BulkInstanceLoader(
-                        instanceDAO
-                    ),
-                    dataLoaderOptions
+                .register(
+                    "questionresponses",
+                    DataLoaderFactory.newMappedDataLoader(QuestionResponseLoader(responseDAO), dataLoaderOptions)
                 )
-            )
+                .register(
+                    "batchinstances",
+                    DataLoaderFactory.newMappedDataLoader(BulkInstanceLoader(instanceDAO), dataLoaderOptions)
+                )
+                .build()
         }
     }
 }
