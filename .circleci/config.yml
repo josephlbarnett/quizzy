@@ -6,7 +6,7 @@ orbs:
 jobs:
   build:
     docker:
-      - image: circleci/openjdk:11-jdk-node
+      - image: cimg/openjdk:11.0-node
 
     working_directory: ~/repo
     environment:
@@ -18,23 +18,23 @@ jobs:
       # handle dependency caching and run build
       - restore_cache:
           keys:
-            - v3-dependencies-{{ .Branch }}-{{ .Revision }}
-            - v3-dependencies-{{ .Branch }}
-            - v3-dependencies-
+            - v4-dependencies-{{ .Branch }}-{{ .Revision }}
+            - v4-dependencies-{{ .Branch }}
+            - v4-dependencies-
       - restore_cache:
           keys:
-            - v3-npms-{{ .Branch }}-{{ .Revision }}
-            - v3-npms-{{ .Branch }}
-            - v3-npms-
+            - v4-npms-{{ .Branch }}-{{ .Revision }}
+            - v4-npms-{{ .Branch }}
+            - v4-npms-
       - restore_cache:
           keys:
-            - v3-email-npms-{{ .Branch }}-{{ .Revision }}
-            - v3-email-npms-{{ .Branch }}
-            - v3-email-npms-
+            - v4-email-npms-{{ .Branch }}-{{ .Revision }}
+            - v4-email-npms-{{ .Branch }}
+            - v4-email-npms-
       - save_cache:
           paths:
             - ~/repo/emails/node_modules
-          key: v3-email-npms-{{ .Branch }}-{{ .Revision }}
+          key: v4-email-npms-{{ .Branch }}-{{ .Revision }}
       - run:
           name: npm build emails
           command: |
@@ -66,12 +66,12 @@ jobs:
       - save_cache:
           paths:
             - ~/repo/client/node_modules
-          key: v3-npms-{{ .Branch }}-{{ .Revision }}
+          key: v4-npms-{{ .Branch }}-{{ .Revision }}
       - run: mvn install -U -pl client,server
       - save_cache:
           paths:
             - ~/.m2
-          key: v3-dependencies-{{ .Branch }}-{{ .Revision }}
+          key: v4-dependencies-{{ .Branch }}-{{ .Revision }}
       # collect test results and upload coverage
       - run: mkdir -p ~/test_results
       - run: find . -type f -regex ".*/target/surefire-reports/junitreports/.*xml" -exec cp {} ~/test_results/ \;
@@ -114,7 +114,7 @@ jobs:
 
   deploy:
     docker:
-      - image: circleci/openjdk:11-jdk-node
+      - image: cimg/openjdk:11.0-node
     steps:
       - attach_workspace:
           at: ~/jars
