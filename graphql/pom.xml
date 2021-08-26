@@ -11,46 +11,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <properties>
-        <version.argon>2.10.1</version.argon>
-        <version.google-http-client>1.39.2</version.google-http-client>
-        <version.google-oauth-client>1.32.1</version.google-oauth-client>
-        <version.jakarta-mail>1.6.7</version.jakarta-mail>
-        <version.ktor>1.6.3</version.ktor>
-    </properties>
-
     <groupId>com.joe.quizzy</groupId>
     <artifactId>graphql</artifactId>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>net.java.dev.jna</groupId>
-                <artifactId>jna</artifactId>
-                <version>5.9.0</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.http-client</groupId>
-                <artifactId>google-http-client</artifactId>
-                <version>${version.google-http-client}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>httpclient</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.httpcomponents</groupId>
-                        <artifactId>httpcore</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.google.http-client</groupId>
-                <artifactId>google-http-client-gson</artifactId>
-                <version>${version.google-http-client}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
