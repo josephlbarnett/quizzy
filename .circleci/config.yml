@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  release: trib3/release@2.0.1
+  release: trib3/release@2.0.2
   heroku: circleci/heroku@1.0.1
 
 jobs:
