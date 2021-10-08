@@ -16,7 +16,7 @@
         <version.leakycauldron>[1.26.1,1.27-SNAPSHOT)</version.leakycauldron>
 
         <version.argon>2.10.1</version.argon>
-        <version.google-http-client>1.40.0</version.google-http-client>
+        <version.google-http-client>1.40.1</version.google-http-client>
         <version.google-oauth-client>1.32.1</version.google-oauth-client>
         <version.jakarta-mail>1.6.7</version.jakarta-mail>
         <version.ktor>1.6.4</version.ktor>
