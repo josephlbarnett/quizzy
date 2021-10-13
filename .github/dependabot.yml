@@ -22,6 +22,12 @@ updates:
   - dependency-name: mock-apollo-client
     versions:
     - ">= 1.0.0"
+  - dependency-name: "@types/jest"
+    versions:
+    - ">= 27.0.0"
+  - dependency-name: jest
+    versions:
+    - ">= 27.0.0"
   - dependency-name: sass  # deprecated `/` for division
     versions:
     - ">= 1.33.0"
