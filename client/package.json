@@ -47,7 +47,7 @@
     "graphql-tag": "^2.12.5",
     "jest": "^26.6.3",
     "jest-transform-graphql": "^2.1.0",
-    "lint-staged": "^11.2.3",
+    "lint-staged": "^11.2.6",
     "mock-apollo-client": "^0.7.0",
     "prettier": "^2.4.1",
     "sass": "~1.32.13",
