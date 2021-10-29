@@ -18,8 +18,10 @@ import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.trib3.graphql.execution.GraphQLAuth
-import com.trib3.graphql.resources.GraphQLResourceContext
+import com.trib3.graphql.resources.getInstance
+import com.trib3.graphql.resources.setInstance
 import com.trib3.server.config.TribeApplicationConfig
+import graphql.schema.DataFetchingEnvironment
 import io.dropwizard.auth.basic.BasicCredentials
 import java.io.InputStreamReader
 import java.io.StringWriter
@@ -40,7 +42,7 @@ private const val COOKIE_NAME = "x-quizzy-session"
 private const val MAX_COOKIE_AGE = 60 * 60 * 24 * 30 // expire in 30 days
 
 /**
- * GraphQL entry point for [Thing] mutations.   Maps the DAO interfaces to the GraphQL models.
+ * GraphQL entry point for mutations.  Maps the DAO interfaces to the GraphQL models.
  */
 class Mutation @Inject constructor(
     private val questionDAO: QuestionDAO,
@@ -68,22 +70,24 @@ class Mutation @Inject constructor(
             }
         }
 
-    private fun loginNewUser(principal: Principal?, context: GraphQLResourceContext): Boolean {
+    private fun loginNewUser(principal: Principal?, dfe: DataFetchingEnvironment): Boolean {
         if (principal is UserPrincipal) {
             val userId = principal.user.id
             if (userId != null) {
                 val newSession = sessionDAO.save(Session(null, userId, OffsetDateTime.now(), OffsetDateTime.now()))
-                context.cookie = NewCookie(
-                    COOKIE_NAME,
-                    newSession.id.toString(),
-                    null,
-                    null,
-                    1,
-                    null,
-                    MAX_COOKIE_AGE,
-                    null,
-                    true,
-                    true
+                dfe.graphQlContext.setInstance(
+                    NewCookie(
+                        COOKIE_NAME,
+                        newSession.id.toString(),
+                        null,
+                        null,
+                        1,
+                        null,
+                        MAX_COOKIE_AGE,
+                        null,
+                        true,
+                        true
+                    )
                 )
                 return true
             }
@@ -91,16 +95,16 @@ class Mutation @Inject constructor(
         return false
     }
 
-    fun login(context: GraphQLResourceContext, email: String, pass: String): Boolean {
-        if (context.principal != null) {
+    fun login(dfe: DataFetchingEnvironment, email: String, pass: String): Boolean {
+        if (dfe.graphQlContext.getInstance<Principal>() != null) {
             return true // if already logged in, return
         }
         val principal = userAuthenticator.authenticate(BasicCredentials(email, pass)).orElse(null)
-        return loginNewUser(principal, context)
+        return loginNewUser(principal, dfe)
     }
 
-    fun changePassword(context: GraphQLResourceContext, oldPass: String, newPass: String): Boolean {
-        val principal = context.principal
+    fun changePassword(dfe: DataFetchingEnvironment, oldPass: String, newPass: String): Boolean {
+        val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             val passCheck = userAuthenticator.authenticate(
                 BasicCredentials(principal.user.email, oldPass)
@@ -113,10 +117,10 @@ class Mutation @Inject constructor(
         return false
     }
 
-    fun logout(context: GraphQLResourceContext): Boolean {
-        val principal = context.principal
+    fun logout(dfe: DataFetchingEnvironment): Boolean {
+        val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
-            context.cookie =
+            dfe.graphQlContext.setInstance(
                 NewCookie(
                     Cookie(COOKIE_NAME, ""),
                     null,
@@ -125,6 +129,7 @@ class Mutation @Inject constructor(
                     false,
                     true
                 )
+            )
             val session = principal.session
             if (session != null) {
                 sessionDAO.delete(session)
@@ -180,8 +185,8 @@ class Mutation @Inject constructor(
         return false
     }
 
-    fun users(context: GraphQLResourceContext, users: List<User>): List<User?> {
-        return users.map { user(context, it) }
+    fun users(dfe: DataFetchingEnvironment, users: List<User>): List<User?> {
+        return users.map { user(dfe, it) }
     }
 
     private fun sendNewUserEmail(principal: UserPrincipal, savedUser: User, password: String?) {
@@ -212,8 +217,8 @@ class Mutation @Inject constructor(
         }
     }
 
-    fun user(context: GraphQLResourceContext, user: User): User? {
-        val principal = context.principal
+    fun user(dfe: DataFetchingEnvironment, user: User): User? {
+        val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             if (principal.user.admin || (principal.user.id != null && principal.user.id == user.id)) {
                 val password = if (user.id == null) {
@@ -239,8 +244,8 @@ class Mutation @Inject constructor(
         return null
     }
 
-    fun response(context: GraphQLResourceContext, response: Response): Response? {
-        val principal = context.principal
+    fun response(dfe: DataFetchingEnvironment, response: Response): Response? {
+        val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             val id = principal.user.id
             require(id != null)

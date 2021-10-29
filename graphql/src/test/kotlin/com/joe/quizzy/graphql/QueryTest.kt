@@ -17,14 +17,27 @@ import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
-import com.trib3.graphql.resources.GraphQLResourceContext
+import com.trib3.graphql.resources.getGraphQLContextMap
 import com.trib3.testing.LeakyMock
+import graphql.GraphQLContext
+import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.easymock.EasyMock
 import org.testng.annotations.Test
 import java.time.OffsetDateTime
 import java.util.UUID
+
+fun getDFE(principal: UserPrincipal?, scope: CoroutineScope): DataFetchingEnvironment {
+    val dfe = LeakyMock.mock<DataFetchingEnvironment>()
+    EasyMock.expect(dfe.graphQlContext).andReturn(
+        GraphQLContext.of(
+            getGraphQLContextMap(scope, principal)
+        )
+    ).anyTimes()
+    EasyMock.replay(dfe)
+    return dfe
+}
 
 class QueryTest {
     val scope = CoroutineScope(Dispatchers.Default)
@@ -72,75 +85,75 @@ class QueryTest {
 
     @Test
     fun testCurrentUserQuery() {
-        val apiUser = query.user(GraphQLResourceContext(UserPrincipal(user, null), scope))
+        val apiUser = query.user(getDFE(UserPrincipal(user, null), scope))
         assertThat(apiUser?.id).isEqualTo(uUUID)
         assertThat(apiUser?.name).isEqualTo("billy")
 
-        val noUser = query.user(GraphQLResourceContext(null, scope))
+        val noUser = query.user(getDFE(null, scope))
         assertThat(noUser).isNull()
     }
 
     @Test
     fun testUsersQuery() {
-        val apiUsers = query.users(GraphQLResourceContext(UserPrincipal(user, null), scope))
+        val apiUsers = query.users(getDFE(UserPrincipal(user, null), scope))
         assertThat(apiUsers).contains(ApiUser(user))
 
-        val noUsers = query.users(GraphQLResourceContext(null, scope))
+        val noUsers = query.users(getDFE(null, scope))
         assertThat(noUsers).isEmpty()
     }
 
     @Test
     fun testActiveQuestions() {
-        val apiQuestions = query.activeQuestions(GraphQLResourceContext(UserPrincipal(user, null), scope))
+        val apiQuestions = query.activeQuestions(getDFE(UserPrincipal(user, null), scope))
         assertThat(apiQuestions).contains(ApiQuestion(question.copy(answer = "", ruleReferences = "")))
 
-        val noQuestions = query.activeQuestions(GraphQLResourceContext(null, scope))
+        val noQuestions = query.activeQuestions(getDFE(null, scope))
         assertThat(noQuestions).isEmpty()
     }
 
     @Test
     fun testClosedQuestions() {
-        val apiQuestions = query.closedQuestions(GraphQLResourceContext(UserPrincipal(user, null), scope))
+        val apiQuestions = query.closedQuestions(getDFE(UserPrincipal(user, null), scope))
         assertThat(apiQuestions).contains(ApiQuestion(question))
 
-        val noQuestions = query.closedQuestions(GraphQLResourceContext(null, scope))
+        val noQuestions = query.closedQuestions(getDFE(null, scope))
         assertThat(noQuestions).isEmpty()
     }
 
     @Test
     fun testFutureQuestions() {
         val apiQuestions = query.futureQuestions(
-            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null), scope)
+            getDFE(UserPrincipal(user.copy(admin = true), null), scope)
         )
         assertThat(apiQuestions.first()).isEqualTo(ApiQuestion(question))
 
-        val noPermissionsQuestions = query.futureQuestions(GraphQLResourceContext(UserPrincipal(user, null), scope))
+        val noPermissionsQuestions = query.futureQuestions(getDFE(UserPrincipal(user, null), scope))
         assertThat(noPermissionsQuestions).isEmpty()
 
-        val noQuestions = query.futureQuestions(GraphQLResourceContext(null, scope))
+        val noQuestions = query.futureQuestions(getDFE(null, scope))
         assertThat(noQuestions).isEmpty()
     }
 
     @Test
     fun testResponses() {
         val withGraded = query.responses(
-            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null), scope),
+            getDFE(UserPrincipal(user.copy(admin = true), null), scope),
             true
         )
         assertThat(withGraded).contains(ApiResponse(response))
         assertThat(withGraded).contains(ApiResponse(gradedResponse))
 
         val withoutGraded = query.responses(
-            GraphQLResourceContext(UserPrincipal(user.copy(admin = true), null), scope),
+            getDFE(UserPrincipal(user.copy(admin = true), null), scope),
             false
         )
         assertThat(withoutGraded).contains(ApiResponse(response))
         assertThat(withoutGraded).doesNotContain(ApiResponse(gradedResponse))
 
-        val noPermissionsResponses = query.responses(GraphQLResourceContext(UserPrincipal(user, null), scope), true)
+        val noPermissionsResponses = query.responses(getDFE(UserPrincipal(user, null), scope), true)
         assertThat(noPermissionsResponses).isEmpty()
 
-        val noResponses = query.responses(GraphQLResourceContext(null, scope), true)
+        val noResponses = query.responses(getDFE(null, scope), true)
         assertThat(noResponses).isEmpty()
     }
 }

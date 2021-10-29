@@ -65,10 +65,6 @@
             <scope>provided</scope> <!-- jooq generated classes have @Generated, but not at runtime -->
         </dependency>
         <dependency>
-            <groupId>com.opentable.components</groupId>
-            <artifactId>otj-pg-embedded</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>

@@ -7,7 +7,9 @@ import com.joe.quizzy.graphql.models.ApiUser
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
-import com.trib3.graphql.resources.GraphQLResourceContext
+import com.trib3.graphql.resources.getInstance
+import graphql.schema.DataFetchingEnvironment
+import java.security.Principal
 import javax.inject.Inject
 
 /**
@@ -19,8 +21,8 @@ class Query @Inject constructor(
     private val responseDAO: ResponseDAO
 ) : com.expediagroup.graphql.server.operations.Query {
 
-    fun user(context: GraphQLResourceContext): ApiUser? {
-        val principal = context.principal
+    fun user(dfe: DataFetchingEnvironment): ApiUser? {
+        val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             return ApiUser(principal.user)
         }
@@ -28,17 +30,17 @@ class Query @Inject constructor(
     }
 
     fun users(
-        context: GraphQLResourceContext
+        dfe: DataFetchingEnvironment
     ): List<ApiUser> {
-        val principal = context.principal
+        val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             return userDAO.getByInstance(principal.user.instanceId).map { ApiUser(it) }
         }
         return emptyList()
     }
 
-    fun activeQuestions(context: GraphQLResourceContext): List<ApiQuestion> {
-        val principal = context.principal
+    fun activeQuestions(dfe: DataFetchingEnvironment): List<ApiQuestion> {
+        val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             return questionDAO.active(principal.user).map {
                 ApiQuestion(
@@ -55,16 +57,16 @@ class Query @Inject constructor(
         return emptyList()
     }
 
-    fun closedQuestions(context: GraphQLResourceContext): List<ApiQuestion> {
-        val principal = context.principal
+    fun closedQuestions(dfe: DataFetchingEnvironment): List<ApiQuestion> {
+        val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             return questionDAO.closed(principal.user).map { ApiQuestion(it) }
         }
         return emptyList()
     }
 
-    fun futureQuestions(context: GraphQLResourceContext): List<ApiQuestion> {
-        val principal = context.principal
+    fun futureQuestions(dfe: DataFetchingEnvironment): List<ApiQuestion> {
+        val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             if (principal.user.admin) {
                 return questionDAO.future(principal.user).map { ApiQuestion(it) }
@@ -73,8 +75,8 @@ class Query @Inject constructor(
         return emptyList()
     }
 
-    fun responses(context: GraphQLResourceContext, includeGraded: Boolean): List<ApiResponse> {
-        val principal = context.principal
+    fun responses(dfe: DataFetchingEnvironment, includeGraded: Boolean): List<ApiResponse> {
+        val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             if (principal.user.admin) {
                 return responseDAO.forInstance(principal.user.instanceId, includeGraded).map { ApiResponse(it) }

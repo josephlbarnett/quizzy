@@ -8,8 +8,9 @@ import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.graphql.auth.UserPrincipal
-import com.trib3.graphql.resources.GraphQLResourceContext
+import com.trib3.graphql.resources.getGraphQLContextMap
 import com.trib3.testing.LeakyMock
+import graphql.GraphQLContext
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,123 +42,147 @@ class ApiResponseTest {
 
     @Test
     fun testUser() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
+        val context = GraphQLContext.of(
+            getGraphQLContextMap(scope, UserPrincipal(u, null))
+        )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, User>>()
+        EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.expect(mockEnv.getDataLoader<UUID, User>("batchusers")).andReturn(mockDataLoader)
         EasyMock.expect(mockDataLoader.load(r.userId)).andReturn(
             CompletableFuture.completedFuture(u)
         )
         EasyMock.replay(mockEnv, mockDataLoader)
-        assertThat(r.user(context, mockEnv).await()).isEqualTo(ApiUser(u))
+        assertThat(r.user(mockEnv).await()).isEqualTo(ApiUser(u))
         EasyMock.verify(mockEnv, mockDataLoader)
     }
 
     @Test
     fun testNullUser() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
+        val context = GraphQLContext.of(
+            getGraphQLContextMap(scope, UserPrincipal(u, null))
+        )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, User>>()
+        EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.expect(mockEnv.getDataLoader<UUID, User>("batchusers")).andReturn(mockDataLoader)
         EasyMock.expect(mockDataLoader.load(r.userId)).andReturn(
             CompletableFuture.completedFuture(null)
         )
         EasyMock.replay(mockEnv, mockDataLoader)
-        assertThat(r.user(context, mockEnv).await()).isNull()
+        assertThat(r.user(mockEnv).await()).isNull()
         EasyMock.verify(mockEnv, mockDataLoader)
     }
 
     @Test
     fun testNoContextUser() = runBlocking {
-        val context = GraphQLResourceContext(null, scope)
+        val context = GraphQLContext.of(getGraphQLContextMap(scope))
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
+        EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.replay(mockEnv)
-        assertThat(r.user(context, mockEnv).await()).isNull()
+        assertThat(r.user(mockEnv).await()).isNull()
         EasyMock.verify(mockEnv)
     }
 
     @Test
     fun testQuestion() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
+        val context = GraphQLContext.of(
+            getGraphQLContextMap(scope, UserPrincipal(u, null))
+        )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Question>>()
+        EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.expect(mockEnv.getDataLoader<UUID, Question>("batchquestions")).andReturn(mockDataLoader)
         val q = Question(r.questionId, UUID.randomUUID(), "b", "a", "r", now, now)
         EasyMock.expect(mockDataLoader.load(r.questionId)).andReturn(
             CompletableFuture.completedFuture(q)
         )
         EasyMock.replay(mockEnv, mockDataLoader)
-        assertThat(r.question(context, mockEnv).await()).isEqualTo(ApiQuestion(q))
+        assertThat(r.question(mockEnv).await()).isEqualTo(ApiQuestion(q))
         EasyMock.verify(mockEnv, mockDataLoader)
     }
 
     @Test
     fun testNullQuestion() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
+        val context = GraphQLContext.of(
+            getGraphQLContextMap(scope, UserPrincipal(u, null))
+        )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Question>>()
+        EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.expect(mockEnv.getDataLoader<UUID, Question>("batchquestions")).andReturn(mockDataLoader)
         EasyMock.expect(mockDataLoader.load(r.questionId)).andReturn(
             CompletableFuture.completedFuture(null)
         )
         EasyMock.replay(mockEnv, mockDataLoader)
-        assertThat(r.question(context, mockEnv).await()).isNull()
+        assertThat(r.question(mockEnv).await()).isNull()
         EasyMock.verify(mockEnv, mockDataLoader)
     }
 
     @Test
     fun testNoContextQuestion() = runBlocking {
-        val context = GraphQLResourceContext(null, scope)
+        val context = GraphQLContext.of(getGraphQLContextMap(scope))
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
+        EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.replay(mockEnv)
-        assertThat(r.question(context, mockEnv).await()).isNull()
+        assertThat(r.question(mockEnv).await()).isNull()
         EasyMock.verify(mockEnv)
     }
 
     @Test
     fun testGrade() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
+        val context = GraphQLContext.of(
+            getGraphQLContextMap(scope, UserPrincipal(u, null))
+        )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Grade>>()
+        EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.expect(mockEnv.getDataLoader<UUID, Grade>("responsegrades")).andReturn(mockDataLoader)
         val g = Grade(UUID.randomUUID(), r.id!!, true, 5)
         EasyMock.expect(mockDataLoader.load(r.id)).andReturn(
             CompletableFuture.completedFuture(g)
         )
         EasyMock.replay(mockEnv, mockDataLoader)
-        assertThat(r.grade(context, mockEnv).await()).isEqualTo(g)
+        assertThat(r.grade(mockEnv).await()).isEqualTo(g)
         EasyMock.verify(mockEnv, mockDataLoader)
     }
 
     @Test
     fun testNullGrade() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
+        val context = GraphQLContext.of(
+            getGraphQLContextMap(scope, UserPrincipal(u, null))
+        )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Grade>>()
+        EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.expect(mockEnv.getDataLoader<UUID, Grade>("responsegrades")).andReturn(mockDataLoader)
         EasyMock.expect(mockDataLoader.load(r.id)).andReturn(
             CompletableFuture.completedFuture(null)
         )
         EasyMock.replay(mockEnv, mockDataLoader)
-        assertThat(r.grade(context, mockEnv).await()).isNull()
+        assertThat(r.grade(mockEnv).await()).isNull()
         EasyMock.verify(mockEnv, mockDataLoader)
     }
 
     @Test
     fun testNoContextGrade() = runBlocking {
-        val context = GraphQLResourceContext(null, scope)
+        val context = GraphQLContext.of(getGraphQLContextMap(scope))
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
+        EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.replay(mockEnv)
-        assertThat(r.grade(context, mockEnv).await()).isNull()
+        assertThat(r.grade(mockEnv).await()).isNull()
         EasyMock.verify(mockEnv)
     }
 
     @Test
     fun testNoIdGrade() = runBlocking {
-        val context = GraphQLResourceContext(UserPrincipal(u, null), scope)
+        val context = GraphQLContext.of(
+            getGraphQLContextMap(scope, UserPrincipal(u, null))
+        )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
+        EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.replay(mockEnv)
-        assertThat(r.copy(id = null).grade(context, mockEnv).await()).isNull()
+        assertThat(r.copy(id = null).grade(mockEnv).await()).isNull()
         EasyMock.verify(mockEnv)
     }
 }

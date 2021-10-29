@@ -6,6 +6,7 @@ import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.trib3.graphql.modules.DataLoaderRegistryFactory
+import graphql.GraphQLContext
 import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderOptions
 import org.dataloader.DataLoaderRegistry
@@ -26,9 +27,9 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
     private val instanceDAO: InstanceDAO
 ) : Provider<DataLoaderRegistryFactory> {
     override fun get(): DataLoaderRegistryFactory {
-        return { _, context ->
+        return { _, contextMap ->
             val dataLoaderOptions = DataLoaderOptions.newOptions().setBatchLoaderContextProvider {
-                context
+                GraphQLContext.of(contextMap)
             }
             DataLoaderRegistry.newRegistry()
                 .register(

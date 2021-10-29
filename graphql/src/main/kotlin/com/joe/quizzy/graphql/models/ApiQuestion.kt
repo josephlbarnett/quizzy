@@ -4,8 +4,9 @@ import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.graphql.auth.UserPrincipal
-import com.trib3.graphql.resources.GraphQLResourceContext
+import com.trib3.graphql.resources.getInstance
 import graphql.schema.DataFetchingEnvironment
+import java.security.Principal
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -34,8 +35,8 @@ data class ApiQuestion(
         question.closedAt
     )
 
-    fun response(context: GraphQLResourceContext, dfe: DataFetchingEnvironment): CompletableFuture<ApiResponse?> {
-        val principal = context.principal
+    fun response(dfe: DataFetchingEnvironment): CompletableFuture<ApiResponse?> {
+        val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal && id != null) {
             return dfe.getDataLoader<UUID, Response>("questionresponses")
                 .load(id)

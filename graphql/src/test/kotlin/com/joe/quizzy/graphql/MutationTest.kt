@@ -30,7 +30,7 @@ import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.trib3.config.ConfigLoader
-import com.trib3.graphql.resources.GraphQLResourceContext
+import com.trib3.graphql.resources.getInstance
 import com.trib3.server.config.TribeApplicationConfig
 import com.trib3.testing.LeakyMock
 import com.trib3.testing.mock
@@ -45,6 +45,7 @@ import java.util.Properties
 import java.util.UUID
 import javax.mail.Message.RecipientType
 import javax.mail.internet.MimeMessage
+import javax.ws.rs.core.NewCookie
 
 /**
  * Support class to set up a mock Mutation per test with access to various
@@ -75,7 +76,7 @@ class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
         gmailServiceFactory,
         TribeApplicationConfig(ConfigLoader())
     )
-    val emptyContext = GraphQLResourceContext(null, scope)
+    val emptyContext = getDFE(null, scope)
     val user = User(
         UUID.randomUUID(),
         UUID.randomUUID(),
@@ -100,9 +101,9 @@ class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
         OffsetDateTime.now(),
         OffsetDateTime.now()
     )
-    val userSessionContext = GraphQLResourceContext(UserPrincipal(user, session), scope)
-    val userNoSessionContext = GraphQLResourceContext(UserPrincipal(user, null), scope)
-    val adminContext = GraphQLResourceContext(UserPrincipal(admin, null), scope)
+    val userSessionContext = getDFE(UserPrincipal(user, session), scope)
+    val userNoSessionContext = getDFE(UserPrincipal(user, null), scope)
+    val adminContext = getDFE(UserPrincipal(admin, null), scope)
 
     init {
         initBlock()
@@ -128,8 +129,8 @@ class MutationTest {
                 .andReturn(session)
         }.test {
             assertThat(mutation.login(emptyContext, "user", "pass")).isTrue()
-            assertThat(emptyContext.cookie?.name).isEqualTo("x-quizzy-session")
-            assertThat(emptyContext.cookie?.value).isEqualTo(session.id.toString())
+            assertThat(emptyContext.graphQlContext.getInstance<NewCookie>()?.name).isEqualTo("x-quizzy-session")
+            assertThat(emptyContext.graphQlContext.getInstance<NewCookie>()?.value).isEqualTo(session.id.toString())
         }
     }
 
@@ -141,7 +142,7 @@ class MutationTest {
         MockMutation { }.test {
             assertThat(
                 mutation.login(
-                    GraphQLResourceContext(UserPrincipal(user, null), scope),
+                    getDFE(UserPrincipal(user, null), scope),
                     "notauser",
                     "wrong"
                 )
@@ -203,7 +204,7 @@ class MutationTest {
             EasyMock.expect(sessionDAO.delete(session)).andReturn(1).once()
         }.test {
             assertThat(mutation.logout(userSessionContext)).isTrue()
-            assertThat(userSessionContext.cookie?.expiry?.time).isEqualTo(0)
+            assertThat(userSessionContext.graphQlContext.getInstance<NewCookie>()?.expiry?.time).isEqualTo(0)
         }
     }
 
@@ -214,7 +215,7 @@ class MutationTest {
     fun testLogoutWithoutSession() {
         MockMutation { }.test {
             assertThat(mutation.logout(userNoSessionContext)).isTrue()
-            assertThat(userNoSessionContext.cookie?.expiry?.time).isEqualTo(0)
+            assertThat(userNoSessionContext.graphQlContext.getInstance<NewCookie>()?.expiry?.time).isEqualTo(0)
         }
     }
 
@@ -277,7 +278,7 @@ class MutationTest {
         }.test {
             assertThat(
                 mutation.changePassword(
-                    GraphQLResourceContext(UserPrincipal(user.copy(id = UUID.randomUUID()), null), scope),
+                    getDFE(UserPrincipal(user.copy(id = UUID.randomUUID()), null), scope),
                     "pass",
                     "newpass"
                 )
@@ -296,7 +297,7 @@ class MutationTest {
         }.test {
             assertThat(
                 mutation.changePassword(
-                    GraphQLResourceContext(UserPrincipal(user.copy(email = "user2"), null), scope),
+                    getDFE(UserPrincipal(user.copy(email = "user2"), null), scope),
                     "pass",
                     "newpass"
                 )
@@ -314,7 +315,7 @@ class MutationTest {
         }.test {
             assertThat(
                 mutation.changePassword(
-                    GraphQLResourceContext(UserPrincipal(user.copy(email = "user3"), null), scope),
+                    getDFE(UserPrincipal(user.copy(email = "user3"), null), scope),
                     "pass",
                     "newpass"
                 )
