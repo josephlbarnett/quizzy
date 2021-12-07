@@ -16,11 +16,12 @@ module.exports = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/src/$1",
   },
-  preset: "ts-jest",
+  preset: "@vue/cli-plugin-unit-jest/presets/typescript-and-babel",
+  testEnvironment: "jsdom",
   transform: {
     "^.+\\.(js|ts)$": "babel-jest",
     "^.+\\.sass$": "jest-transform-stub",
-    "^.+\\.vue$": "vue-jest",
+    "^.+\\.vue$": "@vue/vue2-jest",
     "^.+\\.gql$": "jest-transform-graphql",
   },
   transformIgnorePatterns: ["/node_modules/(?!vuetify)/"],

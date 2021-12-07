@@ -18,23 +18,19 @@ jobs:
       # handle dependency caching and run build
       - restore_cache:
           keys:
-            - v4-dependencies-{{ .Branch }}-{{ .Revision }}
-            - v4-dependencies-{{ .Branch }}
-            - v4-dependencies-
+            - v5-dependencies-{{ .Branch }}-{{ .Revision }}
+            - v5-dependencies-{{ .Branch }}
+            - v5-dependencies-
       - restore_cache:
           keys:
-            - v4-npms-{{ .Branch }}-{{ .Revision }}
-            - v4-npms-{{ .Branch }}
-            - v4-npms-
+            - v5-npms-{{ .Branch }}-{{ .Revision }}
+            - v5-npms-{{ .Branch }}
+            - v5-npms-
       - restore_cache:
           keys:
-            - v4-email-npms-{{ .Branch }}-{{ .Revision }}
-            - v4-email-npms-{{ .Branch }}
-            - v4-email-npms-
-      - save_cache:
-          paths:
-            - ~/repo/emails/node_modules
-          key: v4-email-npms-{{ .Branch }}-{{ .Revision }}
+            - v5-email-npms-{{ .Branch }}-{{ .Revision }}
+            - v5-email-npms-{{ .Branch }}
+            - v5-email-npms-
       - run:
           name: npm build emails
           command: |
@@ -42,6 +38,10 @@ jobs:
             npm install
             mkdir -p dist/emails
             npm run mjml
+      - save_cache:
+          paths:
+            - ~/repo/emails/node_modules
+          key: v5-email-npms-{{ .Branch }}-{{ .Revision }}
       - run:
           name: Set Maven Version
           command: |
@@ -66,12 +66,12 @@ jobs:
       - save_cache:
           paths:
             - ~/repo/client/node_modules
-          key: v4-npms-{{ .Branch }}-{{ .Revision }}
+          key: v5-npms-{{ .Branch }}-{{ .Revision }}
       - run: mvn install -U -pl client,server
       - save_cache:
           paths:
             - ~/.m2
-          key: v4-dependencies-{{ .Branch }}-{{ .Revision }}
+          key: v5-dependencies-{{ .Branch }}-{{ .Revision }}
       # collect test results and upload coverage
       - run: mkdir -p ~/test_results
       - run: find . -type f -regex ".*/target/surefire-reports/junitreports/.*xml" -exec cp {} ~/test_results/ \;
