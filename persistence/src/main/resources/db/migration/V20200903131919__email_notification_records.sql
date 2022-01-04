@@ -1,5 +1,5 @@
 create table email_notifications(
-    id UUID NOT NULL DEFAULT uuid_generate_v4(),
+    id UUID NOT NULL /* [jooq ignore start] */ DEFAULT uuid_generate_v4() /* [jooq ignore stop] */,
     notification_type varchar(100),
     question_id UUID,
 
