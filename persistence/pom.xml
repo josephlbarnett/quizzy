@@ -79,82 +79,37 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <executions>
-                    <!-- always clean the generated db during a build -->
-                    <execution>
-                        <id>autoclean-db</id>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                        <configuration>
-                            <excludeDefaultDirectories>true</excludeDefaultDirectories>
-                            <filesets>
-                                <fileset>
-                                    <directory>${project.build.directory}</directory>
-                                    <includes>
-                                        <include>builddb</include>
-                                        <include>builddb.*</include>
-                                    </includes>
-                                </fileset>
-                            </filesets>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <configuration>
-                    <url>jdbc:h2:${project.build.directory}/builddb;DATABASE_TO_UPPER=false</url>
-                    <locations>
-                        <location>filesystem:src/main/resources/db/migration</location>
-                    </locations>
-                    <sqlMigrationSuffixes>
-                        <sqlMigrationSuffix>.sql</sqlMigrationSuffix>
-                        <sqlMigrationSuffix>.h2sql</sqlMigrationSuffix>
-                    </sqlMigrationSuffixes>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.h2database</groupId>
-                        <artifactId>h2</artifactId>
-                        <version>${version.h2}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <plugin>
                 <groupId>org.jooq</groupId>
                 <artifactId>jooq-codegen-maven</artifactId>
                 <dependencies>
                     <dependency>
-                        <groupId>com.h2database</groupId>
-                        <artifactId>h2</artifactId>
-                        <version>${version.h2}</version>
+                        <groupId>org.jooq</groupId>
+                        <artifactId>jooq-meta-extensions</artifactId>
+                        <version>${version.jooq}</version>
                     </dependency>
                 </dependencies>
                 <configuration>
-                    <jdbc>
-                        <url>
-                            jdbc:h2:${project.build.directory}/builddb
-                        </url>
-                    </jdbc>
                     <generator>
                         <database>
-                            <name>org.jooq.meta.jdbc.JDBCDatabase</name>
+                            <name>org.jooq.meta.extensions.ddl.DDLDatabase</name>
                             <includes>.*</includes>
                             <inputSchema>PUBLIC</inputSchema>
-                            <forcedTypes>
-                                <forcedType>
-                                    <userType>java.time.YearMonth</userType>
-                                    <converter>com.trib3.db.converters.YearMonthConverter</converter>
-                                    <expression>MONTH</expression>
-                                    <types>DATE</types>
-
-                                </forcedType>
-                            </forcedTypes>
+                            <properties>
+                                <property>
+                                    <key>scripts</key>
+                                    <value>
+                                        src/main/resources/db/migration/*.sql
+                                    </value>
+                                </property>
+                                <property>
+                                    <key>sort</key>
+                                    <value>flyway</value>
+                                </property>
+                                <property>
+                                    <key>defaultNameCase</key>
+                                    <value>lower</value>
+                                </property>
+                            </properties>
                         </database>
                         <target>
                             <packageName>com.joe.quizzy.persistence.impl.jooq</packageName>

@@ -1,5 +1,5 @@
 create table instances(
-    id UUID NOT NULL DEFAULT uuid_generate_v4(),
+    id UUID NOT NULL /* [jooq ignore start] */ DEFAULT uuid_generate_v4() /* [jooq ignore stop] */,
     name varchar(255),
     status text,
     UNIQUE (name),
@@ -7,7 +7,7 @@ create table instances(
 );
 
 create table users(
-    id UUID NOT NULL DEFAULT uuid_generate_v4(),
+    id UUID NOT NULL /* [jooq ignore start] */ DEFAULT uuid_generate_v4() /* [jooq ignore stop] */,
     instance_id UUID,
     name text,
     email varchar(255),
@@ -20,7 +20,7 @@ create table users(
 );
 
 create table questions(
-    id UUID NOT NULL DEFAULT uuid_generate_v4(),
+    id UUID NOT NULL /* [jooq ignore start] */ DEFAULT uuid_generate_v4() /* [jooq ignore stop] */,
     author_id UUID,
     body text,
     answer text,
@@ -32,7 +32,7 @@ create table questions(
 );
 
 create table responses(
-    id UUID NOT NULL DEFAULT uuid_generate_v4(),
+    id UUID NOT NULL /* [jooq ignore start] */ DEFAULT uuid_generate_v4() /* [jooq ignore stop] */,
     user_id UUID,
     question_id UUID,
     response text,
@@ -46,7 +46,7 @@ create table responses(
 );
 
 create table sessions(
-    id UUID NOT NULL DEFAULT uuid_generate_v4(),
+    id UUID NOT NULL /* [jooq ignore start] */ DEFAULT uuid_generate_v4() /* [jooq ignore stop] */,
     user_id UUID,
     created_at TIMESTAMP WITH TIME ZONE,
     last_used_at TIMESTAMP WITH TIME ZONE,
