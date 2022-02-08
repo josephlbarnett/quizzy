@@ -6,7 +6,7 @@ updates:
     interval: daily
   pull-request-branch-name:
     separator: "-"
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 99
   ignore:
   - dependency-name: com.sun.mail:jakarta.mail
     versions:
@@ -17,7 +17,7 @@ updates:
     interval: daily
   pull-request-branch-name:
     separator: "-"
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 99
   ignore:
   - dependency-name: mock-apollo-client
     versions:
@@ -25,10 +25,13 @@ updates:
   - dependency-name: sass  # deprecated `/` for division
     versions:
     - ">= 1.33.0"
+  - dependency-name: vue
+    versions:
+    - ">= 3.0.0"
 - package-ecosystem: npm
   directory: "/emails"
   schedule:
     interval: daily
   pull-request-branch-name:
     separator: "-"
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 99
