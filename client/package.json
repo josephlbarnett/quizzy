@@ -37,7 +37,7 @@
     "@vue/cli-plugin-router": "^5.0.0-rc.2",
     "@vue/cli-plugin-typescript": "^5.0.0-rc.2",
     "@vue/cli-plugin-unit-jest": "^5.0.0-rc.2",
-    "@vue/cli-service": "^5.0.0-rc.2",
+    "@vue/cli-service": "^5.0.0-rc.3",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/eslint-config-typescript": "^9.0.0",
     "@vue/test-utils": "1.3.0",
