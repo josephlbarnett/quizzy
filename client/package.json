@@ -15,8 +15,10 @@
     "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/typescript": "^2.4.5",
     "@types/moment-timezone": "^0.5.30",
+    "apollo-boost": "^0.4.9",
     "core-js": "^3.21.1",
     "eslint-plugin-graphql": "^4.0.0",
+    "graphql": "^16.3.0",
     "graphql-combine-query": "^1.2.3",
     "moment-timezone": "^0.5.34",
     "papaparse": "^5.3.1",
@@ -57,7 +59,6 @@
     "sass-loader": "^12.6.0",
     "ts-jest": "^27.1.3",
     "typescript": "~4.5.5",
-    "vue-cli-plugin-apollo": "~0.22.2",
     "vue-cli-plugin-vuetify": "^2.4.5",
     "vue-template-compiler": "^2.6.14",
     "vuetify-loader": "^1.7.3"
