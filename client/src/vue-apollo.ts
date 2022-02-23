@@ -1,6 +1,8 @@
 import Vue from "vue";
 import VueApollo, { ApolloProvider } from "vue-apollo";
-import { createApolloClient } from "vue-cli-plugin-apollo/graphql-client";
+import { ApolloClient } from "apollo-client";
+import { createHttpLink } from "apollo-link-http";
+import { InMemoryCache } from "apollo-boost";
 
 // Install the vue plugin
 Vue.use(VueApollo);
@@ -60,7 +62,12 @@ const defaultOptions = {
 // Call this in the Vue app file
 export function createProvider(options = {}): ApolloProvider {
   // Create apollo client
-  const { apolloClient } = createApolloClient({
+  const apolloClient = new ApolloClient({
+    link: createHttpLink({
+      uri: defaultOptions.httpEndpoint,
+      ...defaultOptions.httpLinkOptions,
+    }),
+    cache: new InMemoryCache(),
     ...defaultOptions,
     ...options,
   });
