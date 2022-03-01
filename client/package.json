@@ -17,7 +17,6 @@
     "@types/moment-timezone": "^0.5.30",
     "apollo-boost": "^0.4.9",
     "core-js": "^3.21.1",
-    "eslint-plugin-graphql": "^4.0.0",
     "graphql": "^16.3.0",
     "graphql-combine-query": "^1.2.3",
     "moment-timezone": "^0.5.34",
@@ -30,6 +29,7 @@
     "vuetify": "^2.6.3"
   },
   "devDependencies": {
+    "@graphql-eslint/eslint-plugin": "^3.8.0",
     "@types/jest": "^27.4.1",
     "@types/papaparse": "^5.3.2",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
@@ -106,6 +106,17 @@
         "env": {
           "jest": true
         }
+      },
+      {
+        "files": [
+          "*.gql"
+        ],
+        "extends": "plugin:@graphql-eslint/operations-recommended",
+        "parserOptions": {
+          "schema": "./target/dependency/schema.graphql",
+          "operations": "./src/**/*.gql",
+          "skipGraphQLConfig": true
+        }
       }
     ]
   },
@@ -117,7 +128,7 @@
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
-    "*.{js,jsx,vue,ts,tsx}": [
+    "*.{js,jsx,vue,ts,tsx,gql}": [
       "vue-cli-service lint",
       "git add"
     ]

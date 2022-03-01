@@ -1,11 +1,11 @@
 query Users {
-    users {
-      id
-      instanceId
-      email
-      name
-      admin
-      timeZoneId
-      score
-    }
+  users {
+    admin
+    email
+    id
+    instanceId
+    name
+    score
+    timeZoneId
+  }
 }

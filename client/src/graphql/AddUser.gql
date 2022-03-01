@@ -1,12 +1,14 @@
 mutation AddUser($name: String!, $email: String!, $instanceId: UUID!) {
-  user(user:{
-    name:$name
-    email:$email
-    instanceId:$instanceId
-    timeZoneId:"Autodetect"
-    admin:false
-    notifyViaEmail:false
-  }){
+  user(
+    user: {
+      name: $name
+      email: $email
+      instanceId: $instanceId
+      timeZoneId: "Autodetect"
+      admin: false
+      notifyViaEmail: false
+    }
+  ) {
     id
     instanceId
     email

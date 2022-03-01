@@ -61,6 +61,7 @@ jobs:
             npm install
             npm run generate
             npm run lint
+            npm run lint '**/*.gql'
             npm run test:unit
             npm run build
       - save_cache:

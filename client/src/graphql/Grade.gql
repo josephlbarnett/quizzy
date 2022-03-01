@@ -1,10 +1,17 @@
-mutation submitGrade($id: UUID, $responseId: UUID!, $bonus: Int, $correct: Boolean) {
-    grade(grade: {
-        bonus: $bonus
-        correct: $correct
-        id: $id
-        responseId: $responseId
-    }) {
-        id
+mutation SubmitGrade(
+  $id: UUID
+  $responseId: UUID!
+  $bonus: Int
+  $correct: Boolean
+) {
+  grade(
+    grade: {
+      bonus: $bonus
+      correct: $correct
+      id: $id
+      responseId: $responseId
     }
+  ) {
+    id
+  }
 }

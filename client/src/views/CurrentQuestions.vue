@@ -57,7 +57,7 @@
         <ApolloMutation
           v-if="clickedQuestion"
           :mutation="require('../graphql/SaveResponse.gql')"
-          :refetch-queries="() => [`currentQuestions`]"
+          :refetch-queries="() => [`CurrentQuestions`]"
           :await-refetch-queries="true"
           :variables="{
             questionId: clickedQuestion.id,

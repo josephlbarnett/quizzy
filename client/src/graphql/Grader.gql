@@ -1,29 +1,29 @@
 query Grader($includeGraded: Boolean!) {
-    responses(includeGraded: $includeGraded) {
-        grade {
-            id
-            bonus
-            correct
-            score
-        }
-        id
-        question {
-            id
-            body
-            activeAt
-            answer
-            ruleReferences
-            author {
-                id
-                name
-            }
-        }
-        response
-        ruleReferences
-        user {
-            id
-            name
-            email
-        }
+  responses(includeGraded: $includeGraded) {
+    grade {
+      bonus
+      correct
+      id
+      score
     }
+    id
+    question {
+      activeAt
+      answer
+      author {
+        id
+        name
+      }
+      body
+      id
+      ruleReferences
+    }
+    response
+    ruleReferences
+    user {
+      email
+      id
+      name
+    }
+  }
 }

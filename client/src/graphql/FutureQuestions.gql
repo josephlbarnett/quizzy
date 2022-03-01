@@ -1,11 +1,11 @@
-query futureQuestions {
-    futureQuestions {
-        id,
-        authorId,
-        body,
-        activeAt,
-        closedAt,
-        answer,
-        ruleReferences
-    }
+query FutureQuestions {
+  futureQuestions {
+    activeAt
+    answer
+    authorId
+    body
+    closedAt
+    id
+    ruleReferences
+  }
 }

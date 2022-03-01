@@ -29,7 +29,7 @@
               timeZoneId: timezone,
               notifyViaEmail: notifyViaEmail,
             }"
-            :refetch-queries="() => [`currentUser`]"
+            :refetch-queries="() => [`CurrentUser`]"
             :await-refetch-queries="true"
             @error="done(false)"
             @done="done(true)"
@@ -96,7 +96,7 @@
               old: oldPassword,
               new: newPassword,
             }"
-            :refetch-queries="() => [`currentUser`]"
+            :refetch-queries="() => [`CurrentUser`]"
             :await-refetch-queries="true"
             @error="donePass({ data: { changePassword: false } })"
             @done="donePass"

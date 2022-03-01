@@ -22,7 +22,7 @@
             email,
             pass,
           }"
-          :refetch-queries="() => [`currentUser`]"
+          :refetch-queries="() => [`CurrentUser`]"
           :await-refetch-queries="true"
           @done="loggedin"
           @error="loggedin({ data: { login: false } })"

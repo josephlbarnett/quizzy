@@ -98,7 +98,7 @@
                     :mutation="require('../graphql/SaveQuestion.gql')"
                     @done="addDialog = false"
                     @error="addDialogError = true"
-                    :refetch-queries="() => [`futureQuestions`]"
+                    :refetch-queries="() => [`FutureQuestions`]"
                     :variables="{
                       id: addDialogId,
                       activeAt: addDialogActive,
@@ -159,6 +159,7 @@ import Vue from "vue";
 import moment from "moment-timezone";
 import DateTimePicker from "@/components/DateTimePicker.vue";
 import { Question } from "@/generated/types";
+
 export default Vue.extend({
   name: "FutureQuestions",
   components: { DateTimePicker },

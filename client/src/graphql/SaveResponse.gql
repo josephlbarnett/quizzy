@@ -1,11 +1,19 @@
-mutation SaveResponse($id: UUID, $questionId: UUID!, $response: String!, $ruleReferences: String!, $userId: UUID!) {
-    response(response: {
-        id: $id,
-        questionId: $questionId
-        response: $response
-        ruleReferences: $ruleReferences
-        userId: $userId
-    }) {
-        id
+mutation SaveResponse(
+  $id: UUID
+  $questionId: UUID!
+  $response: String!
+  $ruleReferences: String!
+  $userId: UUID!
+) {
+  response(
+    response: {
+      id: $id
+      questionId: $questionId
+      response: $response
+      ruleReferences: $ruleReferences
+      userId: $userId
     }
+  ) {
+    id
+  }
 }

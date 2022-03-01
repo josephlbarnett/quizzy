@@ -25,7 +25,7 @@
               </v-list-item>
               <ApolloMutation
                 :mutation="require('@/graphql/Logout.gql')"
-                :refetch-queries="() => [`currentUser`]"
+                :refetch-queries="() => [`CurrentUser`]"
                 :await-refetch-queries="true"
                 @done="loggedOut"
               >

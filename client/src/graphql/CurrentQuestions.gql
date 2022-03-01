@@ -1,18 +1,18 @@
-query currentQuestions {
-    activeQuestions {
-        id,
-        authorId,
-        author {
-            id
-            name
-        }
-        body,
-        activeAt,
-        closedAt,
-        response {
-            id,
-            response,
-            ruleReferences
-        }
+query CurrentQuestions {
+  activeQuestions {
+    activeAt
+    author {
+      id
+      name
     }
+    authorId
+    body
+    closedAt
+    id
+    response {
+      id
+      response
+      ruleReferences
+    }
+  }
 }

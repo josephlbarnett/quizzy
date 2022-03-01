@@ -1,30 +1,30 @@
 query CompletedQuestions {
-    closedQuestions {
-        id,
-        authorId,
-        author {
-            id
-            name
-        }
-        body,
-        activeAt,
-        closedAt,
-        answer,
-        ruleReferences,
-        response {
-            id
-            response,
-            ruleReferences,
-            grade {
-                id,
-                correct,
-                bonus,
-                score
-            }
-            user {
-                id
-                name
-            }
-        }
+  closedQuestions {
+    activeAt
+    answer
+    author {
+      id
+      name
     }
+    authorId
+    body
+    closedAt
+    id
+    response {
+      grade {
+        bonus
+        correct
+        id
+        score
+      }
+      id
+      response
+      ruleReferences
+      user {
+        id
+        name
+      }
+    }
+    ruleReferences
+  }
 }

@@ -1,15 +1,15 @@
-query currentUser {
-    user {
+query CurrentUser {
+  user {
+    admin
+    email
+    id
+    instance {
       id
-      instanceId
-      instance {
-        id
-        name
-      }
-      email
       name
-      admin
-      timeZoneId
-      notifyViaEmail
     }
+    instanceId
+    name
+    notifyViaEmail
+    timeZoneId
+  }
 }

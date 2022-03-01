@@ -1,6 +1,6 @@
 {
   "name": "quizzy schema",
-  "schemaPath": "target/depenencies/schema.graphql",
+  "schemaPath": "target/dependency/schema.graphql",
   "extensions": {
     "endpoints": {
       "Remote GraphQL Endpoint": {

@@ -1,26 +1,28 @@
-mutation updateUser(
-    $name: String!,
-    $id: UUID!,
-    $instanceId: UUID!,
-    $email: String!,
-    $admin: Boolean!,
-    $timeZoneId: String!,
-    $notifyViaEmail: Boolean!
+mutation UpdateUser(
+  $name: String!
+  $id: UUID!
+  $instanceId: UUID!
+  $email: String!
+  $admin: Boolean!
+  $timeZoneId: String!
+  $notifyViaEmail: Boolean!
 ) {
-    user(user: {
-        id: $id
-        instanceId: $instanceId
-        email: $email
-        name: $name
-        admin: $admin
-        timeZoneId: $timeZoneId
-        notifyViaEmail: $notifyViaEmail
-    }) {
-      id
-      instanceId
-      email
-      name
-      admin
-      timeZoneId
+  user(
+    user: {
+      id: $id
+      instanceId: $instanceId
+      email: $email
+      name: $name
+      admin: $admin
+      timeZoneId: $timeZoneId
+      notifyViaEmail: $notifyViaEmail
     }
+  ) {
+    id
+    instanceId
+    email
+    name
+    admin
+    timeZoneId
+  }
 }
