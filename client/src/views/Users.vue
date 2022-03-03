@@ -6,11 +6,11 @@
       fetch-policy="cache-and-network"
       @result="
         (result) => {
-          this.users = result && result.users;
+          users = result && result.users;
         }
       "
     >
-      <template v-slot="{ result: { error, data }, isLoading }">
+      <template #default="{ result: { error, data }, isLoading }">
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
@@ -73,7 +73,7 @@
             @input="selected"
             @click:row="rowToggle"
           >
-            <template v-slot:item.admin="{ item }">
+            <template #item.admin="{ item }">
               <v-simple-checkbox
                 v-model="item.admin"
                 disabled

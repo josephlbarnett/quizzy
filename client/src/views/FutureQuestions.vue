@@ -8,15 +8,15 @@
             result.data &&
             result.data.user &&
             setTZ(result.data.user.timeZoneId);
-          this.userId =
+          userId =
             result && result.data && result.data.user && result.data.user.id;
         }
       "
     >
-      <template v-slot="{}" />
+      <template #default="{}" />
     </ApolloQuery>
     <ApolloQuery :query="require('../graphql/FutureQuestions.gql')">
-      <template v-slot="{ result: { error, data }, isLoading }">
+      <template #default="{ result: { error, data }, isLoading }">
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
@@ -29,7 +29,7 @@
               v-model="addDialog"
               @click:outside="addDialogError = false"
             >
-              <template v-slot:activator="{ on }">
+              <template #activator="{ on }">
                 <v-btn color="accent" v-on="on" @click="resetAddDialogState">
                   ADD QUESTION
                 </v-btn>
@@ -43,16 +43,16 @@
                   <v-row>
                     <v-col>
                       <date-time-picker
-                        label="Date:"
                         v-model="addDialogActive"
+                        label="Date:"
                         :timezone="timezone"
                     /></v-col>
                   </v-row>
                   <v-row>
                     <v-col>
                       <date-time-picker
-                        label="Respond By:"
                         v-model="addDialogClose"
+                        label="Respond By:"
                         :timezone="timezone"
                       />
                     </v-col>
@@ -60,12 +60,12 @@
                   <v-row>
                     <v-col>
                       <ApolloQuery :query="require('../graphql/Users.gql')">
-                        <template v-slot="{ result: { data } }">
+                        <template #default="{ result: { data: userData } }">
                           <v-autocomplete
-                            label="Question Author:"
-                            v-if="data"
+                            v-if="userData"
                             v-model="addDialogAuthor"
-                            :items="data && data.users"
+                            label="Question Author:"
+                            :items="userData && userData.users"
                             item-value="id"
                             item-text="name"
                           />
@@ -76,28 +76,26 @@
                   <v-row>
                     <v-col
                       ><v-textarea
-                        label="Question Body:"
                         v-model="addDialogBody"
+                        label="Question Body:"
                     /></v-col>
                   </v-row>
                   <v-row>
                     <v-col
-                      ><v-textarea label="Answer:" v-model="addDialogAnswer"
+                      ><v-textarea v-model="addDialogAnswer" label="Answer:"
                     /></v-col>
                   </v-row>
                   <v-row>
                     <v-col
                       ><v-textarea
-                        label="Rule References:"
                         v-model="addDialogRuleReferences"
+                        label="Rule References:"
                     /></v-col>
                   </v-row>
                 </v-card-text>
                 <v-card-actions>
                   <ApolloMutation
                     :mutation="require('../graphql/SaveQuestion.gql')"
-                    @done="addDialog = false"
-                    @error="addDialogError = true"
                     :refetch-queries="() => [`FutureQuestions`]"
                     :variables="{
                       id: addDialogId,
@@ -108,8 +106,10 @@
                       closedAt: addDialogClose,
                       ruleReferences: addDialogRuleReferences,
                     }"
+                    @done="addDialog = false"
+                    @error="addDialogError = true"
                   >
-                    <template v-slot="{ mutate, loading }">
+                    <template #default="{ mutate, loading }">
                       <v-btn @click="addDialog = false">CANCEL</v-btn>
                       <v-btn color="accent" @click="mutate()"
                         ><span v-if="addDialogId">SAVE</span
@@ -122,7 +122,7 @@
                       <v-snackbar v-model="addDialogError" color="error"
                         >Could not <span v-if="addDialogId">edit</span
                         ><span v-else>add</span> question, try again.
-                        <template v-slot:action="{ attrs }">
+                        <template #action="{ attrs }">
                           <v-btn v-bind="attrs" @click="addDialogError = false"
                             >OK</v-btn
                           ></template
@@ -141,10 +141,10 @@
             no-data-text="No upcoming questions found"
             @click:row="clickRow"
           >
-            <template v-slot:item.closedAt="{ value }">
+            <template #item.closedAt="{ value }">
               {{ renderDateTime(value) }}
             </template>
-            <template v-slot:item.activeAt="{ value }">
+            <template #item.activeAt="{ value }">
               {{ renderDate(value) }}
             </template>
           </v-data-table>

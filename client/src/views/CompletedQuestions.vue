@@ -10,17 +10,17 @@
           setTZ(result.data.user.timeZoneId)
       "
     >
-      <template v-slot="{}" />
+      <template #default="{}" />
     </ApolloQuery>
     <ApolloQuery
       :query="require('../graphql/CompletedQuestions.gql')"
       @result="
         (result) => {
-          this.completedQuestions = result.data.closedQuestions;
+          completedQuestions = result.data.closedQuestions;
         }
       "
     >
-      <template v-slot="{ result: { error, data }, isLoading }">
+      <template #default="{ result: { error, data }, isLoading }">
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
@@ -34,10 +34,10 @@
             no-data-text="No completed questions found"
             @click:row="clickRow"
           >
-            <template v-slot:item.activeAt="{ value }">
+            <template #item.activeAt="{ value }">
               {{ renderDate(value) }}
             </template>
-            <template v-slot:item.response.grade.correct="{ value }">
+            <template #item.response.grade.correct="{ value }">
               <v-icon v-if="value === true" color="green darken-2"
                 >mdi-check-circle</v-icon
               >
@@ -61,17 +61,17 @@
           <v-row>
             <v-col cols="6">
               <v-textarea
-                :readonly="true"
-                v-model="clickedQuestion.response.response"
                 v-if="clickedQuestion.response"
+                v-model="clickedQuestion.response.response"
+                :readonly="true"
                 label="Your Response"
               />
               <v-textarea v-else :readonly="true" label="Your Response" />
             </v-col>
             <v-col cols="6">
               <v-textarea
-                :readonly="true"
                 v-model="clickedQuestion.answer"
+                :readonly="true"
                 label="Answer Key"
               />
             </v-col>
@@ -79,9 +79,9 @@
           <v-row>
             <v-col cols="6">
               <v-textarea
-                :readonly="true"
-                v-model="clickedQuestion.response.ruleReferences"
                 v-if="clickedQuestion.response"
+                v-model="clickedQuestion.response.ruleReferences"
+                :readonly="true"
                 label="Your Rule References"
               />
               <v-textarea
@@ -92,8 +92,8 @@
             </v-col>
             <v-col cols="6">
               <v-textarea
-                :readonly="true"
                 v-model="clickedQuestion.ruleReferences"
+                :readonly="true"
                 label="Answer Key Rule References"
               />
             </v-col>
@@ -142,7 +142,7 @@
           </v-row>
         </v-card-text>
         <v-card-actions>
-          <v-btn @click="detailDialog = false" color="accent">OK</v-btn>
+          <v-btn color="accent" @click="detailDialog = false">OK</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

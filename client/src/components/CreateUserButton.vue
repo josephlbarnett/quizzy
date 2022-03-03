@@ -5,15 +5,15 @@
       @result="
         (result) => {
           if (result && result.data && result.data.user) {
-            this.instanceId = result.data.user.instanceId;
+            instanceId = result.data.user.instanceId;
           }
         }
       "
     >
-      <template v-slot="{}" />
+      <template #default="{}" />
     </ApolloQuery>
     <v-dialog v-model="dialog">
-      <template v-slot:activator="{ on }">
+      <template #activator="{ on }">
         <v-btn color="accent" v-on="on" @click="resetDialog">ADD</v-btn>
       </template>
       <v-card>
@@ -24,7 +24,7 @@
           @done="added"
           @error="added"
         >
-          <template v-slot="{ mutate, loading /*, error*/ }">
+          <template #default="{ mutate, loading /*, error*/ }">
             <v-card-title>Add User</v-card-title>
             <v-card-text>
               <v-tabs v-model="tabs">
@@ -32,14 +32,14 @@
                 <v-tab key="multiple">Add Multiple</v-tab>
                 <v-tab-item key="single">
                   <v-text-field
-                    @keypress.enter="submitForm(mutate)"
                     v-model="singleName"
                     label="Name"
+                    @keypress.enter="submitForm(mutate)"
                   ></v-text-field>
                   <v-text-field
-                    @keypress.enter="submitForm(mutate)"
                     v-model="singleEmail"
                     label="Email"
+                    @keypress.enter="submitForm(mutate)"
                   ></v-text-field>
                 </v-tab-item>
                 <v-tab-item key="multiple">
@@ -53,13 +53,13 @@
               </v-tabs>
               <v-btn @click="dialog = false">CANCEL</v-btn>
               <v-btn
-                @click="submitForm(mutate)"
                 :disabled="users.length <= 0"
                 color="accent"
+                @click="submitForm(mutate)"
                 >Create {{ users.length }} User<span v-if="users.length !== 1"
                   >s</span
                 ></v-btn
-              ><v-progress-circular :indeterminate="true" v-if="loading" />
+              ><v-progress-circular v-if="loading" :indeterminate="true" />
             </v-card-text>
           </template>
         </ApolloMutation>
@@ -78,7 +78,7 @@
         {{ addedWithError }} new user<span v-if="addedWithError > 1">s</span>
         already exist<span v-if="addedWithError === 1">s</span>.
       </div>
-      <template v-slot:action="{ attrs }">
+      <template #action="{ attrs }">
         <v-btn v-bind="attrs" @click="snackbar = false">OK</v-btn></template
       >
     </v-snackbar>

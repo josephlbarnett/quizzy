@@ -7,6 +7,7 @@ describe("DateTimePicker Tests", () => {
       propsData: {
         value: "2020-07-23 13:22:01",
         timezone: "UTC",
+        label: "some_text",
       },
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,6 +23,7 @@ describe("DateTimePicker Tests", () => {
       propsData: {
         value: "Not a Timestamp!",
         timezone: "Autodetect",
+        label: "some_text",
       },
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,6 +39,7 @@ describe("DateTimePicker Tests", () => {
     const picker = shallowMount(DateTimePicker, {
       propsData: {
         timezone: "UTC",
+        label: "some_text",
       },
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,6 +52,7 @@ describe("DateTimePicker Tests", () => {
     const picker = shallowMount(DateTimePicker, {
       propsData: {
         timezone: "UTC",
+        label: "some_text",
       },
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,6 +66,7 @@ describe("DateTimePicker Tests", () => {
       propsData: {
         value: "2020-07-23 13:22:01",
         timezone: "UTC",
+        label: "some_text",
       },
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -82,6 +87,7 @@ describe("DateTimePicker Tests", () => {
     const picker = shallowMount(DateTimePicker, {
       propsData: {
         timezone: "UTC",
+        label: "some_text",
       },
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

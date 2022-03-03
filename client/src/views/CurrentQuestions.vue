@@ -8,22 +8,22 @@
             result.data &&
             result.data.user &&
             setTZ(result.data.user.timeZoneId);
-          this.userId =
+          userId =
             result && result.data && result.data.user && result.data.user.id;
         }
       "
     >
-      <template v-slot="{}" />
+      <template #default="{}" />
     </ApolloQuery>
     <ApolloQuery
       :query="require('../graphql/CurrentQuestions.gql')"
       @result="
         (result) => {
-          this.activeQuestions = result.data.activeQuestions;
+          activeQuestions = result.data.activeQuestions;
         }
       "
     >
-      <template v-slot="{ result: { error, data }, isLoading }">
+      <template #default="{ result: { error, data }, isLoading }">
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
@@ -37,10 +37,10 @@
             no-data-text="No active questions found"
             @click:row="clickRow"
           >
-            <template v-slot:item.closedAt="{ value }">
+            <template #item.closedAt="{ value }">
               {{ renderDateTime(value) }}
             </template>
-            <template v-slot:item.activeAt="{ value }">
+            <template #item.activeAt="{ value }">
               {{ renderDate(value) }}
             </template>
           </v-data-table>
@@ -71,28 +71,28 @@
           @error="saveError = true"
           @done="responseDialog = false"
         >
-          <template v-slot="{ mutate, loading }">
+          <template #default="{ mutate, loading }">
             <v-card-text>
               {{ clickedQuestion.body }}
               <v-textarea
-                label="Response"
                 v-model="clickedResponse.response"
+                label="Response"
               ></v-textarea>
               <v-textarea
-                label="Rule Reference"
                 v-model="clickedResponse.ruleReferences"
+                label="Rule Reference"
               ></v-textarea>
             </v-card-text>
             <v-card-actions>
               <v-btn @click="responseDialog = false">CANCEL</v-btn>
-              <v-btn @click="saveResponse(mutate)" color="accent"
+              <v-btn color="accent" @click="saveResponse(mutate)"
                 >save response</v-btn
               >
-              <v-progress-circular :indeterminate="true" v-if="loading"
+              <v-progress-circular v-if="loading" :indeterminate="true"
             /></v-card-actions>
             <v-snackbar v-model="saveError" color="error">
               Couldn't save, try again.
-              <template v-slot:action="{ attrs }">
+              <template #action="{ attrs }">
                 <v-btn v-bind="attrs" @click="saveError = false"
                   >OK</v-btn
                 ></template

@@ -4,7 +4,7 @@
       :query="require('@/graphql/CurrentUser.gql')"
       @result="(result) => setTitle(result)"
     >
-      <template v-slot="{ result: { /*error,*/ data }, isLoading }">
+      <template #default="{ result: { /*error,*/ data }, isLoading }">
         <v-app-bar app color="primary" dark>
           <v-app-bar-nav-icon
             v-if="data && data.user"
@@ -13,7 +13,7 @@
           <span v-else-if="!isLoading">Please login.</span>
           <v-spacer />
           <v-menu v-if="data && data.user" open-on-hover>
-            <template v-slot:activator="{ on }">
+            <template #activator="{ on }">
               <v-icon v-on="on">mdi-account</v-icon>
             </template>
             <v-list>
@@ -29,13 +29,13 @@
                 :await-refetch-queries="true"
                 @done="loggedOut"
               >
-                <template v-slot="{ mutate, loading /*, error*/ }">
+                <template #default="{ mutate, loading /*, error*/ }">
                   <v-list-item
                     :disabled="loading"
                     label="Logout"
-                    @click="doLogout(mutate)"
                     color="error"
                     outlined
+                    @click="doLogout(mutate)"
                   >
                     <v-list-item-icon
                       ><v-icon>mdi-logout-variant</v-icon></v-list-item-icon
@@ -66,14 +66,14 @@
             <v-divider />
             <v-list-item
               v-for="navLink in commonLinks"
+              :key="navLink.link"
               :to="navLink.link"
               color="accent"
-              :key="navLink.link"
               @click="navDrawMini = true"
             >
               <v-list-item-icon>
                 <v-tooltip :disabled="!navDrawMini" bottom>
-                  <template v-slot:activator="{ on }">
+                  <template #activator="{ on }">
                     <v-icon v-on="on">{{ navLink.icon }}</v-icon></template
                   >
                   {{ navLink.title }}
@@ -85,15 +85,15 @@
               <v-divider />
               <v-list-item
                 v-for="navLink in adminLinks"
+                :key="navLink.link"
                 :to="navLink.link"
                 :outlined="true"
                 color="error"
-                :key="navLink.link"
                 @click="navDrawMini = true"
               >
                 <v-list-item-icon>
                   <v-tooltip :disabled="!navDrawMini" bottom>
-                    <template v-slot:activator="{ on }">
+                    <template #activator="{ on }">
                       <v-icon v-on="on">{{ navLink.icon }}</v-icon></template
                     >
                     {{ navLink.title }}
@@ -118,6 +118,9 @@ import Login from "@/components/Login.vue";
 
 export default Vue.extend({
   name: "App",
+  components: {
+    Login,
+  },
   data: () => ({
     navDrawMini: true,
     commonLinks: [
@@ -134,9 +137,6 @@ export default Vue.extend({
       { title: "Users", link: "/users", icon: "mdi-account-multiple" },
     ],
   }),
-  components: {
-    Login,
-  },
   methods: {
     doLogout(mutate: () => void) {
       this.$apollo.getClient().resetStore();

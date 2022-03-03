@@ -8,12 +8,12 @@
             result.data &&
             result.data.user &&
             setTZ(result.data.user.timeZoneId);
-          this.userId =
+          userId =
             result && result.data && result.data.user && result.data.user.id;
         }
       "
     >
-      <template v-slot="{}" />
+      <template #default="{}" />
     </ApolloQuery>
     <ApolloQuery
       :query="require('../graphql/Grader.gql')"
@@ -21,7 +21,7 @@
         includeGraded: !hideGraded,
       }"
     >
-      <template v-slot="{ result: { error, data }, isLoading }">
+      <template #default="{ result: { error, data }, isLoading }">
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
@@ -39,10 +39,10 @@
             no-data-text="No responses to grade found"
             @click:row="clickRow"
           >
-            <template v-slot:item.question.activeAt="{ value }">
+            <template #item.question.activeAt="{ value }">
               {{ renderDate(value) }}
             </template>
-            <template v-slot:item.grade.correct="{ value }">
+            <template #item.grade.correct="{ value }">
               <v-icon v-if="value === true" color="green darken-2"
                 >mdi-check-circle</v-icon
               >
@@ -56,12 +56,12 @@
       </template>
     </ApolloQuery>
     <v-dialog
-      v-model="gradeDialog"
       v-if="
         clickedResponse &&
         clickedResponse.question &&
         clickedResponse.question.author
       "
+      v-model="gradeDialog"
     >
       <v-card>
         <ApolloMutation
@@ -82,7 +82,7 @@
           @error="saveError = true"
           @done="gradeDialog = false"
         >
-          <template v-slot="{ mutate, loading }">
+          <template #default="{ mutate, loading }">
             <v-card-title
               >Grade Response:
               {{ renderDate(clickedResponse.question.activeAt) }} by
@@ -93,15 +93,15 @@
               <v-row>
                 <v-col cols="6">
                   <v-textarea
-                    :readonly="true"
                     v-model="clickedResponse.response"
+                    :readonly="true"
                     :label="clickedResponse.user.name + '\'s Response'"
                   />
                 </v-col>
                 <v-col cols="6">
                   <v-textarea
-                    :readonly="true"
                     v-model="clickedResponse.question.answer"
+                    :readonly="true"
                     label="Answer Key"
                   />
                 </v-col>
@@ -109,15 +109,15 @@
               <v-row>
                 <v-col cols="6">
                   <v-textarea
-                    :readonly="true"
                     v-model="clickedResponse.ruleReferences"
+                    :readonly="true"
                     :label="clickedResponse.user.name + '\'s Rule References'"
                   />
                 </v-col>
                 <v-col cols="6">
                   <v-textarea
-                    :readonly="true"
                     v-model="clickedResponse.question.ruleReferences"
+                    :readonly="true"
                     label="Answer Key Rule References"
                   />
                 </v-col>
@@ -132,21 +132,21 @@
               </v-radio-group>
 
               <v-text-field
+                v-model.number="clickedResponse.bonus"
                 type="number"
                 min="0"
                 max="5"
-                v-model.number="clickedResponse.bonus"
                 label="Bonus points"
               />
             </v-card-text>
             <v-card-actions>
               <v-btn @click="gradeDialog = false">CANCEL</v-btn>
               <v-btn color="accent" @click="mutate()">GRADE</v-btn>
-              <v-progress-circular :indeterminate="true" v-if="loading" />
+              <v-progress-circular v-if="loading" :indeterminate="true" />
             </v-card-actions>
             <v-snackbar v-model="saveError" color="error">
               Couldn't save, try again.
-              <template v-slot:action="{ attrs }">
+              <template #action="{ attrs }">
                 <v-btn v-bind="attrs" @click="saveError = false"
                   >OK</v-btn
                 ></template

@@ -7,7 +7,7 @@
         :close-on-content-click="false"
         min-width="100px"
       >
-        <template v-slot:activator="{ on }">
+        <template #activator="{ on }">
           <v-text-field
             readonly
             :label="label"
@@ -16,8 +16,8 @@
           />
         </template>
         <v-date-picker
-          class="date-picker"
           v-model="date"
+          class="date-picker"
           @change="onChange"
           @click:date="dateClicked"
         >
@@ -32,16 +32,16 @@
         :close-on-content-click="false"
         min-width="100px"
       >
-        <template v-slot:activator="{ on }">
+        <template #activator="{ on }">
           <v-text-field readonly :value="renderTime(dateTime)" v-on="on" />
         </template>
         <v-time-picker
-          class="time-picker"
-          v-model="time"
           v-if="timeMenu"
-          @input="onChange"
+          v-model="time"
+          class="time-picker"
           :allowed-minutes="(x) => x % 5 === 0"
-          ><v-btn @click="timeMenu = false" color="accent"
+          @input="onChange"
+          ><v-btn color="accent" @click="timeMenu = false"
             >OK</v-btn
           ></v-time-picker
         >
@@ -73,7 +73,11 @@ function modelDate(date: string): string {
 }
 
 export default Vue.extend({
-  props: ["value", "timezone", "label"],
+  props: {
+    value: { type: String, default: null },
+    timezone: { type: String, default: null },
+    label: { type: String, required: true },
+  },
   data: function () {
     return {
       time: modelTime(this.value),

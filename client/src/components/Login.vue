@@ -1,8 +1,8 @@
 <template>
   <ApolloQuery :query="require('../graphql/CurrentUser.gql')">
-    <template v-slot="{ result: { error, data }, isLoading }">
+    <template #default="{ result: { error, data }, isLoading }">
       <!-- Loading -->
-      <v-progress-circular :indeterminate="true" v-if="isLoading" />
+      <v-progress-circular v-if="isLoading" :indeterminate="true" />
 
       <!-- Error -->
       <div v-else-if="error" class="error apollo">An error occurred</div>
@@ -27,7 +27,7 @@
           @done="loggedin"
           @error="loggedin({ data: { login: false } })"
         >
-          <template v-slot="{ mutate, loading /*, error*/ }">
+          <template #default="{ mutate, loading /*, error*/ }">
             <v-container v-if="!resetPage && !completePage">
               <v-text-field
                 v-model="email"
@@ -48,7 +48,7 @@
                 @click="clickLogin(mutate)"
                 >Login</v-btn
               >
-              <v-progress-circular :indeterminate="true" v-if="loading" />
+              <v-progress-circular v-if="loading" :indeterminate="true" />
               <router-link to="/initreset">Forgot Password?</router-link>
             </v-container>
             <v-container v-else-if="resetPage">
@@ -60,21 +60,29 @@
                 @done="initReset"
                 @error="initReset({ data: { requestPasswordReset: false } })"
               >
-                <template v-slot="{ mutate, loading /*, error*/ }">
+                <template
+                  #default="{
+                    mutate: resetMutate,
+                    loading: resetLoading /*, error*/,
+                  }"
+                >
                   <v-text-field
                     v-model="email"
                     label="Email"
-                    @keypress="(e) => key(e, mutate)"
+                    @keypress="(e) => key(e, resetMutate)"
                   />
                   <v-btn
-                    :disabled="loading || !email"
+                    :disabled="resetLoading || !email"
                     label="Forgot Password"
                     :block="true"
                     color="accent"
-                    @click="mutate()"
+                    @click="resetMutate()"
                     >Forgot Password</v-btn
                   >
-                  <v-progress-circular :indeterminate="true" v-if="loading" />
+                  <v-progress-circular
+                    v-if="resetLoading"
+                    :indeterminate="true"
+                  />
                 </template>
               </ApolloMutation>
               <router-link to="/">Back to Login</router-link>
@@ -92,38 +100,46 @@
                   completeReset({ data: { completePasswordReset: false } })
                 "
               >
-                <template v-slot="{ mutate, loading /*, error*/ }">
+                <template
+                  #default="{
+                    mutate: resetMutate,
+                    loading: resetLoading /*, error*/,
+                  }"
+                >
                   <v-text-field
                     v-model="email"
                     label="Email"
-                    @keypress="(e) => key(e, mutate)"
+                    @keypress="(e) => key(e, resetMutate)"
                   />
                   <v-text-field
                     v-model="resetCode"
                     label="Password Reset Code"
-                    @keypress="(e) => key(e, mutate)"
+                    @keypress="(e) => key(e, resetMutate)"
                   />
                   <v-text-field
                     v-model="newPasswordOne"
                     label="New Password"
                     type="password"
-                    @keypress="(e) => key(e, mutate)"
+                    @keypress="(e) => key(e, resetMutate)"
                   />
                   <v-text-field
                     v-model="newPasswordTwo"
                     label="Confirm New Password"
                     type="password"
-                    @keypress="(e) => key(e, mutate)"
+                    @keypress="(e) => key(e, resetMutate)"
                   />
                   <v-btn
-                    :disabled="loading || !newPassword || !resetCode"
+                    :disabled="resetLoading || !newPassword || !resetCode"
                     label="Set New Password"
                     :block="true"
                     color="accent"
-                    @click="mutate()"
+                    @click="resetMutate()"
                     >Set New Password</v-btn
                   >
-                  <v-progress-circular :indeterminate="true" v-if="loading" />
+                  <v-progress-circular
+                    v-if="resetLoading"
+                    :indeterminate="true"
+                  />
                 </template>
               </ApolloMutation>
               <router-link to="/">Back to Login</router-link>
@@ -133,13 +149,13 @@
       </div>
       <v-snackbar v-if="failedLogin" v-model="failedLogin" color="error">
         Couldn't login, try again.
-        <template v-slot:action="{ attrs }">
+        <template #action="{ attrs }">
           <v-btn v-bind="attrs" @click="failedLogin = false">OK</v-btn>
         </template>
       </v-snackbar>
       <v-snackbar v-if="failedReset" v-model="failedReset" color="error"
         >Could not reset password, try again.
-        <template v-slot:action="{ attrs }">
+        <template #action="{ attrs }">
           <v-btn v-bind="attrs" @click="failedReset = false"
             >OK</v-btn
           ></template
@@ -147,7 +163,7 @@
       </v-snackbar>
       <v-snackbar v-if="successReset" v-model="successReset" color="accent"
         >Password reset successfully. Please login.
-        <template v-slot:action="{ attrs }">
+        <template #action="{ attrs }">
           <v-btn v-bind="attrs" @click="successReset = false"
             >OK</v-btn
           ></template
@@ -156,7 +172,7 @@
       <v-snackbar v-if="initedReset" v-model="initedReset" color="accent"
         >A password reset code has been sent to your email, enter it to reset
         your password.
-        <template v-slot:action="{ attrs }">
+        <template #action="{ attrs }">
           <v-btn v-bind="attrs" @click="initedReset = false"
             >OK</v-btn
           ></template

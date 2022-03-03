@@ -5,14 +5,14 @@
       @result="
         (result) => {
           if (result && result.data && result.data.user) {
-            this.name = result.data.user.name;
-            this.notifyViaEmail = result.data.user.notifyViaEmail;
-            this.setTz(result.data.user.timeZoneId);
+            name = result.data.user.name;
+            notifyViaEmail = result.data.user.notifyViaEmail;
+            setTz(result.data.user.timeZoneId);
           }
         }
       "
     >
-      <template v-slot="{ result: { error, data }, isLoading }">
+      <template #default="{ result: { error, data }, isLoading }">
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
@@ -34,7 +34,7 @@
             @error="done(false)"
             @done="done(true)"
           >
-            <template v-slot="{ mutate, loading }">
+            <template #default="{ mutate, loading }">
               <v-row>
                 <v-col cols="12">
                   <v-card>
@@ -51,9 +51,9 @@
                         @keypress="(e) => key(e, mutate)"
                       ></v-text-field>
                       <v-autocomplete
+                        v-model="timezone"
                         :items="tzs"
                         label="Timezone"
-                        v-model="timezone"
                         item-text="name"
                         item-value="value"
                       ></v-autocomplete>
@@ -63,14 +63,14 @@
                       ></v-checkbox>
                     </v-card-text>
                     <v-card-actions>
-                      <v-btn @click="mutate()" color="accent">Save</v-btn>
+                      <v-btn color="accent" @click="mutate()">Save</v-btn>
                       <div v-if="loading">
                         <v-progress-circular :indeterminate="true" />
                       </div>
                     </v-card-actions>
                     <v-snackbar v-model="saveError" color="error"
                       >Could not save settings, try again.
-                      <template v-slot:action="{ attrs }">
+                      <template #action="{ attrs }">
                         <v-btn v-bind="attrs" @click="saveError = false"
                           >OK</v-btn
                         ></template
@@ -78,7 +78,7 @@
                     </v-snackbar>
                     <v-snackbar v-model="saveConfirm" color="accent"
                       >Settings saved.
-                      <template v-slot:action="{ attrs }">
+                      <template #action="{ attrs }">
                         <v-btn v-bind="attrs" @click="saveConfirm = false"
                           >OK</v-btn
                         ></template
@@ -101,7 +101,7 @@
             @error="donePass({ data: { changePassword: false } })"
             @done="donePass"
           >
-            <template v-slot="{ mutate, loading }">
+            <template #default="{ mutate, loading }">
               <v-row>
                 <v-col cols="12">
                   <v-card>
@@ -127,14 +127,14 @@
                       ></v-text-field>
                     </v-card-text>
                     <v-card-actions>
-                      <v-btn @click="mutate()" color="accent">Save</v-btn>
+                      <v-btn color="accent" @click="mutate()">Save</v-btn>
                       <div v-if="loading">
                         <v-progress-circular :indeterminate="true" />
                       </div>
                     </v-card-actions>
                     <v-snackbar v-model="passError" color="error"
                       >Could not change password, try again.
-                      <template v-slot:action="{ attrs }">
+                      <template #action="{ attrs }">
                         <v-btn v-bind="attrs" @click="passError = false"
                           >OK</v-btn
                         ></template
@@ -142,7 +142,7 @@
                     </v-snackbar>
                     <v-snackbar v-model="passConfirm" color="accent"
                       >Password changed.
-                      <template v-slot:action="{ attrs }">
+                      <template #action="{ attrs }">
                         <v-btn v-bind="attrs" @click="passConfirm = false"
                           >OK
                         </v-btn></template
