@@ -57,7 +57,7 @@
           <v-list nav>
             <v-list-item two-line @click="navDrawMini = !navDrawMini">
               <v-list-item-icon>
-                <v-img alt="Quizzy" src="./assets/logo.png" width="24" />
+                <v-img alt="Quizzy" :src="logo" width="24" />
               </v-list-item-icon>
               <v-list-item-title>{{
                 data.user.instance.name
@@ -115,6 +115,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Login from "@/components/Login.vue";
+import logo from "@/assets/logo.png";
 
 export default Vue.extend({
   name: "App",
@@ -123,6 +124,7 @@ export default Vue.extend({
   },
   data: () => ({
     navDrawMini: true,
+    logo: logo,
     commonLinks: [
       { title: "Current Questions", link: "/", icon: "mdi-file-find" },
       { title: "Completed Questions", link: "/review", icon: "mdi-history" },

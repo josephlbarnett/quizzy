@@ -17,13 +17,13 @@
     },
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
-  "files": ["node_modules/vue-cli-plugin-apollo/types.d.ts"],
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
     "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "tests/**/*.tsx",
+    "components.d.ts"
   ],
   "exclude": ["node_modules"]
 }
