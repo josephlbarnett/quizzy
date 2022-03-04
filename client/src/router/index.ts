@@ -7,38 +7,27 @@ const routes = [
   {
     path: "/",
     name: "Current Questions",
-    component: () =>
-      import(
-        /* webpackChunkName: "currentQuestions" */ "../views/CurrentQuestions.vue"
-      ),
+    component: () => import("../views/CurrentQuestions.vue"),
   },
   {
     path: "/write",
     name: "Future Questions",
-    component: () =>
-      import(
-        /* webpackChunkName: "futureQuestions" */ "../views/FutureQuestions.vue"
-      ),
+    component: () => import("../views/FutureQuestions.vue"),
   },
   {
     path: "/review",
     name: "Completed Questions",
-    component: () =>
-      import(
-        /* webpackChunkName: "completedQuestions" */ "../views/CompletedQuestions.vue"
-      ),
+    component: () => import("../views/CompletedQuestions.vue"),
   },
   {
     path: "/users",
     name: "Users",
-    component: () =>
-      import(/* webpackChunkName: "users" */ "../views/Users.vue"),
+    component: () => import("../views/Users.vue"),
   },
   {
     path: "/grade",
     name: "Grade",
-    component: () =>
-      import(/* webpackChunkName: "grade" */ "../views/Grade.vue"),
+    component: () => import("../views/Grade.vue"),
   },
   {
     path: "/me",
@@ -46,7 +35,7 @@ const routes = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "user" */ "../views/User.vue"),
+    component: () => import("../views/User.vue"),
   },
 ];
 
