@@ -44,7 +44,7 @@
     "cache-loader": "^4.1.0",
     "eslint": "^8.12.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-vue": "^7.20.0",
+    "eslint-plugin-vue": "^8.5.0",
     "graphql-tag": "^2.12.6",
     "jest": "^27.5.1",
     "jest-transform-graphql": "^2.1.0",
