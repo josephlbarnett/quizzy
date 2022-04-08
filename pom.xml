@@ -19,7 +19,7 @@
         <version.google-http-client>1.41.5</version.google-http-client>
         <version.google-oauth-client>1.33.1</version.google-oauth-client>
         <version.jakarta-mail>1.6.7</version.jakarta-mail>
-        <version.ktor>1.6.8</version.ktor>
+        <version.ktor>2.0.0</version.ktor>
     </properties>
 
     <dependencyManagement>

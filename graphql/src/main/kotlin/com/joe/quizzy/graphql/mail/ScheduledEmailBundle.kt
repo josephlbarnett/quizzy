@@ -14,8 +14,10 @@ import io.dropwizard.Configuration
 import io.dropwizard.ConfiguredBundle
 import io.dropwizard.setup.Environment
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.get
+import io.ktor.client.request.url
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -184,7 +186,9 @@ class ScheduledEmailBundle(
                     val now = OffsetDateTime.now()
                     if (now.minute % minuteMod == 0) {
                         runCatching {
-                            log.trace(client.get<String>("https://${appConfig.corsDomains[0]}/app/ping"))
+                            log.trace(
+                                client.get { url("https://${appConfig.corsDomains[0]}/app/ping") }.body<String>()
+                            )
                         }
                         sendEmails(now)
                     }
