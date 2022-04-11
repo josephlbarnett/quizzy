@@ -92,7 +92,7 @@ import { ApiUser } from "@/generated/types";
 import CreateUserButton from "@/components/CreateUserButton.vue";
 
 export default Vue.extend({
-  name: "Users",
+  name: "UsersList",
   components: { CreateUserButton },
   data: () => ({
     users: [],

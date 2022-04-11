@@ -2,11 +2,13 @@
 // We suggest you to commit this file into source control
 // Read more: https://github.com/vuejs/vue-next/pull/3399
 
-declare module 'vue' {
+declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     CreateUserButton: typeof import('./src/components/CreateUserButton.vue')['default']
     DateTimePicker: typeof import('./src/components/DateTimePicker.vue')['default']
     Login: typeof import('./src/components/Login.vue')['default']
+    RouterLink: typeof import('vue-router')['RouterLink']
+    RouterView: typeof import('vue-router')['RouterView']
     VApp: typeof import('vuetify/lib')['VApp']
     VAppBar: typeof import('vuetify/lib')['VAppBar']
     VAppBarNavIcon: typeof import('vuetify/lib')['VAppBarNavIcon']
