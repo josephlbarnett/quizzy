@@ -165,7 +165,7 @@ import moment from "moment-timezone";
 import { ApiResponse } from "@/generated/types";
 
 export default Vue.extend({
-  name: "Grader",
+  name: "ResponseGrader",
   data: () => ({
     userTZ: "Autodetect",
     headers: [

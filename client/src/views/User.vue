@@ -164,7 +164,7 @@ import Vue from "vue";
 import moment from "moment-timezone";
 
 export default Vue.extend({
-  name: "User",
+  name: "UserSettings",
   data: () => ({
     saveError: false,
     saveConfirm: false,

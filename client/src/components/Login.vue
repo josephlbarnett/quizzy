@@ -185,7 +185,7 @@
 import Vue from "vue";
 
 export default Vue.extend({
-  name: "Login",
+  name: "LoginRouterWrapper",
   data: function () {
     return {
       email: this.$route.query.email || "",

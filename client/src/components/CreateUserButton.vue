@@ -99,7 +99,7 @@ type AddUserInfo = {
 };
 
 export default Vue.extend({
-  name: "Login",
+  name: "CreateUserButton",
   data: function () {
     return {
       singleName: "",
