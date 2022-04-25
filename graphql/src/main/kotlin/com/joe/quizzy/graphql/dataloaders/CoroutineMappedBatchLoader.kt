@@ -1,5 +1,7 @@
 package com.joe.quizzy.graphql.dataloaders
 
+import com.trib3.graphql.resources.getInstance
+import graphql.GraphQLContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
@@ -12,7 +14,7 @@ abstract class CoroutineMappedBatchLoader<K, V> :
     CoroutineScope by CoroutineScope(Dispatchers.Default) {
 
     private fun scope(environment: BatchLoaderEnvironment): CoroutineScope {
-        return (environment.getContext() as? CoroutineScope) ?: this
+        return environment.getContext<GraphQLContext>().getInstance<CoroutineScope>() ?: this
     }
 
     abstract suspend fun loadSuspend(keys: Set<K>, environment: BatchLoaderEnvironment): Map<K, V>

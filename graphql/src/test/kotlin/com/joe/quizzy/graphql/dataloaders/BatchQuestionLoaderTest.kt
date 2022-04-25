@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.trib3.testing.LeakyMock
+import graphql.GraphQLContext
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.dataloader.BatchLoaderEnvironment
@@ -26,7 +27,7 @@ class BatchQuestionLoaderTest {
             Question(UUID.randomUUID(), UUID.randomUUID(), "q3", "a3", "r3", now, now)
         )
         EasyMock.expect(questionDAO.get(EasyMock.anyObject<List<UUID>>() ?: listOf())).andReturn(questions)
-        EasyMock.expect(mockEnv.getContext<Any?>()).andReturn(null)
+        EasyMock.expect(mockEnv.getContext<Any?>()).andReturn(GraphQLContext.newContext().build())
         EasyMock.replay(questionDAO, mockEnv)
         val qs = loader.load(questions.mapNotNull { it.id }.toSet(), mockEnv).await()
         assertThat(qs).isEqualTo(questions.associateBy { it.id })

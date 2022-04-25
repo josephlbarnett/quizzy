@@ -1,9 +1,9 @@
 mutation SaveQuestion(
-  $activeAt: OffsetDateTime!
+  $activeAt: DateTime!
   $answer: String!
   $authorId: UUID!
   $body: String!
-  $closedAt: OffsetDateTime!
+  $closedAt: DateTime!
   $id: UUID
   $ruleReferences: String!
 ) {

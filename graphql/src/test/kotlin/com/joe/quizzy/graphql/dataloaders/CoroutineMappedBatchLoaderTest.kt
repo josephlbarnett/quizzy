@@ -6,6 +6,8 @@ import assertk.assertions.isFailure
 import assertk.assertions.isLessThan
 import assertk.assertions.messageContains
 import com.trib3.testing.LeakyMock
+import graphql.GraphQLContext
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
@@ -28,7 +30,7 @@ class CoroutineMappedBatchLoaderTest {
             }
         }
         val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
-        EasyMock.expect(mockEnv.getContext<Any?>()).andReturn(null)
+        EasyMock.expect(mockEnv.getContext<Any?>()).andReturn(GraphQLContext.newContext().build())
         EasyMock.replay(mockEnv)
         val loaded = loader.load(setOf("1", "2", "3"), mockEnv).await()
         assertThat(loaded).isEqualTo(mapOf("1" to "1", "2" to "2", "3" to "3"))
@@ -47,7 +49,7 @@ class CoroutineMappedBatchLoaderTest {
             }
         }
         val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
-        EasyMock.expect(mockEnv.getContext<Any?>()).andReturn(this)
+        EasyMock.expect(mockEnv.getContext<Any?>()).andReturn(GraphQLContext.of(mapOf(CoroutineScope::class to this)))
         EasyMock.replay(mockEnv)
         val loading = loader.load(setOf("1", "2", "3"), mockEnv)
         this.coroutineContext[Job]?.cancelChildren()
