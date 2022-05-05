@@ -87,7 +87,7 @@
 <script lang="ts">
 import Vue from "vue";
 import Papa from "papaparse";
-import { MutationBaseOptions } from "apollo-client/core/watchQueryOptions";
+import { MutationBaseOptions } from "@apollo/client/core/watchQueryOptions";
 import { User } from "@/generated/types";
 import { ExecutionResult } from "graphql";
 import AddUser from "@/graphql/AddUser.gql";

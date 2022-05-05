@@ -3,7 +3,10 @@ import CreateUserButton from "@/components/CreateUserButton.vue";
 import { createMockClient, MockApolloClient } from "mock-apollo-client";
 import VueApollo from "vue-apollo";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
+import UsersQuery from "@/graphql/Users.gql";
 import vuetify from "@/plugins/vuetify";
+import { awaitVm } from "../TestUtils";
+
 // silence a VDialog warning!?
 document.body.setAttribute("data-app", "true");
 
@@ -23,14 +26,20 @@ const mockUser = {
   __typename: "ApiUser",
 };
 
-function mountComponent(mockClient: MockApolloClient) {
-  return mount(CreateUserButton, {
+async function mountComponent(mockClient: MockApolloClient) {
+  const component = mount(CreateUserButton, {
     stubs: [],
     vuetify,
     apolloProvider: new VueApollo({
       defaultClient: mockClient,
     }),
   });
+  // watch the "Users" query to prevent warning on refetchQueries setting
+  mockClient.setRequestHandler(UsersQuery, () =>
+    Promise.resolve({ data: { users: [] } })
+  );
+  await component.vm.$apollo.watchQuery({ query: UsersQuery });
+  return component;
 }
 
 describe("CreateUserButton tests", () => {
@@ -39,7 +48,7 @@ describe("CreateUserButton tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const component = mountComponent(mockClient);
+    const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
     expect(component.findAll(".v-text-field").length).toBe(2);
     expect(component.findAll(".v-text-field").at(0).text()).toBe("Name");
@@ -52,10 +61,10 @@ describe("CreateUserButton tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const component = mountComponent(mockClient);
+    const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
     await component.findAll(".v-tab").at(1).trigger("click");
-    await component.vm.$nextTick();
+    await awaitVm(component);
     expect(component.find(".v-tab--active").text()).toBe("Add Multiple");
     expect(component.findAll(".v-textarea").length).toBe(1);
     expect(component.findAll(".v-file-input").length).toBe(1);
@@ -66,7 +75,7 @@ describe("CreateUserButton tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const component = mountComponent(mockClient);
+    const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
     await component
       .findAll(".v-text-field")
@@ -93,7 +102,7 @@ describe("CreateUserButton tests", () => {
       .at(1)
       .find("input")
       .setValue("a@b.com");
-    await component.vm.$nextTick();
+    await awaitVm(component);
     expect(
       component
         .findAll("button")
@@ -121,16 +130,15 @@ describe("CreateUserButton tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const component = mountComponent(mockClient);
+    const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
     await component.findAll(".v-tab").at(1).trigger("click");
-    await component.vm.$nextTick();
+    await awaitVm(component);
     await component
       .find(".v-textarea")
       .find("textarea")
       .setValue("name1,a@b.com\nname2,c@d.com\ne@f.com\ng");
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
+    await awaitVm(component);
     expect(component.vm.$data.textarea).toBe(
       "name1,a@b.com\nname2,c@d.com\ne@f.com\ng"
     );
@@ -146,17 +154,16 @@ describe("CreateUserButton tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const component = mountComponent(mockClient);
+    const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
     await component.findAll(".v-tab").at(1).trigger("click");
-    await component.vm.$nextTick();
+    await awaitVm(component);
     const input = component.find(".v-file-input").find("input");
     Object.defineProperty(input.element, "files", {
       get: () => ["name1,a@b.com\nname2,c@d.com\ne@f.com\ng"],
     });
     await input.trigger("change");
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
+    await awaitVm(component);
     expect(component.vm.$data.uploadedCsv).toBeTruthy();
     expect(component.vm.$data.users).toEqual([
       { name: "name1", email: "a@b.com" },
@@ -170,17 +177,15 @@ describe("CreateUserButton tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const component = mountComponent(mockClient);
+    const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
     await component.findAll(".v-tab").at(1).trigger("click");
-    await component.vm.$nextTick();
+    await awaitVm(component);
     await component
       .find(".v-textarea")
       .find("textarea")
       .setValue("name1,a@b.com\nname2,c@d.com\ne@f.com\ng");
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
+    await awaitVm(component);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockClient.setRequestHandler((component.vm as any).getQueryDocument(), () =>
       Promise.resolve({
@@ -192,9 +197,7 @@ describe("CreateUserButton tests", () => {
       .filter((b) => b.text().indexOf("Create") == 0)
       .at(0)
       .trigger("click");
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
+    await awaitVm(component);
     expect(component.vm.$data.addedSuccesfully).toBe(3);
     expect(component.find(".v-snack").text()).toContain("Added 3 new users.");
     expect(component.vm.$data.addedWithError).toBe(0);
@@ -206,17 +209,15 @@ describe("CreateUserButton tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const component = mountComponent(mockClient);
+    const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
     await component.findAll(".v-tab").at(1).trigger("click");
-    await component.vm.$nextTick();
+    await awaitVm(component);
     await component
       .find(".v-textarea")
       .find("textarea")
       .setValue("name1,a@b.com\nname2,c@d.com\ne@f.com\ng");
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
+    await awaitVm(component);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockClient.setRequestHandler((component.vm as any).getQueryDocument(), () =>
       Promise.resolve({
@@ -229,9 +230,7 @@ describe("CreateUserButton tests", () => {
       .filter((b) => b.text().indexOf("Create") == 0)
       .at(0)
       .trigger("click");
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
+    await awaitVm(component);
     expect(component.vm.$data.addedSuccesfully).toBe(2);
     expect(component.find(".v-snack").text()).toContain("Added 2 new users.");
     expect(component.vm.$data.addedWithError).toBe(1);
@@ -246,17 +245,15 @@ describe("CreateUserButton tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const component = mountComponent(mockClient);
+    const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
     await component.findAll(".v-tab").at(1).trigger("click");
-    await component.vm.$nextTick();
+    await awaitVm(component);
     await component
       .find(".v-textarea")
       .find("textarea")
       .setValue("name1,a@b.com\nname2,c@d.com\ne@f.com\ng");
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
+    await awaitVm(component);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mockClient.setRequestHandler((component.vm as any).getQueryDocument(), () =>
       Promise.resolve({
@@ -269,9 +266,7 @@ describe("CreateUserButton tests", () => {
       .filter((b) => b.text().indexOf("Create") == 0)
       .at(0)
       .trigger("click");
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
-    await component.vm.$nextTick();
+    await awaitVm(component);
     expect(component.vm.$data.addedSuccesfully).toBe(0);
     expect(component.find(".v-snack").text()).not.toMatch(
       /Added \d+ new users./

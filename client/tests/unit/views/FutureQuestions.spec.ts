@@ -7,6 +7,7 @@ import futureQuestionsQuery from "@/graphql/FutureQuestions.gql";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import saveQuestionMutation from "@/graphql/SaveQuestion.gql";
 import moment from "moment-timezone";
+import { awaitVm } from "../TestUtils";
 // silence a VDialog warning!?
 document.body.setAttribute("data-app", "true");
 
@@ -49,14 +50,16 @@ const mockQuestions = [
   },
 ];
 
-function mountFutureQuestions(mockClient: MockApolloClient) {
-  return mount(FutureQuestions, {
+async function mountFutureQuestions(mockClient: MockApolloClient) {
+  const page = mount(FutureQuestions, {
     stubs: ["date-time-picker"],
     vuetify,
     apolloProvider: new VueApollo({
       defaultClient: mockClient,
     }),
   });
+  await awaitVm(page);
+  return page;
 }
 
 describe("Future Questions page tests", () => {
@@ -69,8 +72,7 @@ describe("Future Questions page tests", () => {
           // never resolve
         })
     );
-    const page = mountFutureQuestions(mockClient);
-    await page.vm.$nextTick();
+    const page = await mountFutureQuestions(mockClient);
     expect(page.find(".v-progress-circular").vm.$props.indeterminate).toBe(
       true
     );
@@ -81,9 +83,7 @@ describe("Future Questions page tests", () => {
     mockClient.setRequestHandler(futureQuestionsQuery, () =>
       Promise.resolve({ data: null, errors: [{ message: "Error" }] })
     );
-    const page = mountFutureQuestions(mockClient);
-    await page.vm.$nextTick();
-    await page.vm.$nextTick();
+    const page = await mountFutureQuestions(mockClient);
     expect(page.text()).toBe("An error occurred");
   });
 
@@ -97,8 +97,7 @@ describe("Future Questions page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: nullTZUser } })
     );
-    const page = mountFutureQuestions(mockClient);
-    await page.vm.$nextTick();
+    const page = await mountFutureQuestions(mockClient);
     expect(page.vm.$data.timezone).toBe("Autodetect");
   });
 
@@ -110,9 +109,7 @@ describe("Future Questions page tests", () => {
     mockClient.setRequestHandler(futureQuestionsQuery, () =>
       Promise.resolve({ data: { futureQuestions: mockQuestions } })
     );
-    const page = mountFutureQuestions(mockClient);
-    await page.vm.$nextTick();
-    await page.vm.$nextTick();
+    const page = await mountFutureQuestions(mockClient);
     expect(page.vm.$data.timezone).toBe("UTC");
     const rows = page.findAll("tbody tr");
     expect(rows.length).toBe(mockQuestions.length);
@@ -139,14 +136,12 @@ describe("Future Questions page tests", () => {
     mockClient.setRequestHandler(futureQuestionsQuery, () =>
       Promise.resolve({ data: { futureQuestions: mockQuestions } })
     );
-    const page = mountFutureQuestions(mockClient);
-    await page.vm.$nextTick();
-    await page.vm.$nextTick();
+    const page = await mountFutureQuestions(mockClient);
     const table = page.find(".v-data-table");
 
     for (let i = 0; i < mockQuestions.length; i++) {
       table.vm.$emit("click:row", mockQuestions[i]);
-      await page.vm.$nextTick();
+      await awaitVm(page);
       expect(page.vm.$data.addDialog).toBe(true);
       expect(page.vm.$data.addDialogId).toBe(mockQuestions[i].id);
       expect(page.vm.$data.addDialogBody).toBe(mockQuestions[i].body);
@@ -189,12 +184,10 @@ describe("Future Questions page tests", () => {
     );
     const mockMutation = jest.fn();
     mockClient.setRequestHandler(saveQuestionMutation, mockMutation);
-    const page = mountFutureQuestions(mockClient);
-    await page.vm.$nextTick();
-    await page.vm.$nextTick();
+    const page = await mountFutureQuestions(mockClient);
     const table = page.find(".v-data-table");
     table.vm.$emit("click:row", mockQuestions[0]);
-    await page.vm.$nextTick();
+    await awaitVm(page);
     const bodyInput = page
       .findAll(".v-dialog .v-textarea")
       .at(0)

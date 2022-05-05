@@ -4,6 +4,7 @@ import { createMockClient, MockApolloClient } from "mock-apollo-client";
 import VueApollo from "vue-apollo";
 import usersQuery from "@/graphql/Users.gql";
 import vuetify from "@/plugins/vuetify";
+import { awaitVm } from "../TestUtils";
 // silence a VDialog warning!?
 document.body.setAttribute("data-app", "true");
 
@@ -42,14 +43,16 @@ const mockUsers = [
   },
 ];
 
-function mountUsers(mockClient: MockApolloClient) {
-  return mount(Users, {
+async function mountUsers(mockClient: MockApolloClient) {
+  const page = mount(Users, {
     stubs: ["v-snackbar", "create-user-button"],
     vuetify,
     apolloProvider: new VueApollo({
       defaultClient: mockClient,
     }),
   });
+  await awaitVm(page);
+  return page;
 }
 
 describe("users page tests", () => {
@@ -62,8 +65,7 @@ describe("users page tests", () => {
           // never resolve
         })
     );
-    const usersPage = mountUsers(mockClient);
-    await usersPage.vm.$nextTick();
+    const usersPage = await mountUsers(mockClient);
     expect(usersPage.find(".v-progress-circular").vm.$props.indeterminate).toBe(
       true
     );
@@ -74,8 +76,7 @@ describe("users page tests", () => {
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } })
     );
-    const usersPage = mountUsers(mockClient);
-    await usersPage.vm.$nextTick();
+    const usersPage = await mountUsers(mockClient);
     const tableRows = usersPage.findAll("tbody tr");
     expect(tableRows.length).toBe(mockUsers.length);
     for (let i = 0; i < mockUsers.length; i++) {
@@ -88,18 +89,17 @@ describe("users page tests", () => {
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } })
     );
-    const usersPage = mountUsers(mockClient);
-    await usersPage.vm.$nextTick();
+    const usersPage = await mountUsers(mockClient);
     const table = usersPage.find(".v-data-table");
     expect(usersPage.vm.$data.selection).toBeFalsy();
     table.vm.$emit("input", [mockUsers[0]]);
-    await usersPage.vm.$nextTick();
+    await awaitVm(usersPage);
     expect(usersPage.vm.$data.selection).toBe(mockUsers[0]);
     table.vm.$emit("input", [mockUsers[1]]);
-    await usersPage.vm.$nextTick();
+    await awaitVm(usersPage);
     expect(usersPage.vm.$data.selection).toBe(mockUsers[1]);
     table.vm.$emit("input", []);
-    await usersPage.vm.$nextTick();
+    await awaitVm(usersPage);
     expect(usersPage.vm.$data.selection).toBeFalsy();
   });
 
@@ -108,8 +108,7 @@ describe("users page tests", () => {
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } })
     );
-    const usersPage = mountUsers(mockClient);
-    await usersPage.vm.$nextTick();
+    const usersPage = await mountUsers(mockClient);
     const table = usersPage.find(".v-data-table");
     const selectionCallback = jest.fn((selection: boolean) => {
       if (selection) {
@@ -135,12 +134,11 @@ describe("users page tests", () => {
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } })
     );
-    const usersPage = mountUsers(mockClient);
-    await usersPage.vm.$nextTick();
+    const usersPage = await mountUsers(mockClient);
     const table = usersPage.find(".v-data-table");
     expect(usersPage.vm.$data.selection).toBeFalsy();
     table.vm.$emit("input", [mockUsers[0]]);
-    await usersPage.vm.$nextTick();
+    await awaitVm(usersPage);
     const deleteButton = usersPage
       .findAll("button")
       .filter((x) => x.text() == "DELETE");
@@ -162,8 +160,7 @@ describe("users page tests", () => {
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } })
     );
-    const usersPage = mountUsers(mockClient);
-    await usersPage.vm.$nextTick();
+    const usersPage = await mountUsers(mockClient);
     const promoteButtonPreSelection = usersPage
       .findAll("button")
       .filter((x) => x.text() == "PROMOTE")
@@ -172,14 +169,14 @@ describe("users page tests", () => {
     const table = usersPage.find(".v-data-table");
     expect(usersPage.vm.$data.selection).toBeFalsy();
     table.vm.$emit("input", [mockUsers[1]]);
-    await usersPage.vm.$nextTick();
+    await awaitVm(usersPage);
     const promoteButton = usersPage
       .findAll("button")
       .filter((x) => x.text() == "PROMOTE")
       .at(0);
     expect(promoteButton.props().disabled).toBe(false);
     await promoteButton.trigger("click");
-    await usersPage.vm.$nextTick();
+    await awaitVm(usersPage);
     // TODO : test behavior once implemented
   });
 
@@ -188,8 +185,7 @@ describe("users page tests", () => {
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } })
     );
-    const usersPage = mountUsers(mockClient);
-    await usersPage.vm.$nextTick();
+    const usersPage = await mountUsers(mockClient);
     const demoteButtonPreSelection = usersPage
       .findAll("button")
       .filter((x) => x.text() == "DEMOTE")
@@ -198,14 +194,14 @@ describe("users page tests", () => {
     const table = usersPage.find(".v-data-table");
     expect(usersPage.vm.$data.selection).toBeFalsy();
     table.vm.$emit("input", [mockUsers[0]]);
-    await usersPage.vm.$nextTick();
+    await awaitVm(usersPage);
     const demoteButton = usersPage
       .findAll("button")
       .filter((x) => x.text() == "DEMOTE")
       .at(0);
     expect(demoteButton.props().disabled).toBe(false);
     await demoteButton.trigger("click");
-    await usersPage.vm.$nextTick();
+    await awaitVm(usersPage);
     // TODO : test behavior once implemented
   });
 });

@@ -6,6 +6,7 @@ import currentUserQuery from "@/graphql/CurrentUser.gql";
 import updateUserMutation from "@/graphql/UpdateUser.gql";
 import changePasswordMutation from "@/graphql/ChangePassword.gql";
 import vuetify from "@/plugins/vuetify";
+import { awaitVm } from "../TestUtils";
 
 const mockUser = {
   id: 123,
@@ -23,14 +24,16 @@ const mockUser = {
   __typename: "ApiUser",
 };
 
-function mountUser(mockClient: MockApolloClient) {
-  return mount(User, {
+async function mountUser(mockClient: MockApolloClient) {
+  const page = mount(User, {
     stubs: ["v-autocomplete", "v-snackbar"],
     vuetify,
     apolloProvider: new VueApollo({
       defaultClient: mockClient,
     }),
   });
+  await awaitVm(page);
+  return page;
 }
 
 describe("user page tests", () => {
@@ -43,7 +46,7 @@ describe("user page tests", () => {
           // never resolve
         })
     );
-    const userPage = mountUser(mockClient);
+    const userPage = await mountUser(mockClient);
     expect(userPage.find(".v-progress-circular").vm.$props.indeterminate).toBe(
       true
     );
@@ -54,8 +57,7 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ errors: [{ message: "Some Error" }], data: null })
     );
-    const userPage = mountUser(mockClient);
-    await userPage.vm.$nextTick();
+    const userPage = await mountUser(mockClient);
     expect(userPage.text()).toBe("An error occurred");
   });
 
@@ -64,8 +66,7 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const userPage = mountUser(mockClient);
-    await userPage.vm.$nextTick();
+    const userPage = await mountUser(mockClient);
     expect(userPage.vm.$data.timezone).toBe(mockUser.timeZoneId);
     expect(userPage.vm.$data.name).toBe(mockUser.name);
     expect(
@@ -83,8 +84,7 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: userWithBadTimezone } })
     );
-    const userPage = mountUser(mockClient);
-    await userPage.vm.$nextTick();
+    const userPage = await mountUser(mockClient);
     expect(userPage.vm.$data.timezone).toBe("Autodetect");
   });
 
@@ -97,12 +97,10 @@ describe("user page tests", () => {
       Promise.resolve({ data: { user: mockUser } })
     );
     mockClient.setRequestHandler(updateUserMutation, mutationMock);
-    const userPage = mountUser(mockClient);
-    await userPage.vm.$nextTick();
+    const userPage = await mountUser(mockClient);
     const button = userPage.findAll("button").at(0);
     await button.trigger("click");
-    await userPage.vm.$nextTick();
-    await userPage.vm.$nextTick();
+    await awaitVm(userPage);
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(userPage.vm.$data.saveConfirm).toBe(true);
     expect(userPage.vm.$data.saveError).toBe(false);
@@ -115,12 +113,10 @@ describe("user page tests", () => {
     );
     const mutationMock = jest.fn(() => Promise.reject("Error saving"));
     mockClient.setRequestHandler(updateUserMutation, mutationMock);
-    const userPage = mountUser(mockClient);
-    await userPage.vm.$nextTick();
+    const userPage = await mountUser(mockClient);
     const button = userPage.findAll("button").at(0);
     await button.trigger("click");
-    await userPage.vm.$nextTick();
-    await userPage.vm.$nextTick();
+    await awaitVm(userPage);
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(userPage.vm.$data.saveConfirm).toBe(false);
     expect(userPage.vm.$data.saveError).toBe(true);
@@ -135,12 +131,10 @@ describe("user page tests", () => {
       Promise.resolve({ data: { changePassword: true } })
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
-    const userPage = mountUser(mockClient);
-    await userPage.vm.$nextTick();
+    const userPage = await mountUser(mockClient);
     const button = userPage.findAll("button").at(1);
     await button.trigger("click");
-    await userPage.vm.$nextTick();
-    await userPage.vm.$nextTick();
+    await awaitVm(userPage);
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(userPage.vm.$data.passConfirm).toBe(true);
     expect(userPage.vm.$data.passError).toBe(false);
@@ -155,8 +149,7 @@ describe("user page tests", () => {
       Promise.resolve({ data: { changePassword: false }, rawInput: request })
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
-    const userPage = mountUser(mockClient);
-    await userPage.vm.$nextTick();
+    const userPage = await mountUser(mockClient);
     const oldPass = userPage
       .findAll(".v-text-field")
       .filter((x) => x.text() == "Current Password")
@@ -172,11 +165,10 @@ describe("user page tests", () => {
     oldPass.find("input").setValue("abcd");
     pass1.find("input").setValue("defg");
     pass2.find("input").setValue("defg");
-    await userPage.vm.$nextTick();
+    await awaitVm(userPage);
     const button = userPage.findAll("button").at(1);
     await button.trigger("click");
-    await userPage.vm.$nextTick();
-    await userPage.vm.$nextTick();
+    await awaitVm(userPage);
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(mutationMock.mock.calls[0][0].old).toBe("abcd");
     expect(mutationMock.mock.calls[0][0].new).toBe("defg");
@@ -193,8 +185,7 @@ describe("user page tests", () => {
       Promise.resolve({ data: { changePassword: true }, rawInput: request })
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
-    const userPage = mountUser(mockClient);
-    await userPage.vm.$nextTick();
+    const userPage = await mountUser(mockClient);
     const oldPass = userPage
       .findAll(".v-text-field")
       .filter((x) => x.text() == "Current Password")
@@ -210,11 +201,10 @@ describe("user page tests", () => {
     oldPass.find("input").setValue("abcd");
     pass1.find("input").setValue("defg");
     pass2.find("input").setValue("hijkl");
-    await userPage.vm.$nextTick();
+    await awaitVm(userPage);
     const button = userPage.findAll("button").at(1);
     await button.trigger("click");
-    await userPage.vm.$nextTick();
-    await userPage.vm.$nextTick();
+    await awaitVm(userPage);
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(userPage.vm.$data.passConfirm).toBe(true);
     expect(userPage.vm.$data.passError).toBe(false);
@@ -235,8 +225,7 @@ describe("user page tests", () => {
       Promise.resolve({ data: { user: mockUser } })
     );
     mockClient.setRequestHandler(updateUserMutation, userMutationMock);
-    const userPage = mountUser(mockClient);
-    await userPage.vm.$nextTick();
+    const userPage = await mountUser(mockClient);
     const inputs = userPage.findAll(".v-text-field");
     const nameInput = inputs.filter((x) => x.text() == "Name").at(0);
     await nameInput.vm.$emit("keypress", { key: "a" });

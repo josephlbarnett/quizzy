@@ -19,7 +19,7 @@
       :query="require('../graphql/CurrentQuestions.gql')"
       @result="
         (result) => {
-          activeQuestions = result.data.activeQuestions;
+          activeQuestions = result.data && result.data.activeQuestions;
         }
       "
     >

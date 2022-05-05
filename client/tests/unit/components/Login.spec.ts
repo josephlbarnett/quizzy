@@ -6,6 +6,7 @@ import currentUserQuery from "@/graphql/CurrentUser.gql";
 import loginMutation from "@/graphql/Login.gql";
 import requestPasswordResetMutation from "@/graphql/RequestPasswordReset.gql";
 import completePasswordResetMutation from "@/graphql/CompletePasswordReset.gql";
+import { awaitVm } from "../TestUtils";
 
 const mockUser = {
   id: 123,
@@ -23,12 +24,12 @@ const mockUser = {
   __typename: "ApiUser",
 };
 
-function mountLogin(
+async function mountLogin(
   mockClient: MockApolloClient,
   mockRoute = { query: {}, path: "/" },
   mockRouter = { push: jest.fn() }
 ) {
-  return mount(Login, {
+  const component = mount(Login, {
     stubs: ["router-view", "v-snackbar", "router-link"],
     apolloProvider: new VueApollo({
       defaultClient: mockClient,
@@ -38,6 +39,8 @@ function mountLogin(
       $router: mockRouter,
     },
   });
+  await awaitVm(component);
+  return component;
 }
 
 describe("Login Tests", () => {
@@ -46,7 +49,7 @@ describe("Login Tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const login = mountLogin(mockClient);
+    const login = await mountLogin(mockClient);
     expect(login.find("router-view-stub")).toBeTruthy();
   });
 
@@ -59,7 +62,7 @@ describe("Login Tests", () => {
           // never fulfill promise
         })
     );
-    const login = mountLogin(mockClient);
+    const login = await mountLogin(mockClient);
     expect(login.find(".v-progress-circular").vm.$props.indeterminate).toBe(
       true
     );
@@ -70,8 +73,7 @@ describe("Login Tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ errors: [{ message: "Some Error" }], data: null })
     );
-    const login = mountLogin(mockClient);
-    await login.vm.$nextTick();
+    const login = await mountLogin(mockClient);
     expect(login.text()).toBe("An error occurred");
   });
 
@@ -80,8 +82,7 @@ describe("Login Tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: null } })
     );
-    const login = mountLogin(mockClient);
-    await login.vm.$nextTick();
+    const login = await mountLogin(mockClient);
     const inputs = login.findAll(".v-text-field");
     expect(inputs.length).toBe(2);
     const userInput = inputs.at(0);
@@ -102,16 +103,15 @@ describe("Login Tests", () => {
       Promise.resolve({ data: { login: false }, passthrough: arg })
     );
     mockClient.setRequestHandler(loginMutation, mutationMock);
-    const login = mountLogin(mockClient);
+    const login = await mountLogin(mockClient);
     login.setData({ email: "joe@joe.com", pass: "secret" });
-    await login.vm.$nextTick();
+    await awaitVm(login);
     const button = login.find("button");
     await button.trigger("click");
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(mutationMock.mock.calls[0][0].email).toBe("joe@joe.com");
     expect(mutationMock.mock.calls[0][0].pass).toBe("secret");
-    await login.vm.$nextTick();
-    await login.vm.$nextTick();
+    await awaitVm(login);
     expect(login.find("v-snackbar-stub").text()).toBe(
       "Couldn't login, try again."
     );
@@ -128,15 +128,13 @@ describe("Login Tests", () => {
     );
     mockClient.setRequestHandler(loginMutation, mutationMock);
 
-    const login = mountLogin(mockClient);
-    await login.vm.$nextTick();
+    const login = await mountLogin(mockClient);
     const userInput = login.findAll(".v-text-field").at(0);
     await userInput.vm.$emit("keypress", { key: "a" });
     expect(mutationMock.mock.calls.length).toBe(0);
     await userInput.vm.$emit("keypress", { key: "Enter" });
     expect(mutationMock.mock.calls.length).toBe(1);
-    await login.vm.$nextTick();
-    await login.vm.$nextTick();
+    await awaitVm(login);
     expect(login.find("v-snackbar-stub").text()).toBe(
       "Couldn't login, try again."
     );
@@ -155,17 +153,16 @@ describe("Login Tests", () => {
     );
     mockClient.setRequestHandler(requestPasswordResetMutation, mutationMock);
     const pushMock = jest.fn();
-    const login = mountLogin(
+    const login = await mountLogin(
       mockClient,
       { query: {}, path: "/initreset" },
       { push: pushMock }
     );
     login.setData({ email: "joe@joe.com" });
-    await login.vm.$nextTick();
+    await awaitVm(login);
     const button = login.find("button");
     await button.trigger("click");
-    await login.vm.$nextTick();
-    await login.vm.$nextTick();
+    await awaitVm(login);
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(mutationMock.mock.calls[0][0].email).toBe("joe@joe.com");
     expect(pushMock.mock.calls.length).toBe(1);
@@ -185,16 +182,16 @@ describe("Login Tests", () => {
     );
     mockClient.setRequestHandler(requestPasswordResetMutation, mutationMock);
     const pushMock = jest.fn();
-    const login = mountLogin(
+    const login = await mountLogin(
       mockClient,
       { query: {}, path: "/initreset" },
       { push: pushMock }
     );
     login.setData({ email: "joe@joe.com" });
-    await login.vm.$nextTick();
+    await awaitVm(login);
     const button = login.find("button");
     await button.trigger("click");
-    await login.vm.$nextTick();
+    await awaitVm(login);
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(mutationMock.mock.calls[0][0].email).toBe("joe@joe.com");
     expect(pushMock.mock.calls.length).toBe(0);
@@ -213,12 +210,11 @@ describe("Login Tests", () => {
     );
     mockClient.setRequestHandler(completePasswordResetMutation, mutationMock);
     const pushMock = jest.fn();
-    const login = mountLogin(
+    const login = await mountLogin(
       mockClient,
       { query: { code: "123", email: "joe@joe.com" }, path: "/passreset" },
       { push: pushMock }
     );
-    await login.vm.$nextTick();
     const button = login.find("button");
     const pw1Input = login
       .findAll(".v-input")
@@ -234,8 +230,7 @@ describe("Login Tests", () => {
     expect(mutationMock.mock.calls.length).toBe(0);
     await pw2Input.find("input").setValue("456");
     await button.trigger("click");
-    await login.vm.$nextTick();
-    await login.vm.$nextTick();
+    await awaitVm(login);
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(mutationMock.mock.calls[0][0].email).toBe("joe@joe.com");
     expect(mutationMock.mock.calls[0][0].code).toBe("123");
@@ -257,12 +252,11 @@ describe("Login Tests", () => {
     );
     mockClient.setRequestHandler(completePasswordResetMutation, mutationMock);
     const pushMock = jest.fn();
-    const login = mountLogin(
+    const login = await mountLogin(
       mockClient,
       { query: { code: "123", email: "joe@joe.com" }, path: "/passreset" },
       { push: pushMock }
     );
-    await login.vm.$nextTick();
     const button = login.find("button");
     const pw1Input = login
       .findAll(".v-input")
@@ -275,8 +269,7 @@ describe("Login Tests", () => {
     await pw1Input.find("input").setValue("456");
     await pw2Input.find("input").setValue("456");
     await button.trigger("click");
-    await login.vm.$nextTick();
-    await login.vm.$nextTick();
+    await awaitVm(login);
     expect(mutationMock.mock.calls.length).toBe(1);
     expect(mutationMock.mock.calls[0][0].email).toBe("joe@joe.com");
     expect(mutationMock.mock.calls[0][0].code).toBe("123");

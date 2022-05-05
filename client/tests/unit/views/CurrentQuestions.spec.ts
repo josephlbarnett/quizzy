@@ -8,6 +8,7 @@ import vuetify from "@/plugins/vuetify";
 import VueApollo from "vue-apollo";
 import moment from "moment-timezone";
 import completedQuestionQuery from "@/graphql/CompletedQuestions.gql";
+import { awaitVm } from "../TestUtils";
 // silence a VDialog warning!?
 document.body.setAttribute("data-app", "true");
 
@@ -60,14 +61,16 @@ const mockQuestions = [
   },
 ];
 
-function mountCurrentQuestions(mockClient: MockApolloClient) {
-  return mount(CurrentQuestions, {
+async function mountCurrentQuestions(mockClient: MockApolloClient) {
+  const page = mount(CurrentQuestions, {
     stubs: [],
     vuetify,
     apolloProvider: new VueApollo({
       defaultClient: mockClient,
     }),
   });
+  await awaitVm(page);
+  return page;
 }
 
 describe("Current questions page tests", () => {
@@ -80,8 +83,7 @@ describe("Current questions page tests", () => {
           // never resolve
         })
     );
-    const page = mountCurrentQuestions(mockClient);
-    await page.vm.$nextTick();
+    const page = await mountCurrentQuestions(mockClient);
     expect(page.find(".v-progress-circular").vm.$props.indeterminate).toBe(
       true
     );
@@ -92,9 +94,7 @@ describe("Current questions page tests", () => {
     mockClient.setRequestHandler(currentQuestionsQuery, () =>
       Promise.resolve({ data: null, errors: [{ message: "some error" }] })
     );
-    const page = mountCurrentQuestions(mockClient);
-    await page.vm.$nextTick();
-    await page.vm.$nextTick();
+    const page = await mountCurrentQuestions(mockClient);
     expect(page.text()).toBe("An error occurred");
   });
 
@@ -106,9 +106,7 @@ describe("Current questions page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } })
     );
-    const page = mountCurrentQuestions(mockClient);
-    await page.vm.$nextTick();
-    await page.vm.$nextTick();
+    const page = await mountCurrentQuestions(mockClient);
     const rows = page.findAll("tbody tr");
     expect(rows.length).toBe(mockQuestions.length);
     for (let i = 0; i < rows.length; i++) {
@@ -136,14 +134,11 @@ describe("Current questions page tests", () => {
     );
     const mockMutation = jest.fn();
     mockClient.setRequestHandler(saveResponseMutation, mockMutation);
-    const page = mountCurrentQuestions(mockClient);
-    await page.vm.$nextTick();
-    await page.vm.$nextTick();
+    const page = await mountCurrentQuestions(mockClient);
     const table = page.find(".v-data-table");
     for (let i = 0; i < mockQuestions.length; i++) {
       table.vm.$emit("click:row", mockQuestions[i]);
-      await page.vm.$nextTick();
-      await page.vm.$nextTick();
+      await awaitVm(page);
       expect(page.find(".v-dialog .v-card__title").text()).toContain(
         mockQuestions[i].author.name
       );
@@ -198,8 +193,7 @@ describe("Current questions page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: nullTZUser } })
     );
-    const page = mountCurrentQuestions(mockClient);
-    await page.vm.$nextTick();
+    const page = await mountCurrentQuestions(mockClient);
     expect(page.vm.$data.userTZ).toBe("Autodetect");
   });
 });
