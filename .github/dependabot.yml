@@ -19,9 +19,6 @@ updates:
     separator: "-"
   open-pull-requests-limit: 99
   ignore:
-  - dependency-name: mock-apollo-client
-    versions:
-    - ">= 1.0.0"
   - dependency-name: sass  # deprecated `/` for division
     versions:
     - ">= 1.33.0"
