@@ -21,7 +21,7 @@ module.exports = {
     "^.+\\.(js|ts)$": "babel-jest",
     "^.+\\.sass$": "jest-transform-stub",
     "^.+\\.vue$": "@vue/vue2-jest",
-    "^.+\\.gql$": "jest-transform-graphql",
+    "^.+\\.gql$": "./tests/unit/gqlTransformer", // "jest-transform-graphql",
   },
   transformIgnorePatterns: ["/node_modules/(?!vuetify)/"],
   setupFilesAfterEnv: ["<rootDir>/tests/unit/setup.ts"],
