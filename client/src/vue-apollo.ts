@@ -1,8 +1,10 @@
 import Vue from "vue";
 import VueApollo, { ApolloProvider } from "vue-apollo";
-import { ApolloClient } from "@apollo/client/core";
-import { createHttpLink } from "@apollo/client";
-import { InMemoryCache } from "@apollo/client/cache";
+import {
+  ApolloClient,
+  createHttpLink,
+  InMemoryCache,
+} from "@apollo/client/core";
 
 // Install the vue plugin
 Vue.use(VueApollo);
