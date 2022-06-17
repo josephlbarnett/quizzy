@@ -42,7 +42,7 @@
     "@vue/vue2-jest": "^28.0.0",
     "babel-jest": "^28.1.1",
     "cache-loader": "^4.1.0",
-    "eslint": "^8.17.0",
+    "eslint": "^8.18.0",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^8.7.1",
     "flush-promises": "^1.0.2",
