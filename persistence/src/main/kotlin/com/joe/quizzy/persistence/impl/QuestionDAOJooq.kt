@@ -16,6 +16,7 @@ import org.jooq.SelectConditionStep
 import org.jooq.SelectOnConditionStep
 import java.time.OffsetDateTime
 import java.util.UUID
+import java.util.stream.Collector
 import java.util.stream.Collectors
 import java.util.stream.Stream
 import javax.inject.Inject
@@ -33,19 +34,18 @@ open class QuestionDAOJooq
     val questionsAndChoices =
         Tables.QUESTIONS.leftJoin(Tables.ANSWER_CHOICES).on(Tables.QUESTIONS.ID.eq(Tables.ANSWER_CHOICES.QUESTION_ID))
 
-    val collector = Collectors.groupingBy(
+    val collector: Collector<Record, *, Map<Question, List<AnswerChoice>>> = Collectors.groupingBy(
         { it.into(Tables.QUESTIONS).into(Question::class.java) },
         ::LinkedHashMap, // use a linked hashmap to preserve the db-returned order
-        Collectors.mapping(
-            { it: Record ->
-                val answerRecord = it.into(Tables.ANSWER_CHOICES)
-                if (answerRecord.id != null) {
+        Collectors.filtering(
+            { it.get(Tables.ANSWER_CHOICES.ID) != null },
+            Collectors.mapping(
+                {
+                    val answerRecord = it.into(Tables.ANSWER_CHOICES)
                     answerRecord.into(AnswerChoice::class.java)
-                } else {
-                    null
-                }
-            },
-            Collectors.toList()
+                },
+                Collectors.toList()
+            )
         )
     )
 

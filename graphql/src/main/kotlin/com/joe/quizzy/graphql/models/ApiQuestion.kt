@@ -1,13 +1,13 @@
 package com.joe.quizzy.graphql.models
 
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.extensions.get
 import com.joe.quizzy.api.models.AnswerChoice
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.graphql.auth.UserPrincipal
-import com.trib3.graphql.resources.getInstance
 import graphql.schema.DataFetchingEnvironment
 import java.security.Principal
 import java.time.OffsetDateTime
@@ -47,7 +47,7 @@ data class ApiQuestion(
     )
 
     fun response(dfe: DataFetchingEnvironment): CompletableFuture<ApiResponse?> {
-        val principal = dfe.graphQlContext.getInstance<Principal>()
+        val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal && id != null) {
             return dfe.getDataLoader<UUID, Response>("questionresponses")
                 .load(id)

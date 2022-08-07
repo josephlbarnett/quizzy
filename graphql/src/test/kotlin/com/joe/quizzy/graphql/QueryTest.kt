@@ -19,6 +19,7 @@ import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
+import com.trib3.graphql.resources.contextMap
 import com.trib3.graphql.resources.getGraphQLContextMap
 import com.trib3.testing.LeakyMock
 import graphql.GraphQLContext
@@ -34,7 +35,7 @@ fun getDFE(principal: UserPrincipal?, scope: CoroutineScope): DataFetchingEnviro
     val dfe = LeakyMock.mock<DataFetchingEnvironment>()
     EasyMock.expect(dfe.graphQlContext).andReturn(
         GraphQLContext.of(
-            getGraphQLContextMap(scope, principal)
+            getGraphQLContextMap(scope, principal) + contextMap(javax.ws.rs.core.Response.ok())
         )
     ).anyTimes()
     EasyMock.replay(dfe)

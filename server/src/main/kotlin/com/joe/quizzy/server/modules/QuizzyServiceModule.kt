@@ -58,7 +58,7 @@ class HttpsFilter : Filter {
         if (request is HttpServletRequest && response is HttpServletResponse) {
             if (request.getHeader(X_FORWARDED_PROTOCOL) != null) {
                 if (request.getHeader(X_FORWARDED_PROTOCOL).indexOf("https") != 0) {
-                    response.sendRedirect("https://${request.serverName}${request.requestURI ?: ""}")
+                    response.sendRedirect("https://${request.serverName}${request.requestURI.orEmpty()}")
                     return
                 }
             }
@@ -139,7 +139,7 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
         KotlinMultibinder.newSetBinder<ServletFilterConfig>(kotlinBinder).addBinding().toInstance(
             ServletFilterConfig(HttpsFilter::class.java.simpleName, HttpsFilter::class.java)
         )
-        dataLoaderRegistryFactoryBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()
+        dataLoaderRegistryFactoryProviderBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()
         authorizerBinder().setBinding().to<UserAuthorizer>()
         authFilterBinder().setBinding().toProvider<QuizzyAuthFilterProvider>()
     }

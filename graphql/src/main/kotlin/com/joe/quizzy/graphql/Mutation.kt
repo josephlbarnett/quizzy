@@ -1,5 +1,6 @@
 package com.joe.quizzy.graphql
 
+import com.expediagroup.graphql.generator.extensions.get
 import com.github.mustachejava.DefaultMustacheFactory
 import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.api.models.Question
@@ -19,8 +20,6 @@ import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.trib3.graphql.execution.GraphQLAuth
-import com.trib3.graphql.resources.getInstance
-import com.trib3.graphql.resources.setInstance
 import com.trib3.server.config.TribeApplicationConfig
 import graphql.schema.DataFetchingEnvironment
 import io.dropwizard.auth.basic.BasicCredentials
@@ -38,6 +37,7 @@ import javax.mail.internet.MimeMessage
 import javax.ws.rs.core.Cookie
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.NewCookie
+import javax.ws.rs.core.Response.ResponseBuilder
 
 private const val COOKIE_NAME = "x-quizzy-session"
 private const val MAX_COOKIE_AGE = 60 * 60 * 24 * 30 // expire in 30 days
@@ -76,7 +76,7 @@ class Mutation @Inject constructor(
             val userId = principal.user.id
             if (userId != null) {
                 val newSession = sessionDAO.save(Session(null, userId, OffsetDateTime.now(), OffsetDateTime.now()))
-                dfe.graphQlContext.setInstance(
+                dfe.graphQlContext.get<ResponseBuilder>()?.cookie(
                     NewCookie(
                         COOKIE_NAME,
                         newSession.id.toString(),
@@ -97,7 +97,7 @@ class Mutation @Inject constructor(
     }
 
     fun login(dfe: DataFetchingEnvironment, email: String, pass: String): Boolean {
-        if (dfe.graphQlContext.getInstance<Principal>() != null) {
+        if (dfe.graphQlContext.get<Principal>() != null) {
             return true // if already logged in, return
         }
         val principal = userAuthenticator.authenticate(BasicCredentials(email, pass)).orElse(null)
@@ -105,7 +105,7 @@ class Mutation @Inject constructor(
     }
 
     fun changePassword(dfe: DataFetchingEnvironment, oldPass: String, newPass: String): Boolean {
-        val principal = dfe.graphQlContext.getInstance<Principal>()
+        val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
             val passCheck = userAuthenticator.authenticate(
                 BasicCredentials(principal.user.email, oldPass)
@@ -119,15 +119,15 @@ class Mutation @Inject constructor(
     }
 
     fun logout(dfe: DataFetchingEnvironment): Boolean {
-        val principal = dfe.graphQlContext.getInstance<Principal>()
+        val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
-            dfe.graphQlContext.setInstance(
+            dfe.graphQlContext.get<ResponseBuilder>()?.cookie(
                 NewCookie(
                     Cookie(COOKIE_NAME, ""),
                     null,
                     -1,
                     Date(0), // expire 1970
-                    false,
+                    true,
                     true
                 )
             )
@@ -219,7 +219,7 @@ class Mutation @Inject constructor(
     }
 
     fun user(dfe: DataFetchingEnvironment, user: User): User? {
-        val principal = dfe.graphQlContext.getInstance<Principal>()
+        val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
             if (principal.user.admin || (principal.user.id != null && principal.user.id == user.id)) {
                 val password = if (user.id == null) {
@@ -246,12 +246,12 @@ class Mutation @Inject constructor(
     }
 
     fun response(dfe: DataFetchingEnvironment, response: Response): ApiResponse? {
-        val principal = dfe.graphQlContext.getInstance<Principal>()
+        val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
             val id = principal.user.id
-            require(id != null)
+            requireNotNull(id)
             val instance = instanceDAO.get(principal.user.instanceId)
-            require(instance != null)
+            requireNotNull(instance)
             return ApiResponse(
                 responseDAO.save(
                     response.copy(

@@ -3,6 +3,7 @@ package com.joe.quizzy.graphql.dataloaders
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotNull
+import com.expediagroup.graphql.server.types.GraphQLRequest
 import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.Question
@@ -10,7 +11,6 @@ import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.graphql.auth.UserPrincipal
 import com.joe.quizzy.persistence.api.ResponseDAO
-import com.trib3.graphql.execution.GraphQLRequest
 import com.trib3.graphql.resources.getGraphQLContextMap
 import com.trib3.testing.mock
 import kotlinx.coroutines.CoroutineScope
@@ -43,7 +43,7 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
         val factory = factoryProvider.get()
         val scope = CoroutineScope(Dispatchers.Default)
         val registry = factory(
-            GraphQLRequest("{}", mapOf(), null),
+            GraphQLRequest("{}"),
             getGraphQLContextMap(
                 scope,
                 UserPrincipal(
@@ -51,7 +51,7 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
                     null
                 )
             )
-        )
+        ).generate()
 
         val batchQuestionLoader = registry.getDataLoader<UUID, Question>("batchquestions")
         assertThat(batchQuestionLoader).isNotNull()

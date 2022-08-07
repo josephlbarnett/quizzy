@@ -1,12 +1,12 @@
 package com.joe.quizzy.graphql.models
 
 import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
+import com.expediagroup.graphql.generator.extensions.get
 import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.graphql.auth.UserPrincipal
-import com.trib3.graphql.resources.getInstance
 import graphql.schema.DataFetchingEnvironment
 import java.security.Principal
 import java.util.UUID
@@ -35,7 +35,7 @@ data class ApiResponse(
         )
 
     fun user(dfe: DataFetchingEnvironment): CompletableFuture<ApiUser?> {
-        val principal = dfe.graphQlContext.getInstance<Principal>()
+        val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
             return dfe.getDataLoader<UUID, User>("batchusers").load(userId).thenApply {
                 it?.let { u -> ApiUser(u, defaultScore) }
@@ -45,7 +45,7 @@ data class ApiResponse(
     }
 
     fun question(dfe: DataFetchingEnvironment): CompletableFuture<ApiQuestion?> {
-        val principal = dfe.graphQlContext.getInstance<Principal>()
+        val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
             val gradeFuture = dfe.getDataLoader<UUID, Grade>("responsegrades").load(id)
             return dfe.getDataLoader<UUID, Question>("batchquestions").load(questionId)
@@ -63,7 +63,7 @@ data class ApiResponse(
     }
 
     fun grade(dfe: DataFetchingEnvironment): CompletableFuture<ApiGrade?> {
-        val principal = dfe.graphQlContext.getInstance<Principal>()
+        val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal && id != null) {
             return dfe.getDataLoader<UUID, Grade>("responsegrades").load(id)
                 .thenApply { it?.let { g -> ApiGrade(g, defaultScore) } }

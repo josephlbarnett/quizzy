@@ -28,6 +28,11 @@
 
         <dependency>
             <groupId>com.expediagroup</groupId>
+            <artifactId>graphql-kotlin-dataloader</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.expediagroup</groupId>
             <artifactId>graphql-kotlin-server</artifactId>
             <version>${version.graphql-kotlin}</version>
         </dependency>

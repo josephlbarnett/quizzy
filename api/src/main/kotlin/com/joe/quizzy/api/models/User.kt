@@ -9,9 +9,11 @@ data class User(
     val instanceId: UUID,
     val name: String,
     val email: String,
-    @get:JsonIgnore @GraphQLIgnore val authCrypt: String?,
+    @get:JsonIgnore @GraphQLIgnore
+    val authCrypt: String?,
     val admin: Boolean,
     val timeZoneId: String,
     val notifyViaEmail: Boolean = true,
-    @get:JsonIgnore @GraphQLIgnore val passwordResetToken: String? = null
+    @get:JsonIgnore @GraphQLIgnore
+    val passwordResetToken: String? = null
 )

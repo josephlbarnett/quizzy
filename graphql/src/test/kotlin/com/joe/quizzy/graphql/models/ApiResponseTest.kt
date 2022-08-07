@@ -31,7 +31,8 @@ class ApiResponseTest {
         UUID.randomUUID(),
         UUID.randomUUID(),
         "answer",
-        "references", 15
+        "references",
+        15
     )
     val u = User(UUID.randomUUID(), UUID.randomUUID(), "name", "email", "", false, "")
 

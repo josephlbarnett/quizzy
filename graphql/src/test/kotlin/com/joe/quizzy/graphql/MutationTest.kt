@@ -7,6 +7,7 @@ import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import assertk.assertions.isTrue
+import com.expediagroup.graphql.generator.extensions.get
 import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.model.Message
 import com.google.api.services.oauth2.Oauth2
@@ -30,7 +31,6 @@ import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.trib3.config.ConfigLoader
-import com.trib3.graphql.resources.getInstance
 import com.trib3.server.config.TribeApplicationConfig
 import com.trib3.testing.LeakyMock
 import com.trib3.testing.mock
@@ -45,7 +45,7 @@ import java.util.Properties
 import java.util.UUID
 import javax.mail.Message.RecipientType
 import javax.mail.internet.MimeMessage
-import javax.ws.rs.core.NewCookie
+import javax.ws.rs.core.Response.ResponseBuilder
 
 /**
  * Support class to set up a mock Mutation per test with access to various
@@ -129,8 +129,8 @@ class MutationTest {
                 .andReturn(session)
         }.test {
             assertThat(mutation.login(emptyContext, "user", "pass")).isTrue()
-            assertThat(emptyContext.graphQlContext.getInstance<NewCookie>()?.name).isEqualTo("x-quizzy-session")
-            assertThat(emptyContext.graphQlContext.getInstance<NewCookie>()?.value).isEqualTo(session.id.toString())
+            val response = emptyContext.graphQlContext.get<ResponseBuilder>()!!.build()
+            assertThat(response.cookies["x-quizzy-session"]?.value).isEqualTo(session.id.toString())
         }
     }
 
@@ -204,7 +204,8 @@ class MutationTest {
             EasyMock.expect(sessionDAO.delete(session)).andReturn(1).once()
         }.test {
             assertThat(mutation.logout(userSessionContext)).isTrue()
-            assertThat(userSessionContext.graphQlContext.getInstance<NewCookie>()?.expiry?.time).isEqualTo(0)
+            val response = userSessionContext.graphQlContext.get<ResponseBuilder>()!!.build()
+            assertThat(response.cookies.entries.first().value.expiry.time).isEqualTo(0)
         }
     }
 
@@ -215,7 +216,8 @@ class MutationTest {
     fun testLogoutWithoutSession() {
         MockMutation { }.test {
             assertThat(mutation.logout(userNoSessionContext)).isTrue()
-            assertThat(userNoSessionContext.graphQlContext.getInstance<NewCookie>()?.expiry?.time).isEqualTo(0)
+            val response = userNoSessionContext.graphQlContext.get<ResponseBuilder>()!!.build()
+            assertThat(response.cookies.entries.first().value.expiry.time).isEqualTo(0)
         }
     }
 
@@ -615,7 +617,9 @@ class MutationTest {
                 .andReturn(response.copy(id = UUID.randomUUID(), userId = user.id!!))
             EasyMock.expect(instanceDAO.get(EasyMock.anyObject<UUID>() ?: UUID.randomUUID())).andReturn(
                 Instance(
-                    UUID.randomUUID(), "response-save", "ACTIVE"
+                    UUID.randomUUID(),
+                    "response-save",
+                    "ACTIVE"
                 )
             )
         }.test {

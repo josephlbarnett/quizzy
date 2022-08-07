@@ -5,7 +5,6 @@ import assertk.assertions.isEqualTo
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.trib3.testing.LeakyMock
-import graphql.GraphQLContext
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.dataloader.BatchLoaderEnvironment
@@ -18,13 +17,12 @@ class BulkInstanceLoaderTest {
     fun testInstanceLoader() = runBlocking {
         val instanceDAO = LeakyMock.mock<InstanceDAO>()
         val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
-        val loader = BulkInstanceLoader(instanceDAO)
+        val loader = BulkInstanceLoader(instanceDAO, mapOf<Any, Any>())
         val instances = listOf(
             Instance(UUID.randomUUID(), "i1", "ACTIVE", ""),
             Instance(UUID.randomUUID(), "i2", "ACTIVE", "")
         )
         EasyMock.expect(instanceDAO.get(EasyMock.anyObject<List<UUID>>() ?: listOf())).andReturn(instances)
-        EasyMock.expect(mockEnv.getContext<Any?>()).andReturn(GraphQLContext.newContext().build())
         EasyMock.replay(instanceDAO, mockEnv)
         val insts = loader.load(instances.mapNotNull { it.id }.toSet(), mockEnv).await()
         assertThat(insts).isEqualTo(instances.associateBy { it.id })

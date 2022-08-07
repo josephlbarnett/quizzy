@@ -1,15 +1,12 @@
 package com.joe.quizzy.graphql.dataloaders
 
+import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
 import com.joe.quizzy.persistence.api.GradeDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
-import com.trib3.graphql.modules.DataLoaderRegistryFactory
-import graphql.GraphQLContext
-import org.dataloader.DataLoaderFactory
-import org.dataloader.DataLoaderOptions
-import org.dataloader.DataLoaderRegistry
+import com.trib3.graphql.modules.KotlinDataLoaderRegistryFactoryProvider
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -25,38 +22,17 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
     private val questionDAO: QuestionDAO,
     private val responseDAO: ResponseDAO,
     private val instanceDAO: InstanceDAO
-) : Provider<DataLoaderRegistryFactory> {
-    override fun get(): DataLoaderRegistryFactory {
+) : Provider<KotlinDataLoaderRegistryFactoryProvider> {
+    override fun get(): KotlinDataLoaderRegistryFactoryProvider {
         return { _, contextMap ->
-            val dataLoaderOptions = DataLoaderOptions.newOptions().setBatchLoaderContextProvider {
-                GraphQLContext.of(contextMap)
-            }
-            DataLoaderRegistry.newRegistry()
-                .register(
-                    "responsegrades",
-                    DataLoaderFactory.newMappedDataLoader(ResponseGradeLoader(gradeDAO), dataLoaderOptions)
-                )
-                .register(
-                    "usergrades",
-                    DataLoaderFactory.newMappedDataLoader(UserGradeLoader(gradeDAO), dataLoaderOptions)
-                )
-                .register(
-                    "batchusers",
-                    DataLoaderFactory.newMappedDataLoader(BatchUserLoader(userDAO), dataLoaderOptions)
-                )
-                .register(
-                    "batchquestions",
-                    DataLoaderFactory.newMappedDataLoader(BatchQuestionLoader(questionDAO), dataLoaderOptions)
-                )
-                .register(
-                    "questionresponses",
-                    DataLoaderFactory.newMappedDataLoader(QuestionResponseLoader(responseDAO), dataLoaderOptions)
-                )
-                .register(
-                    "batchinstances",
-                    DataLoaderFactory.newMappedDataLoader(BulkInstanceLoader(instanceDAO), dataLoaderOptions)
-                )
-                .build()
+            KotlinDataLoaderRegistryFactory(
+                ResponseGradeLoader(gradeDAO, contextMap),
+                UserGradeLoader(gradeDAO, contextMap),
+                BatchUserLoader(userDAO, contextMap),
+                BatchQuestionLoader(questionDAO, contextMap),
+                QuestionResponseLoader(responseDAO, contextMap),
+                BulkInstanceLoader(instanceDAO, contextMap)
+            )
         }
     }
 }

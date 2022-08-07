@@ -10,7 +10,7 @@ Built primarily to serve the needs of an email based Rules Exchange.
 Getting Started
 ---------------
 #### Install jdk and maven
-* Install openjdk 11 or newer
+* Install openjdk 17 or newer
 * Install maven 3.5 or newer
 #### Build and run tests
 * Building with maven will run tests

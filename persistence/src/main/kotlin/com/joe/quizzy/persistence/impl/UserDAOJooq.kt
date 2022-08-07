@@ -59,8 +59,8 @@ open class UserDAOJooq
                 .set(Tables.USERS.PASSWORD_RESET_TOKEN, null as String?)
                 .where(Tables.USERS.ID.eq(user.id))
                 .execute().also {
-                    if (it != 1) {
-                        throw IllegalStateException("Password update updated $it rows, rolling back")
+                    check(it == 1) {
+                        "Password update updated $it rows, rolling back"
                     }
                 }
         }

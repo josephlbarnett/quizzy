@@ -157,7 +157,7 @@ class QuestionDAOTest : PostgresDAOTestBase() {
                 AnswerChoice(null, null, "A", "Choice A"),
                 AnswerChoice(null, null, "B", "Choice B"),
                 AnswerChoice(null, null, "C", "Choice C"),
-                AnswerChoice(null, null, "D", "Choice D"),
+                AnswerChoice(null, null, "D", "Choice D")
             )
         )
         val savedQ = dao.save(q1)
@@ -183,7 +183,7 @@ class QuestionDAOTest : PostgresDAOTestBase() {
                 AnswerChoice(null, null, "A", "Choice A1"),
                 AnswerChoice(null, null, "B", "Choice B2"),
                 AnswerChoice(null, null, "C", "Choice C3"),
-                AnswerChoice(null, null, "D", "Choice D4"),
+                AnswerChoice(null, null, "D", "Choice D4")
             )
         )
         val resavedQ = dao.save(updatedQ)

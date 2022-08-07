@@ -45,7 +45,7 @@ class EmailNotificationDAOTest : PostgresDAOTestBase() {
         val questions = listOf(
             Question(null, userId, "q1", "a1", "r1", OffsetDateTime.now(), OffsetDateTime.now()),
             Question(null, userId, "q2", "a2", "r2", OffsetDateTime.now(), OffsetDateTime.now()),
-            Question(null, userId, "q3", "a3", "r3", OffsetDateTime.now(), OffsetDateTime.now()),
+            Question(null, userId, "q3", "a3", "r3", OffsetDateTime.now(), OffsetDateTime.now())
         ).map {
             questionDao.save(it)
         }
