@@ -7,13 +7,17 @@ import loginMutation from "@/graphql/Login.gql";
 import requestPasswordResetMutation from "@/graphql/RequestPasswordReset.gql";
 import completePasswordResetMutation from "@/graphql/CompletePasswordReset.gql";
 import { awaitVm } from "../TestUtils";
+import { ApiUser, QuestionType } from "@/generated/types.d";
 
-const mockUser = {
+const mockUser: ApiUser = {
   id: 123,
   instanceId: 456,
   instance: {
     id: 789,
     name: "Tenant",
+    defaultQuestionType: QuestionType.ShortAnswer,
+    status: "ACTIVE",
+    autoGrade: false,
     __typename: "Instance",
   },
   email: "joe@test.com",
@@ -21,6 +25,7 @@ const mockUser = {
   admin: false,
   timeZoneId: "America/Los_Angeles",
   notifyViaEmail: false,
+  score: 15,
   __typename: "ApiUser",
 };
 

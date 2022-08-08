@@ -14,5 +14,11 @@ query CurrentQuestions {
       response
       ruleReferences
     }
+    type
+    answerChoices {
+      id
+      letter
+      answer
+    }
   }
 }

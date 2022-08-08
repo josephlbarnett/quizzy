@@ -10,6 +10,13 @@ query CompletedQuestions {
     body
     closedAt
     id
+    type
+    answerChoices {
+      id
+      letter
+      answer
+    }
+
     response {
       grade {
         bonus

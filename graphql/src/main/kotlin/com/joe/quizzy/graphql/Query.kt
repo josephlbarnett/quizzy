@@ -50,7 +50,9 @@ class Query @Inject constructor(
                     answer = "",
                     ruleReferences = "",
                     activeAt = it.activeAt,
-                    closedAt = it.closedAt
+                    closedAt = it.closedAt,
+                    type = it.type,
+                    answerChoices = it.answerChoices
                 )
             }
         }

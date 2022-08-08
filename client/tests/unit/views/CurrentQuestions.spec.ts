@@ -9,15 +9,18 @@ import VueApollo from "vue-apollo";
 import moment from "moment-timezone";
 import completedQuestionQuery from "@/graphql/CompletedQuestions.gql";
 import { awaitVm } from "../TestUtils";
+import { ApiQuestion, ApiUser, QuestionType } from "@/generated/types.d";
 // silence a VDialog warning!?
 document.body.setAttribute("data-app", "true");
 
-const mockUser = {
+const mockUser: ApiUser = {
   id: 987,
   instanceId: 111,
   instance: {
     id: 111,
     name: "instance",
+    defaultQuestionType: QuestionType.ShortAnswer,
+    autoGrade: false,
     status: "ACTIVE",
   },
   email: "me@me.com",
@@ -28,7 +31,7 @@ const mockUser = {
   score: 18,
 };
 
-const mockQuestions = [
+const mockQuestions: ApiQuestion[] = [
   {
     id: 123,
     authorId: 456,
@@ -36,6 +39,8 @@ const mockQuestions = [
     body: "Q1",
     activeAt: "2020-01-01T00:00:00Z",
     closedAt: "2020-01-03T00:00:00Z",
+    type: QuestionType.ShortAnswer,
+    answerChoices: [],
     answer: "A1",
     ruleReferences: "Ref1",
     response: {
@@ -55,6 +60,8 @@ const mockQuestions = [
     body: "Q2",
     activeAt: "2020-01-03T00:00:00Z",
     closedAt: "2020-01-07T00:00:00Z",
+    type: QuestionType.ShortAnswer,
+    answerChoices: [],
     answer: "A2",
     ruleReferences: "Ref2",
     response: null,
@@ -140,7 +147,7 @@ describe("Current questions page tests", () => {
       table.vm.$emit("click:row", mockQuestions[i]);
       await awaitVm(page);
       expect(page.find(".v-dialog .v-card__title").text()).toContain(
-        mockQuestions[i].author.name
+        mockQuestions[i].author?.name
       );
       expect(page.vm.$data.clickedQuestion.id).toBe(mockQuestions[i].id);
       expect(page.vm.$data.clickedResponse.id).toBe(

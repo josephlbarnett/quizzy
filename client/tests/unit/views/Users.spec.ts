@@ -5,16 +5,20 @@ import VueApollo from "vue-apollo";
 import usersQuery from "@/graphql/Users.gql";
 import vuetify from "@/plugins/vuetify";
 import { awaitVm } from "../TestUtils";
+import { ApiUser, QuestionType } from "@/generated/types.d";
 // silence a VDialog warning!?
 document.body.setAttribute("data-app", "true");
 
-const mockUsers = [
+const mockUsers: ApiUser[] = [
   {
     id: 123,
     instanceId: 456,
     instance: {
       id: 456,
       name: "Tenant",
+      defaultQuestionType: QuestionType.ShortAnswer,
+      status: "ACTIVE",
+      autoGrade: false,
       __typename: "Instance",
     },
     email: "joe@test.com",
@@ -31,6 +35,9 @@ const mockUsers = [
     instance: {
       id: 456,
       name: "Tenant",
+      defaultQuestionType: QuestionType.ShortAnswer,
+      status: "ACTIVE",
+      autoGrade: false,
       __typename: "Instance",
     },
     email: "jon@test.com",

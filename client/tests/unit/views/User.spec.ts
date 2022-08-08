@@ -7,13 +7,17 @@ import updateUserMutation from "@/graphql/UpdateUser.gql";
 import changePasswordMutation from "@/graphql/ChangePassword.gql";
 import vuetify from "@/plugins/vuetify";
 import { awaitVm } from "../TestUtils";
+import { ApiUser, QuestionType } from "@/generated/types.d";
 
-const mockUser = {
+const mockUser: ApiUser = {
   id: 123,
   instanceId: 456,
   instance: {
     id: 789,
     name: "Tenant",
+    defaultQuestionType: QuestionType.ShortAnswer,
+    autoGrade: false,
+    status: "ACTIVE",
     __typename: "Instance",
   },
   email: "joe@test.com",
@@ -21,6 +25,7 @@ const mockUser = {
   admin: false,
   timeZoneId: "America/Los_Angeles",
   notifyViaEmail: false,
+  score: 15,
   __typename: "ApiUser",
 };
 

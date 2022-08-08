@@ -6,6 +6,7 @@ query CurrentUser {
     instance {
       id
       name
+      defaultQuestionType
     }
     instanceId
     name

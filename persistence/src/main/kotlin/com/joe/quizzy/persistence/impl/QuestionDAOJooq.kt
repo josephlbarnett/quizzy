@@ -1,18 +1,21 @@
 package com.joe.quizzy.persistence.impl
 
 import com.codahale.metrics.annotation.Timed
+import com.joe.quizzy.api.models.AnswerChoice
 import com.joe.quizzy.api.models.NotificationType
 import com.joe.quizzy.api.models.Question
+import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
-import com.joe.quizzy.persistence.impl.jooq.tables.records.QuestionsRecord
 import mu.KotlinLogging
 import org.jooq.DSLContext
 import org.jooq.Record
+import org.jooq.ResultQuery
 import org.jooq.SelectOnConditionStep
 import java.time.OffsetDateTime
 import java.util.UUID
+import java.util.stream.Collectors
 import java.util.stream.Stream
 import javax.inject.Inject
 
@@ -25,20 +28,41 @@ open class QuestionDAOJooq
 @Inject constructor(
     private val ctx: DSLContext
 ) : QuestionDAO {
-    private fun getRecord(dsl: DSLContext, id: UUID): QuestionsRecord? {
-        return dsl.selectFrom(Tables.QUESTIONS).where(Tables.QUESTIONS.ID.eq(id)).fetchOne()
+
+    val questionsAndChoices =
+        Tables.QUESTIONS.leftJoin(Tables.ANSWER_CHOICES).on(Tables.QUESTIONS.ID.eq(Tables.ANSWER_CHOICES.QUESTION_ID))
+
+    val collector = Collectors.groupingBy(
+        { it.into(Tables.QUESTIONS).into(Question::class.java) },
+        ::LinkedHashMap, // use a linked hashmap to preserve the db-returned order
+        Collectors.mapping(
+            { it: Record ->
+                val answerRecord = it.into(Tables.ANSWER_CHOICES)
+                if (answerRecord.id != null) {
+                    answerRecord.into(AnswerChoice::class.java)
+                } else {
+                    null
+                }
+            },
+            Collectors.toList()
+        )
+    )
+
+    val collectAndMap: ResultQuery<Record>.() -> List<Question> = {
+        this.collect(collector)
+            .map { it.key.copy(answerChoices = it.value.filterNotNull().sortedBy(AnswerChoice::letter)) }
     }
 
     @Timed
     override fun get(id: UUID): Question? {
-        return getRecord(ctx, id)?.into(Question::class.java)
+        return ctx.selectFrom(questionsAndChoices).where(Tables.QUESTIONS.ID.eq(id)).collectAndMap().firstOrNull()
     }
 
     @Timed
     override fun get(ids: List<UUID>): List<Question> {
-        val query = ctx.selectFrom(Tables.QUESTIONS).where(Tables.QUESTIONS.ID.`in`(ids))
+        val query = ctx.selectFrom(questionsAndChoices).where(Tables.QUESTIONS.ID.`in`(ids))
         log.info("batch get questions: $query")
-        return query.fetchInto(Question::class.java)
+        return query.collectAndMap()
     }
 
     @Timed
@@ -51,7 +75,8 @@ open class QuestionDAOJooq
                     thing
                 )
             } else {
-                val existing = getRecord(config.dsl(), thingId)
+                val existing =
+                    config.dsl().selectFrom(Tables.QUESTIONS).where(Tables.QUESTIONS.ID.eq(thingId)).fetchOne()
                 if (existing != null) {
                     existing.from(thing)
                     existing
@@ -63,13 +88,26 @@ open class QuestionDAOJooq
                 }
             }
             record.store()
-            record.into(Question::class.java)
+            val returnedQuestion = record.into(Question::class.java)
+            if (thing.type == QuestionType.MULTIPLE_CHOICE) {
+                config.dsl().delete(Tables.ANSWER_CHOICES).where(Tables.ANSWER_CHOICES.QUESTION_ID.eq(record.id))
+                    .execute()
+                val savedChoices = thing.answerChoices?.map {
+                    val choiceRecord = config.dsl().newRecord(Tables.ANSWER_CHOICES, it)
+                    choiceRecord.questionId = returnedQuestion.id
+                    choiceRecord.store()
+                    choiceRecord.into(AnswerChoice::class.java)
+                }
+                returnedQuestion.copy(answerChoices = savedChoices)
+            } else {
+                returnedQuestion
+            }
         }
     }
 
     @Timed
     private fun instanceQuestions(user: User): SelectOnConditionStep<Record> {
-        return ctx.select(Tables.QUESTIONS.asterisk()).from(Tables.QUESTIONS)
+        return ctx.select().from(questionsAndChoices)
             .join(Tables.USERS)
             .on(
                 Tables.USERS.ID.eq(Tables.QUESTIONS.AUTHOR_ID)
@@ -86,13 +124,13 @@ open class QuestionDAOJooq
                     .and(Tables.QUESTIONS.CLOSED_AT.ge(now))
             ).orderBy(Tables.QUESTIONS.CLOSED_AT)
         log.info("active questions query: $query")
-        return query.fetchInto(Question::class.java)
+        return query.collectAndMap()
     }
 
     override fun active(notificationType: NotificationType): List<Question> {
         val now = OffsetDateTime.now()
-        val query = ctx.select(Tables.QUESTIONS.asterisk()).from(
-            Tables.QUESTIONS.leftJoin(Tables.EMAIL_NOTIFICATIONS)
+        val query = ctx.select().from(
+            questionsAndChoices.leftJoin(Tables.EMAIL_NOTIFICATIONS)
                 .on(
                     Tables.QUESTIONS.ID.eq(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID)
                         .and(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE.eq(notificationType.name))
@@ -103,7 +141,7 @@ open class QuestionDAOJooq
                     .and(Tables.QUESTIONS.CLOSED_AT.ge(now))
                     .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull)
             ).orderBy(Tables.QUESTIONS.CLOSED_AT)
-        return query.fetchInto(Question::class.java)
+        return query.collectAndMap()
     }
 
     @Timed
@@ -112,13 +150,13 @@ open class QuestionDAOJooq
         val query = instanceQuestions(user)
             .where(Tables.QUESTIONS.CLOSED_AT.le(now)).orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
         log.info("closed questions query: $query")
-        return query.fetchInto(Question::class.java)
+        return query.collectAndMap()
     }
 
     override fun closed(notificationType: NotificationType): List<Question> {
         val now = OffsetDateTime.now()
-        val query = ctx.select(Tables.QUESTIONS.asterisk()).from(
-            Tables.QUESTIONS.leftJoin(Tables.EMAIL_NOTIFICATIONS)
+        val query = ctx.select().from(
+            questionsAndChoices.leftJoin(Tables.EMAIL_NOTIFICATIONS)
                 .on(
                     Tables.QUESTIONS.ID.eq(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID)
                         .and(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE.eq(notificationType.name))
@@ -129,7 +167,7 @@ open class QuestionDAOJooq
                     .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull)
             )
             .orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
-        return query.fetchInto(Question::class.java)
+        return query.collectAndMap()
     }
 
     @Timed
@@ -138,12 +176,12 @@ open class QuestionDAOJooq
         val query = instanceQuestions(user)
             .where(Tables.QUESTIONS.ACTIVE_AT.gt(now)).orderBy(Tables.QUESTIONS.CLOSED_AT)
         log.info("future questions query: $query")
-        return query.fetchInto(Question::class.java)
+        return query.collectAndMap()
     }
 
     @Timed
     override fun all(): List<Question> {
-        return ctx.select().from(Tables.QUESTIONS).orderBy(Tables.QUESTIONS.CLOSED_AT).fetchInto(Question::class.java)
+        return ctx.select().from(questionsAndChoices).orderBy(Tables.QUESTIONS.CLOSED_AT).collectAndMap()
     }
 
     @Timed

@@ -8,15 +8,18 @@ import currentUserQuery from "@/graphql/CurrentUser.gql";
 import saveQuestionMutation from "@/graphql/SaveQuestion.gql";
 import moment from "moment-timezone";
 import { awaitVm } from "../TestUtils";
+import { ApiQuestion, ApiUser, QuestionType } from "@/generated/types.d";
 // silence a VDialog warning!?
 document.body.setAttribute("data-app", "true");
 
-const mockUser = {
+const mockUser: ApiUser = {
   id: 987,
   instanceId: 111,
   instance: {
     id: 111,
     name: "instance",
+    defaultQuestionType: QuestionType.ShortAnswer,
+    autoGrade: false,
     status: "ACTIVE",
   },
   email: "me@me.com",
@@ -27,11 +30,13 @@ const mockUser = {
   score: 18,
 };
 
-const mockQuestions = [
+const mockQuestions: ApiQuestion[] = [
   {
     id: 123,
     authorId: 456,
     author: mockUser,
+    type: QuestionType.ShortAnswer,
+    answerChoices: [],
     body: "Q1",
     activeAt: "2020-01-01T00:00:00Z",
     closedAt: "2020-01-03T00:00:00Z",
@@ -42,6 +47,8 @@ const mockQuestions = [
     id: 124,
     authorId: 456,
     author: mockUser,
+    type: QuestionType.ShortAnswer,
+    answerChoices: [],
     body: "Q2",
     activeAt: "2020-01-03T00:00:00Z",
     closedAt: "2020-01-07T00:00:00Z",

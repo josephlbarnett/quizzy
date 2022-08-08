@@ -45,7 +45,6 @@ import javax.ws.rs.core.Response
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 class RedirectResource {
-    @Path("/")
     @GET
     fun root(): Response {
         return Response.status(Response.Status.FOUND).location(URI("/app/assets")).build()

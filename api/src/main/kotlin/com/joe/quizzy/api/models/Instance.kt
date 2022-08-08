@@ -8,5 +8,7 @@ data class Instance(
     val id: UUID?,
     val name: String,
     val status: String,
-    @get:JsonIgnore @GraphQLIgnore val gmailRefreshToken: String? = null
+    @get:JsonIgnore @GraphQLIgnore val gmailRefreshToken: String? = null,
+    val defaultQuestionType: QuestionType = QuestionType.SHORT_ANSWER,
+    val autoGrade: Boolean = false,
 )

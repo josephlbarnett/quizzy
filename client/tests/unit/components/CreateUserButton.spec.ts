@@ -6,16 +6,20 @@ import currentUserQuery from "@/graphql/CurrentUser.gql";
 import UsersQuery from "@/graphql/Users.gql";
 import vuetify from "@/plugins/vuetify";
 import { awaitVm } from "../TestUtils";
+import { ApiUser, QuestionType } from "@/generated/types.d";
 
 // silence a VDialog warning!?
 document.body.setAttribute("data-app", "true");
 
-const mockUser = {
+const mockUser: ApiUser = {
   id: 123,
   instanceId: 456,
   instance: {
     id: 789,
     name: "Tenant",
+    defaultQuestionType: QuestionType.ShortAnswer,
+    autoGrade: false,
+    status: "ACTIVE",
     __typename: "Instance",
   },
   email: "joe@test.com",
@@ -23,6 +27,7 @@ const mockUser = {
   admin: false,
   timeZoneId: "America/Los_Angeles",
   notifyViaEmail: false,
+  score: 15,
   __typename: "ApiUser",
 };
 

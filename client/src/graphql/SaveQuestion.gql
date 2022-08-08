@@ -6,6 +6,8 @@ mutation SaveQuestion(
   $closedAt: DateTime!
   $id: UUID
   $ruleReferences: String!
+  $type: QuestionType!
+  $answerChoices: [AnswerChoiceInput!]
 ) {
   question(
     question: {
@@ -16,6 +18,8 @@ mutation SaveQuestion(
       closedAt: $closedAt
       id: $id
       ruleReferences: $ruleReferences
+      type: $type
+      answerChoices: $answerChoices
     }
   ) {
     id

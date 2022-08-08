@@ -18,7 +18,7 @@ module.exports = {
   },
   testEnvironment: "jsdom",
   transform: {
-    "^.+\\.(js|ts)$": "babel-jest",
+    "^.+\\.(js|ts|d.ts)$": "babel-jest",
     "^.+\\.sass$": "jest-transform-stub",
     "^.+\\.vue$": "@vue/vue2-jest",
     "^.+\\.gql$": "./tests/unit/gqlTransformer", // "jest-transform-graphql",

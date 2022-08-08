@@ -6,18 +6,20 @@ import moment from "moment-timezone";
 import completedQuestionQuery from "@/graphql/CompletedQuestions.gql";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import vuetify from "@/plugins/vuetify";
-import { ApiQuestion } from "@/generated/types";
+import { ApiQuestion, ApiUser, QuestionType } from "@/generated/types.d";
 import Vue from "vue";
 import { awaitVm } from "../TestUtils";
 // silence a VDialog warning!?
 document.body.setAttribute("data-app", "true");
 
-const mockUser = {
+const mockUser: ApiUser = {
   id: 987,
   instanceId: 111,
   instance: {
     id: 111,
     name: "instance",
+    defaultQuestionType: QuestionType.ShortAnswer,
+    autoGrade: false,
     status: "ACTIVE",
   },
   email: "me@me.com",
@@ -28,7 +30,7 @@ const mockUser = {
   score: 18,
 };
 
-const mockQuestions = [
+const mockQuestions: ApiQuestion[] = [
   {
     id: 123,
     authorId: 456,
@@ -38,6 +40,8 @@ const mockQuestions = [
     closedAt: "2020-01-03T00:00:00Z",
     answer: "A1",
     ruleReferences: "Ref1",
+    type: QuestionType.ShortAnswer,
+    answerChoices: [],
     response: {
       id: 789,
       response: "Resp1",
@@ -62,6 +66,8 @@ const mockQuestions = [
     activeAt: "2020-01-03T00:00:00Z",
     closedAt: "2020-01-07T00:00:00Z",
     answer: "A2",
+    type: QuestionType.ShortAnswer,
+    answerChoices: [],
     ruleReferences: "Ref2",
     response: {
       id: 790,
@@ -87,6 +93,8 @@ const mockQuestions = [
     activeAt: "2020-01-03T00:00:00Z",
     closedAt: "2020-01-07T00:00:00Z",
     answer: "A3",
+    type: QuestionType.ShortAnswer,
+    answerChoices: [],
     ruleReferences: "Ref3",
     response: {
       id: 791,
@@ -263,8 +271,8 @@ describe("Completed Questions page tests", () => {
       );
       expect(cols.at(1).text()).toBe(mockQuestions[i].body);
       expect(cols.at(2).text()).toBe(mockQuestions[i].answer);
-      expect(cols.at(3).text()).toBe(mockQuestions[i].response.response);
-      if (!mockQuestions[i].response.grade) {
+      expect(cols.at(3).text()).toBe(mockQuestions[i].response?.response);
+      if (!mockQuestions[i].response?.grade) {
         expect(cols.at(4).find("i").classes()).not.toContain(
           "mdi-check-circle"
         );
@@ -274,12 +282,12 @@ describe("Completed Questions page tests", () => {
         expect(cols.at(5).text()).toBe("");
       } else {
         expect(cols.at(4).find("i").classes()).toContain(
-          mockQuestions[i].response.grade?.correct
+          mockQuestions[i].response?.grade?.correct
             ? "mdi-check-circle"
             : "mdi-close-circle"
         );
         expect(cols.at(5).text()).toBe(
-          mockQuestions[i].response.grade?.score.toString()
+          mockQuestions[i].response?.grade?.score.toString()
         );
       }
     }

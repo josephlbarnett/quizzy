@@ -4,10 +4,7 @@
       :query="require('../graphql/CurrentUser.gql')"
       @result="
         (result) =>
-          result &&
-          result.data &&
-          result.data.user &&
-          setTZ(result.data.user.timeZoneId)
+          result && result.data && result.data.user && setUser(result.data.user)
       "
     >
       <template #default="{}" />
@@ -37,6 +34,12 @@
             <template #item.activeAt="{ value }">
               {{ renderDate(value) }}
             </template>
+            <template #item.answer="{ item, value }">
+              {{ findAnswer(item, value, item.answer) }}
+            </template>
+            <template #item.response.response="{ item, value }">
+              {{ findAnswer(item, value, value || "&mdash;") }}
+            </template>
             <template #item.response.grade.correct="{ value }">
               <v-icon v-if="value === true" color="green darken-2"
                 >mdi-check-circle</v-icon
@@ -58,7 +61,7 @@
         >
         <v-card-text>
           <div>{{ clickedQuestion.body }}</div>
-          <v-row>
+          <v-row v-if="shortAnswer()">
             <v-col cols="6">
               <v-textarea
                 v-if="clickedQuestion.response"
@@ -76,7 +79,53 @@
               />
             </v-col>
           </v-row>
-          <v-row>
+          <v-row v-else>
+            <v-col cols="12">
+              <v-radio-group
+                readonly
+                :value="
+                  clickedQuestion.response && clickedQuestion.response.response
+                "
+              >
+                <v-row
+                  v-for="choice in clickedQuestion.answerChoices"
+                  :key="choice.letter"
+                >
+                  <v-radio
+                    :key="choice.letter"
+                    :label="choice.letter + ': ' + choice.answer"
+                    :value="choice.letter"
+                    readonly
+                  ></v-radio
+                  >&nbsp;&nbsp;
+                  <v-icon
+                    v-if="
+                      clickedQuestion.response &&
+                      choice.letter == clickedQuestion.response.response &&
+                      choice.letter == clickedQuestion.answer
+                    "
+                    color="green darken-2"
+                    >mdi-check-circle</v-icon
+                  >
+                  <v-icon
+                    v-if="
+                      clickedQuestion.response &&
+                      choice.letter == clickedQuestion.response.response &&
+                      choice.letter != clickedQuestion.answer
+                    "
+                    color="red darken-2"
+                    >mdi-close-circle</v-icon
+                  >
+                </v-row>
+              </v-radio-group>
+              <v-text-field
+                v-model="correctAnswerChoice"
+                :readonly="true"
+                label="Answer Key"
+              />
+            </v-col>
+          </v-row>
+          <v-row v-if="shortAnswer()">
             <v-col cols="6">
               <v-textarea
                 v-if="clickedQuestion.response"
@@ -98,7 +147,16 @@
               />
             </v-col>
           </v-row>
-          <v-row>
+          <v-row v-else>
+            <v-col cols="12">
+              <v-textarea
+                v-model="clickedQuestion.ruleReferences"
+                :readonly="true"
+                label="Rule References"
+              />
+            </v-col>
+          </v-row>
+          <v-row v-if="shortAnswer()">
             <v-col>Correct?:</v-col>
             <v-col>
               <span
@@ -126,11 +184,11 @@
               >
             </v-col>
           </v-row>
-          <v-row>
+          <v-row v-if="shortAnswer()">
             <v-col>Bonus:</v-col>
             <v-col>{{ clickedQuestionBonus }}</v-col>
           </v-row>
-          <v-row>
+          <v-row v-if="shortAnswer()">
             <v-col> Score: </v-col>
             <v-col>
               {{
@@ -152,7 +210,7 @@
 <script lang="ts">
 import Vue from "vue";
 import moment from "moment-timezone";
-import { ApiQuestion } from "@/generated/types";
+import { ApiQuestion, ApiUser, QuestionType } from "@/generated/types.d";
 
 export default Vue.extend({
   name: "CompletedQuestions",
@@ -160,6 +218,8 @@ export default Vue.extend({
     userTZ: "Autodetect",
     detailDialog: false,
     clickedQuestion: null as ApiQuestion | null,
+    questionType: QuestionType.ShortAnswer,
+    correctAnswerChoice: "",
     completedQuestions: [],
     headers: [
       {
@@ -213,14 +273,43 @@ export default Vue.extend({
       const zonedMoment = moment.tz(value, moment.ISO_8601, browserTZ);
       return zonedMoment.format("ddd, MMM D YYYY");
     },
-    setTZ(tz: string | null) {
-      if (tz) {
-        this.userTZ = tz;
+    setUser(user: ApiUser) {
+      if (user.timeZoneId) {
+        this.userTZ = user.timeZoneId;
       }
+      this.questionType = user.instance.defaultQuestionType;
     },
     clickRow(item: ApiQuestion) {
       this.clickedQuestion = item;
+      this.correctAnswerChoice = "";
+      if (item.type == QuestionType.MultipleChoice) {
+        let correctAnswer = item.answerChoices?.find(
+          (choice) => choice.letter == item.answer
+        );
+        if (correctAnswer) {
+          this.correctAnswerChoice =
+            correctAnswer.letter + ": " + correctAnswer.answer;
+        }
+      }
       this.detailDialog = true;
+    },
+    shortAnswer(): boolean {
+      return this.clickedQuestion?.type == QuestionType.ShortAnswer;
+    },
+    findAnswer(
+      item: ApiQuestion,
+      letter: string,
+      defaultValue: string
+    ): string {
+      if (item.type == QuestionType.MultipleChoice) {
+        let correctAnswer = item.answerChoices?.find(
+          (choice) => choice.letter == letter
+        );
+        if (correctAnswer) {
+          return correctAnswer.letter + ": " + correctAnswer.answer;
+        }
+      }
+      return defaultValue;
     },
   },
 });

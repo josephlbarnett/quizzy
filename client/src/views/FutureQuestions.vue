@@ -7,9 +7,7 @@
           result &&
             result.data &&
             result.data.user &&
-            setTZ(result.data.user.timeZoneId);
-          userId =
-            result && result.data && result.data.user && result.data.user.id;
+            setUser(result.data.user);
         }
       "
     >
@@ -80,10 +78,38 @@
                         label="Question Body:"
                     /></v-col>
                   </v-row>
-                  <v-row>
-                    <v-col
-                      ><v-textarea v-model="addDialogAnswer" label="Answer:"
-                    /></v-col>
+                  <v-row v-if="shortAnswer()">
+                    <v-col>
+                      <v-textarea v-model="addDialogAnswer" label="Answer:" />
+                    </v-col>
+                  </v-row>
+                  <v-row v-else>
+                    <v-col>
+                      Answer Choices:
+                      <v-radio-group v-model="addDialogAnswer">
+                        <v-row
+                          v-for="(choice, index) in addDialogAnswerChoices"
+                          :key="index"
+                        >
+                          <v-radio :value="getLetterIndex(index)" />
+                          <v-text-field
+                            v-model="addDialogAnswerChoices[index]"
+                            :value="choice"
+                            :label="'Answer ' + getLetterIndex(index)"
+                          />
+                          <v-icon
+                            v-if="addDialogAnswerChoices.length > 1"
+                            @click="addDialogAnswerChoices.splice(index, 1)"
+                            >mdi-close</v-icon
+                          >
+                        </v-row>
+                        <v-row
+                          ><v-icon @click="addDialogAnswerChoices.push('')"
+                            >mdi-plus</v-icon
+                          ></v-row
+                        >
+                      </v-radio-group>
+                    </v-col>
                   </v-row>
                   <v-row>
                     <v-col
@@ -105,6 +131,8 @@
                       body: addDialogBody,
                       closedAt: addDialogClose,
                       ruleReferences: addDialogRuleReferences,
+                      type: questionType,
+                      answerChoices: mutationAnswerChoices(),
                     }"
                     @done="addDialog = false"
                     @error="addDialogError = true"
@@ -158,7 +186,12 @@
 import Vue from "vue";
 import moment from "moment-timezone";
 import DateTimePicker from "@/components/DateTimePicker.vue";
-import { Question } from "@/generated/types";
+import {
+  AnswerChoice,
+  ApiUser,
+  Question,
+  QuestionType,
+} from "@/generated/types.d";
 
 export default Vue.extend({
   name: "FutureQuestions",
@@ -168,6 +201,7 @@ export default Vue.extend({
     addDialog: false,
     addDialogBody: "",
     addDialogAnswer: "",
+    addDialogAnswerChoices: ["", "", "", ""],
     addDialogAuthor: "",
     addDialogActive: "",
     addDialogClose: "",
@@ -204,6 +238,7 @@ export default Vue.extend({
       }))
     ),
     timezone: "Autodetect",
+    questionType: QuestionType.ShortAnswer,
   }),
   methods: {
     resetAddDialogState() {
@@ -223,13 +258,20 @@ export default Vue.extend({
       this.addDialogActive = item.activeAt;
       this.addDialogClose = item.closedAt;
       this.addDialogRuleReferences = item.ruleReferences;
+      this.addDialogAnswerChoices = item.answerChoices?.map(
+        (choice) => choice.answer
+      ) || [""];
       this.addDialog = true;
     },
-    setTZ(tz: string | null) {
+    setUser(user: ApiUser) {
+      let tz = user.timeZoneId;
       if (tz && this.tzs.map((x) => x.value).indexOf(tz) > -1) {
         this.timezone = tz;
       } else {
         this.timezone = "Autodetect";
+      }
+      if (user.instance && user.instance.defaultQuestionType) {
+        this.questionType = user.instance.defaultQuestionType;
       }
     },
     renderDateTime(date: string) {
@@ -247,6 +289,20 @@ export default Vue.extend({
           : moment.tz.guess();
       const zonedMoment = moment.tz(date, moment.ISO_8601, browserTZ);
       return zonedMoment.format("ddd, MMM D YYYY");
+    },
+    shortAnswer(): boolean {
+      return this.questionType == QuestionType.ShortAnswer;
+    },
+    getLetterIndex(index: number): string {
+      return String.fromCharCode("A".charCodeAt(0) + index);
+    },
+    mutationAnswerChoices(): AnswerChoice[] {
+      return this.addDialogAnswerChoices.map((value, index) => {
+        return {
+          letter: this.getLetterIndex(index),
+          answer: value,
+        };
+      });
     },
   },
 });

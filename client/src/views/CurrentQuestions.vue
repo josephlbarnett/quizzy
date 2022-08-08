@@ -43,6 +43,9 @@
             <template #item.activeAt="{ value }">
               {{ renderDate(value) }}
             </template>
+            <template #item.response.response="{ item, value }">
+              {{ renderResponse(item, value) }}
+            </template>
           </v-data-table>
         </v-card>
       </template>
@@ -75,13 +78,27 @@
             <v-card-text>
               {{ clickedQuestion.body }}
               <v-textarea
+                v-if="shortAnswer()"
                 v-model="clickedResponse.response"
                 label="Response"
               ></v-textarea>
               <v-textarea
+                v-if="shortAnswer()"
                 v-model="clickedResponse.ruleReferences"
                 label="Rule Reference"
               ></v-textarea>
+              <v-radio-group
+                v-for="value in clickedQuestion.answerChoices"
+                v-else
+                :key="value.letter"
+                v-model="clickedResponse.response"
+              >
+                <v-radio
+                  :key="value.letter"
+                  :label="value.letter + ': ' + value.answer"
+                  :value="value.letter"
+                />
+              </v-radio-group>
             </v-card-text>
             <v-card-actions>
               <v-btn @click="responseDialog = false">CANCEL</v-btn>
@@ -108,7 +125,7 @@
 <script lang="ts">
 import Vue from "vue";
 import moment from "moment-timezone";
-import { ApiQuestion, ApiResponse } from "@/generated/types";
+import { ApiQuestion, ApiResponse, QuestionType } from "@/generated/types.d";
 
 export default Vue.extend({
   name: "CurrentQuestions",
@@ -175,6 +192,20 @@ export default Vue.extend({
     },
     saveResponse(mutate: () => void) {
       mutate();
+    },
+    shortAnswer(): boolean {
+      return this.clickedQuestion?.type == QuestionType.ShortAnswer;
+    },
+    renderResponse(item: ApiQuestion, value: string) {
+      if (item.type == QuestionType.MultipleChoice) {
+        let selection = item.answerChoices?.find(
+          (choice) => choice.letter == value
+        );
+        if (selection) {
+          return selection.letter + ": " + selection.answer;
+        }
+      }
+      return value;
     },
   },
 });

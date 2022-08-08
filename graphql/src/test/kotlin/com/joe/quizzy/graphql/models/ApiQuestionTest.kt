@@ -4,6 +4,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import com.joe.quizzy.api.models.Question
+import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.graphql.auth.UserPrincipal
@@ -32,14 +33,28 @@ class ApiQuestionTest {
         "a1",
         "r1",
         now,
-        now
+        now,
+        QuestionType.SHORT_ANSWER,
+        listOf()
     )
     val u = User(UUID.randomUUID(), UUID.randomUUID(), "name", "email", "", false, "")
 
     @Test
     fun testCopyConstructor() {
         assertThat(q).isEqualTo(
-            ApiQuestion(Question(q.id, q.authorId, q.body, q.answer, q.ruleReferences, q.activeAt, q.closedAt))
+            ApiQuestion(
+                Question(
+                    q.id,
+                    q.authorId,
+                    q.body,
+                    q.answer,
+                    q.ruleReferences,
+                    q.activeAt,
+                    q.closedAt,
+                    q.type,
+                    q.answerChoices
+                )
+            )
         )
     }
 

@@ -4,12 +4,18 @@ import assertk.all
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
+import assertk.assertions.each
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEqualTo
+import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.prop
+import com.joe.quizzy.api.models.AnswerChoice
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.NotificationType
 import com.joe.quizzy.api.models.Question
+import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.EmailNotificationDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
@@ -82,7 +88,7 @@ class QuestionDAOTest : PostgresDAOTestBase() {
         assertThat(needAnswers.map { it.body }.first()).isEqualTo("past2")
     }
 
-    @Test
+    @Test(dependsOnMethods = ["testMultipleChoiceQuestion"]) // can't run concurrently with the updating happening there
     fun testRoundTrip() {
         assertThat(dao.get(UUID.randomUUID())).isNull()
         val instance = Instance(null, "question dao round trip", "ACTIVE")
@@ -130,5 +136,67 @@ class QuestionDAOTest : PostgresDAOTestBase() {
         }
         val all = dao.all()
         assertThat(all.toSet()).isEqualTo(dao.get(all.mapNotNull { it.id }).toSet())
+    }
+
+    @Test
+    fun testMultipleChoiceQuestion() {
+        val instance = Instance(null, "question dao multiple choice question", "ACTIVE")
+        val instanceId = instanceDao.save(instance).id!!
+        val user = User(null, instanceId, "sally", "sally@gmail.com", null, false, "UTC")
+        val userId = userDao.save(user).id!!
+        val q1 = Question(
+            null,
+            userId,
+            "a multiple choice question",
+            "C",
+            "some refs",
+            OffsetDateTime.now(),
+            OffsetDateTime.now(),
+            QuestionType.MULTIPLE_CHOICE,
+            listOf(
+                AnswerChoice(null, null, "A", "Choice A"),
+                AnswerChoice(null, null, "B", "Choice B"),
+                AnswerChoice(null, null, "C", "Choice C"),
+                AnswerChoice(null, null, "D", "Choice D"),
+            )
+        )
+        val savedQ = dao.save(q1)
+        val savedQId = savedQ.id!!
+        assertThat(savedQ.answerChoices).isNotNull().all {
+            hasSize(4)
+            each {
+                it.prop(AnswerChoice::id).isNotNull()
+                it.prop(AnswerChoice::questionId).isNotNull().isEqualTo(savedQId)
+            }
+        }
+        assertThat(dao.get(savedQId)?.body).isEqualTo(savedQ.body)
+        val updatedQ = Question(
+            savedQId,
+            userId,
+            "an updated question",
+            "D",
+            "some refs",
+            OffsetDateTime.now(),
+            OffsetDateTime.now(),
+            QuestionType.MULTIPLE_CHOICE,
+            listOf(
+                AnswerChoice(null, null, "A", "Choice A1"),
+                AnswerChoice(null, null, "B", "Choice B2"),
+                AnswerChoice(null, null, "C", "Choice C3"),
+                AnswerChoice(null, null, "D", "Choice D4"),
+            )
+        )
+        val resavedQ = dao.save(updatedQ)
+        assertThat(resavedQ.answerChoices).isNotNull().all {
+            hasSize(4)
+            each {
+                it.prop(AnswerChoice::id).isNotNull()
+                it.prop(AnswerChoice::questionId).isNotNull().isEqualTo(savedQId)
+            }
+        }
+        assertThat(dao.get(savedQId)?.body).isEqualTo(updatedQ.body)
+        for (i in savedQ.answerChoices!!.indices) {
+            assertThat(savedQ.answerChoices?.get(i)?.id).isNotNull().isNotEqualTo(resavedQ.answerChoices?.get(i)?.id)
+        }
     }
 }

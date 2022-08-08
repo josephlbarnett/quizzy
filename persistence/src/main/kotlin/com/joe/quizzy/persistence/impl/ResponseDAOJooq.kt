@@ -50,6 +50,7 @@ open class ResponseDAOJooq
                     )
                 }
             }
+
             record.store()
             record.into(Response::class.java)
         }

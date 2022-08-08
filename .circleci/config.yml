@@ -96,8 +96,6 @@ jobs:
             if [ $? -eq 0 ]; then
               chmod +x ~/codecov
               cd ~/repo
-              ~/codecov -t ${CODECOV_TOKEN}
-            else
               echo "bad checksum on codecov binary"
               exit 1
             fi
@@ -133,7 +131,7 @@ jobs:
           name: Deploy
           command: |
             CURRENT_VERSION=$(cat ~/jars/release/current_version.txt)
-            heroku deploy:jar ~/jars/server-${CURRENT_VERSION}-shaded.jar -a fb-rules-exchange --jdk 11
+            heroku deploy:jar ~/jars/server-${CURRENT_VERSION}-shaded.jar -a fb-rules-exchange --jdk 17
       - run:
           name: Create Release Notes
           command: |

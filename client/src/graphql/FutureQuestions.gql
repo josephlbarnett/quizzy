@@ -7,5 +7,11 @@ query FutureQuestions {
     closedAt
     id
     ruleReferences
+    type
+    answerChoices {
+      id
+      letter
+      answer
+    }
   }
 }

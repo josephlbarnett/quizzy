@@ -1,6 +1,8 @@
 package com.joe.quizzy.graphql.models
 
+import com.joe.quizzy.api.models.AnswerChoice
 import com.joe.quizzy.api.models.Question
+import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.graphql.auth.UserPrincipal
@@ -21,7 +23,9 @@ data class ApiQuestion(
     val answer: String,
     val ruleReferences: String,
     val activeAt: OffsetDateTime,
-    val closedAt: OffsetDateTime
+    val closedAt: OffsetDateTime,
+    val type: QuestionType,
+    val answerChoices: List<AnswerChoice>?
 ) {
     constructor(
         question: Question
@@ -32,7 +36,9 @@ data class ApiQuestion(
         question.answer,
         question.ruleReferences,
         question.activeAt,
-        question.closedAt
+        question.closedAt,
+        question.type,
+        question.answerChoices
     )
 
     fun response(dfe: DataFetchingEnvironment): CompletableFuture<ApiResponse?> {
