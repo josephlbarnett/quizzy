@@ -96,6 +96,8 @@ jobs:
             if [ $? -eq 0 ]; then
               chmod +x ~/codecov
               cd ~/repo
+              ~/codecov -t ${CODECOV_TOKEN}
+            else
               echo "bad checksum on codecov binary"
               exit 1
             fi
