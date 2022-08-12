@@ -1,5 +1,6 @@
 package com.joe.quizzy.graphql.models
 
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
@@ -19,22 +20,25 @@ data class ApiResponse(
     val userId: UUID,
     val questionId: UUID,
     val response: String,
-    val ruleReferences: String
+    val ruleReferences: String,
+    @GraphQLIgnore
+    private val defaultScore: Int
 ) {
-    constructor(response: Response) :
+    constructor(response: Response, defaultScore: Int) :
         this(
             response.id,
             response.userId,
             response.questionId,
             response.response,
-            response.ruleReferences
+            response.ruleReferences,
+            defaultScore
         )
 
     fun user(dfe: DataFetchingEnvironment): CompletableFuture<ApiUser?> {
         val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             return dfe.getDataLoader<UUID, User>("batchusers").load(userId).thenApply {
-                it?.let(::ApiUser)
+                it?.let { u -> ApiUser(u, defaultScore) }
             }
         }
         return CompletableFuture.completedFuture(null)
@@ -44,15 +48,16 @@ data class ApiResponse(
         val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             return dfe.getDataLoader<UUID, Question>("batchquestions").load(questionId)
-                .thenApply { it?.let(::ApiQuestion) }
+                .thenApply { it?.let { q -> ApiQuestion(q, defaultScore) } }
         }
         return CompletableFuture.completedFuture(null)
     }
 
-    fun grade(dfe: DataFetchingEnvironment): CompletableFuture<Grade?> {
+    fun grade(dfe: DataFetchingEnvironment): CompletableFuture<ApiGrade?> {
         val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal && id != null) {
             return dfe.getDataLoader<UUID, Grade>("responsegrades").load(id)
+                .thenApply { it?.let { g -> ApiGrade(g, defaultScore) } }
         }
         return CompletableFuture.completedFuture(null)
     }

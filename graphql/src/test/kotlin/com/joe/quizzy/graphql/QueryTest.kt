@@ -6,6 +6,7 @@ import assertk.assertions.doesNotContain
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
@@ -13,6 +14,7 @@ import com.joe.quizzy.graphql.auth.UserPrincipal
 import com.joe.quizzy.graphql.models.ApiQuestion
 import com.joe.quizzy.graphql.models.ApiResponse
 import com.joe.quizzy.graphql.models.ApiUser
+import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SessionDAO
@@ -65,6 +67,7 @@ class QueryTest {
         val uDAO = LeakyMock.mock<UserDAO>()
         val sDAO = LeakyMock.mock<SessionDAO>()
         val rDAO = LeakyMock.mock<ResponseDAO>()
+        val iDAO = LeakyMock.mock<InstanceDAO>()
         EasyMock.expect(qDAO.get(EasyMock.anyObject() ?: UUID.randomUUID())).andReturn(question)
         EasyMock.expect(qDAO.active(user)).andReturn(listOf(question))
         EasyMock.expect(qDAO.closed(user)).andReturn(listOf(question))
@@ -74,13 +77,15 @@ class QueryTest {
         EasyMock.expect(rDAO.get(EasyMock.anyObject() ?: UUID.randomUUID())).andReturn(response)
         EasyMock.expect(rDAO.forInstance(iUUID, true)).andReturn(listOf(response, gradedResponse))
         EasyMock.expect(rDAO.forInstance(iUUID, false)).andReturn(listOf(response))
+        EasyMock.expect(iDAO.get(iUUID)).andReturn(Instance(iUUID, "instance", "ACTIVE", defaultScore = 15)).anyTimes()
         EasyMock.replay(
             qDAO,
             uDAO,
             sDAO,
-            rDAO
+            rDAO,
+            iDAO
         )
-        query = Query(qDAO, uDAO, rDAO)
+        query = Query(qDAO, uDAO, rDAO, iDAO)
     }
 
     @Test
@@ -96,7 +101,7 @@ class QueryTest {
     @Test
     fun testUsersQuery() {
         val apiUsers = query.users(getDFE(UserPrincipal(user, null), scope))
-        assertThat(apiUsers).contains(ApiUser(user))
+        assertThat(apiUsers).contains(ApiUser(user, 15))
 
         val noUsers = query.users(getDFE(null, scope))
         assertThat(noUsers).isEmpty()
@@ -105,7 +110,7 @@ class QueryTest {
     @Test
     fun testActiveQuestions() {
         val apiQuestions = query.activeQuestions(getDFE(UserPrincipal(user, null), scope))
-        assertThat(apiQuestions).contains(ApiQuestion(question.copy(answer = "", ruleReferences = "")))
+        assertThat(apiQuestions).contains(ApiQuestion(question.copy(answer = "", ruleReferences = ""), 15))
 
         val noQuestions = query.activeQuestions(getDFE(null, scope))
         assertThat(noQuestions).isEmpty()
@@ -114,7 +119,7 @@ class QueryTest {
     @Test
     fun testClosedQuestions() {
         val apiQuestions = query.closedQuestions(getDFE(UserPrincipal(user, null), scope))
-        assertThat(apiQuestions).contains(ApiQuestion(question))
+        assertThat(apiQuestions).contains(ApiQuestion(question, 15))
 
         val noQuestions = query.closedQuestions(getDFE(null, scope))
         assertThat(noQuestions).isEmpty()
@@ -125,7 +130,7 @@ class QueryTest {
         val apiQuestions = query.futureQuestions(
             getDFE(UserPrincipal(user.copy(admin = true), null), scope)
         )
-        assertThat(apiQuestions.first()).isEqualTo(ApiQuestion(question))
+        assertThat(apiQuestions.first()).isEqualTo(ApiQuestion(question, 15))
 
         val noPermissionsQuestions = query.futureQuestions(getDFE(UserPrincipal(user, null), scope))
         assertThat(noPermissionsQuestions).isEmpty()
@@ -140,15 +145,15 @@ class QueryTest {
             getDFE(UserPrincipal(user.copy(admin = true), null), scope),
             true
         )
-        assertThat(withGraded).contains(ApiResponse(response))
-        assertThat(withGraded).contains(ApiResponse(gradedResponse))
+        assertThat(withGraded).contains(ApiResponse(response, 15))
+        assertThat(withGraded).contains(ApiResponse(gradedResponse, 15))
 
         val withoutGraded = query.responses(
             getDFE(UserPrincipal(user.copy(admin = true), null), scope),
             false
         )
-        assertThat(withoutGraded).contains(ApiResponse(response))
-        assertThat(withoutGraded).doesNotContain(ApiResponse(gradedResponse))
+        assertThat(withoutGraded).contains(ApiResponse(response, 15))
+        assertThat(withoutGraded).doesNotContain(ApiResponse(gradedResponse, 15))
 
         val noPermissionsResponses = query.responses(getDFE(UserPrincipal(user, null), scope), true)
         assertThat(noPermissionsResponses).isEmpty()

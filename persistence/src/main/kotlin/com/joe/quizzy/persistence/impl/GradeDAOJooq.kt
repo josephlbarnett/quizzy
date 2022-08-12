@@ -6,6 +6,7 @@ import com.joe.quizzy.persistence.api.GradeDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.GradesRecord
 import mu.KotlinLogging
+import org.jooq.Configuration
 import org.jooq.DSLContext
 import java.util.UUID
 import java.util.stream.Stream
@@ -32,27 +33,31 @@ open class GradeDAOJooq
     @Timed
     override fun save(thing: Grade): Grade {
         return ctx.transactionResult { config ->
-            val thingId = thing.id
-            val record = if (thingId == null) {
+            save(thing, config)
+        }
+    }
+
+    fun save(thing: Grade, config: Configuration): Grade {
+        val thingId = thing.id
+        val record = if (thingId == null) {
+            config.dsl().newRecord(
+                Tables.GRADES,
+                thing
+            )
+        } else {
+            val existing = getRecord(config.dsl(), thingId)
+            if (existing != null) {
+                existing.from(thing)
+                existing
+            } else {
                 config.dsl().newRecord(
                     Tables.GRADES,
                     thing
                 )
-            } else {
-                val existing = getRecord(config.dsl(), thingId)
-                if (existing != null) {
-                    existing.from(thing)
-                    existing
-                } else {
-                    config.dsl().newRecord(
-                        Tables.GRADES,
-                        thing
-                    )
-                }
             }
-            record.store()
-            record.into(Grade::class.java)
         }
+        record.store()
+        return record.into(Grade::class.java)
     }
 
     @Timed

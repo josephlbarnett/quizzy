@@ -1,5 +1,6 @@
 package com.joe.quizzy.graphql.models
 
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.joe.quizzy.api.models.AnswerChoice
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.QuestionType
@@ -25,10 +26,13 @@ data class ApiQuestion(
     val activeAt: OffsetDateTime,
     val closedAt: OffsetDateTime,
     val type: QuestionType,
-    val answerChoices: List<AnswerChoice>?
+    val answerChoices: List<AnswerChoice>?,
+    @GraphQLIgnore
+    private val defaultScore: Int
 ) {
     constructor(
-        question: Question
+        question: Question,
+        defaultScore: Int
     ) : this(
         question.id,
         question.authorId,
@@ -38,7 +42,8 @@ data class ApiQuestion(
         question.activeAt,
         question.closedAt,
         question.type,
-        question.answerChoices
+        question.answerChoices,
+        defaultScore
     )
 
     fun response(dfe: DataFetchingEnvironment): CompletableFuture<ApiResponse?> {
@@ -46,12 +51,13 @@ data class ApiQuestion(
         if (principal is UserPrincipal && id != null) {
             return dfe.getDataLoader<UUID, Response>("questionresponses")
                 .load(id)
-                .thenApply { it?.let(::ApiResponse) }
+                .thenApply { it?.let { r -> ApiResponse(r, defaultScore) } }
         }
         return CompletableFuture.completedFuture(null)
     }
 
     fun author(dfe: DataFetchingEnvironment): CompletableFuture<ApiUser?> {
-        return dfe.getDataLoader<UUID, User>("batchusers").load(authorId).thenApply { it?.let(::ApiUser) }
+        return dfe.getDataLoader<UUID, User>("batchusers").load(authorId)
+            .thenApply { it?.let { u -> ApiUser(u, defaultScore) } }
     }
 }

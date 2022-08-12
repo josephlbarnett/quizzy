@@ -35,7 +35,8 @@ class ApiQuestionTest {
         now,
         now,
         QuestionType.SHORT_ANSWER,
-        listOf()
+        listOf(),
+        15
     )
     val u = User(UUID.randomUUID(), UUID.randomUUID(), "name", "email", "", false, "")
 
@@ -53,7 +54,8 @@ class ApiQuestionTest {
                     q.closedAt,
                     q.type,
                     q.answerChoices
-                )
+                ),
+                15
             )
         )
     }
@@ -137,7 +139,7 @@ class ApiQuestionTest {
         EasyMock.expect(mockDataLoader.load(q.authorId)).andReturn(CompletableFuture.completedFuture(u))
         EasyMock.replay(mockEnv, mockDataLoader)
         val resp = q.author(mockEnv).await()
-        assertThat(resp).isEqualTo(ApiUser(u))
+        assertThat(resp).isEqualTo(ApiUser(u, 15))
         EasyMock.verify(mockEnv, mockDataLoader)
     }
 

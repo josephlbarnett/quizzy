@@ -1,5 +1,6 @@
 package com.joe.quizzy.graphql.models
 
+import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.User
@@ -17,10 +18,13 @@ data class ApiUser(
     val email: String,
     val admin: Boolean,
     val timeZoneId: String,
-    val notifyViaEmail: Boolean
+    val notifyViaEmail: Boolean,
+    @GraphQLIgnore
+    private val defaultScore: Int
 ) {
     constructor(
-        user: User
+        user: User,
+        defaultScore: Int
     ) : this(
         user.id,
         user.instanceId,
@@ -28,12 +32,13 @@ data class ApiUser(
         user.email,
         user.admin,
         user.timeZoneId,
-        user.notifyViaEmail
+        user.notifyViaEmail,
+        defaultScore
     )
 
     fun score(dfe: DataFetchingEnvironment): CompletableFuture<Int> {
         return dfe.getDataLoader<UUID, List<Grade>>("usergrades").load(id).thenApply {
-            it?.map(Grade::score)?.fold(0, Int::plus) ?: 0
+            it?.map { g -> ApiGrade(g, defaultScore).score() }?.fold(0, Int::plus) ?: 0
         }
     }
 

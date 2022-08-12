@@ -11,4 +11,5 @@ data class Instance(
     @get:JsonIgnore @GraphQLIgnore val gmailRefreshToken: String? = null,
     val defaultQuestionType: QuestionType = QuestionType.SHORT_ANSWER,
     val autoGrade: Boolean = false,
+    val defaultScore: Int = 15
 )

@@ -11,7 +11,6 @@ import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
-import com.joe.quizzy.persistence.api.GradeDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
@@ -27,16 +26,16 @@ class GradeDAOTest : PostgresDAOTestBase() {
     lateinit var instanceDao: InstanceDAO
     lateinit var questionDao: QuestionDAO
     lateinit var responseDao: ResponseDAO
-    lateinit var dao: GradeDAO
+    lateinit var dao: GradeDAOJooq
 
     @BeforeClass
     override fun setUp() {
         super.setUp()
         userDao = UserDAOJooq(ctx)
-        responseDao = ResponseDAOJooq(ctx)
         instanceDao = InstanceDAOJooq(ctx)
         questionDao = QuestionDAOJooq(ctx)
         dao = GradeDAOJooq(ctx)
+        responseDao = ResponseDAOJooq(ctx, dao, instanceDao, questionDao, userDao)
     }
 
     @Test

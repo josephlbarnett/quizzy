@@ -12,6 +12,7 @@ import mu.KotlinLogging
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.ResultQuery
+import org.jooq.SelectConditionStep
 import org.jooq.SelectOnConditionStep
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -115,6 +116,17 @@ open class QuestionDAOJooq
             )
     }
 
+    private fun gradeExists(user: User): SelectConditionStep<Record> {
+        return ctx.select().from(Tables.GRADES).leftJoin(Tables.RESPONSES)
+            .on(Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID))
+            .where(
+                Tables.RESPONSES.USER_ID.eq(user.id).and(
+                    Tables.RESPONSES.QUESTION_ID.eq(Tables.QUESTIONS.ID)
+                )
+
+            )
+    }
+
     @Timed
     override fun active(user: User): List<Question> {
         val now = OffsetDateTime.now()
@@ -122,6 +134,9 @@ open class QuestionDAOJooq
             .where(
                 Tables.QUESTIONS.ACTIVE_AT.le(now)
                     .and(Tables.QUESTIONS.CLOSED_AT.ge(now))
+                    .andNotExists(
+                        gradeExists(user)
+                    )
             ).orderBy(Tables.QUESTIONS.CLOSED_AT)
         log.info("active questions query: $query")
         return query.collectAndMap()
@@ -148,7 +163,11 @@ open class QuestionDAOJooq
     override fun closed(user: User): List<Question> {
         val now = OffsetDateTime.now()
         val query = instanceQuestions(user)
-            .where(Tables.QUESTIONS.CLOSED_AT.le(now)).orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
+            .where(
+                Tables.QUESTIONS.CLOSED_AT.le(now).orExists(
+                    gradeExists(user)
+                )
+            ).orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
         log.info("closed questions query: $query")
         return query.collectAndMap()
     }

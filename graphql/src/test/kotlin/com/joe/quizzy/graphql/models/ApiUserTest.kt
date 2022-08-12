@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture
 
 class ApiUserTest {
 
-    val u = ApiUser(UUID.randomUUID(), UUID.randomUUID(), "name", "email", false, "", false)
+    val u = ApiUser(UUID.randomUUID(), UUID.randomUUID(), "name", "email", false, "", false, 15)
 
     @Test
     fun testCopyConstructor() {
@@ -32,7 +32,8 @@ class ApiUserTest {
                     u.admin,
                     u.timeZoneId,
                     u.notifyViaEmail
-                )
+                ),
+                15
             )
         )
     }

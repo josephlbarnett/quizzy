@@ -5,9 +5,14 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
+import assertk.assertions.isNotNull
 import assertk.assertions.isNull
+import assertk.assertions.isTrue
+import com.joe.quizzy.api.models.AnswerChoice
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.Question
+import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.InstanceDAO
@@ -25,20 +30,22 @@ class ResponseDAOTest : PostgresDAOTestBase() {
     lateinit var instanceDao: InstanceDAO
     lateinit var questionDao: QuestionDAO
     lateinit var dao: ResponseDAO
+    lateinit var gradeDao: GradeDAOJooq
 
     @BeforeClass
     override fun setUp() {
         super.setUp()
         userDao = UserDAOJooq(ctx)
-        dao = ResponseDAOJooq(ctx)
         instanceDao = InstanceDAOJooq(ctx)
         questionDao = QuestionDAOJooq(ctx)
+        gradeDao = GradeDAOJooq(ctx)
+        dao = ResponseDAOJooq(ctx, gradeDao, instanceDao, questionDao, userDao)
     }
 
     @Test
     fun testRoundTrip() {
         assertThat(dao.get(UUID.randomUUID())).isNull()
-        val instance = Instance(null, "question dao round trip", "ACTIVE")
+        val instance = Instance(null, "question dao round trip", "ACTIVE", autoGrade = true)
         val instanceId = instanceDao.save(instance).id!!
         val user = User(null, instanceId, "billy", "billy@gmail.com", null, false, "UTC")
         val userId = userDao.save(user).id!!
@@ -80,5 +87,30 @@ class ResponseDAOTest : PostgresDAOTestBase() {
         assertThat((dao.forUser(userId) + dao.forUser(userId2)).toSet()).isEqualTo(all)
         assertThat(dao.byUserQuestion(userId, qId)).isEqualTo(updateThing)
         assertThat(dao.byUserQuestions(userId, listOf(qId))).contains(qId to updateThing)
+
+        val q2 =
+            Question(
+                null,
+                userId,
+                "choice question",
+                "B",
+                "some refs",
+                OffsetDateTime.now(),
+                OffsetDateTime.now(),
+                QuestionType.MULTIPLE_CHOICE,
+                listOf(
+                    AnswerChoice(null, null, "A", "A"),
+                    AnswerChoice(null, null, "B", "B")
+                )
+            )
+        val q2Id = questionDao.save(q2).id!!
+        val r3 = Response(null, userId, q2Id, "A", "")
+        val r4 = Response(null, userId2, q2Id, "B", "")
+        val r3id = dao.save(r3).id!!
+        val r4id = dao.save(r4).id!!
+        val g3 = gradeDao.forResponse(r3id)
+        val g4 = gradeDao.forResponse(r4id)
+        assertThat(g3?.correct).isNotNull().isFalse()
+        assertThat(g4?.correct).isNotNull().isTrue()
     }
 }

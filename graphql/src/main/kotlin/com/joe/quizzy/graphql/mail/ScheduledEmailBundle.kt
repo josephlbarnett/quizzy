@@ -135,7 +135,8 @@ class ScheduledEmailBundle(
                             mapOf(
                                 "index" to index + 1,
                                 "body" to question.body,
-                                "answerChoices" to question.answerChoices?.map { choiceMap(it) })
+                                "answerChoices" to question.answerChoices?.map { choiceMap(it) }
+                            )
                         },
                         "answer" to answers.mapIndexed { index, question ->
                             mapOf(

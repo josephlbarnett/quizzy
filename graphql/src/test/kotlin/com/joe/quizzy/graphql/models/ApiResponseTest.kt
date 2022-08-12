@@ -31,13 +31,13 @@ class ApiResponseTest {
         UUID.randomUUID(),
         UUID.randomUUID(),
         "answer",
-        "references"
+        "references", 15
     )
     val u = User(UUID.randomUUID(), UUID.randomUUID(), "name", "email", "", false, "")
 
     @Test
     fun testCopyConstructor() {
-        assertThat(r).isEqualTo(ApiResponse(Response(r.id, r.userId, r.questionId, r.response, r.ruleReferences)))
+        assertThat(r).isEqualTo(ApiResponse(Response(r.id, r.userId, r.questionId, r.response, r.ruleReferences), 15))
     }
 
     @Test
@@ -53,7 +53,7 @@ class ApiResponseTest {
             CompletableFuture.completedFuture(u)
         )
         EasyMock.replay(mockEnv, mockDataLoader)
-        assertThat(r.user(mockEnv).await()).isEqualTo(ApiUser(u))
+        assertThat(r.user(mockEnv).await()).isEqualTo(ApiUser(u, 15))
         EasyMock.verify(mockEnv, mockDataLoader)
     }
 
@@ -98,7 +98,7 @@ class ApiResponseTest {
             CompletableFuture.completedFuture(q)
         )
         EasyMock.replay(mockEnv, mockDataLoader)
-        assertThat(r.question(mockEnv).await()).isEqualTo(ApiQuestion(q))
+        assertThat(r.question(mockEnv).await()).isEqualTo(ApiQuestion(q, 15))
         EasyMock.verify(mockEnv, mockDataLoader)
     }
 
@@ -143,7 +143,7 @@ class ApiResponseTest {
             CompletableFuture.completedFuture(g)
         )
         EasyMock.replay(mockEnv, mockDataLoader)
-        assertThat(r.grade(mockEnv).await()).isEqualTo(g)
+        assertThat(r.grade(mockEnv).await()).isEqualTo(ApiGrade(g, 15))
         EasyMock.verify(mockEnv, mockDataLoader)
     }
 

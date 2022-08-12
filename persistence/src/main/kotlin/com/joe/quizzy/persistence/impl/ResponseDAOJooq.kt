@@ -1,8 +1,13 @@
 package com.joe.quizzy.persistence.impl
 
 import com.codahale.metrics.annotation.Timed
+import com.joe.quizzy.api.models.Grade
+import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.Response
+import com.joe.quizzy.persistence.api.InstanceDAO
+import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
+import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.ResponsesRecord
 import mu.KotlinLogging
@@ -18,7 +23,11 @@ private val log = KotlinLogging.logger { }
  */
 open class ResponseDAOJooq
 @Inject constructor(
-    private val ctx: DSLContext
+    private val ctx: DSLContext,
+    private val gradeDAO: GradeDAOJooq,
+    private val instanceDAO: InstanceDAO,
+    private val questionDAO: QuestionDAO,
+    private val userDAO: UserDAO
 ) : ResponseDAO {
     private fun getRecord(dsl: DSLContext, id: UUID): ResponsesRecord? {
         return dsl.selectFrom(Tables.RESPONSES).where(Tables.RESPONSES.ID.eq(id)).fetchOne()
@@ -52,6 +61,25 @@ open class ResponseDAOJooq
             }
 
             record.store()
+            questionDAO.get(record.questionId)?.let { question ->
+                userDAO.get(question.authorId)?.let { author ->
+                    instanceDAO.get(author.instanceId)?.let { instance ->
+                        if (instance.autoGrade && question.type == QuestionType.MULTIPLE_CHOICE) {
+                            val correctAnswer = question.answerChoices?.firstOrNull { it.letter == question.answer }
+                            if (correctAnswer != null) {
+                                val existingGrade = gradeDAO.forResponse(record.id)
+                                val grade = Grade(
+                                    existingGrade?.id,
+                                    record.id,
+                                    record.response == correctAnswer.letter,
+                                    null
+                                )
+                                gradeDAO.save(grade, config)
+                            }
+                        }
+                    }
+                }
+            }
             record.into(Response::class.java)
         }
     }
