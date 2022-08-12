@@ -13,9 +13,11 @@ import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.model.Message
 import com.google.api.services.oauth2.Oauth2
 import com.google.api.services.oauth2.model.Userinfo
+import com.joe.quizzy.api.models.AnswerChoice
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.NotificationType
 import com.joe.quizzy.api.models.Question
+import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.EmailNotificationDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
@@ -265,10 +267,15 @@ class ScheduledEmailBundleTest {
                 UUID.randomUUID(),
                 authorId,
                 "q2",
-                "a2",
+                "A",
                 "r2",
                 OffsetDateTime.now().minusDays(2),
-                OffsetDateTime.now().minusHours(1)
+                OffsetDateTime.now().minusHours(1),
+                QuestionType.MULTIPLE_CHOICE,
+                listOf(
+                    AnswerChoice(UUID.randomUUID(), UUID.randomUUID(), "A", "First Choice"),
+                    AnswerChoice(UUID.randomUUID(), UUID.randomUUID(), "B", "Second Choice")
+                )
             )
         )
         EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
@@ -288,10 +295,15 @@ class ScheduledEmailBundleTest {
                 UUID.randomUUID(),
                 authorId,
                 "q4",
-                "a4",
+                "B",
                 "r4",
                 OffsetDateTime.now().minusDays(1),
-                OffsetDateTime.now().plusHours(1)
+                OffsetDateTime.now().plusHours(1),
+                QuestionType.MULTIPLE_CHOICE,
+                listOf(
+                    AnswerChoice(UUID.randomUUID(), UUID.randomUUID(), "A", "Letter A"),
+                    AnswerChoice(UUID.randomUUID(), UUID.randomUUID(), "B", "Letter B")
+                )
             )
         )
         EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andReturn(
@@ -398,12 +410,14 @@ class ScheduledEmailBundleTest {
         assertThat(bodyContent.toString()).contains("q4")
         assertThat(bodyContent.toString()).doesNotContain("a4")
         assertThat(bodyContent.toString()).doesNotContain("r4")
+        assertThat(bodyContent.toString()).contains("A: Letter A")
+        assertThat(bodyContent.toString()).contains("B: Letter B")
         assertThat(bodyContent.toString()).contains("new answers")
         assertThat(bodyContent.toString()).contains("q1")
         assertThat(bodyContent.toString()).contains("a1")
         assertThat(bodyContent.toString()).contains("r1")
         assertThat(bodyContent.toString()).contains("q2")
-        assertThat(bodyContent.toString()).contains("a2")
+        assertThat(bodyContent.toString()).contains("A: First Choice")
         assertThat(bodyContent.toString()).contains("r2")
     }
 

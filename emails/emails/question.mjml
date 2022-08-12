@@ -12,6 +12,9 @@
         <mj-raw>{{/questionCount}}
         {{#question}}</mj-raw>
         <mj-text align="left"><b>{{index}}</b>: {{body}}</mj-text>
+        <mj-raw>{{#answerChoices}}</mj-raw>
+            <mj-text align="left"><li style="margin-left: 15px">{{letter}}: {{answerChoiceAnswer}}</li></mj-text>
+        <mj-raw>{{/answerChoices}}</mj-raw>
         <mj-divider/>
         <mj-raw>{{/question}}
         {{#answerCount}}</mj-raw>

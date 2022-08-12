@@ -1,8 +1,10 @@
 package com.joe.quizzy.graphql.mail
 
 import com.github.mustachejava.DefaultMustacheFactory
+import com.joe.quizzy.api.models.AnswerChoice
 import com.joe.quizzy.api.models.NotificationType
 import com.joe.quizzy.api.models.Question
+import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.persistence.api.EmailNotificationDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
@@ -130,13 +132,16 @@ class ScheduledEmailBundle(
                         "questionCount" to countObject(questions.size),
                         "answerCount" to countObject(answers.size),
                         "question" to questions.mapIndexed { index, question ->
-                            mapOf("index" to index + 1, "body" to question.body)
+                            mapOf(
+                                "index" to index + 1,
+                                "body" to question.body,
+                                "answerChoices" to question.answerChoices?.map { choiceMap(it) })
                         },
                         "answer" to answers.mapIndexed { index, question ->
                             mapOf(
                                 "index" to index + 1,
                                 "body" to question.body,
-                                "answer" to question.answer,
+                                "answer" to question.answer + multiChoiceAnswer(question),
                                 "ruleReferences" to question.ruleReferences
                             )
                         }
@@ -152,6 +157,23 @@ class ScheduledEmailBundle(
             )
             gmail.gmail.sendEmail("me", message).execute()
         }
+    }
+
+    private fun choiceMap(choice: AnswerChoice): Map<String, String> {
+        return mapOf(
+            "letter" to choice.letter,
+            "answerChoiceAnswer" to choice.answer
+        )
+    }
+
+    private fun multiChoiceAnswer(question: Question): String {
+        if (question.type == QuestionType.MULTIPLE_CHOICE) {
+            val correctAnswer = question.answerChoices?.firstOrNull { it.letter == question.answer }
+            if (correctAnswer != null) {
+                return ": ${correctAnswer.answer}"
+            }
+        }
+        return ""
     }
 
     /**
