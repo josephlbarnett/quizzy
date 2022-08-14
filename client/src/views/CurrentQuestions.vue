@@ -131,7 +131,7 @@
 import Vue from "vue";
 import moment from "moment-timezone";
 import { ApiQuestion, ApiResponse, QuestionType } from "@/generated/types.d";
-import { FetchResult } from "@apollo/client";
+import { FetchResult } from "@apollo/client/core";
 import GradedQuestionDialog from "@/components/GradedQuestionDialog.vue";
 
 export default Vue.extend({

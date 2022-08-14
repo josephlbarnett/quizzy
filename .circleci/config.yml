@@ -133,7 +133,7 @@ jobs:
           name: Deploy
           command: |
             CURRENT_VERSION=$(cat ~/jars/release/current_version.txt)
-            heroku deploy:jar ~/jars/server-${CURRENT_VERSION}-shaded.jar -a fb-rules-exchange --jdk 17
+            heroku deploy:jar ~/jars/server-${CURRENT_VERSION}-shaded.jar -a daily-q --jdk 17
       - run:
           name: Create Release Notes
           command: |
