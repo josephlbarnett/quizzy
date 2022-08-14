@@ -613,6 +613,11 @@ class MutationTest {
             )
             EasyMock.expect(responseDAO.save(response.copy(userId = user.id!!)))
                 .andReturn(response.copy(id = UUID.randomUUID(), userId = user.id!!))
+            EasyMock.expect(instanceDAO.get(EasyMock.anyObject<UUID>() ?: UUID.randomUUID())).andReturn(
+                Instance(
+                    UUID.randomUUID(), "response-save", "ACTIVE"
+                )
+            )
         }.test {
             val savedResponse = mutation.response(
                 userSessionContext,

@@ -72,7 +72,7 @@
             userId,
           }"
           @error="saveError = true"
-          @done="responseDialog = false"
+          @done="(result) => mutated(result)"
         >
           <template #default="{ mutate, loading }">
             <v-card-text>
@@ -119,6 +119,11 @@
         </ApolloMutation>
       </v-card>
     </v-dialog>
+    <graded-question-dialog
+      v-model="gradeDialog"
+      :question="gradedQuestion"
+      :user-t-z="userTZ"
+    />
   </div>
 </template>
 
@@ -126,12 +131,16 @@
 import Vue from "vue";
 import moment from "moment-timezone";
 import { ApiQuestion, ApiResponse, QuestionType } from "@/generated/types.d";
+import { FetchResult } from "@apollo/client";
+import GradedQuestionDialog from "@/components/GradedQuestionDialog.vue";
 
 export default Vue.extend({
   name: "CurrentQuestions",
+  components: { GradedQuestionDialog },
   data: () => ({
     userTZ: "Autodetect",
     activeQuestions: [],
+    gradedQuestion: null as ApiQuestion | null,
     headers: [
       {
         text: "Date",
@@ -155,6 +164,7 @@ export default Vue.extend({
       },
     ],
     responseDialog: false,
+    gradeDialog: false,
     clickedQuestion: null as ApiQuestion | null,
     clickedResponse: null as ApiResponse | null,
     userId: "",
@@ -192,6 +202,19 @@ export default Vue.extend({
     },
     saveResponse(mutate: () => void) {
       mutate();
+    },
+    mutated(result: FetchResult<Record<string, ApiResponse>>) {
+      this.responseDialog = false;
+      if (result.data) {
+        if (result.data["response"].grade) {
+          let question = result.data["response"].question;
+          if (question) {
+            question.response = result.data["response"];
+            this.gradedQuestion = question;
+            this.gradeDialog = true;
+          }
+        }
+      }
     },
     shortAnswer(): boolean {
       return this.clickedQuestion?.type == QuestionType.ShortAnswer;

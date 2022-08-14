@@ -11,6 +11,7 @@ import com.joe.quizzy.graphql.auth.UserPrincipal
 import com.joe.quizzy.graphql.mail.GmailServiceFactory
 import com.joe.quizzy.graphql.mail.ScheduledEmailBundle
 import com.joe.quizzy.graphql.mail.sendEmail
+import com.joe.quizzy.graphql.models.ApiResponse
 import com.joe.quizzy.persistence.api.GradeDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
@@ -244,15 +245,20 @@ class Mutation @Inject constructor(
         return null
     }
 
-    fun response(dfe: DataFetchingEnvironment, response: Response): Response? {
+    fun response(dfe: DataFetchingEnvironment, response: Response): ApiResponse? {
         val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
             val id = principal.user.id
             require(id != null)
-            return responseDAO.save(
-                response.copy(
-                    userId = id
-                )
+            val instance = instanceDAO.get(principal.user.instanceId)
+            require(instance != null)
+            return ApiResponse(
+                responseDAO.save(
+                    response.copy(
+                        userId = id
+                    )
+                ),
+                instance.defaultScore
             )
         }
         return null

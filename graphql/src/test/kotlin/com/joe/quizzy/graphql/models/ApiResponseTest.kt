@@ -85,21 +85,49 @@ class ApiResponseTest {
     }
 
     @Test
-    fun testQuestion() = runBlocking {
+    fun testQuestionNullGrade() = runBlocking {
         val context = GraphQLContext.of(
             getGraphQLContextMap(scope, UserPrincipal(u, null))
         )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Question>>()
+        val mockGradeLoader = LeakyMock.mock<DataLoader<UUID, Grade>>()
         EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.expect(mockEnv.getDataLoader<UUID, Question>("batchquestions")).andReturn(mockDataLoader)
+        EasyMock.expect(mockEnv.getDataLoader<UUID, Grade>("responsegrades")).andReturn(mockGradeLoader)
         val q = Question(r.questionId, UUID.randomUUID(), "b", "a", "r", now, now)
         EasyMock.expect(mockDataLoader.load(r.questionId)).andReturn(
             CompletableFuture.completedFuture(q)
         )
-        EasyMock.replay(mockEnv, mockDataLoader)
+        EasyMock.expect(mockGradeLoader.load(r.id)).andReturn(
+            CompletableFuture.completedFuture(null)
+        )
+        EasyMock.replay(mockEnv, mockDataLoader, mockGradeLoader)
+        assertThat(r.question(mockEnv).await()).isEqualTo(ApiQuestion(q, 15).copy(answer = "", ruleReferences = ""))
+        EasyMock.verify(mockEnv, mockDataLoader, mockGradeLoader)
+    }
+
+    @Test
+    fun testQuestionWithGrade() = runBlocking {
+        val context = GraphQLContext.of(
+            getGraphQLContextMap(scope, UserPrincipal(u, null))
+        )
+        val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
+        val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Question>>()
+        val mockGradeLoader = LeakyMock.mock<DataLoader<UUID, Grade>>()
+        EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
+        EasyMock.expect(mockEnv.getDataLoader<UUID, Question>("batchquestions")).andReturn(mockDataLoader)
+        EasyMock.expect(mockEnv.getDataLoader<UUID, Grade>("responsegrades")).andReturn(mockGradeLoader)
+        val q = Question(r.questionId, UUID.randomUUID(), "b", "a", "r", now, now)
+        EasyMock.expect(mockDataLoader.load(r.questionId)).andReturn(
+            CompletableFuture.completedFuture(q)
+        )
+        EasyMock.expect(mockGradeLoader.load(r.id)).andReturn(
+            CompletableFuture.completedFuture(Grade(null, r.id!!, true, 0))
+        )
+        EasyMock.replay(mockEnv, mockDataLoader, mockGradeLoader)
         assertThat(r.question(mockEnv).await()).isEqualTo(ApiQuestion(q, 15))
-        EasyMock.verify(mockEnv, mockDataLoader)
+        EasyMock.verify(mockEnv, mockDataLoader, mockGradeLoader)
     }
 
     @Test
@@ -109,14 +137,19 @@ class ApiResponseTest {
         )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Question>>()
+        val mockGradeLoader = LeakyMock.mock<DataLoader<UUID, Grade>>()
         EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.expect(mockEnv.getDataLoader<UUID, Question>("batchquestions")).andReturn(mockDataLoader)
+        EasyMock.expect(mockEnv.getDataLoader<UUID, Grade>("responsegrades")).andReturn(mockGradeLoader)
         EasyMock.expect(mockDataLoader.load(r.questionId)).andReturn(
             CompletableFuture.completedFuture(null)
         )
-        EasyMock.replay(mockEnv, mockDataLoader)
+        EasyMock.expect(mockGradeLoader.load(r.id)).andReturn(
+            CompletableFuture.completedFuture(null)
+        )
+        EasyMock.replay(mockEnv, mockDataLoader, mockGradeLoader)
         assertThat(r.question(mockEnv).await()).isNull()
-        EasyMock.verify(mockEnv, mockDataLoader)
+        EasyMock.verify(mockEnv, mockDataLoader, mockGradeLoader)
     }
 
     @Test

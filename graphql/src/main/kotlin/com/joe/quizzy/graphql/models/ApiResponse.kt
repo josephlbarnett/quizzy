@@ -47,8 +47,17 @@ data class ApiResponse(
     fun question(dfe: DataFetchingEnvironment): CompletableFuture<ApiQuestion?> {
         val principal = dfe.graphQlContext.getInstance<Principal>()
         if (principal is UserPrincipal) {
+            val gradeFuture = dfe.getDataLoader<UUID, Grade>("responsegrades").load(id)
             return dfe.getDataLoader<UUID, Question>("batchquestions").load(questionId)
-                .thenApply { it?.let { q -> ApiQuestion(q, defaultScore) } }
+                .thenCombine(gradeFuture) { question, grade ->
+                    question?.let {
+                        if (grade == null) {
+                            ApiQuestion(it, defaultScore).copy(answer = "", ruleReferences = "")
+                        } else {
+                            ApiQuestion(it, defaultScore)
+                        }
+                    }
+                }
         }
         return CompletableFuture.completedFuture(null)
     }

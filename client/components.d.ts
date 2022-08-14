@@ -9,6 +9,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     CreateUserButton: typeof import('./src/components/CreateUserButton.vue')['default']
     DateTimePicker: typeof import('./src/components/DateTimePicker.vue')['default']
+    GradedQuestionDialog: typeof import('./src/components/GradedQuestionDialog.vue')['default']
     Login: typeof import('./src/components/Login.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

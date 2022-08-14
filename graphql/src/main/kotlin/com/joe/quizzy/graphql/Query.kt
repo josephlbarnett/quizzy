@@ -13,8 +13,6 @@ import graphql.schema.DataFetchingEnvironment
 import java.security.Principal
 import javax.inject.Inject
 
-private const val DEFAULT_SCORE = 15
-
 /**
  * GraphQL entry point for queries.  Maps the DAO interfaces to the GraphQL models.
  */
@@ -26,7 +24,9 @@ class Query @Inject constructor(
 ) : com.expediagroup.graphql.server.operations.Query {
 
     private fun getDefaultScore(userPrincipal: UserPrincipal): Int {
-        return instanceDAO.get(userPrincipal.user.instanceId)?.defaultScore ?: DEFAULT_SCORE
+        val instance = instanceDAO.get(userPrincipal.user.instanceId)
+        require(instance != null)
+        return instance.defaultScore
     }
 
     fun user(dfe: DataFetchingEnvironment): ApiUser? {

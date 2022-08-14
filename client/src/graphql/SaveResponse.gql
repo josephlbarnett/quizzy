@@ -15,5 +15,34 @@ mutation SaveResponse(
     }
   ) {
     id
+    response
+    ruleReferences
+    user {
+      id
+      name
+    }
+    grade {
+      id
+      correct
+    }
+    question {
+      activeAt
+      answer
+      author {
+        id
+        name
+      }
+      authorId
+      body
+      closedAt
+      id
+      type
+      answerChoices {
+        id
+        letter
+        answer
+      }
+      ruleReferences
+    }
   }
 }
