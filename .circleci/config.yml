@@ -18,19 +18,19 @@ jobs:
       # handle dependency caching and run build
       - restore_cache:
           keys:
-            - v5-dependencies-{{ .Branch }}-{{ .Revision }}
-            - v5-dependencies-{{ .Branch }}
-            - v5-dependencies-
+            - v6-dependencies-{{ .Branch }}-{{ .Revision }}
+            - v6-dependencies-{{ .Branch }}
+            - v6-dependencies-
       - restore_cache:
           keys:
-            - v5-npms-{{ .Branch }}-{{ .Revision }}
-            - v5-npms-{{ .Branch }}
-            - v5-npms-
+            - v6-npms-{{ .Branch }}-{{ .Revision }}
+            - v6-npms-{{ .Branch }}
+            - v6-npms-
       - restore_cache:
           keys:
-            - v5-email-npms-{{ .Branch }}-{{ .Revision }}
-            - v5-email-npms-{{ .Branch }}
-            - v5-email-npms-
+            - v6-email-npms-{{ .Branch }}-{{ .Revision }}
+            - v6-email-npms-{{ .Branch }}
+            - v6-email-npms-
       - run:
           name: npm build emails
           command: |
@@ -41,7 +41,7 @@ jobs:
       - save_cache:
           paths:
             - ~/repo/emails/node_modules
-          key: v5-email-npms-{{ .Branch }}-{{ .Revision }}
+          key: v6-email-npms-{{ .Branch }}-{{ .Revision }}
       - run:
           name: Set Maven Version
           command: |
@@ -66,12 +66,12 @@ jobs:
       - save_cache:
           paths:
             - ~/repo/client/node_modules
-          key: v5-npms-{{ .Branch }}-{{ .Revision }}
+          key: v6-npms-{{ .Branch }}-{{ .Revision }}
       - run: mvn install -U -pl client,server
       - save_cache:
           paths:
             - ~/.m2
-          key: v5-dependencies-{{ .Branch }}-{{ .Revision }}
+          key: v6-dependencies-{{ .Branch }}-{{ .Revision }}
       # collect test results and upload coverage
       - run: mkdir -p ~/test_results
       - run: find . -type f -regex ".*/target/surefire-reports/junitreports/.*xml" -exec cp {} ~/test_results/ \;
