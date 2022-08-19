@@ -21,6 +21,7 @@ const mockUser: ApiUser = {
     autoGrade: false,
     status: "ACTIVE",
     __typename: "Instance",
+    defaultScore: 15,
   },
   email: "joe@test.com",
   name: "joe test",

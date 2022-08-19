@@ -22,6 +22,7 @@ const mockUser: ApiUser = {
     defaultQuestionType: QuestionType.ShortAnswer,
     autoGrade: false,
     status: "ACTIVE",
+    defaultScore: 15,
   },
   email: "me@me.com",
   name: "me",
