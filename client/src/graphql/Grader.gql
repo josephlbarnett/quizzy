@@ -17,6 +17,12 @@ query Grader($includeGraded: Boolean!) {
       body
       id
       ruleReferences
+      type
+      answerChoices {
+        id
+        letter
+        answer
+      }
     }
     response
     ruleReferences

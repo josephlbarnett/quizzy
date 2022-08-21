@@ -42,6 +42,9 @@
             <template #item.question.activeAt="{ value }">
               {{ renderDate(value) }}
             </template>
+            <template #item.response="{ item, value }">
+              {{ findAnswer(item, value, item.response) }}
+            </template>
             <template #item.grade.correct="{ value }">
               <v-icon v-if="value === true" color="green darken-2"
                 >mdi-check-circle</v-icon
@@ -90,7 +93,7 @@
             >
             <v-card-text>
               <div>{{ clickedResponse.question.body }}</div>
-              <v-row>
+              <v-row v-if="shortAnswer()">
                 <v-col cols="6">
                   <v-textarea
                     v-model="clickedResponse.response"
@@ -106,7 +109,48 @@
                   />
                 </v-col>
               </v-row>
-              <v-row>
+              <v-row v-else-if="clickedResponse.question">
+                <v-col cols="12">
+                  <v-radio-group readonly :value="clickedResponse.response">
+                    <v-row
+                      v-for="choice in clickedResponse.question.answerChoices"
+                      :key="choice.letter"
+                    >
+                      <v-radio
+                        :key="choice.letter"
+                        :label="choice.letter + ': ' + choice.answer"
+                        :value="choice.letter"
+                        readonly
+                      ></v-radio
+                      >&nbsp;&nbsp;
+                      <v-icon
+                        v-if="
+                          clickedResponse.response &&
+                          choice.letter == clickedResponse.response &&
+                          choice.letter == clickedResponse.question.answer
+                        "
+                        color="green darken-2"
+                        >mdi-check-circle</v-icon
+                      >
+                      <v-icon
+                        v-if="
+                          clickedResponse.response &&
+                          choice.letter == clickedResponse.response &&
+                          choice.letter != clickedResponse.question.answer
+                        "
+                        color="red darken-2"
+                        >mdi-close-circle</v-icon
+                      >
+                    </v-row>
+                  </v-radio-group>
+                  <v-text-field
+                    v-model="correctAnswerChoice"
+                    :readonly="true"
+                    label="Answer Key"
+                  />
+                </v-col>
+              </v-row>
+              <v-row v-if="shortAnswer()">
                 <v-col cols="6">
                   <v-textarea
                     v-model="clickedResponse.ruleReferences"
@@ -115,6 +159,15 @@
                   />
                 </v-col>
                 <v-col cols="6">
+                  <v-textarea
+                    v-model="clickedResponse.question.ruleReferences"
+                    :readonly="true"
+                    label="Answer Key Rule References"
+                  />
+                </v-col>
+              </v-row>
+              <v-row v-else>
+                <v-col cols="12">
                   <v-textarea
                     v-model="clickedResponse.question.ruleReferences"
                     :readonly="true"
@@ -132,6 +185,7 @@
               </v-radio-group>
 
               <v-text-field
+                v-if="shortAnswer()"
                 v-model.number="clickedResponse.bonus"
                 type="number"
                 min="0"
@@ -162,7 +216,7 @@
 <script lang="ts">
 import Vue from "vue";
 import moment from "moment-timezone";
-import { ApiResponse } from "@/generated/types";
+import { ApiResponse, QuestionType } from "@/generated/types.d";
 
 export default Vue.extend({
   name: "ResponseGrader",
@@ -204,8 +258,21 @@ export default Vue.extend({
     saveError: false,
     hideGraded: true,
     gradeDialog: false,
-    clickedResponse: null as Record<string, unknown> | null,
+    clickedResponse: null as ApiResponse | null,
   }),
+  computed: {
+    correctAnswerChoice(): string {
+      if (this.clickedResponse?.question?.type == QuestionType.MultipleChoice) {
+        let correctAnswer = this.clickedResponse?.question?.answerChoices?.find(
+          (choice) => choice.letter == this.clickedResponse?.question?.answer
+        );
+        if (correctAnswer) {
+          return correctAnswer.letter + ": " + correctAnswer.answer;
+        }
+      }
+      return "";
+    },
+  },
   methods: {
     renderDateTime(date: string) {
       const browserTZ =
@@ -229,7 +296,7 @@ export default Vue.extend({
       }
     },
     clickRow(item: ApiResponse) {
-      const clickedResponse = {
+      const response = {
         bonus: item.grade && item.grade.bonus,
         correct:
           item.grade === null || item.grade?.correct === null
@@ -238,13 +305,15 @@ export default Vue.extend({
             ? "correct"
             : "incorrect",
         question: Object.assign({}, item.question),
+        questionId: item.questionId,
         user: Object.assign({}, item.user),
+        userId: item.userId,
         id: item.id,
         response: item.response,
         ruleReferences: item.ruleReferences,
         gradeId: item.grade && item.grade.id,
       };
-      this.clickedResponse = clickedResponse;
+      this.clickedResponse = response;
       this.gradeDialog = true;
     },
     saveResponse(mutate: () => void) {
@@ -259,13 +328,35 @@ export default Vue.extend({
       const subject = encodeURIComponent(
         `Re: ${this.renderDate(clickedResponse.question?.activeAt)} Question`
       );
-      const quotedResponse =
-        "> " + clickedResponse.response.replace(/(?:\r\n|\r|\n)/g, "\n> ");
+      const response = this.findAnswer(
+        clickedResponse,
+        clickedResponse.response,
+        clickedResponse.response
+      );
+      const quotedResponse = "> " + response.replace(/(?:\r\n|\r|\n)/g, "\n> ");
       const quotedRuleRefs =
         "> " +
         clickedResponse.ruleReferences.replace(/(?:\r\n|\r|\n)/g, "\n> ");
       const body = encodeURIComponent(`${quotedResponse}\n` + quotedRuleRefs);
       return `${clickedResponse.user?.email}?subject=${subject}&body=${body}`;
+    },
+    shortAnswer(): boolean {
+      return this.clickedResponse?.question?.type == QuestionType.ShortAnswer;
+    },
+    findAnswer(
+      item: ApiResponse,
+      letter: string,
+      defaultValue: string
+    ): string {
+      if (item.question?.type == QuestionType.MultipleChoice) {
+        let chosenAnswer = item.question?.answerChoices?.find(
+          (choice) => choice.letter == letter
+        );
+        if (chosenAnswer) {
+          return chosenAnswer.letter + ": " + chosenAnswer.answer;
+        }
+      }
+      return defaultValue;
     },
   },
 });
