@@ -1,7 +1,6 @@
 version: 2.1
 orbs:
   release: trib3/release@2.0.2
-  heroku: circleci/heroku@1.0.1
 
 jobs:
   build:
@@ -101,15 +100,31 @@ jobs:
               echo "bad checksum on codecov binary"
               exit 1
             fi
-      # collect docs
-      - run: mkdir -p ~/docs
-      - run: find . -type d -name 'dokka' -exec cp -r {} ~/docs/ \;
+      - run:
+          name: Collect Docs
+          command: |
+            mkdir -p ~/docs
+            for subdir in `find . -maxdepth 1 -mindepth 1 -type d`; do
+              if [ -d $subdir/target/dokka ]; then
+                cp -r $subdir/target/dokka ~/docs/$subdir
+              fi
+            done
+            mkdir -p ~/docarchive
+            cd ~/docs && zip -r ~/docarchive/docs.zip .
       - store_artifacts:
-          path: ~/docs
+          path: ~/docarchive
       # collect built packages and save to workspace for deploy
       - run: mkdir -p ~/jars
       - run: find . -type f -regex ".*/target/.*jar" -exec cp {} ~/jars/ \;
       - run: find . -type f -regex ".*/target/.*zip" -exec cp {} ~/jars/ \;
+      - run:
+          name: Collect Fly artifacts
+          command: |
+            mkdir -p ~/jars/fly
+            cp Dockerfile ~/jars/fly
+            cp fly.toml ~/jars/fly
+            mkdir -p ~/jars/fly/server/target
+            cp server/target/*-shaded.jar ~/jars/fly/server/target
       - release/prep_release:
           release_dir: ~/jars/release
           current_version: ~/repo/current_version.txt
@@ -127,13 +142,26 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/jars
-      - heroku/install
-      - run: heroku plugins:install java
+      - run:
+          name: Install flyctl
+          command: |
+            curl -L https://github.com/superfly/flyctl/releases/download/v0.0.385/flyctl_0.0.385_Linux_x86_64.tar.gz -o flyctl.tar.gz
+            tar xzf flyctl.tar.gz
+            echo "bd29e96460a0332879ae940c037359803739551fdf171d0bb67a39d434dc00d7  flyctl" > flyctl.sum
+            sha256sum -c flyctl.sum
+            if [ $? -ne 0 ]; then
+                echo "Bad flyctl checksum!"
+                exit 1
+            fi
+            rm flyctl.sum
+            rm flyctl.tar.gz
+            sudo mv flyctl /usr/bin/
       - run:
           name: Deploy
           command: |
             CURRENT_VERSION=$(cat ~/jars/release/current_version.txt)
-            heroku deploy:jar ~/jars/server-${CURRENT_VERSION}-shaded.jar -a daily-q --jdk 17
+            cd ~/jars/fly
+            flyctl deploy --build-arg CURRENT_VERSION=${CURRENT_VERSION}
       - run:
           name: Create Release Notes
           command: |
@@ -143,7 +171,7 @@ jobs:
             else
               RELEASE_NOTES="Initial Release"
             fi
-            if [ "${GITHUB_AUTH_TOKEN}" != "" -a "${RELEASE_NOTES}" != "" ]; then
+            if [ "${GITHUB_AUTH_TOKEN}" != "" -a "${RELEASE_NOTES}" != "" -a "${CIRCLE_BRANCH}" = "main" ]; then
               curl -H "Authorization: bearer ${GITHUB_AUTH_TOKEN}" -X POST "https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/releases" -X POST -d "{\"tag_name\":\"${CURRENT_VERSION}\", \"name\":\"${CURRENT_VERSION}\", \"target_commitish\":\"${CIRCLE_SHA1}\", \"body\": \"${RELEASE_NOTES}\"}"
             fi
 
