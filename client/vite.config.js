@@ -29,6 +29,8 @@ export default defineConfig({
             return "vuetify";
           } else if (id.includes("node_modules/vue")) {
             return "vue";
+          } else if (id.includes("node_modules/moment-timezone") && id.endsWith(".json")) {
+            return "moment-tz-data";
           } else if (id.includes("node_modules")) {
             return "vendor";
           }
