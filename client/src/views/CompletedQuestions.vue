@@ -137,7 +137,7 @@ export default Vue.extend({
       defaultValue: string
     ): string {
       if (item.type == QuestionType.MultipleChoice) {
-        let correctAnswer = item.answerChoices?.find(
+        const correctAnswer = item.answerChoices?.find(
           (choice) => choice.letter == letter
         );
         if (correctAnswer) {

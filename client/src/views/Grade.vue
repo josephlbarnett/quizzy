@@ -263,9 +263,10 @@ export default Vue.extend({
   computed: {
     correctAnswerChoice(): string {
       if (this.clickedResponse?.question?.type == QuestionType.MultipleChoice) {
-        let correctAnswer = this.clickedResponse?.question?.answerChoices?.find(
-          (choice) => choice.letter == this.clickedResponse?.question?.answer
-        );
+        const correctAnswer =
+          this.clickedResponse?.question?.answerChoices?.find(
+            (choice) => choice.letter == this.clickedResponse?.question?.answer
+          );
         if (correctAnswer) {
           return correctAnswer.letter + ": " + correctAnswer.answer;
         }
@@ -349,7 +350,7 @@ export default Vue.extend({
       defaultValue: string
     ): string {
       if (item.question?.type == QuestionType.MultipleChoice) {
-        let chosenAnswer = item.question?.answerChoices?.find(
+        const chosenAnswer = item.question?.answerChoices?.find(
           (choice) => choice.letter == letter
         );
         if (chosenAnswer) {

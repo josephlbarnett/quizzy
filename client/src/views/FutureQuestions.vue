@@ -264,7 +264,7 @@ export default Vue.extend({
       this.addDialog = true;
     },
     setUser(user: ApiUser) {
-      let tz = user.timeZoneId;
+      const tz = user.timeZoneId;
       if (tz && this.tzs.map((x) => x.value).indexOf(tz) > -1) {
         this.timezone = tz;
       } else {

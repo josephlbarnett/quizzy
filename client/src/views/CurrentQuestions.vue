@@ -207,7 +207,7 @@ export default Vue.extend({
       this.responseDialog = false;
       if (result.data) {
         if (result.data["response"].grade) {
-          let question = result.data["response"].question;
+          const question = result.data["response"].question;
           if (question) {
             question.response = result.data["response"];
             this.gradedQuestion = question;
@@ -221,7 +221,7 @@ export default Vue.extend({
     },
     renderResponse(item: ApiQuestion, value: string) {
       if (item.type == QuestionType.MultipleChoice) {
-        let selection = item.answerChoices?.find(
+        const selection = item.answerChoices?.find(
           (choice) => choice.letter == value
         );
         if (selection) {

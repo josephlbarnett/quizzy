@@ -175,7 +175,7 @@ export default Vue.extend({
       return new Promise((resolve) => {
         Papa.parse<Array<string>>(toParse, {
           complete: (r) => {
-            let mapped = r.data.map((rawRow) => {
+            const mapped = r.data.map((rawRow) => {
               const rowObj: AddUserInfo = { name: "", email: "" };
               rawRow.forEach((item) => {
                 if (item.indexOf("@") > 0) {
