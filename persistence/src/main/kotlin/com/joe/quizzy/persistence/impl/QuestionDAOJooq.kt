@@ -14,6 +14,7 @@ import org.jooq.Record
 import org.jooq.ResultQuery
 import org.jooq.SelectConditionStep
 import org.jooq.SelectOnConditionStep
+import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.stream.Collector
@@ -180,10 +181,13 @@ open class QuestionDAOJooq
                     Tables.QUESTIONS.ID.eq(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID)
                         .and(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE.eq(notificationType.name))
                 )
+                .join(Tables.USERS).on(Tables.QUESTIONS.AUTHOR_ID.eq(Tables.USERS.ID))
+                .join(Tables.INSTANCES).on(Tables.USERS.INSTANCE_ID.eq(Tables.INSTANCES.ID))
         )
             .where(
                 Tables.QUESTIONS.CLOSED_AT.le(now)
                     .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull)
+                    .and(DSL.not(Tables.INSTANCES.AUTO_GRADE.isTrue))
             )
             .orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
         return query.collectAndMap()
