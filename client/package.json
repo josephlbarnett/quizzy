@@ -34,7 +34,7 @@
     "@rollup/plugin-graphql": "^1.1.0",
     "@types/jest": "^29.0.0",
     "@types/papaparse": "^5.3.5",
-    "@typescript-eslint/eslint-plugin": "^5.36.1",
+    "@typescript-eslint/eslint-plugin": "^5.36.2",
     "@typescript-eslint/parser": "^5.36.2",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/eslint-config-typescript": "^11.0.0",
