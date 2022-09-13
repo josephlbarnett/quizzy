@@ -122,7 +122,7 @@
                 <v-card-actions>
                   <ApolloMutation
                     :mutation="require('../graphql/SaveQuestion.gql')"
-                    :refetch-queries="() => [`FutureQuestions`]"
+                    :refetch-queries="() => [`FutureQuestions`, `CurrentQuestions`]"
                     :variables="{
                       id: addDialogId,
                       activeAt: addDialogActive,
