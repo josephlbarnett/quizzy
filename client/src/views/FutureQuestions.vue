@@ -249,6 +249,7 @@ export default Vue.extend({
       this.addDialogActive = "";
       this.addDialogClose = "";
       this.addDialogRuleReferences = "";
+      this.addDialogAnswerChoices = ["", "", "", ""];
     },
     clickRow(item: Question) {
       this.addDialogId = item.id;
@@ -260,7 +261,7 @@ export default Vue.extend({
       this.addDialogRuleReferences = item.ruleReferences;
       this.addDialogAnswerChoices = item.answerChoices?.map(
         (choice) => choice.answer
-      ) || [""];
+      ) || ["", "", "", ""];
       this.addDialog = true;
     },
     setUser(user: ApiUser) {
