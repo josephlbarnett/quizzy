@@ -209,7 +209,7 @@ class Mutation @Inject constructor(
                         "user" to savedUser,
                         "admin" to principal.user,
                         "password" to password,
-                        "link" to "https://${appConfig.corsDomains[0]}"
+                        "link" to "https://${appConfig.corsDomains[0]}/app/assets#/me"
                     )
                 ).toString(),
                 MediaType.TEXT_HTML

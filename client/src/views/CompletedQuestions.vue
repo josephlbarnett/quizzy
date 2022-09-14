@@ -11,6 +11,7 @@
     </ApolloQuery>
     <ApolloQuery
       :query="require('../graphql/CompletedQuestions.gql')"
+      fetch-policy="cache-and-network"
       @result="
         (result) => {
           completedQuestions = result.data.closedQuestions;

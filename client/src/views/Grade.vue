@@ -17,6 +17,7 @@
     </ApolloQuery>
     <ApolloQuery
       :query="require('../graphql/Grader.gql')"
+      fetch-policy="cache-and-network"
       :variables="{
         includeGraded: !hideGraded,
       }"

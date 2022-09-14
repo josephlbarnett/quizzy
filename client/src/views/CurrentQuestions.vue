@@ -17,6 +17,7 @@
     </ApolloQuery>
     <ApolloQuery
       :query="require('../graphql/CurrentQuestions.gql')"
+      fetch-policy="cache-and-network"
       @result="
         (result) => {
           activeQuestions = result.data && result.data.activeQuestions;
