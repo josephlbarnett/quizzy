@@ -36,6 +36,7 @@ class ApiQuestionTest {
         now,
         QuestionType.SHORT_ANSWER,
         listOf(),
+        null,
         15
     )
     val u = User(UUID.randomUUID(), UUID.randomUUID(), "name", "email", "", false, "")

@@ -77,7 +77,16 @@
         >
           <template #default="{ mutate, loading }">
             <v-card-text>
-              {{ clickedQuestion.body }}
+              <v-row>
+                <v-col v-if="clickedQuestion.imageUrl" cols="1">
+                  <v-img
+                    :src="clickedQuestion.imageUrl"
+                    max-height="200px"
+                    max-width="200px"
+                  ></v-img>
+                </v-col>
+                <v-col align-self="center">{{ clickedQuestion.body }}</v-col>
+              </v-row>
               <v-textarea
                 v-if="shortAnswer()"
                 v-model="clickedResponse.response"

@@ -13,5 +13,6 @@ query FutureQuestions {
       letter
       answer
     }
+    imageUrl
   }
 }

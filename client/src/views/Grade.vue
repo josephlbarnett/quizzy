@@ -93,7 +93,18 @@
               {{ clickedResponse.question.author.name }}</v-card-title
             >
             <v-card-text>
-              <div>{{ clickedResponse.question.body }}</div>
+              <v-row>
+                <v-col v-if="clickedResponse.question?.imageUrl" cols="1">
+                  <v-img
+                    :src="clickedResponse.question?.imageUrl"
+                    max-height="200px"
+                    max-width="200px"
+                  ></v-img>
+                </v-col>
+                <v-col align-self="center">{{
+                  clickedResponse.question?.body
+                }}</v-col>
+              </v-row>
               <v-row v-if="shortAnswer()">
                 <v-col cols="6">
                   <v-textarea

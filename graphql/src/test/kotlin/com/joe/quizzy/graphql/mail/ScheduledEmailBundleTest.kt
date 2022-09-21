@@ -4,7 +4,6 @@ import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFalse
 import assertk.assertions.isInstanceOf
 import assertk.assertions.isNotNull
 import assertk.assertions.isNull
@@ -19,6 +18,8 @@ import com.joe.quizzy.api.models.NotificationType
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.User
+import com.joe.quizzy.graphql.groupme.GroupMeService
+import com.joe.quizzy.graphql.groupme.GroupMeServiceFactory
 import com.joe.quizzy.persistence.api.EmailNotificationDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
@@ -27,8 +28,8 @@ import com.trib3.config.ConfigLoader
 import com.trib3.server.config.TribeApplicationConfig
 import com.trib3.testing.LeakyMock
 import com.trib3.testing.mock
+import com.trib3.testing.niceMock
 import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIOEngineConfig
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
@@ -57,6 +58,7 @@ class ScheduledEmailBundleTest {
         val mockUserDAO = support.mock<UserDAO>()
         val mockEmailNotificationDAO = support.mock<EmailNotificationDAO>()
         val mockGmailServiceFactory = support.mock<GmailServiceFactory>()
+        val mockGroupMeServiceFactory = support.mock<GroupMeServiceFactory>()
         val threadPool = Executors.newSingleThreadExecutor()
         val latch = CountDownLatch(1)
         val client = HttpClient(MockEngine) { engine { addHandler { respond("pong") } } }
@@ -68,6 +70,7 @@ class ScheduledEmailBundleTest {
             mockInstanceDAO,
             mockEmailNotificationDAO,
             mockGmailServiceFactory,
+            mockGroupMeServiceFactory,
             client,
             threadPool.asCoroutineDispatcher(),
             1
@@ -85,7 +88,6 @@ class ScheduledEmailBundleTest {
         }
         bundle.run(null, null)
         bundle.pollJob?.join()
-        assertThat(client.isActive).isFalse()
         assertThat(threadPool.isShutdown).isTrue()
         support.verifyAll()
     }
@@ -98,6 +100,8 @@ class ScheduledEmailBundleTest {
         val mockEmailNotificationDAO = support.mock<EmailNotificationDAO>()
         val mockUserDAO = support.mock<UserDAO>()
         val mockGmailServiceFactory = support.mock<GmailServiceFactory>()
+        val mockGroupMeServiceFactory = support.mock<GroupMeServiceFactory>()
+        val client = HttpClient(MockEngine) { engine { addHandler { respond("pong") } } }
         val bundle = ScheduledEmailBundle(
             ConfigLoader(),
             TribeApplicationConfig(ConfigLoader()),
@@ -105,7 +109,9 @@ class ScheduledEmailBundleTest {
             mockUserDAO,
             mockInstanceDAO,
             mockEmailNotificationDAO,
-            mockGmailServiceFactory
+            mockGmailServiceFactory,
+            mockGroupMeServiceFactory,
+            client
         )
         support.replayAll()
         bundle.run(null, null)
@@ -117,7 +123,8 @@ class ScheduledEmailBundleTest {
         assertThat(bundle.instanceDAO).isNotNull()
         assertThat(bundle.emailNotificationDAO).isNotNull()
         assertThat(bundle.gmailServiceFactory).isNotNull()
-        assertThat(bundle.client.engineConfig).isInstanceOf(CIOEngineConfig::class)
+        assertThat(bundle.groupMeServiceFactory).isNotNull()
+        assertThat(bundle.client).isEqualTo(client)
         assertThat(bundle.dispatcher).isInstanceOf(ExecutorCoroutineDispatcher::class)
         var ran = false
         var tname = ""
@@ -135,13 +142,14 @@ class ScheduledEmailBundleTest {
     }
 
     @Test
-    fun testNoEmail() {
+    fun testNoEmail() = runBlocking {
         val support = EasyMockSupport()
         val mockQuestionDAO = support.mock<QuestionDAO>()
         val mockInstanceDAO = support.mock<InstanceDAO>()
         val mockUserDAO = support.mock<UserDAO>()
         val mockEmailNotificationDAO = support.mock<EmailNotificationDAO>()
         val mockGmailServiceFactory = support.mock<GmailServiceFactory>()
+        val mockGroupMeServiceFactory = support.mock<GroupMeServiceFactory>()
         val threadPool = Executors.newSingleThreadExecutor()
         val client = HttpClient(MockEngine) { engine { addHandler { respond("pong") } } }
         val bundle = ScheduledEmailBundle(
@@ -152,12 +160,15 @@ class ScheduledEmailBundleTest {
             mockInstanceDAO,
             mockEmailNotificationDAO,
             mockGmailServiceFactory,
+            mockGroupMeServiceFactory,
             client,
             threadPool.asCoroutineDispatcher(),
             1
         )
         val authorId = UUID.randomUUID()
         val instanceId = UUID.randomUUID()
+        EasyMock.expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
+            .andReturn(null).once()
         EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
             listOf(
                 Question(
@@ -230,13 +241,15 @@ class ScheduledEmailBundleTest {
     }
 
     @Test
-    fun testFullEmail() {
+    fun testFullEmail() = runBlocking {
         val support = EasyMockSupport()
         val mockQuestionDAO = support.mock<QuestionDAO>()
         val mockInstanceDAO = support.mock<InstanceDAO>()
         val mockUserDAO = support.mock<UserDAO>()
         val mockEmailNotificationDAO = support.mock<EmailNotificationDAO>()
         val mockGmailServiceFactory = support.mock<GmailServiceFactory>()
+        val mockGroupMeServiceFactory = support.mock<GroupMeServiceFactory>()
+        val mockGroupMeService = support.niceMock<GroupMeService>()
         val threadPool = Executors.newSingleThreadExecutor()
         val client = HttpClient(MockEngine) { engine { addHandler { respond("pong") } } }
         val bundle = ScheduledEmailBundle(
@@ -247,6 +260,7 @@ class ScheduledEmailBundleTest {
             mockInstanceDAO,
             mockEmailNotificationDAO,
             mockGmailServiceFactory,
+            mockGroupMeServiceFactory,
             client,
             threadPool.asCoroutineDispatcher(),
             1
@@ -281,6 +295,8 @@ class ScheduledEmailBundleTest {
         EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
             closedQuestions
         ).once()
+        EasyMock.expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
+            .andReturn(mockGroupMeService)
         val activeQuestions = listOf(
             Question(
                 UUID.randomUUID(),
@@ -422,13 +438,15 @@ class ScheduledEmailBundleTest {
     }
 
     @Test
-    fun testSingleQuestionEmail() {
+    fun testSingleQuestionEmail() = runBlocking {
         val support = EasyMockSupport()
         val mockQuestionDAO = support.mock<QuestionDAO>()
         val mockInstanceDAO = support.mock<InstanceDAO>()
         val mockUserDAO = support.mock<UserDAO>()
         val mockEmailNotificationDAO = support.mock<EmailNotificationDAO>()
         val mockGmailServiceFactory = support.mock<GmailServiceFactory>()
+        val mockGroupMeServiceFactory = support.mock<GroupMeServiceFactory>()
+        val mockGroupMeService = support.niceMock<GroupMeService>()
         val threadPool = Executors.newSingleThreadExecutor()
         val client = HttpClient(MockEngine) { engine { addHandler { respond("pong") } } }
         val bundle = ScheduledEmailBundle(
@@ -439,6 +457,7 @@ class ScheduledEmailBundleTest {
             mockInstanceDAO,
             mockEmailNotificationDAO,
             mockGmailServiceFactory,
+            mockGroupMeServiceFactory,
             client,
             threadPool.asCoroutineDispatcher(),
             1
@@ -449,6 +468,8 @@ class ScheduledEmailBundleTest {
         EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
             closedQuestions
         ).once()
+        EasyMock.expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
+            .andReturn(mockGroupMeService)
         val activeQuestions = listOf(
             Question(
                 UUID.randomUUID(),
@@ -554,7 +575,7 @@ class ScheduledEmailBundleTest {
             .isEqualTo(listOf("jim <jim@jim.com>"))
         assertThat(mimeMessage.from.toList().map { it.toString() })
             .isEqualTo(listOf("Instance Name <admin@gmail.com>"))
-        assertThat(mimeMessage.subject).isEqualTo("New Questions Available from Instance Name")
+        assertThat(mimeMessage.subject).isEqualTo("New Question Available from Instance Name")
         val bodyContent = mimeMessage.content
         assertThat(bodyContent.toString()).contains("1 new question")
         assertThat(bodyContent.toString()).contains("q4")
@@ -567,13 +588,15 @@ class ScheduledEmailBundleTest {
     }
 
     @Test
-    fun testSingleAnswerEmail() {
+    fun testSingleAnswerEmail() = runBlocking {
         val support = EasyMockSupport()
         val mockQuestionDAO = support.mock<QuestionDAO>()
         val mockInstanceDAO = support.mock<InstanceDAO>()
         val mockEmailNotificationDAO = support.mock<EmailNotificationDAO>()
         val mockUserDAO = support.mock<UserDAO>()
         val mockGmailServiceFactory = support.mock<GmailServiceFactory>()
+        val mockGroupMeServiceFactory = support.mock<GroupMeServiceFactory>()
+        val mockGroupMeService = support.niceMock<GroupMeService>()
         val threadPool = Executors.newSingleThreadExecutor()
         val client = HttpClient(MockEngine) { engine { addHandler { respond("pong") } } }
         val bundle = ScheduledEmailBundle(
@@ -584,6 +607,7 @@ class ScheduledEmailBundleTest {
             mockInstanceDAO,
             mockEmailNotificationDAO,
             mockGmailServiceFactory,
+            mockGroupMeServiceFactory,
             client,
             threadPool.asCoroutineDispatcher(),
             1
@@ -604,6 +628,8 @@ class ScheduledEmailBundleTest {
         EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
             closedQuestions
         ).once()
+        EasyMock.expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
+            .andReturn(mockGroupMeService)
         val activeQuestions = listOf<Question>()
         EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andReturn(
             activeQuestions
@@ -699,7 +725,7 @@ class ScheduledEmailBundleTest {
             .isEqualTo(listOf("jim <jim@jim.com>"))
         assertThat(mimeMessage.from.toList().map { it.toString() })
             .isEqualTo(listOf("Instance Name <admin@gmail.com>"))
-        assertThat(mimeMessage.subject).isEqualTo("New Answers Available from Instance Name")
+        assertThat(mimeMessage.subject).isEqualTo("New Answer Available from Instance Name")
         val bodyContent = mimeMessage.content
         assertThat(bodyContent.toString()).contains("1 new answer")
         assertThat(bodyContent.toString()).contains("q1")

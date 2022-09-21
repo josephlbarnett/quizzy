@@ -1,5 +1,6 @@
 package com.joe.quizzy.server.modules
 
+import com.google.inject.assistedinject.FactoryModuleBuilder
 import com.joe.quizzy.graphql.Mutation
 import com.joe.quizzy.graphql.Query
 import com.joe.quizzy.graphql.auth.Argon2Hasher
@@ -8,6 +9,8 @@ import com.joe.quizzy.graphql.auth.SessionAuthenticator
 import com.joe.quizzy.graphql.auth.UserAuthenticator
 import com.joe.quizzy.graphql.auth.UserAuthorizer
 import com.joe.quizzy.graphql.dataloaders.DataLoaderRegistryFactoryProvider
+import com.joe.quizzy.graphql.groupme.GroupMeResource
+import com.joe.quizzy.graphql.groupme.GroupMeServiceFactory
 import com.joe.quizzy.graphql.mail.GmailServiceModule
 import com.joe.quizzy.graphql.mail.ScheduledEmailBundle
 import com.joe.quizzy.persistence.api.SessionDAO
@@ -25,6 +28,10 @@ import io.dropwizard.auth.Authorizer
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter
 import io.dropwizard.auth.chained.ChainedAuthFilter
 import io.dropwizard.servlets.assets.AssetServlet
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.jackson.jackson
 import java.net.URI
 import java.security.Principal
 import javax.inject.Inject
@@ -112,6 +119,8 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
         KotlinMultibinder.newSetBinder<ConfiguredBundle<Configuration>>(kotlinBinder).addBinding()
             .to<ScheduledEmailBundle>()
         resourceBinder().addBinding().to<RedirectResource>()
+        resourceBinder().addBinding().to<GroupMeResource>()
+        install(FactoryModuleBuilder().build(GroupMeServiceFactory::class.java))
         bind<Hasher>().to<Argon2Hasher>()
         appServletBinder().addBinding().toInstance(
             ServletConfig(
@@ -142,5 +151,12 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
         dataLoaderRegistryFactoryProviderBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()
         authorizerBinder().setBinding().to<UserAuthorizer>()
         authFilterBinder().setBinding().toProvider<QuizzyAuthFilterProvider>()
+        bind<HttpClient>().toInstance(
+            HttpClient(CIO) {
+                install(ContentNegotiation) {
+                    jackson()
+                }
+            }
+        )
     }
 }

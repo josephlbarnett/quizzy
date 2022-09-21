@@ -17,5 +17,6 @@ data class Question(
     val activeAt: OffsetDateTime,
     val closedAt: OffsetDateTime,
     val type: QuestionType = QuestionType.SHORT_ANSWER,
-    val answerChoices: List<AnswerChoice>? = null
+    val answerChoices: List<AnswerChoice>? = null,
+    val imageUrl: String? = null
 )

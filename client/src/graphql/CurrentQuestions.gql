@@ -20,5 +20,6 @@ query CurrentQuestions {
       letter
       answer
     }
+    imageUrl
   }
 }

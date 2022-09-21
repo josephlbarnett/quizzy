@@ -5,6 +5,7 @@ import com.joe.quizzy.api.models.AnswerChoice
 import com.joe.quizzy.api.models.NotificationType
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.QuestionType
+import com.joe.quizzy.graphql.groupme.GroupMeServiceFactory
 import com.joe.quizzy.persistence.api.EmailNotificationDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
@@ -17,7 +18,6 @@ import io.dropwizard.ConfiguredBundle
 import io.dropwizard.setup.Environment
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.engine.cio.CIO
 import io.ktor.client.request.get
 import io.ktor.client.request.url
 import kotlinx.coroutines.CoroutineScope
@@ -53,6 +53,7 @@ class ScheduledEmailBundle(
     val instanceDAO: InstanceDAO,
     val emailNotificationDAO: EmailNotificationDAO,
     val gmailServiceFactory: GmailServiceFactory,
+    val groupMeServiceFactory: GroupMeServiceFactory,
     val client: HttpClient,
     val dispatcher: ExecutorCoroutineDispatcher,
     val minuteMod: Int
@@ -65,7 +66,9 @@ class ScheduledEmailBundle(
         userDAO: UserDAO,
         instanceDAO: InstanceDAO,
         emailNotificationDAO: EmailNotificationDAO,
-        gmailServiceFactory: GmailServiceFactory
+        gmailServiceFactory: GmailServiceFactory,
+        groupMeServiceFactory: GroupMeServiceFactory,
+        ktorClient: HttpClient
     ) : this(
         configLoader,
         appConfig,
@@ -74,7 +77,8 @@ class ScheduledEmailBundle(
         instanceDAO,
         emailNotificationDAO,
         gmailServiceFactory,
-        HttpClient(CIO),
+        groupMeServiceFactory,
+        ktorClient,
         Executors.newSingleThreadExecutor {
             Thread(it, "ScheduledEmailBundle").apply { isDaemon = true }
         }.asCoroutineDispatcher(),
@@ -83,7 +87,7 @@ class ScheduledEmailBundle(
 
     internal var pollJob: Job? = null
     private val htmlTemplate =
-        ScheduledEmailBundle::class.java.getResourceAsStream("/assets/emails/question.html").let {
+        ScheduledEmailBundle::class.java.getResourceAsStream("/assets/emails/question.html")?.let {
             InputStreamReader(it).use { reader ->
                 DefaultMustacheFactory().compile(reader, "question")
             }
@@ -97,11 +101,28 @@ class ScheduledEmailBundle(
         }
     }
 
+    internal suspend fun sendText(
+        instanceId: UUID,
+        questionAnswerString: String
+    ) {
+        try {
+            val groupMe = groupMeServiceFactory.create(instanceId)
+            groupMe?.postMessage("New $questionAnswerString Available: https://${appConfig.corsDomains[0]}/app/assets")
+        } catch (e: Exception) {
+            log.error("Error sending text: ${e.message}", e)
+        }
+    }
+
     /**
      * Sends an email to all users with notifications enabled containing
      * the newly available questions and any newly published answers
      */
-    internal fun sendEmail(instanceId: UUID, questions: List<Question>, answers: List<Question>) {
+    internal fun sendEmail(
+        instanceId: UUID,
+        questions: List<Question>,
+        answers: List<Question>,
+        questionAnswerString: String
+    ) {
         val usersToNotify =
             userDAO.getByInstance(instanceId).filter { it.notifyViaEmail }
         gmailServiceFactory.getService(instanceId)?.let { gmail ->
@@ -115,16 +136,9 @@ class ScheduledEmailBundle(
                     "${user.name} <${user.email}>"
                 )
             }
-            val questionAnswerString = if (questions.isNotEmpty() && answers.isNotEmpty()) {
-                "Questions and Answers"
-            } else if (answers.isNotEmpty()) {
-                "Answers"
-            } else {
-                "Questions"
-            }
             message.subject = "New $questionAnswerString Available from $instanceName"
             message.setContent(
-                htmlTemplate.execute(
+                htmlTemplate?.execute(
                     StringWriter(),
                     mapOf(
                         "instanceName" to instanceName,
@@ -181,7 +195,7 @@ class ScheduledEmailBundle(
      * Collects questions that are newly published or have newly published answers
      * by instanceId, and sends an email for each instanceId grouping.
      */
-    internal fun sendEmails(now: OffsetDateTime) {
+    internal suspend fun sendEmails(now: OffsetDateTime) {
         val activeNotifications = questionDAO.active(NotificationType.REMINDER)
         val closedNotifications = questionDAO.closed(NotificationType.ANSWER)
         val authors = if (activeNotifications.isEmpty() && closedNotifications.isEmpty()) {
@@ -196,7 +210,25 @@ class ScheduledEmailBundle(
             val (questions, answers) = entry.value.partition { it.closedAt.isAfter(now) }
             val instanceId = entry.key
             if (questions.isNotEmpty() || answers.isNotEmpty()) {
-                sendEmail(instanceId, questions, answers)
+                val qString = if (questions.size == 1) {
+                    "Question"
+                } else {
+                    "Questions"
+                }
+                val aString = if (answers.size == 1) {
+                    "Answer"
+                } else {
+                    "Answers"
+                }
+                val questionAnswerString = if (questions.isNotEmpty() && answers.isNotEmpty()) {
+                    "$qString and $aString"
+                } else if (answers.isNotEmpty()) {
+                    aString
+                } else {
+                    qString
+                }
+                sendEmail(instanceId, questions, answers, questionAnswerString)
+                sendText(instanceId, questionAnswerString)
             }
         }
     }
@@ -215,11 +247,11 @@ class ScheduledEmailBundle(
                         }
                         sendEmails(now)
                     }
-                    delay(Duration.ofMinutes(1))
+                    val newNow = OffsetDateTime.now()
+                    delay(Duration.ofSeconds(Duration.ofMinutes(1).seconds - newNow.second))
                 }
             }
             newJob.invokeOnCompletion {
-                client.close()
                 dispatcher.close()
             }
             pollJob = newJob

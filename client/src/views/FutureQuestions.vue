@@ -72,11 +72,27 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col
-                      ><v-textarea
+                    <v-col cols="1" style="text-align: right">
+                      <v-file-input
+                        v-model="addDialogImage"
+                        placeholder="Image"
+                      />
+                      <v-icon v-if="clickedImage" @click="clickedImage = null"
+                        >mdi-close</v-icon
+                      >
+                      <v-img
+                        :src="imageUrl"
+                        max-width="200px"
+                        max-height="200px"
+                      />
+                    </v-col>
+                    <v-col>
+                      <v-textarea
                         v-model="addDialogBody"
+                        height="232px"
                         label="Question Body:"
-                    /></v-col>
+                      />
+                    </v-col>
                   </v-row>
                   <v-row v-if="shortAnswer()">
                     <v-col>
@@ -125,23 +141,12 @@
                     :refetch-queries="
                       () => [`FutureQuestions`, `CurrentQuestions`]
                     "
-                    :variables="{
-                      id: addDialogId,
-                      activeAt: addDialogActive,
-                      answer: addDialogAnswer,
-                      authorId: addDialogAuthor,
-                      body: addDialogBody,
-                      closedAt: addDialogClose,
-                      ruleReferences: addDialogRuleReferences,
-                      type: questionType,
-                      answerChoices: mutationAnswerChoices(),
-                    }"
                     @done="addDialog = false"
                     @error="addDialogError = true"
                   >
                     <template #default="{ mutate, loading }">
                       <v-btn @click="addDialog = false">CANCEL</v-btn>
-                      <v-btn color="accent" @click="mutate()"
+                      <v-btn color="accent" @click="submitForm(mutate)"
                         ><span v-if="addDialogId">SAVE</span
                         ><span v-else>ADD</span></v-btn
                       >
@@ -194,6 +199,7 @@ import {
   Question,
   QuestionType,
 } from "@/generated/types.d";
+import { FetchResult } from "@apollo/client/core";
 
 export default Vue.extend({
   name: "FutureQuestions",
@@ -209,6 +215,8 @@ export default Vue.extend({
     addDialogClose: "",
     addDialogId: null as string | null,
     addDialogRuleReferences: "",
+    addDialogImage: null as File | null,
+    clickedImage: null as string | null,
     headers: [
       {
         text: "Date",
@@ -242,6 +250,14 @@ export default Vue.extend({
     timezone: "Autodetect",
     questionType: QuestionType.ShortAnswer,
   }),
+  computed: {
+    imageUrl() {
+      if (!this.addDialogImage) {
+        return this.clickedImage;
+      }
+      return URL.createObjectURL(this.addDialogImage);
+    },
+  },
   methods: {
     resetAddDialogState() {
       this.addDialogId = null;
@@ -252,6 +268,8 @@ export default Vue.extend({
       this.addDialogClose = "";
       this.addDialogRuleReferences = "";
       this.addDialogAnswerChoices = ["", "", "", ""];
+      this.addDialogImage = null;
+      this.clickedImage = null;
     },
     clickRow(item: Question) {
       this.addDialogId = item.id;
@@ -264,6 +282,8 @@ export default Vue.extend({
       this.addDialogAnswerChoices = item.answerChoices?.map(
         (choice) => choice.answer
       ) || ["", "", "", ""];
+      this.clickedImage = item.imageUrl || null;
+      this.addDialogImage = null;
       this.addDialog = true;
     },
     setUser(user: ApiUser) {
@@ -306,6 +326,35 @@ export default Vue.extend({
           answer: value,
         };
       });
+    },
+    async submitForm(mutate: (options: object) => Promise<FetchResult>) {
+      let imageUrl = this.clickedImage;
+      if (this.addDialogImage) {
+        const response = await fetch(
+          `${import.meta.env.VITE_REST_HTTP}/image/upload`,
+          {
+            method: "POST",
+            credentials: "include",
+            body: this.addDialogImage,
+          }
+        );
+        if (response.ok) {
+          imageUrl = await response.text();
+        }
+      }
+      const options = {
+        id: this.addDialogId,
+        activeAt: this.addDialogActive,
+        answer: this.addDialogAnswer,
+        authorId: this.addDialogAuthor,
+        body: this.addDialogBody,
+        closedAt: this.addDialogClose,
+        ruleReferences: this.addDialogRuleReferences,
+        type: this.questionType,
+        answerChoices: this.mutationAnswerChoices(),
+        imageUrl: imageUrl,
+      };
+      await mutate({ variables: options });
     },
   },
 });

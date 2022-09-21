@@ -58,14 +58,14 @@ class Mutation @Inject constructor(
 ) : com.expediagroup.graphql.server.operations.Mutation {
 
     private val newUserHtmlTemplate =
-        ScheduledEmailBundle::class.java.getResourceAsStream("/assets/emails/newuser.html").let {
+        ScheduledEmailBundle::class.java.getResourceAsStream("/assets/emails/newuser.html")?.let {
             InputStreamReader(it).use { reader ->
                 DefaultMustacheFactory().compile(reader, "newuser")
             }
         }
 
     private val passwordResetHtmlTemplate =
-        ScheduledEmailBundle::class.java.getResourceAsStream("/assets/emails/passwordreset.html").let {
+        ScheduledEmailBundle::class.java.getResourceAsStream("/assets/emails/passwordreset.html")?.let {
             InputStreamReader(it).use { reader ->
                 DefaultMustacheFactory().compile(reader, "passwordreset")
             }
@@ -155,7 +155,7 @@ class Mutation @Inject constructor(
                 )
                 message.subject = "$instanceName Password Reset"
                 message.setContent(
-                    passwordResetHtmlTemplate.execute(
+                    passwordResetHtmlTemplate?.execute(
                         StringWriter(),
                         mapOf(
                             "instanceName" to instanceName,
@@ -202,7 +202,7 @@ class Mutation @Inject constructor(
             )
             message.subject = "Welcome to $instanceName"
             message.setContent(
-                newUserHtmlTemplate.execute(
+                newUserHtmlTemplate?.execute(
                     StringWriter(),
                     mapOf(
                         "instanceName" to instanceName,

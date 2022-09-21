@@ -54,15 +54,10 @@ class Query @Inject constructor(
             val defaultScore = getDefaultScore(principal)
             return questionDAO.active(principal.user).map {
                 ApiQuestion(
-                    id = it.id,
-                    authorId = it.authorId,
-                    body = it.body,
-                    answer = "",
-                    ruleReferences = "",
-                    activeAt = it.activeAt,
-                    closedAt = it.closedAt,
-                    type = it.type,
-                    answerChoices = it.answerChoices,
+                    it.copy(
+                        answer = "",
+                        ruleReferences = ""
+                    ),
                     defaultScore = defaultScore
                 )
             }

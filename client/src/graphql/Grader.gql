@@ -18,6 +18,7 @@ query Grader($includeGraded: Boolean!) {
       id
       ruleReferences
       type
+      imageUrl
       answerChoices {
         id
         letter

@@ -27,6 +27,7 @@ data class ApiQuestion(
     val closedAt: OffsetDateTime,
     val type: QuestionType,
     val answerChoices: List<AnswerChoice>?,
+    val imageUrl: String? = null,
     @GraphQLIgnore
     private val defaultScore: Int
 ) {
@@ -43,6 +44,7 @@ data class ApiQuestion(
         question.closedAt,
         question.type,
         question.answerChoices,
+        question.imageUrl,
         defaultScore
     )
 

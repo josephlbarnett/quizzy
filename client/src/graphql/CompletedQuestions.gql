@@ -11,6 +11,7 @@ query CompletedQuestions {
     closedAt
     id
     type
+    imageUrl
     answerChoices {
       id
       letter

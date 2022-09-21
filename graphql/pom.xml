@@ -268,7 +268,7 @@
 
         <dependency>
             <groupId>io.ktor</groupId>
-            <artifactId>ktor-client-cio-jvm</artifactId>
+            <artifactId>ktor-io-jvm</artifactId>
             <version>${version.ktor}</version>
         </dependency>
 
@@ -276,6 +276,31 @@
             <groupId>io.ktor</groupId>
             <artifactId>ktor-http-jvm</artifactId>
             <version>${version.ktor}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-content-negotiation-jvm</artifactId>
+            <version>${version.ktor}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-serialization-jackson-jvm</artifactId>
+            <version>${version.ktor}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-serialization-jvm</artifactId>
+            <version>${version.ktor}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <dependency>
@@ -288,6 +313,28 @@
             <groupId>io.ktor</groupId>
             <artifactId>ktor-client-mock-jvm</artifactId>
             <version>${version.ktor}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.mockk</groupId>
+            <artifactId>mockk-jvm</artifactId>
+            <version>1.12.8</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.mockk</groupId>
+            <artifactId>mockk-dsl-jvm</artifactId>
+            <version>1.12.8</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

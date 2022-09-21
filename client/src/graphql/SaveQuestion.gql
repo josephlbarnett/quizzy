@@ -8,6 +8,7 @@ mutation SaveQuestion(
   $ruleReferences: String!
   $type: QuestionType!
   $answerChoices: [AnswerChoiceInput!]
+  $imageUrl: String
 ) {
   question(
     question: {
@@ -20,6 +21,7 @@ mutation SaveQuestion(
       ruleReferences: $ruleReferences
       type: $type
       answerChoices: $answerChoices
+      imageUrl: $imageUrl
     }
   ) {
     id

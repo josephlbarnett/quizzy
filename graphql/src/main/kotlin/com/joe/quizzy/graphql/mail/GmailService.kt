@@ -43,11 +43,11 @@ open class GmailService @Inject constructor(
     init {
         val envSecrets = System.getenv("GMAIL_CREDENTIALS_JSON")
         val secretsReader = if (envSecrets.isNullOrBlank()) {
-            InputStreamReader(this::class.java.getResourceAsStream("/gmail-credentials.json"))
+            this::class.java.getResourceAsStream("/gmail-credentials.json")?.let { InputStreamReader(it) }
         } else {
             StringReader(envSecrets)
         }
-        val secrets = secretsReader.use { reader ->
+        val secrets = secretsReader?.use { reader ->
             GoogleClientSecrets.load(jsonFactory, reader)
         }
         val credential = AuthorizationCodeInstalledApp(
