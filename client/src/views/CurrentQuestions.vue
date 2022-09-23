@@ -78,7 +78,7 @@
           <template #default="{ mutate, loading }">
             <v-card-text>
               <v-row>
-                <v-col v-if="clickedQuestion.imageUrl" cols="1">
+                <v-col v-if="clickedQuestion.imageUrl" cols="12" lg="1">
                   <v-img
                     :src="clickedQuestion.imageUrl"
                     max-height="200px"

@@ -72,7 +72,7 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col cols="1" style="text-align: right">
+                    <v-col cols="12" style="text-align: right">
                       <v-file-input
                         v-model="addDialogImage"
                         placeholder="Image"

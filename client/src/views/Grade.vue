@@ -94,7 +94,11 @@
             >
             <v-card-text>
               <v-row>
-                <v-col v-if="clickedResponse.question?.imageUrl" cols="1">
+                <v-col
+                  v-if="clickedResponse.question?.imageUrl"
+                  cols="12"
+                  lg="1"
+                >
                   <v-img
                     :src="clickedResponse.question?.imageUrl"
                     max-height="200px"

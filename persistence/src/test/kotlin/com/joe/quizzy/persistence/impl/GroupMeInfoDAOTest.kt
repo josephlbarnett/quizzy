@@ -36,12 +36,10 @@ class GroupMeInfoDAOTest : PostgresDAOTestBase() {
                 .values(instance.id, "groupId", "apiKey").execute()
         }
 
-
         assertThat(dao.get(UUID.randomUUID())).isNull()
         assertThat(dao.get(instance.id!!)).isNotNull().all {
             prop(GroupMeInfo::groupId).isEqualTo("groupId")
             prop(GroupMeInfo::apiKey).isEqualTo("apiKey")
         }
     }
-
 }

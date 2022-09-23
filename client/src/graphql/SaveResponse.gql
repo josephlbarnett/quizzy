@@ -37,6 +37,7 @@ mutation SaveResponse(
       closedAt
       id
       type
+      imageUrl
       answerChoices {
         id
         letter
