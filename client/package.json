@@ -15,7 +15,7 @@
     "@graphql-codegen/cli": "^2.12.1",
     "@graphql-codegen/typescript": "^2.7.3",
     "@types/moment-timezone": "^0.5.30",
-    "core-js": "^3.25.2",
+    "core-js": "^3.25.3",
     "graphql": "^16.6.0",
     "graphql-combine-query": "^1.2.4",
     "moment-timezone": "^0.5.37",
