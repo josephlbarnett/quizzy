@@ -100,6 +100,9 @@ open class QuestionDAOJooq
                     choiceRecord.store()
                     choiceRecord.into(AnswerChoice::class.java)
                 }
+                check(savedChoices?.any { it.letter == returnedQuestion.answer } ?: true) {
+                    "No valid answer selected"
+                }
                 returnedQuestion.copy(answerChoices = savedChoices)
             } else {
                 returnedQuestion
