@@ -42,6 +42,7 @@ const mockQuestions: ApiQuestion[] = [
     answer: "A1",
     ruleReferences: "Ref1",
     type: QuestionType.ShortAnswer,
+    imageUrl: null,
     answerChoices: [],
     response: {
       id: 789,
@@ -68,6 +69,7 @@ const mockQuestions: ApiQuestion[] = [
     closedAt: "2020-01-07T00:00:00Z",
     answer: "A2",
     type: QuestionType.ShortAnswer,
+    imageUrl: null,
     answerChoices: [],
     ruleReferences: "Ref2",
     response: {
@@ -95,6 +97,7 @@ const mockQuestions: ApiQuestion[] = [
     closedAt: "2020-01-07T00:00:00Z",
     answer: "A3",
     type: QuestionType.ShortAnswer,
+    imageUrl: null,
     answerChoices: [],
     ruleReferences: "Ref3",
     response: {
