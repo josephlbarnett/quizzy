@@ -20,7 +20,7 @@
     "graphql-combine-query": "^1.2.4",
     "moment-timezone": "^0.5.37",
     "papaparse": "^5.3.2",
-    "vue": "^2.7.10",
+    "vue": "^2.7.13",
     "vue-apollo": "^3.1.0",
     "vue-class-component": "^7.2.6",
     "vue-property-decorator": "^9.1.2",
@@ -59,7 +59,7 @@
     "unplugin-vue-components": "^0.22.8",
     "vite": "^3.1.7",
     "vite-plugin-vue2": "^2.0.2",
-    "vue-template-compiler": "^2.7.10"
+    "vue-template-compiler": "^2.7.13"
   },
   "eslintConfig": {
     "root": true,
