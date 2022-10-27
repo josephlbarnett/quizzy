@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.0",
-    "@graphql-codegen/cli": "^2.13.7",
+    "@graphql-codegen/cli": "^2.13.8",
     "@graphql-codegen/typescript": "^2.8.0",
     "@types/moment-timezone": "^0.5.30",
     "core-js": "^3.26.0",
