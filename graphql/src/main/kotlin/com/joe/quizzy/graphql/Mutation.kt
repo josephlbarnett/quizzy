@@ -45,6 +45,7 @@ private const val MAX_COOKIE_AGE = 60 * 60 * 24 * 30 // expire in 30 days
 /**
  * GraphQL entry point for mutations.  Maps the DAO interfaces to the GraphQL models.
  */
+@Suppress("TooManyFunctions")
 class Mutation @Inject constructor(
     private val questionDAO: QuestionDAO,
     private val sessionDAO: SessionDAO,
@@ -243,6 +244,10 @@ class Mutation @Inject constructor(
             }
         }
         return null
+    }
+
+    fun createUser(user: User, inviteCode: UUID, password: String): User? {
+        return userDAO.create(user, inviteCode, userAuthenticator.hasher.hash(password))
     }
 
     fun response(dfe: DataFetchingEnvironment, response: Response): ApiResponse? {

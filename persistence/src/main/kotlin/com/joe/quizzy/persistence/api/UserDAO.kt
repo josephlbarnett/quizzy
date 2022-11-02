@@ -13,6 +13,7 @@ interface UserDAO {
     fun get(id: UUID): User?
     fun get(ids: List<UUID>): List<User>
     fun save(thing: User): User
+    fun create(user: User, inviteCode: UUID, passwordHash: String): User?
 
     fun getByEmail(email: String): User?
     fun getByInstance(instanceId: UUID): List<User>

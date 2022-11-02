@@ -4,6 +4,7 @@ import com.codahale.metrics.annotation.Timed
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
+import com.joe.quizzy.persistence.impl.jooq.Tables.USER_INVITE
 import com.joe.quizzy.persistence.impl.jooq.tables.records.UsersRecord
 import mu.KotlinLogging
 import org.jooq.DSLContext
@@ -78,10 +79,11 @@ open class UserDAOJooq
             } else {
                 val existing = getRecord(config.dsl(), thingId)
                 if (existing != null) {
-                    // don't allow overwriting authCrypt with generic save()
+                    // don't allow overwriting authCrypt or admin with generic save()
                     existing.from(
                         thing,
-                        *existing.fields().filter { it != Tables.USERS.AUTH_CRYPT }.toTypedArray()
+                        *existing.fields().filter { it != Tables.USERS.AUTH_CRYPT && it != Tables.USERS.ADMIN }
+                            .toTypedArray()
                     )
                     existing
                 } else {
@@ -93,6 +95,27 @@ open class UserDAOJooq
             }
             record.store()
             record.into(User::class.java)
+        }
+    }
+
+    @Timed
+    override fun create(user: User, inviteCode: UUID, passwordHash: String): User? {
+        return ctx.transactionResult { config ->
+            val instanceId =
+                config.dsl().select(USER_INVITE.INSTANCE_ID)
+                    .from(USER_INVITE)
+                    .where(USER_INVITE.ID.eq(inviteCode).and(USER_INVITE.STATUS.eq("ACTIVE")))
+                    .fetchOneInto(UUID::class.java)
+            if (instanceId != null) {
+                val record = config.dsl().newRecord(
+                    Tables.USERS,
+                    user.copy(id = null, instanceId = instanceId, authCrypt = passwordHash, admin = false)
+                )
+                record.store()
+                record.into(User::class.java)
+            } else {
+                null
+            }
         }
     }
 

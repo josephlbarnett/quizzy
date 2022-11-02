@@ -1,0 +1,11 @@
+mutation UserInvite(
+    $user: UserInput!
+    $inviteCode: UUID!,
+    $password: String!
+) {
+    createUser(user: $user, inviteCode: $inviteCode, password: $password) {
+        id,
+        instanceId,
+        email
+    }
+}

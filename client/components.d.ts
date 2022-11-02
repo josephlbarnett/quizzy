@@ -11,6 +11,7 @@ declare module 'vue' {
     Login: typeof import('./src/components/Login.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    UserInvite: typeof import('./src/components/UserInvite.vue')['default']
     VApp: typeof import('vuetify/lib')['VApp']
     VAppBar: typeof import('vuetify/lib')['VAppBar']
     VAppBarNavIcon: typeof import('vuetify/lib')['VAppBarNavIcon']

@@ -15,6 +15,7 @@
       <!--              </v-app-bar>-->
 
       <!-- No result -->
+      <user-invite v-else-if="invitePage" />
       <div v-else class="no-result apollo">
         <ApolloMutation
           :mutation="require('../graphql/Login.gql')"
@@ -183,9 +184,11 @@
 </template>
 <script lang="ts">
 import Vue from "vue";
+import UserInvite from "@/components/UserInvite.vue";
 
 export default Vue.extend({
   name: "LoginRouterWrapper",
+  components: { UserInvite },
   data: function () {
     return {
       email: this.$route.query.email || "",
@@ -202,6 +205,12 @@ export default Vue.extend({
   computed: {
     resetPage: function () {
       return this.$route.path == "/initreset";
+    },
+    invitePage: function () {
+      return (
+        this.$route.path.startsWith("/invite/") &&
+        !this.$route.path.endsWith("/invite/")
+      );
     },
     completePage: function () {
       return this.$route.path == "/passreset";
