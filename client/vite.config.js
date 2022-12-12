@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import { createVuePlugin } from "vite-plugin-vue2";
+import vuePlugin from "@vitejs/plugin-vue2";
 import path from "path";
 import graphqlPlugin from "@rollup/plugin-graphql";
 import Components from "unplugin-vue-components/vite";
@@ -9,7 +9,7 @@ import { VuetifyResolver } from "unplugin-vue-components/resolvers";
 export default defineConfig({
   base: "/app/assets/",
   plugins: [
-    createVuePlugin(),
+    vuePlugin(),
     graphqlPlugin(),
     Components({ resolvers: [VuetifyResolver()] }),
   ],
