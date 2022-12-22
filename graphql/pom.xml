@@ -192,7 +192,7 @@
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-gmail</artifactId>
-            <version>v1-rev20220404-2.0.0</version>
+            <version>v1-rev20221219-2.0.0</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.google.api-client</groupId>
