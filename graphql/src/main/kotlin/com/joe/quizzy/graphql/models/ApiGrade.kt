@@ -10,14 +10,14 @@ data class ApiGrade(
     val correct: Boolean?,
     val bonus: Int?,
     @GraphQLIgnore
-    private val defaultScore: Int
+    private val defaultScore: Int,
 ) {
     constructor(grade: Grade, defaultScore: Int) : this(
         grade.id,
         grade.responseId,
         grade.correct,
         grade.bonus,
-        defaultScore
+        defaultScore,
     )
 
     fun score(): Int {

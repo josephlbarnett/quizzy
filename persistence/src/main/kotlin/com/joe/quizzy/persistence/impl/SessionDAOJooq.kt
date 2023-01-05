@@ -18,7 +18,7 @@ private val log = KotlinLogging.logger { }
  */
 open class SessionDAOJooq
 @Inject constructor(
-    private val ctx: DSLContext
+    private val ctx: DSLContext,
 ) : SessionDAO {
     private fun getRecord(dsl: DSLContext, id: UUID): SessionsRecord? {
         return dsl.selectFrom(Tables.SESSIONS).where(Tables.SESSIONS.ID.eq(id)).fetchOne()
@@ -36,7 +36,7 @@ open class SessionDAOJooq
             val record = if (thingId == null) {
                 config.dsl().newRecord(
                     Tables.SESSIONS,
-                    thing
+                    thing,
                 )
             } else {
                 val existing = getRecord(config.dsl(), thingId)
@@ -46,7 +46,7 @@ open class SessionDAOJooq
                 } else {
                     config.dsl().newRecord(
                         Tables.SESSIONS,
-                        thing
+                        thing,
                     )
                 }
             }

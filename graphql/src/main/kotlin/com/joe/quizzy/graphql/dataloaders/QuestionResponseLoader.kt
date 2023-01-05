@@ -19,7 +19,7 @@ class QuestionResponseLoader(private val responseDAO: ResponseDAO, contextMap: M
 
     override suspend fun loadSuspend(
         keys: Set<UUID>,
-        environment: BatchLoaderEnvironment
+        environment: BatchLoaderEnvironment,
     ): Map<UUID, Response> {
         val principal = environment.getContext<GraphQLContext>().get<Principal>()
         return if (principal is UserPrincipal) {

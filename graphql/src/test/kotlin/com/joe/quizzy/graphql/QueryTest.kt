@@ -35,8 +35,8 @@ fun getDFE(principal: UserPrincipal?, scope: CoroutineScope): DataFetchingEnviro
     val dfe = LeakyMock.mock<DataFetchingEnvironment>()
     EasyMock.expect(dfe.graphQlContext).andReturn(
         GraphQLContext.of(
-            getGraphQLContextMap(scope, principal) + contextMap(javax.ws.rs.core.Response.ok())
-        )
+            getGraphQLContextMap(scope, principal) + contextMap(javax.ws.rs.core.Response.ok()),
+        ),
     ).anyTimes()
     EasyMock.replay(dfe)
     return dfe
@@ -58,7 +58,7 @@ class QueryTest {
         "answer",
         "refs",
         OffsetDateTime.now(),
-        OffsetDateTime.now()
+        OffsetDateTime.now(),
     )
     val response = Response(rUUID, uUUID, qUUID, "response", "responseRefs")
     val gradedResponse = Response(r2UUID, uUUID, qUUID, "response2", "responseRefs2")
@@ -84,7 +84,7 @@ class QueryTest {
             uDAO,
             sDAO,
             rDAO,
-            iDAO
+            iDAO,
         )
         query = Query(qDAO, uDAO, rDAO, iDAO)
     }
@@ -129,7 +129,7 @@ class QueryTest {
     @Test
     fun testFutureQuestions() {
         val apiQuestions = query.futureQuestions(
-            getDFE(UserPrincipal(user.copy(admin = true), null), scope)
+            getDFE(UserPrincipal(user.copy(admin = true), null), scope),
         )
         assertThat(apiQuestions.first()).isEqualTo(ApiQuestion(question, 15))
 
@@ -144,14 +144,14 @@ class QueryTest {
     fun testResponses() {
         val withGraded = query.responses(
             getDFE(UserPrincipal(user.copy(admin = true), null), scope),
-            true
+            true,
         )
         assertThat(withGraded).contains(ApiResponse(response, 15))
         assertThat(withGraded).contains(ApiResponse(gradedResponse, 15))
 
         val withoutGraded = query.responses(
             getDFE(UserPrincipal(user.copy(admin = true), null), scope),
-            false
+            false,
         )
         assertThat(withoutGraded).contains(ApiResponse(response, 15))
         assertThat(withoutGraded).doesNotContain(ApiResponse(gradedResponse, 15))

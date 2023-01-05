@@ -15,5 +15,5 @@ data class User(
     val timeZoneId: String,
     val notifyViaEmail: Boolean = true,
     @get:JsonIgnore @GraphQLIgnore
-    val passwordResetToken: String? = null
+    val passwordResetToken: String? = null,
 )

@@ -73,7 +73,7 @@ class ScheduledEmailBundleTest {
             mockGroupMeServiceFactory,
             client,
             threadPool.asCoroutineDispatcher(),
-            1
+            1,
         )
         EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andAnswer {
             latch.countDown()
@@ -111,7 +111,7 @@ class ScheduledEmailBundleTest {
             mockEmailNotificationDAO,
             mockGmailServiceFactory,
             mockGroupMeServiceFactory,
-            client
+            client,
         )
         support.replayAll()
         bundle.run(null, null)
@@ -163,7 +163,7 @@ class ScheduledEmailBundleTest {
             mockGroupMeServiceFactory,
             client,
             threadPool.asCoroutineDispatcher(),
-            1
+            1,
         )
         val authorId = UUID.randomUUID()
         val instanceId = UUID.randomUUID()
@@ -178,9 +178,9 @@ class ScheduledEmailBundleTest {
                     "a2",
                     "r2",
                     OffsetDateTime.now().minusDays(2),
-                    OffsetDateTime.now().minusHours(1)
-                )
-            )
+                    OffsetDateTime.now().minusHours(1),
+                ),
+            ),
         ).once()
         EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andReturn(
             listOf(
@@ -191,9 +191,9 @@ class ScheduledEmailBundleTest {
                     "a4",
                     "r4",
                     OffsetDateTime.now().minusDays(1),
-                    OffsetDateTime.now().plusHours(1)
-                )
-            )
+                    OffsetDateTime.now().plusHours(1),
+                ),
+            ),
         ).once()
         EasyMock.expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>())).andReturn(
             listOf(
@@ -205,9 +205,9 @@ class ScheduledEmailBundleTest {
                     "",
                     true,
                     "",
-                    false
-                )
-            )
+                    false,
+                ),
+            ),
         ).once()
         EasyMock.expect(mockUserDAO.getByInstance(instanceId)).andReturn(
             listOf(
@@ -219,7 +219,7 @@ class ScheduledEmailBundleTest {
                     "",
                     true,
                     "",
-                    false
+                    false,
                 ),
                 User(
                     UUID.randomUUID(),
@@ -229,9 +229,9 @@ class ScheduledEmailBundleTest {
                     "",
                     false,
                     "",
-                    true
-                )
-            )
+                    true,
+                ),
+            ),
         ).once()
         EasyMock.expect(mockGmailServiceFactory.getService(instanceId)).andReturn(null).once()
         support.replayAll()
@@ -263,7 +263,7 @@ class ScheduledEmailBundleTest {
             mockGroupMeServiceFactory,
             client,
             threadPool.asCoroutineDispatcher(),
-            1
+            1,
         )
         val authorId = UUID.randomUUID()
         val instanceId = UUID.randomUUID()
@@ -275,7 +275,7 @@ class ScheduledEmailBundleTest {
                 "a1",
                 "r1",
                 OffsetDateTime.now().minusDays(2),
-                OffsetDateTime.now().minusHours(1)
+                OffsetDateTime.now().minusHours(1),
             ),
             Question(
                 UUID.randomUUID(),
@@ -288,12 +288,12 @@ class ScheduledEmailBundleTest {
                 QuestionType.MULTIPLE_CHOICE,
                 listOf(
                     AnswerChoice(UUID.randomUUID(), UUID.randomUUID(), "A", "First Choice"),
-                    AnswerChoice(UUID.randomUUID(), UUID.randomUUID(), "B", "Second Choice")
-                )
-            )
+                    AnswerChoice(UUID.randomUUID(), UUID.randomUUID(), "B", "Second Choice"),
+                ),
+            ),
         )
         EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
-            closedQuestions
+            closedQuestions,
         ).once()
         EasyMock.expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
             .andReturn(mockGroupMeService)
@@ -305,7 +305,7 @@ class ScheduledEmailBundleTest {
                 "a3",
                 "r3",
                 OffsetDateTime.now().minusDays(1),
-                OffsetDateTime.now().plusHours(1)
+                OffsetDateTime.now().plusHours(1),
             ),
             Question(
                 UUID.randomUUID(),
@@ -318,12 +318,12 @@ class ScheduledEmailBundleTest {
                 QuestionType.MULTIPLE_CHOICE,
                 listOf(
                     AnswerChoice(UUID.randomUUID(), UUID.randomUUID(), "A", "Letter A"),
-                    AnswerChoice(UUID.randomUUID(), UUID.randomUUID(), "B", "Letter B")
-                )
-            )
+                    AnswerChoice(UUID.randomUUID(), UUID.randomUUID(), "B", "Letter B"),
+                ),
+            ),
         )
         EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andReturn(
-            activeQuestions
+            activeQuestions,
         ).once()
         EasyMock.expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>())).andReturn(
             listOf(
@@ -335,9 +335,9 @@ class ScheduledEmailBundleTest {
                     "",
                     true,
                     "",
-                    false
-                )
-            )
+                    false,
+                ),
+            ),
         ).once()
         EasyMock.expect(mockUserDAO.getByInstance(instanceId)).andReturn(
             listOf(
@@ -349,7 +349,7 @@ class ScheduledEmailBundleTest {
                     "",
                     true,
                     "",
-                    false
+                    false,
                 ),
                 User(
                     UUID.randomUUID(),
@@ -359,9 +359,9 @@ class ScheduledEmailBundleTest {
                     "",
                     false,
                     "",
-                    true
-                )
-            )
+                    true,
+                ),
+            ),
         ).once()
         val sentMessageCapture = EasyMock.newCapture<Message>()
         val gmsMock: GmailService = support.mock()
@@ -393,14 +393,14 @@ class ScheduledEmailBundleTest {
         EasyMock.expect(
             mockEmailNotificationDAO.markNotified(
                 NotificationType.REMINDER,
-                (activeQuestions + closedQuestions).mapNotNull { it.id }
-            )
+                (activeQuestions + closedQuestions).mapNotNull { it.id },
+            ),
         )
         EasyMock.expect(
             mockEmailNotificationDAO.markNotified(
                 NotificationType.ANSWER,
-                closedQuestions.mapNotNull { it.id }
-            )
+                closedQuestions.mapNotNull { it.id },
+            ),
         )
 
         support.replayAll()
@@ -411,7 +411,7 @@ class ScheduledEmailBundleTest {
         val message = sentMessageCapture.value
         val mimeMessage = MimeMessage(
             Session.getDefaultInstance(Properties()),
-            ByteArrayInputStream(message.decodeRaw())
+            ByteArrayInputStream(message.decodeRaw()),
         )
         assertThat(mimeMessage.getRecipients(javax.mail.Message.RecipientType.BCC).toList().map { it.toString() })
             .isEqualTo(listOf("jim <jim@jim.com>"))
@@ -460,13 +460,13 @@ class ScheduledEmailBundleTest {
             mockGroupMeServiceFactory,
             client,
             threadPool.asCoroutineDispatcher(),
-            1
+            1,
         )
         val authorId = UUID.randomUUID()
         val instanceId = UUID.randomUUID()
         val closedQuestions = listOf<Question>()
         EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
-            closedQuestions
+            closedQuestions,
         ).once()
         EasyMock.expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
             .andReturn(mockGroupMeService)
@@ -478,11 +478,11 @@ class ScheduledEmailBundleTest {
                 "a4",
                 "r4",
                 OffsetDateTime.now().minusDays(1),
-                OffsetDateTime.now().plusHours(1)
-            )
+                OffsetDateTime.now().plusHours(1),
+            ),
         )
         EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andReturn(
-            activeQuestions
+            activeQuestions,
         ).once()
         EasyMock.expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>())).andReturn(
             listOf(
@@ -494,9 +494,9 @@ class ScheduledEmailBundleTest {
                     "",
                     true,
                     "",
-                    false
-                )
-            )
+                    false,
+                ),
+            ),
         ).once()
         EasyMock.expect(mockUserDAO.getByInstance(instanceId)).andReturn(
             listOf(
@@ -508,7 +508,7 @@ class ScheduledEmailBundleTest {
                     "",
                     true,
                     "",
-                    false
+                    false,
                 ),
                 User(
                     UUID.randomUUID(),
@@ -518,9 +518,9 @@ class ScheduledEmailBundleTest {
                     "",
                     false,
                     "",
-                    true
-                )
-            )
+                    true,
+                ),
+            ),
         ).once()
         val sentMessageCapture = EasyMock.newCapture<Message>()
         val gmsMock: GmailService = support.mock()
@@ -552,14 +552,14 @@ class ScheduledEmailBundleTest {
         EasyMock.expect(
             mockEmailNotificationDAO.markNotified(
                 NotificationType.REMINDER,
-                (activeQuestions + closedQuestions).mapNotNull { it.id }
-            )
+                (activeQuestions + closedQuestions).mapNotNull { it.id },
+            ),
         )
         EasyMock.expect(
             mockEmailNotificationDAO.markNotified(
                 NotificationType.ANSWER,
-                closedQuestions.mapNotNull { it.id }
-            )
+                closedQuestions.mapNotNull { it.id },
+            ),
         )
         support.replayAll()
         bundle.sendEmails(OffsetDateTime.now())
@@ -569,7 +569,7 @@ class ScheduledEmailBundleTest {
         val message = sentMessageCapture.value
         val mimeMessage = MimeMessage(
             Session.getDefaultInstance(Properties()),
-            ByteArrayInputStream(message.decodeRaw())
+            ByteArrayInputStream(message.decodeRaw()),
         )
         assertThat(mimeMessage.getRecipients(javax.mail.Message.RecipientType.BCC).toList().map { it.toString() })
             .isEqualTo(listOf("jim <jim@jim.com>"))
@@ -610,7 +610,7 @@ class ScheduledEmailBundleTest {
             mockGroupMeServiceFactory,
             client,
             threadPool.asCoroutineDispatcher(),
-            1
+            1,
         )
         val authorId = UUID.randomUUID()
         val instanceId = UUID.randomUUID()
@@ -622,17 +622,17 @@ class ScheduledEmailBundleTest {
                 "a1",
                 "r1",
                 OffsetDateTime.now().minusDays(2),
-                OffsetDateTime.now().minusHours(1)
-            )
+                OffsetDateTime.now().minusHours(1),
+            ),
         )
         EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
-            closedQuestions
+            closedQuestions,
         ).once()
         EasyMock.expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
             .andReturn(mockGroupMeService)
         val activeQuestions = listOf<Question>()
         EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andReturn(
-            activeQuestions
+            activeQuestions,
         ).once()
         EasyMock.expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>())).andReturn(
             listOf(
@@ -644,9 +644,9 @@ class ScheduledEmailBundleTest {
                     "",
                     true,
                     "",
-                    false
-                )
-            )
+                    false,
+                ),
+            ),
         ).once()
         EasyMock.expect(mockUserDAO.getByInstance(instanceId)).andReturn(
             listOf(
@@ -658,7 +658,7 @@ class ScheduledEmailBundleTest {
                     "",
                     true,
                     "",
-                    false
+                    false,
                 ),
                 User(
                     UUID.randomUUID(),
@@ -668,9 +668,9 @@ class ScheduledEmailBundleTest {
                     "",
                     false,
                     "",
-                    true
-                )
-            )
+                    true,
+                ),
+            ),
         ).once()
         val sentMessageCapture = EasyMock.newCapture<Message>()
         val gmsMock: GmailService = support.mock()
@@ -702,14 +702,14 @@ class ScheduledEmailBundleTest {
         EasyMock.expect(
             mockEmailNotificationDAO.markNotified(
                 NotificationType.REMINDER,
-                (activeQuestions + closedQuestions).mapNotNull { it.id }
-            )
+                (activeQuestions + closedQuestions).mapNotNull { it.id },
+            ),
         )
         EasyMock.expect(
             mockEmailNotificationDAO.markNotified(
                 NotificationType.ANSWER,
-                closedQuestions.mapNotNull { it.id }
-            )
+                closedQuestions.mapNotNull { it.id },
+            ),
         )
         support.replayAll()
         bundle.sendEmails(OffsetDateTime.now())
@@ -719,7 +719,7 @@ class ScheduledEmailBundleTest {
         val message = sentMessageCapture.value
         val mimeMessage = MimeMessage(
             Session.getDefaultInstance(Properties()),
-            ByteArrayInputStream(message.decodeRaw())
+            ByteArrayInputStream(message.decodeRaw()),
         )
         assertThat(mimeMessage.getRecipients(javax.mail.Message.RecipientType.BCC).toList().map { it.toString() })
             .isEqualTo(listOf("jim <jim@jim.com>"))

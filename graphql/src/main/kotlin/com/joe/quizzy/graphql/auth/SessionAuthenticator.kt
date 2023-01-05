@@ -16,7 +16,7 @@ private val log = KotlinLogging.logger {}
 class SessionAuthenticator
 @Inject constructor(
     private val sessionDAO: SessionDAO,
-    private val userDAO: UserDAO
+    private val userDAO: UserDAO,
 ) : Authenticator<String?, Principal> {
     override fun authenticate(credentials: String?): Optional<Principal> {
         val sessionId = try {

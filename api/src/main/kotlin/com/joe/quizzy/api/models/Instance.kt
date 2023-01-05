@@ -12,5 +12,5 @@ data class Instance(
     val gmailRefreshToken: String? = null,
     val defaultQuestionType: QuestionType = QuestionType.SHORT_ANSWER,
     val autoGrade: Boolean = false,
-    val defaultScore: Int = 15
+    val defaultScore: Int = 15,
 )

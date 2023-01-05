@@ -66,13 +66,13 @@ class GroupMeResourceTest : ResourceTestBase<GroupMeResource>() {
                             Optional.of(
                                 UserPrincipal(
                                     User(userId, instanceUUID, "joe", "joe@joe.com", null, false, ""),
-                                    Session(UUID.randomUUID(), userId, OffsetDateTime.now(), OffsetDateTime.now())
-                                )
+                                    Session(UUID.randomUUID(), userId, OffsetDateTime.now(), OffsetDateTime.now()),
+                                ),
                             )
                         }
                     }
-                    .buildAuthFilter()
-            )
+                    .buildAuthFilter(),
+            ),
         )
     }
 

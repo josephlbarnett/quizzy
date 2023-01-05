@@ -6,5 +6,5 @@ data class AnswerChoice(
     val id: UUID?,
     val questionId: UUID?,
     val letter: String,
-    val answer: String
+    val answer: String,
 )

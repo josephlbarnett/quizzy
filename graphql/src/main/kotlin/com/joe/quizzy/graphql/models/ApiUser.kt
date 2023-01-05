@@ -20,11 +20,11 @@ data class ApiUser(
     val timeZoneId: String,
     val notifyViaEmail: Boolean,
     @GraphQLIgnore
-    private val defaultScore: Int
+    private val defaultScore: Int,
 ) {
     constructor(
         user: User,
-        defaultScore: Int
+        defaultScore: Int,
     ) : this(
         user.id,
         user.instanceId,
@@ -33,7 +33,7 @@ data class ApiUser(
         user.admin,
         user.timeZoneId,
         user.notifyViaEmail,
-        defaultScore
+        defaultScore,
     )
 
     fun score(dfe: DataFetchingEnvironment): CompletableFuture<Int> {

@@ -21,7 +21,7 @@ class QuizzyServiceModuleTest
     val packages: Set<String>,
     @Named(GRAPHQL_QUERIES_BIND_NAME)
     val queries: Set<Any>,
-    val authFilter: AuthFilter<*, *>
+    val authFilter: AuthFilter<*, *>,
 ) {
     @Test
     fun testResources() {

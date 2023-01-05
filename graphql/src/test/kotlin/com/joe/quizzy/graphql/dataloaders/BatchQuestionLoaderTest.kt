@@ -23,7 +23,7 @@ class BatchQuestionLoaderTest {
         val questions = listOf(
             Question(UUID.randomUUID(), UUID.randomUUID(), "q1", "a1", "r1", now, now),
             Question(UUID.randomUUID(), UUID.randomUUID(), "q2", "a2", "r2", now, now),
-            Question(UUID.randomUUID(), UUID.randomUUID(), "q3", "a3", "r3", now, now)
+            Question(UUID.randomUUID(), UUID.randomUUID(), "q3", "a3", "r3", now, now),
         )
         EasyMock.expect(questionDAO.get(EasyMock.anyObject<List<UUID>>() ?: listOf())).andReturn(questions)
         EasyMock.replay(questionDAO, mockEnv)

@@ -7,5 +7,5 @@ data class Response(
     val userId: UUID,
     val questionId: UUID,
     val response: String,
-    val ruleReferences: String
+    val ruleReferences: String,
 )

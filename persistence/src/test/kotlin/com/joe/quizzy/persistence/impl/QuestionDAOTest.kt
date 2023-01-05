@@ -56,7 +56,7 @@ class QuestionDAOTest : PostgresDAOTestBase() {
         val questions = listOf(
             Question(null, userId, "current", "", "", oneHourAgo, oneHourFromNow),
             Question(null, userId, "past", "", "", oneHourAgo, oneHourAgo),
-            Question(null, userId, "future", "", "", oneHourFromNow, oneHourFromNow)
+            Question(null, userId, "future", "", "", oneHourFromNow, oneHourFromNow),
         )
         questions.forEach { dao.save(it) }
         assertThat(dao.active(user.copy(id = userId)).map { it.body }.first()).isEqualTo("current")
@@ -76,7 +76,7 @@ class QuestionDAOTest : PostgresDAOTestBase() {
             Question(null, userId, "current1", "", "", oneHourAgo, oneHourFromNow),
             Question(null, userId, "past1", "", "", oneHourAgo, oneHourAgo),
             Question(null, userId, "current2", "", "", oneHourAgo, oneHourFromNow),
-            Question(null, userId, "past2", "", "", oneHourAgo, oneHourAgo)
+            Question(null, userId, "past2", "", "", oneHourAgo, oneHourAgo),
         ).map { dao.save(it) }
         notificationDao.markNotified(NotificationType.REMINDER, listOf(questions[0].id!!))
         notificationDao.markNotified(NotificationType.ANSWER, listOf(questions[1].id!!))
@@ -105,7 +105,7 @@ class QuestionDAOTest : PostgresDAOTestBase() {
                 "another answer",
                 "some more refs",
                 OffsetDateTime.now(),
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
             )
         val qId = dao.save(q1).id!!
         dao.save(q2)
@@ -122,7 +122,7 @@ class QuestionDAOTest : PostgresDAOTestBase() {
                 "an answer",
                 "some refs",
                 OffsetDateTime.now(),
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
             )
         dao.save(updateThing)
         dao.stream().use { stream ->
@@ -157,8 +157,8 @@ class QuestionDAOTest : PostgresDAOTestBase() {
                 AnswerChoice(null, null, "A", "Choice A"),
                 AnswerChoice(null, null, "B", "Choice B"),
                 AnswerChoice(null, null, "C", "Choice C"),
-                AnswerChoice(null, null, "D", "Choice D")
-            )
+                AnswerChoice(null, null, "D", "Choice D"),
+            ),
         )
         val savedQ = dao.save(q1)
         val savedQId = savedQ.id!!
@@ -183,8 +183,8 @@ class QuestionDAOTest : PostgresDAOTestBase() {
                 AnswerChoice(null, null, "A", "Choice A1"),
                 AnswerChoice(null, null, "B", "Choice B2"),
                 AnswerChoice(null, null, "C", "Choice C3"),
-                AnswerChoice(null, null, "D", "Choice D4")
-            )
+                AnswerChoice(null, null, "D", "Choice D4"),
+            ),
         )
         val resavedQ = dao.save(updatedQ)
         assertThat(resavedQ.answerChoices).isNotNull().all {

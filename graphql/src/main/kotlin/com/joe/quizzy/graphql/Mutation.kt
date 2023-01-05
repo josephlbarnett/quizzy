@@ -55,7 +55,7 @@ class Mutation @Inject constructor(
     private val userAuthenticator: UserAuthenticator,
     private val instanceDAO: InstanceDAO,
     private val gmailServiceFactory: GmailServiceFactory,
-    private val appConfig: TribeApplicationConfig
+    private val appConfig: TribeApplicationConfig,
 ) : com.expediagroup.graphql.server.operations.Mutation {
 
     private val newUserHtmlTemplate =
@@ -88,8 +88,8 @@ class Mutation @Inject constructor(
                         MAX_COOKIE_AGE,
                         null,
                         true,
-                        true
-                    )
+                        true,
+                    ),
                 )
                 return true
             }
@@ -109,7 +109,7 @@ class Mutation @Inject constructor(
         val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
             val passCheck = userAuthenticator.authenticate(
-                BasicCredentials(principal.user.email, oldPass)
+                BasicCredentials(principal.user.email, oldPass),
             ).map { it as? UserPrincipal }.orElse(null)
             if (passCheck != null && passCheck.user.id != null && passCheck.user.id == principal.user.id) {
                 userDAO.savePassword(passCheck.user, userAuthenticator.hasher.hash(newPass))
@@ -129,8 +129,8 @@ class Mutation @Inject constructor(
                     -1,
                     Date(0), // expire 1970
                     true,
-                    true
-                )
+                    true,
+                ),
             )
             val session = principal.session
             if (session != null) {
@@ -152,7 +152,7 @@ class Mutation @Inject constructor(
                 message.setFrom("$instanceName <$instanceAddress>")
                 message.addRecipients(
                     Message.RecipientType.TO,
-                    "${user.name} <${user.email}>"
+                    "${user.name} <${user.email}>",
                 )
                 message.subject = "$instanceName Password Reset"
                 message.setContent(
@@ -163,10 +163,10 @@ class Mutation @Inject constructor(
                             "user" to user,
                             "code" to code,
                             "link" to "https://${appConfig.corsDomains[0]}/app/assets#/passreset" +
-                                "?code=$code&email=${URLEncoder.encode(user.email, "UTF-8")}"
-                        )
+                                "?code=$code&email=${URLEncoder.encode(user.email, "UTF-8")}",
+                        ),
                     ).toString(),
-                    MediaType.TEXT_HTML
+                    MediaType.TEXT_HTML,
                 )
                 userDAO.save(user.copy(passwordResetToken = userAuthenticator.hasher.hash(code)))
                 gmail.gmail.sendEmail("me", message).execute()
@@ -199,7 +199,7 @@ class Mutation @Inject constructor(
             message.setFrom("$instanceName <$instanceAddress>")
             message.addRecipients(
                 Message.RecipientType.TO,
-                "${savedUser.name} <${savedUser.email}>"
+                "${savedUser.name} <${savedUser.email}>",
             )
             message.subject = "Welcome to $instanceName"
             message.setContent(
@@ -210,10 +210,10 @@ class Mutation @Inject constructor(
                         "user" to savedUser,
                         "admin" to principal.user,
                         "password" to password,
-                        "link" to "https://${appConfig.corsDomains[0]}/app/assets#/me"
-                    )
+                        "link" to "https://${appConfig.corsDomains[0]}/app/assets#/me",
+                    ),
                 ).toString(),
-                MediaType.TEXT_HTML
+                MediaType.TEXT_HTML,
             )
             gmail.gmail.sendEmail("me", message).execute()
         }
@@ -260,10 +260,10 @@ class Mutation @Inject constructor(
             return ApiResponse(
                 responseDAO.save(
                     response.copy(
-                        userId = id
-                    )
+                        userId = id,
+                    ),
                 ),
-                instance.defaultScore
+                instance.defaultScore,
             )
         }
         return null

@@ -74,7 +74,7 @@ class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
         userAuthenticator,
         instanceDAO,
         gmailServiceFactory,
-        TribeApplicationConfig(ConfigLoader())
+        TribeApplicationConfig(ConfigLoader()),
     )
     val emptyContext = getDFE(null, scope)
     val user = User(
@@ -84,7 +84,7 @@ class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
         "user",
         "pass",
         false,
-        "UTC"
+        "UTC",
     )
     val admin = User(
         UUID.randomUUID(),
@@ -93,13 +93,13 @@ class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
         "admin@admin.com",
         "pass",
         true,
-        "UTC"
+        "UTC",
     )
     val session = Session(
         UUID.randomUUID(),
         user.id!!,
         OffsetDateTime.now(),
-        OffsetDateTime.now()
+        OffsetDateTime.now(),
     )
     val userSessionContext = getDFE(UserPrincipal(user, session), scope)
     val userNoSessionContext = getDFE(UserPrincipal(user, null), scope)
@@ -144,15 +144,15 @@ class MutationTest {
                 mutation.login(
                     getDFE(UserPrincipal(user, null), scope),
                     "notauser",
-                    "wrong"
-                )
+                    "wrong",
+                ),
             ).isTrue()
             assertThat(
                 mutation.login(
                     userNoSessionContext,
                     "alreadysetuser",
-                    "whatever"
-                )
+                    "whatever",
+                ),
             ).isTrue()
         }
     }
@@ -282,8 +282,8 @@ class MutationTest {
                 mutation.changePassword(
                     getDFE(UserPrincipal(user.copy(id = UUID.randomUUID()), null), scope),
                     "pass",
-                    "newpass"
-                )
+                    "newpass",
+                ),
             ).isFalse()
         }
     }
@@ -301,8 +301,8 @@ class MutationTest {
                 mutation.changePassword(
                     getDFE(UserPrincipal(user.copy(email = "user2"), null), scope),
                     "pass",
-                    "newpass"
-                )
+                    "newpass",
+                ),
             ).isFalse()
         }
     }
@@ -319,8 +319,8 @@ class MutationTest {
                 mutation.changePassword(
                     getDFE(UserPrincipal(user.copy(email = "user3"), null), scope),
                     "pass",
-                    "newpass"
-                )
+                    "newpass",
+                ),
             ).isFalse()
         }
     }
@@ -363,12 +363,12 @@ class MutationTest {
             EasyMock.expect(meGetMock.execute()).andReturn(Userinfo().apply { email = admin.email })
         }.test {
             assertThat(
-                mutation.requestPasswordReset(user.email)
+                mutation.requestPasswordReset(user.email),
             ).isTrue()
             val message = sentMessageCapture.value
             val mimeMessage = MimeMessage(
                 javax.mail.Session.getDefaultInstance(Properties()),
-                ByteArrayInputStream(message.decodeRaw())
+                ByteArrayInputStream(message.decodeRaw()),
             )
             assertThat(mimeMessage.getRecipients(RecipientType.TO).toList().map { it.toString() })
                 .isEqualTo(listOf("user <user>"))
@@ -383,7 +383,7 @@ class MutationTest {
             assertThat(mimeMessage.content.toString())
                 .contains(
                     "https://localhost/app/assets#/passreset?" +
-                        "code&#61;$generatedCodeCapture&amp;email&#61;user"
+                        "code&#61;$generatedCodeCapture&amp;email&#61;user",
                 )
         }
     }
@@ -394,7 +394,7 @@ class MutationTest {
             EasyMock.expect(userDAO.getByEmail(user.email)).andReturn(null)
         }.test {
             assertThat(
-                mutation.requestPasswordReset(user.email)
+                mutation.requestPasswordReset(user.email),
             ).isTrue()
         }
     }
@@ -406,7 +406,7 @@ class MutationTest {
             EasyMock.expect(gmailServiceFactory.getService(user.instanceId)).andReturn(null)
         }.test {
             assertThat(
-                mutation.requestPasswordReset(user.email)
+                mutation.requestPasswordReset(user.email),
             ).isTrue()
         }
     }
@@ -422,7 +422,7 @@ class MutationTest {
                 .andReturn(1)
         }.test {
             assertThat(
-                mutation.completePasswordReset(user.email, "secretcode", "newpassword")
+                mutation.completePasswordReset(user.email, "secretcode", "newpassword"),
             ).isTrue()
         }
     }
@@ -435,7 +435,7 @@ class MutationTest {
                 .andReturn(user.copy(passwordResetToken = "secrethash"))
         }.test {
             assertThat(
-                mutation.completePasswordReset(user.email, "wrongsecretcode", "newpassword")
+                mutation.completePasswordReset(user.email, "wrongsecretcode", "newpassword"),
             ).isFalse()
         }
     }
@@ -447,7 +447,7 @@ class MutationTest {
                 .andReturn(user)
         }.test {
             assertThat(
-                mutation.completePasswordReset(user.email, "norealcode", "newpassword")
+                mutation.completePasswordReset(user.email, "norealcode", "newpassword"),
             ).isFalse()
         }
     }
@@ -459,7 +459,7 @@ class MutationTest {
                 .andReturn(null)
         }.test {
             assertThat(
-                mutation.completePasswordReset(user.email, "norealcode", "newpassword")
+                mutation.completePasswordReset(user.email, "norealcode", "newpassword"),
             ).isFalse()
         }
     }
@@ -478,14 +478,14 @@ class MutationTest {
                 "an answer",
                 "rule reference",
                 OffsetDateTime.now(),
-                OffsetDateTime.now()
+                OffsetDateTime.now(),
             )
             EasyMock.expect(questionDAO.save(question)).andReturn(question.copy(id = UUID.randomUUID()))
         }.test {
             assertThat(
                 mutation.question(
-                    question
-                )?.id
+                    question,
+                )?.id,
             ).isNotNull()
         }
     }
@@ -547,14 +547,14 @@ class MutationTest {
                 null,
                 UUID.randomUUID(),
                 true,
-                5
+                5,
             )
             EasyMock.expect(gradeDAO.save(grade)).andReturn(grade.copy(id = UUID.randomUUID()))
         }.test {
             assertThat(
                 mutation.grade(
-                    grade
-                )?.id
+                    grade,
+                )?.id,
             ).isNotNull()
         }
     }
@@ -611,7 +611,7 @@ class MutationTest {
                 UUID.randomUUID(),
                 UUID.randomUUID(),
                 "an answer",
-                "with references"
+                "with references",
             )
             EasyMock.expect(responseDAO.save(response.copy(userId = user.id!!)))
                 .andReturn(response.copy(id = UUID.randomUUID(), userId = user.id!!))
@@ -619,13 +619,13 @@ class MutationTest {
                 Instance(
                     UUID.randomUUID(),
                     "response-save",
-                    "ACTIVE"
-                )
+                    "ACTIVE",
+                ),
             )
         }.test {
             val savedResponse = mutation.response(
                 userSessionContext,
-                response
+                response,
             )
             assertThat(savedResponse?.id).isNotNull()
             assertThat(savedResponse?.userId).isEqualTo(user.id)
@@ -646,9 +646,9 @@ class MutationTest {
                         UUID.randomUUID(),
                         UUID.randomUUID(),
                         "an answer",
-                        "with references"
-                    )
-                )
+                        "with references",
+                    ),
+                ),
             ).isNull()
         }
     }
@@ -666,14 +666,14 @@ class MutationTest {
             assertThat(
                 mutation.user(
                     adminContext,
-                    userToEdit
-                )
+                    userToEdit,
+                ),
             ).isEqualTo(userToEdit)
             assertThat(
                 mutation.users(
                     adminContext,
-                    listOf(userToEdit)
-                )
+                    listOf(userToEdit),
+                ),
             ).isEqualTo(listOf(userToEdit))
         }
     }
@@ -691,21 +691,21 @@ class MutationTest {
                 .andReturn(
                     userToEdit.copy(
                         id = UUID.fromString("9eed42c1-4469-4b36-8417-e7e35fe45bd5"),
-                        authCrypt = "hashedsecret"
-                    )
+                        authCrypt = "hashedsecret",
+                    ),
                 )
             EasyMock.expect(gmailServiceFactory.getService(admin.instanceId)).andReturn(null)
         }.test {
             assertThat(
                 mutation.user(
                     adminContext,
-                    userToEdit
-                )
+                    userToEdit,
+                ),
             ).isEqualTo(
                 userToEdit.copy(
                     id = UUID.fromString("9eed42c1-4469-4b36-8417-e7e35fe45bd5"),
-                    authCrypt = "hashedsecret"
-                )
+                    authCrypt = "hashedsecret",
+                ),
             )
         }
     }
@@ -724,8 +724,8 @@ class MutationTest {
                 .andReturn(
                     userToEdit.copy(
                         id = UUID.fromString("9eed42c1-4469-4b36-8417-e7e35fe45bd5"),
-                        authCrypt = "hashedsecret"
-                    )
+                        authCrypt = "hashedsecret",
+                    ),
                 )
             val gmsMock: GmailService = mock()
             val gmailMock: Gmail = mock()
@@ -757,18 +757,18 @@ class MutationTest {
             assertThat(
                 mutation.user(
                     adminContext,
-                    userToEdit
-                )
+                    userToEdit,
+                ),
             ).isEqualTo(
                 userToEdit.copy(
                     id = UUID.fromString("9eed42c1-4469-4b36-8417-e7e35fe45bd5"),
-                    authCrypt = "hashedsecret"
-                )
+                    authCrypt = "hashedsecret",
+                ),
             )
             val message = sentMessageCapture.value
             val mimeMessage = MimeMessage(
                 javax.mail.Session.getDefaultInstance(Properties()),
-                ByteArrayInputStream(message.decodeRaw())
+                ByteArrayInputStream(message.decodeRaw()),
             )
             assertThat(mimeMessage.getRecipients(RecipientType.TO).toList().map { it.toString() })
                 .isEqualTo(listOf("bill <bill@gmail.com>"))
@@ -796,14 +796,14 @@ class MutationTest {
             assertThat(
                 mutation.user(
                     userSessionContext,
-                    userToEdit
-                )
+                    userToEdit,
+                ),
             ).isEqualTo(userToEdit)
             assertThat(
                 mutation.users(
                     userSessionContext,
-                    listOf(userToEdit)
-                )
+                    listOf(userToEdit),
+                ),
             ).isEqualTo(listOf(userToEdit))
         }
     }
@@ -817,14 +817,14 @@ class MutationTest {
             assertThat(
                 mutation.user(
                     userSessionContext,
-                    User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC")
-                )
+                    User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC"),
+                ),
             ).isNull()
             assertThat(
                 mutation.users(
                     userSessionContext,
-                    listOf(User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC"))
-                )
+                    listOf(User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC")),
+                ),
             ).isEqualTo(listOf(null))
         }
     }
@@ -838,14 +838,14 @@ class MutationTest {
             assertThat(
                 mutation.user(
                     emptyContext,
-                    User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC")
-                )
+                    User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC"),
+                ),
             ).isNull()
             assertThat(
                 mutation.users(
                     emptyContext,
-                    listOf(User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC"))
-                )
+                    listOf(User(null, UUID.randomUUID(), "bill", "bill@gmail.com", "pass", false, "UTC")),
+                ),
             ).isEqualTo(listOf(null))
         }
     }

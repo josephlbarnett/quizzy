@@ -14,7 +14,7 @@ class QuizzyPersistenceModuleTest
 @Inject constructor(
     val dao: QuestionDAO,
     val ctx: DSLContext,
-    val config: DbConfig
+    val config: DbConfig,
 ) {
     @Test
     fun testInjection() {

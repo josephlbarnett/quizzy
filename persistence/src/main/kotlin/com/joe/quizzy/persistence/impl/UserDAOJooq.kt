@@ -20,7 +20,7 @@ private val log = KotlinLogging.logger { }
  */
 open class UserDAOJooq
 @Inject constructor(
-    private val ctx: DSLContext
+    private val ctx: DSLContext,
 ) : UserDAO {
     private fun getRecord(dsl: DSLContext, id: UUID): UsersRecord? {
         return dsl.selectFrom(Tables.USERS).where(Tables.USERS.ID.eq(id)).fetchOne()
@@ -74,7 +74,7 @@ open class UserDAOJooq
             val record = if (thingId == null) {
                 config.dsl().newRecord(
                     Tables.USERS,
-                    thing
+                    thing,
                 )
             } else {
                 val existing = getRecord(config.dsl(), thingId)
@@ -83,13 +83,13 @@ open class UserDAOJooq
                     existing.from(
                         thing,
                         *existing.fields().filter { it != Tables.USERS.AUTH_CRYPT && it != Tables.USERS.ADMIN }
-                            .toTypedArray()
+                            .toTypedArray(),
                     )
                     existing
                 } else {
                     config.dsl().newRecord(
                         Tables.USERS,
-                        thing
+                        thing,
                     )
                 }
             }
@@ -109,7 +109,7 @@ open class UserDAOJooq
             if (instanceId != null) {
                 val record = config.dsl().newRecord(
                     Tables.USERS,
-                    user.copy(id = null, instanceId = instanceId, authCrypt = passwordHash, admin = false)
+                    user.copy(id = null, instanceId = instanceId, authCrypt = passwordHash, admin = false),
                 )
                 record.store()
                 record.into(User::class.java)

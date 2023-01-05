@@ -31,10 +31,10 @@ class ApiUserTest {
                     "",
                     u.admin,
                     u.timeZoneId,
-                    u.notifyViaEmail
+                    u.notifyViaEmail,
                 ),
-                15
-            )
+                15,
+            ),
         )
     }
 
@@ -47,9 +47,9 @@ class ApiUserTest {
             CompletableFuture.completedFuture(
                 listOf(
                     Grade(UUID.randomUUID(), UUID.randomUUID(), true, 5),
-                    Grade(UUID.randomUUID(), UUID.randomUUID(), false, 1)
-                )
-            )
+                    Grade(UUID.randomUUID(), UUID.randomUUID(), false, 1),
+                ),
+            ),
         )
         EasyMock.replay(mockEnv, mockDataLoader)
         assertThat(u.score(mockEnv).await()).isEqualTo(20)
@@ -63,8 +63,8 @@ class ApiUserTest {
         EasyMock.expect(mockEnv.getDataLoader<UUID, List<Grade>>("usergrades")).andReturn(mockDataLoader)
         EasyMock.expect(mockDataLoader.load(u.id)).andReturn(
             CompletableFuture.completedFuture(
-                null
-            )
+                null,
+            ),
         )
         EasyMock.replay(mockEnv, mockDataLoader)
         assertThat(u.score(mockEnv).await()).isEqualTo(0)
@@ -78,7 +78,7 @@ class ApiUserTest {
         EasyMock.expect(mockEnv.getDataLoader<UUID, Instance>("batchinstances")).andReturn(mockDataLoader)
         val i = Instance(u.instanceId, "Test inst", "ACTIVE")
         EasyMock.expect(mockDataLoader.load(u.instanceId)).andReturn(
-            CompletableFuture.completedFuture(i)
+            CompletableFuture.completedFuture(i),
         )
         EasyMock.replay(mockEnv, mockDataLoader)
         assertThat(u.instance(mockEnv).await()).isEqualTo(i)

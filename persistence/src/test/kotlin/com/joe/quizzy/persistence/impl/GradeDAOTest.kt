@@ -68,7 +68,7 @@ class GradeDAOTest : PostgresDAOTestBase() {
                 gId,
                 rId,
                 true,
-                3
+                3,
             )
         dao.save(updateThing)
         dao.stream().use { stream ->
@@ -88,8 +88,8 @@ class GradeDAOTest : PostgresDAOTestBase() {
         assertThat(dao.forResponses(listOf(rId, r2Id))).isEqualTo(
             mapOf(
                 rId to updateThing,
-                r2Id to g2.copy(id = g2Id)
-            )
+                r2Id to g2.copy(id = g2Id),
+            ),
         )
     }
 }

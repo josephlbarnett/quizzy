@@ -60,7 +60,7 @@ class UserDAOTest : PostgresDAOTestBase() {
         val all = dao.all().filter { it.instanceId == instanceId }
         assertThat(all.toSet())
             .isEqualTo(
-                dao.getByInstance(instanceId).toSet()
+                dao.getByInstance(instanceId).toSet(),
             )
         assertThat(all.toSet()).isEqualTo(dao.get(all.mapNotNull { it.id }).toSet())
     }

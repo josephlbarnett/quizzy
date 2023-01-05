@@ -11,7 +11,7 @@ import javax.ws.rs.core.Context
 
 @Path("/image")
 class GroupMeResource @Inject constructor(
-    val factory: GroupMeServiceFactory
+    val factory: GroupMeServiceFactory,
 ) {
     @Path("/upload")
     @POST

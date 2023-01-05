@@ -69,7 +69,7 @@ class ResponseDAOTest : PostgresDAOTestBase() {
                 userId,
                 qId,
                 "updated response1",
-                "some refs"
+                "some refs",
             )
         dao.save(updateThing)
         dao.stream().use { stream ->
@@ -100,8 +100,8 @@ class ResponseDAOTest : PostgresDAOTestBase() {
                 QuestionType.MULTIPLE_CHOICE,
                 listOf(
                     AnswerChoice(null, null, "A", "A"),
-                    AnswerChoice(null, null, "B", "B")
-                )
+                    AnswerChoice(null, null, "B", "B"),
+                ),
             )
         val q2Id = questionDao.save(q2).id!!
         val r3 = Response(null, userId, q2Id, "A", "")

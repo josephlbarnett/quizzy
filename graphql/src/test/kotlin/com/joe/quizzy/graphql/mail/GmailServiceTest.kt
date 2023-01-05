@@ -30,7 +30,7 @@ class GmailServiceTestModule : KotlinModule() {
 @Guice(modules = [GmailServiceModule::class, GmailServiceTestModule::class])
 class GmailServiceTest @Inject constructor(
     val factory: GmailServiceFactory,
-    dataStoreFactory: DataStoreFactory
+    dataStoreFactory: DataStoreFactory,
 ) {
     val goodUUID = UUID.randomUUID()
 

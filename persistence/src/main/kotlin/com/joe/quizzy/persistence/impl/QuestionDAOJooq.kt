@@ -29,7 +29,7 @@ private val log = KotlinLogging.logger { }
  */
 open class QuestionDAOJooq
 @Inject constructor(
-    private val ctx: DSLContext
+    private val ctx: DSLContext,
 ) : QuestionDAO {
 
     val questionsAndChoices =
@@ -45,9 +45,9 @@ open class QuestionDAOJooq
                     val answerRecord = it.into(Tables.ANSWER_CHOICES)
                     answerRecord.into(AnswerChoice::class.java)
                 },
-                Collectors.toList()
-            )
-        )
+                Collectors.toList(),
+            ),
+        ),
     )
 
     val collectAndMap: ResultQuery<Record>.() -> List<Question> = {
@@ -74,7 +74,7 @@ open class QuestionDAOJooq
             val record = if (thingId == null) {
                 config.dsl().newRecord(
                     Tables.QUESTIONS,
-                    thing
+                    thing,
                 )
             } else {
                 val existing =
@@ -85,7 +85,7 @@ open class QuestionDAOJooq
                 } else {
                     config.dsl().newRecord(
                         Tables.QUESTIONS,
-                        thing
+                        thing,
                     )
                 }
             }
@@ -116,7 +116,7 @@ open class QuestionDAOJooq
             .join(Tables.USERS)
             .on(
                 Tables.USERS.ID.eq(Tables.QUESTIONS.AUTHOR_ID)
-                    .and(Tables.USERS.INSTANCE_ID.eq(user.instanceId))
+                    .and(Tables.USERS.INSTANCE_ID.eq(user.instanceId)),
             )
     }
 
@@ -125,8 +125,8 @@ open class QuestionDAOJooq
             .on(Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID))
             .where(
                 Tables.RESPONSES.USER_ID.eq(user.id).and(
-                    Tables.RESPONSES.QUESTION_ID.eq(Tables.QUESTIONS.ID)
-                )
+                    Tables.RESPONSES.QUESTION_ID.eq(Tables.QUESTIONS.ID),
+                ),
 
             )
     }
@@ -139,8 +139,8 @@ open class QuestionDAOJooq
                 Tables.QUESTIONS.ACTIVE_AT.le(now)
                     .and(Tables.QUESTIONS.CLOSED_AT.ge(now))
                     .andNotExists(
-                        gradeExists(user)
-                    )
+                        gradeExists(user),
+                    ),
             ).orderBy(Tables.QUESTIONS.CLOSED_AT)
         log.info("active questions query: $query")
         return query.collectAndMap()
@@ -152,13 +152,13 @@ open class QuestionDAOJooq
             questionsAndChoices.leftJoin(Tables.EMAIL_NOTIFICATIONS)
                 .on(
                     Tables.QUESTIONS.ID.eq(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID)
-                        .and(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE.eq(notificationType.name))
-                )
+                        .and(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE.eq(notificationType.name)),
+                ),
         )
             .where(
                 Tables.QUESTIONS.ACTIVE_AT.le(now)
                     .and(Tables.QUESTIONS.CLOSED_AT.ge(now))
-                    .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull)
+                    .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull),
             ).orderBy(Tables.QUESTIONS.CLOSED_AT)
         return query.collectAndMap()
     }
@@ -169,8 +169,8 @@ open class QuestionDAOJooq
         val query = instanceQuestions(user)
             .where(
                 Tables.QUESTIONS.CLOSED_AT.le(now).orExists(
-                    gradeExists(user)
-                )
+                    gradeExists(user),
+                ),
             ).orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
         log.info("closed questions query: $query")
         return query.collectAndMap()
@@ -182,15 +182,15 @@ open class QuestionDAOJooq
             questionsAndChoices.leftJoin(Tables.EMAIL_NOTIFICATIONS)
                 .on(
                     Tables.QUESTIONS.ID.eq(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID)
-                        .and(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE.eq(notificationType.name))
+                        .and(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE.eq(notificationType.name)),
                 )
                 .join(Tables.USERS).on(Tables.QUESTIONS.AUTHOR_ID.eq(Tables.USERS.ID))
-                .join(Tables.INSTANCES).on(Tables.USERS.INSTANCE_ID.eq(Tables.INSTANCES.ID))
+                .join(Tables.INSTANCES).on(Tables.USERS.INSTANCE_ID.eq(Tables.INSTANCES.ID)),
         )
             .where(
                 Tables.QUESTIONS.CLOSED_AT.le(now)
                     .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull)
-                    .and(DSL.not(Tables.INSTANCES.AUTO_GRADE.isTrue))
+                    .and(DSL.not(Tables.INSTANCES.AUTO_GRADE.isTrue)),
             )
             .orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
         return query.collectAndMap()

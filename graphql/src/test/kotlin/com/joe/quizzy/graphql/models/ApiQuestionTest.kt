@@ -37,7 +37,7 @@ class ApiQuestionTest {
         QuestionType.SHORT_ANSWER,
         listOf(),
         null,
-        15
+        15,
     )
     val u = User(UUID.randomUUID(), UUID.randomUUID(), "name", "email", "", false, "")
 
@@ -54,17 +54,17 @@ class ApiQuestionTest {
                     q.activeAt,
                     q.closedAt,
                     q.type,
-                    q.answerChoices
+                    q.answerChoices,
                 ),
-                15
-            )
+                15,
+            ),
         )
     }
 
     @Test
     fun testResponse() = runBlocking {
         val context = GraphQLContext.of(
-            getGraphQLContextMap(scope, UserPrincipal(u, null))
+            getGraphQLContextMap(scope, UserPrincipal(u, null)),
         )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Response>>()
@@ -77,9 +77,9 @@ class ApiQuestionTest {
                     u.id!!,
                     q.id!!,
                     "answer",
-                    "reference"
-                )
-            )
+                    "reference",
+                ),
+            ),
         )
         EasyMock.replay(mockEnv, mockDataLoader)
         val resp = q.response(mockEnv).await()
@@ -91,14 +91,14 @@ class ApiQuestionTest {
     @Test
     fun testNullResponse() = runBlocking {
         val context = GraphQLContext.of(
-            getGraphQLContextMap(scope, UserPrincipal(u, null))
+            getGraphQLContextMap(scope, UserPrincipal(u, null)),
         )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Response>>()
         EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
         EasyMock.expect(mockEnv.getDataLoader<UUID, Response>("questionresponses")).andReturn(mockDataLoader)
         EasyMock.expect(mockDataLoader.load(q.id)).andReturn(
-            CompletableFuture.completedFuture(null)
+            CompletableFuture.completedFuture(null),
         )
         EasyMock.replay(mockEnv, mockDataLoader)
         val resp = q.response(mockEnv).await()
@@ -109,7 +109,7 @@ class ApiQuestionTest {
     @Test
     fun testNullContextUser() = runBlocking {
         val context = GraphQLContext.of(
-            getGraphQLContextMap(scope)
+            getGraphQLContextMap(scope),
         )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
@@ -122,7 +122,7 @@ class ApiQuestionTest {
     @Test
     fun testNullId() = runBlocking {
         val context = GraphQLContext.of(
-            getGraphQLContextMap(scope, UserPrincipal(u, null))
+            getGraphQLContextMap(scope, UserPrincipal(u, null)),
         )
         val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
         EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
@@ -150,7 +150,7 @@ class ApiQuestionTest {
         val mockDataLoader = LeakyMock.mock<DataLoader<UUID, User>>()
         EasyMock.expect(mockEnv.getDataLoader<UUID, User>("batchusers")).andReturn(mockDataLoader)
         EasyMock.expect(mockDataLoader.load(q.authorId)).andReturn(
-            CompletableFuture.completedFuture(null)
+            CompletableFuture.completedFuture(null),
         )
         EasyMock.replay(mockEnv, mockDataLoader)
         val resp = q.author(mockEnv).await()

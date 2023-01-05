@@ -6,5 +6,5 @@ data class Grade(
     val id: UUID?,
     val responseId: UUID,
     val correct: Boolean?,
-    val bonus: Int?
+    val bonus: Int?,
 )

@@ -56,7 +56,7 @@ class ScheduledEmailBundle(
     val groupMeServiceFactory: GroupMeServiceFactory,
     val client: HttpClient,
     val dispatcher: ExecutorCoroutineDispatcher,
-    val minuteMod: Int
+    val minuteMod: Int,
 ) : ConfiguredBundle<Configuration>, CoroutineScope by CoroutineScope(dispatcher) {
     @Inject
     constructor(
@@ -68,7 +68,7 @@ class ScheduledEmailBundle(
         emailNotificationDAO: EmailNotificationDAO,
         gmailServiceFactory: GmailServiceFactory,
         groupMeServiceFactory: GroupMeServiceFactory,
-        ktorClient: HttpClient
+        ktorClient: HttpClient,
     ) : this(
         configLoader,
         appConfig,
@@ -82,7 +82,7 @@ class ScheduledEmailBundle(
         Executors.newSingleThreadExecutor {
             Thread(it, "ScheduledEmailBundle").apply { isDaemon = true }
         }.asCoroutineDispatcher(),
-        POLL_MINUTES
+        POLL_MINUTES,
     )
 
     internal var pollJob: Job? = null
@@ -103,7 +103,7 @@ class ScheduledEmailBundle(
 
     internal suspend fun sendText(
         instanceId: UUID,
-        questionAnswerString: String
+        questionAnswerString: String,
     ) {
         try {
             val groupMe = groupMeServiceFactory.create(instanceId)
@@ -121,7 +121,7 @@ class ScheduledEmailBundle(
         instanceId: UUID,
         questions: List<Question>,
         answers: List<Question>,
-        questionAnswerString: String
+        questionAnswerString: String,
     ) {
         val usersToNotify =
             userDAO.getByInstance(instanceId).filter { it.notifyViaEmail }
@@ -133,7 +133,7 @@ class ScheduledEmailBundle(
             usersToNotify.forEach { user ->
                 message.addRecipients(
                     Message.RecipientType.BCC,
-                    "${user.name} <${user.email}>"
+                    "${user.name} <${user.email}>",
                 )
             }
             message.subject = "New $questionAnswerString Available from $instanceName"
@@ -149,7 +149,7 @@ class ScheduledEmailBundle(
                             mapOf(
                                 "index" to index + 1,
                                 "body" to question.body,
-                                "answerChoices" to question.answerChoices?.map { choiceMap(it) }
+                                "answerChoices" to question.answerChoices?.map { choiceMap(it) },
                             )
                         },
                         "answer" to answers.mapIndexed { index, question ->
@@ -157,18 +157,18 @@ class ScheduledEmailBundle(
                                 "index" to index + 1,
                                 "body" to question.body,
                                 "answer" to question.answer + multiChoiceAnswer(question),
-                                "ruleReferences" to question.ruleReferences
+                                "ruleReferences" to question.ruleReferences,
                             )
-                        }
-                    )
+                        },
+                    ),
                 ).toString(),
-                MediaType.TEXT_HTML
+                MediaType.TEXT_HTML,
             )
             emailNotificationDAO.markNotified(NotificationType.REMINDER, (questions + answers).mapNotNull { it.id })
             emailNotificationDAO.markNotified(NotificationType.ANSWER, answers.mapNotNull { it.id })
             log.info(
                 "Sending email for ${questions.size} questions and ${answers.size} answers " +
-                    "to ${usersToNotify.size} users for instance $instanceName"
+                    "to ${usersToNotify.size} users for instance $instanceName",
             )
             gmail.gmail.sendEmail("me", message).execute()
         }
@@ -177,7 +177,7 @@ class ScheduledEmailBundle(
     private fun choiceMap(choice: AnswerChoice): Map<String, String> {
         return mapOf(
             "letter" to choice.letter,
-            "answerChoiceAnswer" to choice.answer
+            "answerChoiceAnswer" to choice.answer,
         )
     }
 
@@ -242,7 +242,7 @@ class ScheduledEmailBundle(
                     if (now.minute % minuteMod == 0) {
                         runCatching {
                             log.trace(
-                                client.get { url("https://${appConfig.corsDomains[0]}/app/ping") }.body<String>()
+                                client.get { url("https://${appConfig.corsDomains[0]}/app/ping") }.body<String>(),
                             )
                         }
                         sendEmails(now)

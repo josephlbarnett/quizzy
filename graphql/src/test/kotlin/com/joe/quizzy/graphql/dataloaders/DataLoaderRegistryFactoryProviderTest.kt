@@ -31,13 +31,13 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
             mock(),
             mock(),
             responseDAO,
-            mock()
+            mock(),
         )
         val userUUID = UUID.randomUUID()
         val questionUUID = UUID.randomUUID()
         // expect `byUserQuestions` to be called with context user UUID
         EasyMock.expect(
-            responseDAO.byUserQuestions(EasyMock.eq(userUUID) ?: userUUID, EasyMock.anyObject() ?: listOf())
+            responseDAO.byUserQuestions(EasyMock.eq(userUUID) ?: userUUID, EasyMock.anyObject() ?: listOf()),
         ).andReturn(mapOf(questionUUID to Response(UUID.randomUUID(), userUUID, questionUUID, "r", "rr")))
         replayAll()
         val factory = factoryProvider.get()
@@ -48,9 +48,9 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
                 scope,
                 UserPrincipal(
                     User(userUUID, UUID.randomUUID(), "name", "email", "", false, ""),
-                    null
-                )
-            )
+                    null,
+                ),
+            ),
         ).generate()
 
         val batchQuestionLoader = registry.getDataLoader<UUID, Question>("batchquestions")

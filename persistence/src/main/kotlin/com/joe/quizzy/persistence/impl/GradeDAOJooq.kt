@@ -19,7 +19,7 @@ private val log = KotlinLogging.logger { }
  */
 open class GradeDAOJooq
 @Inject constructor(
-    private val ctx: DSLContext
+    private val ctx: DSLContext,
 ) : GradeDAO {
     private fun getRecord(dsl: DSLContext, id: UUID): GradesRecord? {
         return dsl.selectFrom(Tables.GRADES).where(Tables.GRADES.ID.eq(id)).fetchOne()
@@ -42,7 +42,7 @@ open class GradeDAOJooq
         val record = if (thingId == null) {
             config.dsl().newRecord(
                 Tables.GRADES,
-                thing
+                thing,
             )
         } else {
             val existing = getRecord(config.dsl(), thingId)
@@ -52,7 +52,7 @@ open class GradeDAOJooq
             } else {
                 config.dsl().newRecord(
                     Tables.GRADES,
-                    thing
+                    thing,
                 )
             }
         }

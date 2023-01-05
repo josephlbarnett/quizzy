@@ -20,7 +20,7 @@ class BulkInstanceLoaderTest {
         val loader = BulkInstanceLoader(instanceDAO, mapOf<Any, Any>())
         val instances = listOf(
             Instance(UUID.randomUUID(), "i1", "ACTIVE", ""),
-            Instance(UUID.randomUUID(), "i2", "ACTIVE", "")
+            Instance(UUID.randomUUID(), "i2", "ACTIVE", ""),
         )
         EasyMock.expect(instanceDAO.get(EasyMock.anyObject<List<UUID>>() ?: listOf())).andReturn(instances)
         EasyMock.replay(instanceDAO, mockEnv)

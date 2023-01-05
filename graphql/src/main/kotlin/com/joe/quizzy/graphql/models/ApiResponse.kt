@@ -22,7 +22,7 @@ data class ApiResponse(
     val response: String,
     val ruleReferences: String,
     @GraphQLIgnore
-    private val defaultScore: Int
+    private val defaultScore: Int,
 ) {
     constructor(response: Response, defaultScore: Int) :
         this(
@@ -31,7 +31,7 @@ data class ApiResponse(
             response.questionId,
             response.response,
             response.ruleReferences,
-            defaultScore
+            defaultScore,
         )
 
     fun user(dfe: DataFetchingEnvironment): CompletableFuture<ApiUser?> {

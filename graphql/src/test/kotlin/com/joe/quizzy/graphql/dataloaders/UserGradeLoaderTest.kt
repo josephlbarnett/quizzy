@@ -22,8 +22,8 @@ class UserGradeLoaderTest {
             UUID.randomUUID() to listOf(Grade(UUID.randomUUID(), UUID.randomUUID(), true, 1)),
             UUID.randomUUID() to listOf(
                 Grade(UUID.randomUUID(), UUID.randomUUID(), true, 2),
-                Grade(UUID.randomUUID(), UUID.randomUUID(), true, 3)
-            )
+                Grade(UUID.randomUUID(), UUID.randomUUID(), true, 3),
+            ),
         )
         EasyMock.expect(gradeDAO.forUsers(EasyMock.anyObject<List<UUID>>() ?: listOf())).andReturn(grades)
         EasyMock.replay(gradeDAO, mockEnv)

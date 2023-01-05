@@ -27,7 +27,7 @@ open class ResponseDAOJooq
     private val gradeDAO: GradeDAOJooq,
     private val instanceDAO: InstanceDAO,
     private val questionDAO: QuestionDAO,
-    private val userDAO: UserDAO
+    private val userDAO: UserDAO,
 ) : ResponseDAO {
     private fun getRecord(dsl: DSLContext, id: UUID): ResponsesRecord? {
         return dsl.selectFrom(Tables.RESPONSES).where(Tables.RESPONSES.ID.eq(id)).fetchOne()
@@ -45,7 +45,7 @@ open class ResponseDAOJooq
             val record = if (thingId == null) {
                 config.dsl().newRecord(
                     Tables.RESPONSES,
-                    thing
+                    thing,
                 )
             } else {
                 val existing = getRecord(config.dsl(), thingId)
@@ -55,7 +55,7 @@ open class ResponseDAOJooq
                 } else {
                     config.dsl().newRecord(
                         Tables.RESPONSES,
-                        thing
+                        thing,
                     )
                 }
             }
@@ -72,7 +72,7 @@ open class ResponseDAOJooq
                                     existingGrade?.id,
                                     record.id,
                                     record.response == correctAnswer.letter,
-                                    null
+                                    null,
                                 )
                                 gradeDAO.save(grade, config)
                             }
@@ -105,17 +105,17 @@ open class ResponseDAOJooq
         val initialQuery = ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
             .join(Tables.USERS).on(
                 Tables.RESPONSES.USER_ID.eq(Tables.USERS.ID).and(
-                    Tables.USERS.INSTANCE_ID.eq(instanceId)
-                )
+                    Tables.USERS.INSTANCE_ID.eq(instanceId),
+                ),
             )
             .join(Tables.QUESTIONS).on(
-                Tables.QUESTIONS.ID.eq(Tables.RESPONSES.QUESTION_ID)
+                Tables.QUESTIONS.ID.eq(Tables.RESPONSES.QUESTION_ID),
             )
         val query = if (regrade) {
             initialQuery
         } else {
             initialQuery.leftJoin(Tables.GRADES).on(
-                Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID)
+                Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID),
             ).where(Tables.GRADES.CORRECT.isNull)
         }.orderBy(Tables.QUESTIONS.CLOSED_AT.desc(), Tables.USERS.NAME)
 

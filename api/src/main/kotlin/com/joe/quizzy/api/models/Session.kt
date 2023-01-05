@@ -7,5 +7,5 @@ data class Session(
     val id: UUID?,
     val userId: UUID,
     val createdAt: OffsetDateTime,
-    val lastUsedAt: OffsetDateTime
+    val lastUsedAt: OffsetDateTime,
 )

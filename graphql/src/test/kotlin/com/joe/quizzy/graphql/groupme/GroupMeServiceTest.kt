@@ -60,7 +60,7 @@ class GroupMeServiceTest {
         assertThat(requestHistory[0].url.toString()).isEqualTo("https://api.groupme.com/v3/groups/groupId/messages")
         assertThat(String(requestHistory[0].body.toByteArray())).contains("testMessage")
         assertThat(service.uploadImage(ByteArrayInputStream("lksdjf".toByteArray()))).isEqualTo(
-            "https://blah.com/image"
+            "https://blah.com/image",
         )
     }
 }

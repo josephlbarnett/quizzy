@@ -20,7 +20,7 @@ class Query @Inject constructor(
     private val questionDAO: QuestionDAO,
     private val userDAO: UserDAO,
     private val responseDAO: ResponseDAO,
-    private val instanceDAO: InstanceDAO
+    private val instanceDAO: InstanceDAO,
 ) : com.expediagroup.graphql.server.operations.Query {
 
     private fun getDefaultScore(userPrincipal: UserPrincipal): Int {
@@ -38,7 +38,7 @@ class Query @Inject constructor(
     }
 
     fun users(
-        dfe: DataFetchingEnvironment
+        dfe: DataFetchingEnvironment,
     ): List<ApiUser> {
         val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
@@ -56,9 +56,9 @@ class Query @Inject constructor(
                 ApiQuestion(
                     it.copy(
                         answer = "",
-                        ruleReferences = ""
+                        ruleReferences = "",
                     ),
-                    defaultScore = defaultScore
+                    defaultScore = defaultScore,
                 )
             }
         }

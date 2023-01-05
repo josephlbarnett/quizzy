@@ -24,14 +24,14 @@ class QuestionResponseLoaderTest {
         val loader = QuestionResponseLoader(responseDAO, mapOf<Any, Any>())
         val questionResponses = mapOf(
             UUID.randomUUID() to Response(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "a1", "rr1"),
-            UUID.randomUUID() to Response(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "a2", "rr2")
+            UUID.randomUUID() to Response(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "a2", "rr2"),
         )
         val userId = UUID.randomUUID()
         EasyMock.expect(
             responseDAO.byUserQuestions(
                 EasyMock.eq(userId) ?: userId,
-                EasyMock.anyObject<List<UUID>>() ?: listOf()
-            )
+                EasyMock.anyObject<List<UUID>>() ?: listOf(),
+            ),
         ).andReturn(questionResponses)
         EasyMock.expect(mockEnv.getContext<GraphQLContext>()).andReturn(
             GraphQLContext.of(
@@ -39,10 +39,10 @@ class QuestionResponseLoaderTest {
                     this,
                     UserPrincipal(
                         User(userId, UUID.randomUUID(), "user", "user@user.com", "", false, ""),
-                        null
-                    )
-                )
-            )
+                        null,
+                    ),
+                ),
+            ),
         ).atLeastOnce()
         EasyMock.replay(responseDAO, mockEnv)
         val insts = loader.load(questionResponses.mapNotNull { it.key }.toSet(), mockEnv).await()

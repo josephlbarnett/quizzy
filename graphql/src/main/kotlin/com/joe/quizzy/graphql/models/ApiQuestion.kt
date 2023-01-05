@@ -29,11 +29,11 @@ data class ApiQuestion(
     val answerChoices: List<AnswerChoice>?,
     val imageUrl: String? = null,
     @GraphQLIgnore
-    private val defaultScore: Int
+    private val defaultScore: Int,
 ) {
     constructor(
         question: Question,
-        defaultScore: Int
+        defaultScore: Int,
     ) : this(
         question.id,
         question.authorId,
@@ -45,7 +45,7 @@ data class ApiQuestion(
         question.type,
         question.answerChoices,
         question.imageUrl,
-        defaultScore
+        defaultScore,
     )
 
     fun response(dfe: DataFetchingEnvironment): CompletableFuture<ApiResponse?> {

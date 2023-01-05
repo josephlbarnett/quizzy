@@ -20,7 +20,7 @@ class BatchUserLoaderTest {
         val loader = BatchUserLoader(userDAO, mapOf<Any, Any>())
         val users = listOf(
             User(UUID.randomUUID(), UUID.randomUUID(), "joe", "joe@joe.com", "", false, ""),
-            User(UUID.randomUUID(), UUID.randomUUID(), "bill", "bill@bill.com", "", false, "")
+            User(UUID.randomUUID(), UUID.randomUUID(), "bill", "bill@bill.com", "", false, ""),
         )
         EasyMock.expect(userDAO.get(EasyMock.anyObject<List<UUID>>() ?: listOf())).andReturn(users)
         EasyMock.replay(userDAO, mockEnv)

@@ -5,7 +5,7 @@ import java.util.UUID
 
 enum class QuestionType {
     SHORT_ANSWER,
-    MULTIPLE_CHOICE
+    MULTIPLE_CHOICE,
 }
 
 data class Question(
@@ -18,5 +18,5 @@ data class Question(
     val closedAt: OffsetDateTime,
     val type: QuestionType = QuestionType.SHORT_ANSWER,
     val answerChoices: List<AnswerChoice>? = null,
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
 )

@@ -33,7 +33,7 @@ interface GroupMeServiceFactory {
 open class GroupMeService @Inject constructor(
     groupMeInfoDAO: GroupMeInfoDAO,
     private val client: HttpClient,
-    @Assisted instanceId: UUID
+    @Assisted instanceId: UUID,
 ) {
     private val groupId: String
     private val apiKey: String

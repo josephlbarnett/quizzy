@@ -9,7 +9,7 @@ import java.util.UUID
 import javax.inject.Inject
 
 class EmailNotificationDAOJooq @Inject constructor(
-    private val ctx: DSLContext
+    private val ctx: DSLContext,
 ) : EmailNotificationDAO {
     override fun markNotified(notificationType: NotificationType, questionUUIDs: List<UUID>) {
         if (questionUUIDs.isNotEmpty()) {

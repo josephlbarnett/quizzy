@@ -21,7 +21,7 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
     private val userDAO: UserDAO,
     private val questionDAO: QuestionDAO,
     private val responseDAO: ResponseDAO,
-    private val instanceDAO: InstanceDAO
+    private val instanceDAO: InstanceDAO,
 ) : Provider<KotlinDataLoaderRegistryFactoryProvider> {
     override fun get(): KotlinDataLoaderRegistryFactoryProvider {
         return { _, contextMap ->
@@ -31,7 +31,7 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
                 BatchUserLoader(userDAO, contextMap),
                 BatchQuestionLoader(questionDAO, contextMap),
                 QuestionResponseLoader(responseDAO, contextMap),
-                BulkInstanceLoader(instanceDAO, contextMap)
+                BulkInstanceLoader(instanceDAO, contextMap),
             )
         }
     }

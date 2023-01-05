@@ -10,7 +10,7 @@ import javax.inject.Inject
 class UserAuthenticator
 @Inject constructor(
     private val userDAO: UserDAO,
-    val hasher: Hasher
+    val hasher: Hasher,
 ) : Authenticator<BasicCredentials, Principal> {
     override fun authenticate(credentials: BasicCredentials): Optional<Principal> {
         val user = userDAO.getByEmail(credentials.username)

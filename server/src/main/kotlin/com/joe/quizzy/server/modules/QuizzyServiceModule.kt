@@ -78,7 +78,7 @@ class QuizzyAuthFilterProvider @Inject constructor(
     val userDAO: UserDAO,
     val sessionDAO: SessionDAO,
     val hasher: Hasher,
-    val authorizer: Authorizer<Principal>
+    val authorizer: Authorizer<Principal>,
 ) : Provider<AuthFilter<*, *>> {
     override fun get(): AuthFilter<*, *> {
         return ChainedAuthFilter<Any, Principal>(
@@ -96,8 +96,8 @@ class QuizzyAuthFilterProvider @Inject constructor(
                 CookieTokenAuthFilter.Builder<Principal>("QUIZZY_AUTHORIZATION")
                     .setAuthenticator(SessionAuthenticator(sessionDAO, userDAO))
                     .setAuthorizer(authorizer)
-                    .buildAuthFilter()
-            )
+                    .buildAuthFilter(),
+            ),
         )
     }
 }
@@ -129,10 +129,10 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
                     "/assets",
                     "/app/assets",
                     "index.html",
-                    Charsets.UTF_8
+                    Charsets.UTF_8,
                 ),
-                listOf("/app/assets", "/app/assets/*")
-            )
+                listOf("/app/assets", "/app/assets/*"),
+            ),
         )
         appServletBinder().addBinding().toInstance(
             ServletConfig(
@@ -142,11 +142,11 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
                         resp.sendRedirect("/app/")
                     }
                 },
-                listOf("")
-            )
+                listOf(""),
+            ),
         )
         KotlinMultibinder.newSetBinder<ServletFilterConfig>(kotlinBinder).addBinding().toInstance(
-            ServletFilterConfig(HttpsFilter::class.java.simpleName, HttpsFilter::class.java)
+            ServletFilterConfig(HttpsFilter::class.java.simpleName, HttpsFilter::class.java),
         )
         dataLoaderRegistryFactoryProviderBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()
         authorizerBinder().setBinding().to<UserAuthorizer>()
@@ -156,7 +156,7 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
                 install(ContentNegotiation) {
                     jackson()
                 }
-            }
+            },
         )
     }
 }

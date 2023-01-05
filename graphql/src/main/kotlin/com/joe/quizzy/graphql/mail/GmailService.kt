@@ -35,7 +35,7 @@ private val log = KotlinLogging.logger {}
 open class GmailService @Inject constructor(
     jsonFactory: JsonFactory,
     dataStoreFactory: DataStoreFactory,
-    @Assisted instanceId: UUID
+    @Assisted instanceId: UUID,
 ) {
     open val gmail: Gmail
     open val oauth: Oauth2
@@ -55,7 +55,7 @@ open class GmailService @Inject constructor(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 jsonFactory,
                 secrets,
-                listOf(GmailScopes.GMAIL_SEND, Oauth2Scopes.USERINFO_EMAIL)
+                listOf(GmailScopes.GMAIL_SEND, Oauth2Scopes.USERINFO_EMAIL),
             )
                 .setDataStoreFactory(dataStoreFactory)
                 .setAccessType("offline")
@@ -74,19 +74,19 @@ open class GmailService @Inject constructor(
                 override fun getRedirectUri(): String {
                     throw IOException("No redirect URI, need a refresh token persisted")
                 }
-            }
+            },
         ).authorize(instanceId.toString())
 
         gmail = Gmail.Builder(
             GoogleNetHttpTransport.newTrustedTransport(),
             jsonFactory,
-            credential
+            credential,
         ).setApplicationName("rules exchange").build()
 
         oauth = Oauth2.Builder(
             GoogleNetHttpTransport.newTrustedTransport(),
             jsonFactory,
-            credential
+            credential,
         ).setApplicationName("rules exchange").build()
     }
 }
@@ -98,7 +98,7 @@ interface InternalGmailMailServiceFactory {
 open class GmailServiceFactory @Inject constructor(
     private val factory: InternalGmailMailServiceFactory,
     private val dataStoreFactory: DataStoreFactory,
-    private val instanceDAO: InstanceDAO
+    private val instanceDAO: InstanceDAO,
 ) {
     open fun getService(instanceId: UUID): GmailService? {
         val credStore = StoredCredential.getDefaultDataStore(dataStoreFactory)

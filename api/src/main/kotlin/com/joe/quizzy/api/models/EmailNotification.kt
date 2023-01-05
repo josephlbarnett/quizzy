@@ -4,11 +4,11 @@ import java.util.UUID
 
 enum class NotificationType {
     REMINDER,
-    ANSWER
+    ANSWER,
 }
 
 data class EmailNotification(
     val id: UUID?,
     val notificationType: NotificationType,
-    val questionId: UUID
+    val questionId: UUID,
 )
