@@ -4,6 +4,7 @@ import assertk.all
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isNotNull
@@ -23,7 +24,6 @@ import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.streams.toList
 
 class ResponseDAOTest : PostgresDAOTestBase() {
     lateinit var userDao: UserDAO
@@ -84,6 +84,22 @@ class ResponseDAOTest : PostgresDAOTestBase() {
         val all = dao.all().toSet()
         assertThat(dao.forInstance(instanceId, true).toSet()).isEqualTo(all)
         assertThat(dao.forInstance(instanceId, false).toSet()).isEqualTo(all)
+        assertThat(
+            dao.forInstance(
+                instanceId,
+                false,
+                EARLY_START_TIME,
+                OffsetDateTime.now(),
+            ).toSet(),
+        ).isEqualTo(all)
+        assertThat(
+            dao.forInstance(
+                instanceId,
+                false,
+                EARLY_START_TIME,
+                EARLY_END_TIME,
+            ),
+        ).isEmpty()
         assertThat((dao.forUser(userId) + dao.forUser(userId2)).toSet()).isEqualTo(all)
         assertThat(dao.byUserQuestion(userId, qId)).isEqualTo(updateThing)
         assertThat(dao.byUserQuestions(userId, listOf(qId))).contains(qId to updateThing)

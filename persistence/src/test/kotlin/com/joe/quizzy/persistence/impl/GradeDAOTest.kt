@@ -4,6 +4,7 @@ import assertk.all
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
 import com.joe.quizzy.api.models.Grade
@@ -19,7 +20,6 @@ import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.streams.toList
 
 class GradeDAOTest : PostgresDAOTestBase() {
     lateinit var userDao: UserDAO
@@ -84,6 +84,20 @@ class GradeDAOTest : PostgresDAOTestBase() {
         val userGrades = dao.forUsers(listOf(userId, userId2))
         assertThat(userGrades[userId]).isEqualTo(listOf(updateThing))
         assertThat(userGrades[userId2]).isEqualTo(listOf(g2.copy(id = g2Id)))
+        assertThat(
+            dao.forUsers(
+                listOf(userId, userId2),
+                EARLY_START_TIME,
+                EARLY_END_TIME,
+            ),
+        ).isEmpty()
+        assertThat(
+            dao.forUsers(
+                listOf(userId, userId2),
+                EARLY_START_TIME,
+                OffsetDateTime.now(),
+            ),
+        ).isEqualTo(userGrades)
         assertThat(dao.forResponse(rId)).isEqualTo(updateThing)
         assertThat(dao.forResponses(listOf(rId, r2Id))).isEqualTo(
             mapOf(

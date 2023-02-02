@@ -164,12 +164,22 @@ open class QuestionDAOJooq
     }
 
     @Timed
-    override fun closed(user: User): List<Question> {
+    override fun closed(user: User, startTime: OffsetDateTime?, endTime: OffsetDateTime?): List<Question> {
         val now = OffsetDateTime.now()
         val query = instanceQuestions(user)
             .where(
-                Tables.QUESTIONS.CLOSED_AT.le(now).orExists(
-                    gradeExists(user),
+                DSL.and(
+                    listOfNotNull(
+                        Tables.QUESTIONS.CLOSED_AT.le(now).orExists(
+                            gradeExists(user),
+                        ),
+                        startTime?.let {
+                            Tables.QUESTIONS.CLOSED_AT.ge(it)
+                        },
+                        endTime?.let {
+                            Tables.QUESTIONS.ACTIVE_AT.le(it)
+                        },
+                    ),
                 ),
             ).orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
         log.info("closed questions query: $query")

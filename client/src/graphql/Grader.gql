@@ -1,5 +1,13 @@
-query Grader($includeGraded: Boolean!) {
-  responses(includeGraded: $includeGraded) {
+query Grader(
+  $includeGraded: Boolean!
+  $startTime: DateTime
+  $endTime: DateTime
+) {
+  responses(
+    includeGraded: $includeGraded
+    startTime: $startTime
+    endTime: $endTime
+  ) {
     grade {
       bonus
       correct

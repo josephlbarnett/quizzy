@@ -11,6 +11,7 @@
     </ApolloQuery>
     <ApolloQuery
       :query="require('../graphql/CompletedQuestions.gql')"
+      :variables="qvars"
       fetch-policy="cache-and-network"
       @result="
         (result) => {
@@ -24,7 +25,7 @@
         </div>
         <div v-else-if="error" class="error">An error occurred</div>
         <v-card v-if="data && data.closedQuestions">
-          <v-card-title> Completed Questions </v-card-title>
+          <v-card-title>Completed Questions</v-card-title>
           <v-data-table
             :items="data.closedQuestions"
             :headers="headers"
@@ -43,11 +44,11 @@
             </template>
             <template #item.response.grade.correct="{ value }">
               <v-icon v-if="value === true" color="green darken-2"
-                >mdi-check-circle</v-icon
-              >
+                >mdi-check-circle
+              </v-icon>
               <v-icon v-else-if="value === false" color="red darken-2"
-                >mdi-close-circle</v-icon
-              >
+                >mdi-close-circle
+              </v-icon>
               <v-icon v-else color="grey darken-2">mdi-help-circle</v-icon>
             </template>
           </v-data-table>
@@ -67,10 +68,17 @@ import Vue from "vue";
 import moment from "moment-timezone";
 import { ApiQuestion, ApiUser, QuestionType } from "@/generated/types.d";
 import GradedQuestionDialog from "@/components/GradedQuestionDialog.vue";
+import { useInstanceStore } from "@/stores/instance";
 
 export default Vue.extend({
   name: "CompletedQuestions",
   components: { GradedQuestionDialog },
+  setup() {
+    const instanceStore = useInstanceStore();
+    return {
+      instanceStore,
+    };
+  },
   data: () => ({
     userTZ: "Autodetect",
     detailDialog: false,
@@ -110,6 +118,15 @@ export default Vue.extend({
       },
     ],
   }),
+  computed: {
+    qvars() {
+      const season = this.instanceStore.season;
+      return {
+        startTime: season?.startTime,
+        endTime: season?.endTime,
+      };
+    },
+  },
   methods: {
     renderDate(value: string) {
       const browserTZ =

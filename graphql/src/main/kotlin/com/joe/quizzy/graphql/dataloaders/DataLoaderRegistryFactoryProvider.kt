@@ -5,6 +5,7 @@ import com.joe.quizzy.persistence.api.GradeDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
+import com.joe.quizzy.persistence.api.SeasonDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.trib3.graphql.modules.KotlinDataLoaderRegistryFactoryProvider
 import javax.inject.Inject
@@ -22,6 +23,7 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
     private val questionDAO: QuestionDAO,
     private val responseDAO: ResponseDAO,
     private val instanceDAO: InstanceDAO,
+    private val seasonDAO: SeasonDAO,
 ) : Provider<KotlinDataLoaderRegistryFactoryProvider> {
     override fun get(): KotlinDataLoaderRegistryFactoryProvider {
         return { _, contextMap ->
@@ -32,6 +34,7 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
                 BatchQuestionLoader(questionDAO, contextMap),
                 QuestionResponseLoader(responseDAO, contextMap),
                 BulkInstanceLoader(instanceDAO, contextMap),
+                InstanceSeasonLoader(seasonDAO, contextMap),
             )
         }
     }

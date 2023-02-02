@@ -20,6 +20,7 @@
       fetch-policy="cache-and-network"
       :variables="{
         includeGraded: !hideGraded,
+        ...qvars,
       }"
     >
       <template #default="{ result: { error, data }, isLoading }">
@@ -31,7 +32,8 @@
           <v-card-title>
             Responses to grade
             <v-spacer />
-            <v-checkbox v-model="hideGraded" />Hide graded responses
+            <v-checkbox v-model="hideGraded" />
+            Hide graded responses
           </v-card-title>
           <v-data-table
             :items="data.responses"
@@ -48,11 +50,11 @@
             </template>
             <template #item.grade.correct="{ value }">
               <v-icon v-if="value === true" color="green darken-2"
-                >mdi-check-circle</v-icon
-              >
+                >mdi-check-circle
+              </v-icon>
               <v-icon v-else-if="value === false" color="red darken-2"
-                >mdi-close-circle</v-icon
-              >
+                >mdi-close-circle
+              </v-icon>
               <v-icon v-else color="grey darken-2">mdi-help-circle</v-icon>
             </template>
           </v-data-table>
@@ -90,8 +92,8 @@
             <v-card-title
               >Grade Response:
               {{ renderDate(clickedResponse.question.activeAt) }} by
-              {{ clickedResponse.question.author.name }}</v-card-title
-            >
+              {{ clickedResponse.question.author.name }}
+            </v-card-title>
             <v-card-text>
               <v-row>
                 <v-col
@@ -105,9 +107,9 @@
                     max-width="200px"
                   ></v-img>
                 </v-col>
-                <v-col align-self="center">{{
-                  clickedResponse.question?.body
-                }}</v-col>
+                <v-col align-self="center"
+                  >{{ clickedResponse.question?.body }}
+                </v-col>
               </v-row>
               <v-row v-if="shortAnswer()">
                 <v-col cols="6">
@@ -146,8 +148,8 @@
                           choice.letter == clickedResponse.question.answer
                         "
                         color="green darken-2"
-                        >mdi-check-circle</v-icon
-                      >
+                        >mdi-check-circle
+                      </v-icon>
                       <v-icon
                         v-if="
                           clickedResponse.response &&
@@ -155,8 +157,8 @@
                           choice.letter != clickedResponse.question.answer
                         "
                         color="red darken-2"
-                        >mdi-close-circle</v-icon
-                      >
+                        >mdi-close-circle
+                      </v-icon>
                     </v-row>
                   </v-radio-group>
                   <v-text-field
@@ -217,10 +219,8 @@
             <v-snackbar v-model="saveError" color="error">
               Couldn't save, try again.
               <template #action="{ attrs }">
-                <v-btn v-bind="attrs" @click="saveError = false"
-                  >OK</v-btn
-                ></template
-              >
+                <v-btn v-bind="attrs" @click="saveError = false">OK</v-btn>
+              </template>
             </v-snackbar>
           </template>
         </ApolloMutation>
@@ -233,9 +233,13 @@
 import Vue from "vue";
 import moment from "moment-timezone";
 import { ApiResponse, QuestionType } from "@/generated/types.d";
+import { useInstanceStore } from "@/stores/instance";
 
 export default Vue.extend({
   name: "ResponseGrader",
+  setup() {
+    return { instanceStore: useInstanceStore() };
+  },
   data: () => ({
     userTZ: "Autodetect",
     headers: [
@@ -288,6 +292,13 @@ export default Vue.extend({
         }
       }
       return "";
+    },
+    qvars() {
+      const season = this.instanceStore.season;
+      return {
+        startTime: season?.startTime,
+        endTime: season?.endTime,
+      };
     },
   },
   methods: {

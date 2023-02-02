@@ -6,6 +6,7 @@ import usersQuery from "@/graphql/Users.gql";
 import vuetify from "@/plugins/vuetify";
 import { awaitVm } from "../TestUtils";
 import { ApiUser, QuestionType } from "@/generated/types.d";
+import { createPinia } from "pinia";
 // silence a VDialog warning!?
 document.body.setAttribute("data-app", "true");
 
@@ -19,8 +20,9 @@ const mockUsers: ApiUser[] = [
       defaultQuestionType: QuestionType.ShortAnswer,
       status: "ACTIVE",
       autoGrade: false,
-      __typename: "Instance",
+      __typename: "ApiInstance",
       defaultScore: 15,
+      seasons: [],
     },
     email: "joe@test.com",
     name: "joe test",
@@ -39,8 +41,9 @@ const mockUsers: ApiUser[] = [
       defaultQuestionType: QuestionType.ShortAnswer,
       status: "ACTIVE",
       autoGrade: false,
-      __typename: "Instance",
+      __typename: "ApiInstance",
       defaultScore: 15,
+      seasons: [],
     },
     email: "jon@test.com",
     name: "jon test",
@@ -48,7 +51,7 @@ const mockUsers: ApiUser[] = [
     timeZoneId: "America/Los_Angeles",
     notifyViaEmail: false,
     __typename: "ApiUser",
-    score: 16,
+    score: 14,
   },
 ];
 
@@ -59,6 +62,7 @@ async function mountUsers(mockClient: MockApolloClient) {
     apolloProvider: new VueApollo({
       defaultClient: mockClient,
     }),
+    pinia: createPinia(),
   });
   await awaitVm(page);
   return page;

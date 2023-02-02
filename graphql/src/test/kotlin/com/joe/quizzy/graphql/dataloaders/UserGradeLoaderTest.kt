@@ -10,6 +10,7 @@ import kotlinx.coroutines.runBlocking
 import org.dataloader.BatchLoaderEnvironment
 import org.easymock.EasyMock
 import org.testng.annotations.Test
+import java.time.OffsetDateTime
 import java.util.UUID
 
 class UserGradeLoaderTest {
@@ -25,10 +26,37 @@ class UserGradeLoaderTest {
                 Grade(UUID.randomUUID(), UUID.randomUUID(), true, 3),
             ),
         )
-        EasyMock.expect(gradeDAO.forUsers(EasyMock.anyObject<List<UUID>>() ?: listOf())).andReturn(grades)
+        val moreGrades = mapOf(
+            UUID.randomUUID() to listOf(Grade(UUID.randomUUID(), UUID.randomUUID(), true, 1)),
+            UUID.randomUUID() to listOf(
+                Grade(UUID.randomUUID(), UUID.randomUUID(), true, 2),
+                Grade(UUID.randomUUID(), UUID.randomUUID(), true, 3),
+            ),
+        )
+        EasyMock.expect(
+            gradeDAO.forUsers(
+                EasyMock.anyObject<List<UUID>>() ?: listOf(),
+                EasyMock.anyObject(),
+                EasyMock.anyObject(),
+            ),
+        ).andReturn(grades).once()
+        EasyMock.expect(
+            gradeDAO.forUsers(
+                EasyMock.anyObject<List<UUID>>() ?: listOf(),
+                EasyMock.anyObject(),
+                EasyMock.anyObject(),
+            ),
+        ).andReturn(moreGrades).once()
         EasyMock.replay(gradeDAO, mockEnv)
-        val gs = loader.load(grades.mapNotNull { it.key }.toSet(), mockEnv).await()
-        assertThat(gs).isEqualTo(grades)
+        val gs = loader.load(
+            (
+                grades.mapNotNull { UserTimePeriod(it.key, null, null) } +
+                    moreGrades.mapNotNull { UserTimePeriod(it.key, OffsetDateTime.MIN, OffsetDateTime.MAX) }
+                )
+                .toSet(),
+            mockEnv,
+        ).await()
+        assertThat(gs.mapKeys { it.key.userId }).isEqualTo(grades + moreGrades)
         EasyMock.verify(gradeDAO, mockEnv)
     }
 }

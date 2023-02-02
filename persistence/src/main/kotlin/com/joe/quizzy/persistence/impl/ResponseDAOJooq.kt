@@ -12,6 +12,8 @@ import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.ResponsesRecord
 import mu.KotlinLogging
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
+import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.stream.Stream
 import javax.inject.Inject
@@ -101,7 +103,12 @@ open class ResponseDAOJooq
     }
 
     @Timed
-    override fun forInstance(instanceId: UUID, regrade: Boolean): List<Response> {
+    override fun forInstance(
+        instanceId: UUID,
+        regrade: Boolean,
+        startTime: OffsetDateTime?,
+        endTime: OffsetDateTime?,
+    ): List<Response> {
         val initialQuery = ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
             .join(Tables.USERS).on(
                 Tables.RESPONSES.USER_ID.eq(Tables.USERS.ID).and(
@@ -112,12 +119,25 @@ open class ResponseDAOJooq
                 Tables.QUESTIONS.ID.eq(Tables.RESPONSES.QUESTION_ID),
             )
         val query = if (regrade) {
-            initialQuery
+            initialQuery.where()
         } else {
             initialQuery.leftJoin(Tables.GRADES).on(
                 Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID),
             ).where(Tables.GRADES.CORRECT.isNull)
-        }.orderBy(Tables.QUESTIONS.CLOSED_AT.desc(), Tables.USERS.NAME)
+        }
+            .and(
+                DSL.and(
+                    listOfNotNull(
+                        startTime?.let {
+                            Tables.QUESTIONS.CLOSED_AT.ge(it)
+                        },
+                        endTime?.let {
+                            Tables.QUESTIONS.ACTIVE_AT.le(it)
+                        },
+                    ),
+                ),
+            )
+            .orderBy(Tables.QUESTIONS.CLOSED_AT.desc(), Tables.USERS.NAME)
 
         log.info("graded query : $query")
         return query.fetchInto(Response::class.java)

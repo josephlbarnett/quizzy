@@ -1,6 +1,7 @@
 package com.joe.quizzy.persistence.api
 
 import com.joe.quizzy.api.models.Grade
+import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.stream.Stream
 
@@ -13,7 +14,12 @@ interface GradeDAO {
     fun get(id: UUID): Grade?
     fun save(thing: Grade): Grade
     fun forUser(userId: UUID): List<Grade>
-    fun forUsers(userIds: List<UUID>): Map<UUID, List<Grade>>
+    fun forUsers(
+        userIds: List<UUID>,
+        startTime: OffsetDateTime? = null,
+        endTime: OffsetDateTime? = null,
+    ): Map<UUID, List<Grade>>
+
     fun forResponse(responseId: UUID): Grade?
     fun forResponses(responseIds: List<UUID>): Map<UUID, Grade>
 }

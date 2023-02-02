@@ -9,6 +9,7 @@ import vuetify from "@/plugins/vuetify";
 import { ApiQuestion, ApiUser, QuestionType } from "@/generated/types.d";
 import Vue from "vue";
 import { awaitVm } from "../TestUtils";
+import { createPinia } from "pinia";
 // silence a VDialog warning!?
 document.body.setAttribute("data-app", "true");
 
@@ -22,6 +23,7 @@ const mockUser: ApiUser = {
     autoGrade: false,
     status: "ACTIVE",
     defaultScore: 15,
+    seasons: [],
   },
   email: "me@me.com",
   name: "me",
@@ -119,6 +121,7 @@ async function mountCompletedQuestions(mockClient: MockApolloClient) {
     apolloProvider: new VueApollo({
       defaultClient: mockClient,
     }),
+    pinia: createPinia(),
   });
   await awaitVm(page);
   return page;

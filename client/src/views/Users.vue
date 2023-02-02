@@ -3,6 +3,7 @@
     <!-- fetch-policy=cache-and-network so that updated grades get picked up and bypass graphql cache -->
     <ApolloQuery
       :query="require('../graphql/Users.gql')"
+      :variables="qvars"
       fetch-policy="cache-and-network"
       @result="
         (result) => {
@@ -70,6 +71,8 @@
             single-select
             no-data-text="No users found"
             :search="search"
+            sort-by="score"
+            sort-desc
             @input="selected"
             @click:row="rowToggle"
           >
@@ -90,10 +93,14 @@
 import Vue from "vue";
 import { ApiUser } from "@/generated/types";
 import CreateUserButton from "@/components/CreateUserButton.vue";
+import { useInstanceStore } from "@/stores/instance";
 
 export default Vue.extend({
   name: "UsersList",
   components: { CreateUserButton },
+  setup() {
+    return { instanceStore: useInstanceStore() };
+  },
   data: () => ({
     users: [],
     search: "",
@@ -117,6 +124,15 @@ export default Vue.extend({
     selection: null as ApiUser | null,
     deleteDialog: false,
   }),
+  computed: {
+    qvars() {
+      const season = this.instanceStore.season;
+      return {
+        startTime: season?.startTime,
+        endTime: season?.endTime,
+      };
+    },
+  },
   methods: {
     selected(selection: Array<ApiUser>) {
       if (selection.length > 0) {

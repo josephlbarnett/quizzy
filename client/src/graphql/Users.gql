@@ -1,11 +1,11 @@
-query Users {
+query Users($startTime: DateTime, $endTime: DateTime) {
   users {
     admin
     email
     id
     instanceId
     name
-    score
+    score(startTime: $startTime, endTime: $endTime)
     timeZoneId
   }
 }

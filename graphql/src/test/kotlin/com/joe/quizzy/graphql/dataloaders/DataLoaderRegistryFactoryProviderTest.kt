@@ -8,6 +8,7 @@ import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.Question
 import com.joe.quizzy.api.models.Response
+import com.joe.quizzy.api.models.Season
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.graphql.auth.UserPrincipal
 import com.joe.quizzy.persistence.api.ResponseDAO
@@ -31,6 +32,7 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
             mock(),
             mock(),
             responseDAO,
+            mock(),
             mock(),
         )
         val userUUID = UUID.randomUUID()
@@ -59,7 +61,7 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
         val responseGradesLoader = registry.getDataLoader<UUID, Grade>("responsegrades")
         assertThat(responseGradesLoader).isNotNull()
 
-        val userGradesLoader = registry.getDataLoader<UUID, Grade>("usergrades")
+        val userGradesLoader = registry.getDataLoader<UserTimePeriod, List<Grade>>("usergrades")
         assertThat(userGradesLoader).isNotNull()
 
         val batchUserLoader = registry.getDataLoader<UUID, User>("batchusers")
@@ -75,6 +77,9 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
 
         val batchInstanceLoader = registry.getDataLoader<UUID, Instance>("batchinstances")
         assertThat(batchInstanceLoader).isNotNull()
+
+        val instanceSeasonLoader = registry.getDataLoader<InstanceTimePeriod, List<Season>>("instanceseasons")
+        assertThat(instanceSeasonLoader).isNotNull()
         verifyAll()
     }
 }

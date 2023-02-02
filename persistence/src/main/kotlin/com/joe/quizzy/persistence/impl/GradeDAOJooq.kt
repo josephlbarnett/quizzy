@@ -8,6 +8,8 @@ import com.joe.quizzy.persistence.impl.jooq.tables.records.GradesRecord
 import mu.KotlinLogging
 import org.jooq.Configuration
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
+import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.stream.Stream
 import javax.inject.Inject
@@ -69,11 +71,28 @@ open class GradeDAOJooq
     }
 
     @Timed
-    override fun forUsers(userIds: List<UUID>): Map<UUID, List<Grade>> {
+    override fun forUsers(
+        userIds: List<UUID>,
+        startTime: OffsetDateTime?,
+        endTime: OffsetDateTime?,
+    ): Map<UUID, List<Grade>> {
         val query = ctx.select(Tables.RESPONSES.USER_ID, Tables.GRADES.asterisk())
             .from(Tables.GRADES)
             .join(Tables.RESPONSES).on(Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID))
-            .where(Tables.RESPONSES.USER_ID.`in`(userIds))
+            .join(Tables.QUESTIONS).on(Tables.RESPONSES.QUESTION_ID.eq(Tables.QUESTIONS.ID))
+            .where(
+                DSL.and(
+                    listOfNotNull(
+                        Tables.RESPONSES.USER_ID.`in`(userIds),
+                        startTime?.let {
+                            Tables.QUESTIONS.CLOSED_AT.ge(it)
+                        },
+                        endTime?.let {
+                            Tables.QUESTIONS.ACTIVE_AT.le(it)
+                        },
+                    ),
+                ),
+            )
         log.info("get grades for users: $query")
         return query.fetch()
             .intoGroups(Tables.RESPONSES.USER_ID, Grade::class.java)

@@ -11,6 +11,7 @@ import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import graphql.schema.DataFetchingEnvironment
 import java.security.Principal
+import java.time.OffsetDateTime
 import javax.inject.Inject
 
 /**
@@ -65,11 +66,15 @@ class Query @Inject constructor(
         return emptyList()
     }
 
-    fun closedQuestions(dfe: DataFetchingEnvironment): List<ApiQuestion> {
+    fun closedQuestions(
+        dfe: DataFetchingEnvironment,
+        startTime: OffsetDateTime? = null,
+        endTime: OffsetDateTime? = null,
+    ): List<ApiQuestion> {
         val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
             val defaultScore = getDefaultScore(principal)
-            return questionDAO.closed(principal.user).map { ApiQuestion(it, defaultScore) }
+            return questionDAO.closed(principal.user, startTime, endTime).map { ApiQuestion(it, defaultScore) }
         }
         return emptyList()
     }
@@ -85,12 +90,17 @@ class Query @Inject constructor(
         return emptyList()
     }
 
-    fun responses(dfe: DataFetchingEnvironment, includeGraded: Boolean): List<ApiResponse> {
+    fun responses(
+        dfe: DataFetchingEnvironment,
+        includeGraded: Boolean,
+        startTime: OffsetDateTime? = null,
+        endTime: OffsetDateTime? = null,
+    ): List<ApiResponse> {
         val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
             if (principal.user.admin) {
                 val defaultScore = getDefaultScore(principal)
-                return responseDAO.forInstance(principal.user.instanceId, includeGraded)
+                return responseDAO.forInstance(principal.user.instanceId, includeGraded, startTime, endTime)
                     .map { ApiResponse(it, defaultScore) }
             }
         }

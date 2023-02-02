@@ -6,6 +6,7 @@ import com.joe.quizzy.persistence.api.GroupMeInfoDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
+import com.joe.quizzy.persistence.api.SeasonDAO
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.persistence.impl.EmailNotificationDAOJooq
@@ -14,6 +15,7 @@ import com.joe.quizzy.persistence.impl.GroupMeInfoDAOJooq
 import com.joe.quizzy.persistence.impl.InstanceDAOJooq
 import com.joe.quizzy.persistence.impl.QuestionDAOJooq
 import com.joe.quizzy.persistence.impl.ResponseDAOJooq
+import com.joe.quizzy.persistence.impl.SeasonDAOJooq
 import com.joe.quizzy.persistence.impl.SessionDAOJooq
 import com.joe.quizzy.persistence.impl.UserDAOJooq
 import com.trib3.db.modules.DbModule
@@ -38,5 +40,6 @@ class QuizzyPersistenceModule : KotlinModule() {
         bind<InstanceDAO>().to<InstanceDAOJooq>()
         bind<EmailNotificationDAO>().to<EmailNotificationDAOJooq>()
         bind<GroupMeInfoDAO>().to<GroupMeInfoDAOJooq>()
+        bind<SeasonDAO>().to<SeasonDAOJooq>()
     }
 }

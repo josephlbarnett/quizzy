@@ -1,5 +1,5 @@
-query CompletedQuestions {
-  closedQuestions {
+query CompletedQuestions($startTime: DateTime, $endTime: DateTime) {
+  closedQuestions(startTime: $startTime, endTime: $endTime) {
     activeAt
     answer
     author {

@@ -1,4 +1,4 @@
-query CurrentUser {
+query CurrentUser($endTime: DateTime) {
   user {
     admin
     email
@@ -7,6 +7,12 @@ query CurrentUser {
       id
       name
       defaultQuestionType
+      seasons(endTime: $endTime) {
+        id
+        name
+        startTime
+        endTime
+      }
     }
     instanceId
     name

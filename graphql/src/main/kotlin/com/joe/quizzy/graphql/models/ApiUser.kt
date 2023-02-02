@@ -4,7 +4,9 @@ import com.expediagroup.graphql.generator.annotations.GraphQLIgnore
 import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.User
+import com.joe.quizzy.graphql.dataloaders.UserTimePeriod
 import graphql.schema.DataFetchingEnvironment
+import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
@@ -36,13 +38,23 @@ data class ApiUser(
         defaultScore,
     )
 
-    fun score(dfe: DataFetchingEnvironment): CompletableFuture<Int> {
-        return dfe.getDataLoader<UUID, List<Grade>>("usergrades").load(id).thenApply {
-            it?.map { g -> ApiGrade(g, defaultScore).score() }?.fold(0, Int::plus) ?: 0
+    fun score(
+        dfe: DataFetchingEnvironment,
+        startTime: OffsetDateTime? = null,
+        endTime: OffsetDateTime? = null,
+    ): CompletableFuture<Int> {
+        if (id == null) {
+            return CompletableFuture.completedFuture(0)
         }
+        return dfe.getDataLoader<UserTimePeriod, List<Grade>>("usergrades").load(UserTimePeriod(id, startTime, endTime))
+            .thenApply {
+                it?.map { g -> ApiGrade(g, defaultScore).score() }?.fold(0, Int::plus) ?: 0
+            }
     }
 
-    fun instance(dfe: DataFetchingEnvironment): CompletableFuture<Instance> {
-        return dfe.getDataLoader<UUID, Instance>("batchinstances").load(instanceId)
+    fun instance(dfe: DataFetchingEnvironment): CompletableFuture<ApiInstance> {
+        return dfe.getDataLoader<UUID, Instance>("batchinstances").load(instanceId).thenApply {
+            ApiInstance(it)
+        }
     }
 }

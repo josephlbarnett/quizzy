@@ -6,6 +6,7 @@ import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.each
 import assertk.assertions.hasSize
+import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isNotNull
@@ -25,7 +26,6 @@ import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
 import java.time.OffsetDateTime
 import java.util.UUID
-import kotlin.streams.toList
 
 /**
  * Test the ThingDAO
@@ -61,6 +61,23 @@ class QuestionDAOTest : PostgresDAOTestBase() {
         questions.forEach { dao.save(it) }
         assertThat(dao.active(user.copy(id = userId)).map { it.body }.first()).isEqualTo("current")
         assertThat(dao.closed(user.copy(id = userId)).map { it.body }.first()).isEqualTo("past")
+        assertThat(
+            dao.closed(user.copy(id = userId)).map { it.body }.first(),
+        ).isEqualTo("past")
+        assertThat(
+            dao.closed(
+                user.copy(id = userId),
+                EARLY_START_TIME,
+                OffsetDateTime.now(),
+            ).map { it.body }.first(),
+        ).isEqualTo("past")
+        assertThat(
+            dao.closed(
+                user.copy(id = userId),
+                EARLY_START_TIME,
+                EARLY_END_TIME,
+            ),
+        ).isEmpty()
         assertThat(dao.future(user.copy(id = userId)).map { it.body }.first()).isEqualTo("future")
     }
 
