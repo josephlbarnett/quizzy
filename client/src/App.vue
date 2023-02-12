@@ -66,7 +66,12 @@
             </v-list-item>
             <v-list-item>
               <v-list-item-icon @click="navDrawMini = !navDrawMini">
-                <v-icon>mdi-calendar</v-icon>
+                <v-tooltip :disabled="!navDrawMini" bottom>
+                  <template #activator="{ on }">
+                    <v-icon v-on="on">mdi-calendar</v-icon>
+                  </template>
+                  {{ instanceStore.season.name }}
+                </v-tooltip>
               </v-list-item-icon>
               <v-list-item-title>
                 <season-selector />
