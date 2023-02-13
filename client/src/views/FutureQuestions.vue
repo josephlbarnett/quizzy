@@ -44,7 +44,8 @@
                         v-model="addDialogActive"
                         label="Date:"
                         :timezone="timezone"
-                    /></v-col>
+                      />
+                    </v-col>
                   </v-row>
                   <v-row>
                     <v-col>
@@ -78,8 +79,8 @@
                         placeholder="Image"
                       />
                       <v-icon v-if="clickedImage" @click="clickedImage = null"
-                        >mdi-close</v-icon
-                      >
+                        >mdi-close
+                      </v-icon>
                       <v-img
                         :src="imageUrl"
                         max-width="200px"
@@ -116,23 +117,24 @@
                           <v-icon
                             v-if="addDialogAnswerChoices.length > 1"
                             @click="addDialogAnswerChoices.splice(index, 1)"
-                            >mdi-close</v-icon
-                          >
+                            >mdi-close
+                          </v-icon>
                         </v-row>
-                        <v-row
-                          ><v-icon @click="addDialogAnswerChoices.push('')"
-                            >mdi-plus</v-icon
-                          ></v-row
-                        >
+                        <v-row>
+                          <v-icon @click="addDialogAnswerChoices.push('')"
+                            >mdi-plus
+                          </v-icon>
+                        </v-row>
                       </v-radio-group>
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col
-                      ><v-textarea
+                    <v-col>
+                      <v-textarea
                         v-model="addDialogRuleReferences"
                         label="Rule References:"
-                    /></v-col>
+                      />
+                    </v-col>
                   </v-row>
                 </v-card-text>
                 <v-card-actions>
@@ -159,10 +161,10 @@
                         ><span v-else>add</span> question, try again.
                         <template #action="{ attrs }">
                           <v-btn v-bind="attrs" @click="addDialogError = false"
-                            >OK</v-btn
-                          ></template
-                        ></v-snackbar
-                      >
+                            >OK
+                          </v-btn>
+                        </template>
+                      </v-snackbar>
                     </template>
                   </ApolloMutation>
                 </v-card-actions>
@@ -329,13 +331,38 @@ export default Vue.extend({
     },
     async submitForm(mutate: (options: object) => Promise<FetchResult>) {
       let imageUrl = this.clickedImage;
-      if (this.addDialogImage) {
+      if (this.addDialogImage && this.imageUrl) {
+        // try to convert the image to a jpeg before uploading
+        let convertedImage: Blob = this.addDialogImage;
+        const image = new Image();
+        image.src = this.imageUrl;
+        const canvas = document.createElement("canvas");
+        canvas.height = image.height;
+        canvas.width = image.width;
+        const context = canvas.getContext("2d");
+        if (context) {
+          context.drawImage(image, 0, 0);
+          const convertPromise = new Promise<Blob>((resolve, reject) => {
+            canvas.toBlob((b) => {
+              if (b) {
+                resolve(b);
+              } else {
+                reject();
+              }
+            }, "image/jpeg");
+          });
+          try {
+            convertedImage = await convertPromise;
+          } catch (error) {
+            console.log(error);
+          }
+        }
         const response = await fetch(
           `${import.meta.env.VITE_REST_HTTP}/image/upload`,
           {
             method: "POST",
             credentials: "include",
-            body: this.addDialogImage,
+            body: convertedImage,
           }
         );
         if (response.ok) {
