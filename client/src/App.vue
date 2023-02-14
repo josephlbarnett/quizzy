@@ -74,7 +74,7 @@
                 </v-tooltip>
               </v-list-item-icon>
               <v-list-item-title>
-                <season-selector />
+                <season-selector @change="navDrawMini = true" />
               </v-list-item-title>
             </v-list-item>
             <v-divider />
@@ -163,6 +163,13 @@ export default Vue.extend({
     now() {
       return moment().format();
     },
+  },
+  mounted() {
+    if (window.matchMedia) {
+      this.$vuetify.theme.dark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+    }
   },
   methods: {
     doLogout(mutate: () => void) {

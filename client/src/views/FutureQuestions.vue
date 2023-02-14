@@ -351,11 +351,7 @@ export default Vue.extend({
               }
             }, "image/jpeg");
           });
-          try {
-            convertedImage = await convertPromise;
-          } catch (error) {
-            console.log(error);
-          }
+          convertedImage = await convertPromise.catch();
         }
         const response = await fetch(
           `${import.meta.env.VITE_REST_HTTP}/image/upload`,

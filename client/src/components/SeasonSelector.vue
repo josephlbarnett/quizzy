@@ -5,6 +5,7 @@
     :items="instanceStore.seasons"
     label="Season"
     item-text="name"
+    @change="change"
   />
 </template>
 <script lang="ts">
@@ -32,6 +33,11 @@ export default Vue.extend({
         }
         this.instanceStore.setCurrentSeason(index);
       },
+    },
+  },
+  methods: {
+    change(event: any) {
+      this.$emit("change", event);
     },
   },
 });
