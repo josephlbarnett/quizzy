@@ -36,7 +36,7 @@ export default Vue.extend({
     },
   },
   methods: {
-    change(event: any) {
+    change(event: string) {
       this.$emit("change", event);
     },
   },

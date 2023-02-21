@@ -6,7 +6,7 @@
     "serve": "vite",
     "build": "vite build",
     "test:unit": "jest --runInBand",
-    "lint": "eslint --fix src tests *.js",
+    "lint": "eslint --max-warnings 0 --fix src tests *.js",
     "generate": "graphql-codegen",
     "test": "npm run test:unit"
   },
@@ -20,7 +20,7 @@
     "graphql-combine-query": "1.2.4",
     "moment-timezone": "0.5.40",
     "papaparse": "5.3.2",
-    "pinia": "^2.0.31",
+    "pinia": "^2.0.32",
     "vue": "2.7.14",
     "vue-apollo": "3.1.0",
     "vue-class-component": "7.2.6",
