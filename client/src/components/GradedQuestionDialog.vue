@@ -3,16 +3,29 @@
     <v-card v-if="clickedQuestion && clickedQuestion.author">
       <v-card-title
         >Review Question: {{ renderDate(clickedQuestion.activeAt) }} by
-        {{ clickedQuestion.author.name }}</v-card-title
-      >
+        {{ clickedQuestion.author.name }}
+      </v-card-title>
       <v-card-text>
         <v-row>
           <v-col v-if="clickedQuestion.imageUrl" cols="12" lg="1">
-            <v-img
-              :src="clickedQuestion.imageUrl"
-              max-height="200px"
-              max-width="200px"
-            ></v-img>
+            <v-dialog v-model="imageDialog">
+              <template #activator="{ on }">
+                <v-img
+                  :src="clickedQuestion.imageUrl"
+                  max-height="200px"
+                  max-width="200px"
+                  v-on="on"
+                ></v-img>
+              </template>
+              <v-card @click="imageDialog = false">
+                <v-img
+                  contain
+                  :src="clickedQuestion.imageUrl"
+                  max-height="90vh"
+                  max-width="90vw"
+                ></v-img>
+              </v-card>
+            </v-dialog>
           </v-col>
           <v-col align-self="center">{{ clickedQuestion.body }}</v-col>
         </v-row>
@@ -60,8 +73,8 @@
                     choice.letter == clickedQuestion.answer
                   "
                   color="green darken-2"
-                  >mdi-check-circle</v-icon
-                >
+                  >mdi-check-circle
+                </v-icon>
                 <v-icon
                   v-if="
                     clickedQuestion.response &&
@@ -69,8 +82,8 @@
                     choice.letter != clickedQuestion.answer
                   "
                   color="red darken-2"
-                  >mdi-close-circle</v-icon
-                >
+                  >mdi-close-circle
+                </v-icon>
               </v-row>
             </v-radio-group>
             <v-text-field
@@ -139,7 +152,7 @@
           <v-col>{{ clickedQuestionBonus }}</v-col>
         </v-row>
         <v-row v-if="shortAnswer()">
-          <v-col> Score: </v-col>
+          <v-col> Score:</v-col>
           <v-col>
             {{
               clickedQuestion.response &&
@@ -165,6 +178,11 @@ export default Vue.extend({
     question: { type: Object as PropType<ApiQuestion>, default: null },
     value: { type: Boolean, default: false },
     userTZ: { type: String, default: "Autodetect" },
+  },
+  data: function () {
+    return {
+      imageDialog: false,
+    };
   },
   computed: {
     detailDialog: {

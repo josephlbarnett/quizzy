@@ -30,7 +30,7 @@
         </div>
         <div v-else-if="error" class="error">An error occurred</div>
         <v-card v-if="data && data.activeQuestions">
-          <v-card-title> Current Questions </v-card-title>
+          <v-card-title> Current Questions</v-card-title>
           <v-data-table
             :items="data.activeQuestions"
             :headers="headers"
@@ -56,8 +56,8 @@
       <v-card v-if="clickedQuestion">
         <v-card-title
           >Question: {{ renderDate(clickedQuestion.activeAt) }} by
-          {{ clickedQuestion.author.name }}</v-card-title
-        >
+          {{ clickedQuestion.author.name }}
+        </v-card-title>
         <ApolloMutation
           v-if="clickedQuestion"
           :mutation="require('../graphql/SaveResponse.gql')"
@@ -79,11 +79,24 @@
             <v-card-text>
               <v-row>
                 <v-col v-if="clickedQuestion.imageUrl" cols="12" lg="1">
-                  <v-img
-                    :src="clickedQuestion.imageUrl"
-                    max-height="200px"
-                    max-width="200px"
-                  ></v-img>
+                  <v-dialog v-model="imageDialog">
+                    <template #activator="{ on }">
+                      <v-img
+                        :src="clickedQuestion.imageUrl"
+                        max-height="200px"
+                        max-width="200px"
+                        v-on="on"
+                      ></v-img>
+                    </template>
+                    <v-card @click="imageDialog = false">
+                      <v-img
+                        contain
+                        :src="clickedQuestion.imageUrl"
+                        max-height="90vh"
+                        max-width="90vw"
+                      ></v-img>
+                    </v-card>
+                  </v-dialog>
                 </v-col>
                 <v-col align-self="center">{{ clickedQuestion.body }}</v-col>
               </v-row>
@@ -113,17 +126,15 @@
             <v-card-actions>
               <v-btn @click="responseDialog = false">CANCEL</v-btn>
               <v-btn color="accent" @click="saveResponse(mutate)"
-                >save response</v-btn
-              >
-              <v-progress-circular v-if="loading" :indeterminate="true"
-            /></v-card-actions>
+                >save response
+              </v-btn>
+              <v-progress-circular v-if="loading" :indeterminate="true" />
+            </v-card-actions>
             <v-snackbar v-model="saveError" color="error">
               Couldn't save, try again.
               <template #action="{ attrs }">
-                <v-btn v-bind="attrs" @click="saveError = false"
-                  >OK</v-btn
-                ></template
-              >
+                <v-btn v-bind="attrs" @click="saveError = false">OK </v-btn>
+              </template>
             </v-snackbar>
           </template>
         </ApolloMutation>
@@ -174,6 +185,7 @@ export default Vue.extend({
       },
     ],
     responseDialog: false,
+    imageDialog: false,
     gradeDialog: false,
     clickedQuestion: null as ApiQuestion | null,
     clickedResponse: null as ApiResponse | null,

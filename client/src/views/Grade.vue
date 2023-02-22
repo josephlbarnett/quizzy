@@ -101,11 +101,24 @@
                   cols="12"
                   lg="1"
                 >
-                  <v-img
-                    :src="clickedResponse.question?.imageUrl"
-                    max-height="200px"
-                    max-width="200px"
-                  ></v-img>
+                  <v-dialog v-model="imageDialog">
+                    <template #activator="{ on }">
+                      <v-img
+                        :src="clickedResponse.question?.imageUrl"
+                        max-height="200px"
+                        max-width="200px"
+                        v-on="on"
+                      ></v-img>
+                    </template>
+                    <v-card @click="imageDialog = false">
+                      <v-img
+                        contain
+                        :src="clickedResponse.question?.imageUrl"
+                        max-height="90vh"
+                        max-width="90vw"
+                      ></v-img>
+                    </v-card>
+                  </v-dialog>
                 </v-col>
                 <v-col align-self="center"
                   >{{ clickedResponse.question?.body }}
@@ -278,6 +291,7 @@ export default Vue.extend({
     saveError: false,
     hideGraded: true,
     gradeDialog: false,
+    imageDialog: false,
     clickedResponse: null as ApiResponse | null,
   }),
   computed: {

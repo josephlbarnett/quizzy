@@ -70,7 +70,7 @@
                   <template #activator="{ on }">
                     <v-icon v-on="on">mdi-calendar</v-icon>
                   </template>
-                  {{ instanceStore.season.name }}
+                  {{ instanceStore.season?.name }}
                 </v-tooltip>
               </v-list-item-icon>
               <v-list-item-title>

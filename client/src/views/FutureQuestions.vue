@@ -81,11 +81,24 @@
                       <v-icon v-if="clickedImage" @click="clickedImage = null"
                         >mdi-close
                       </v-icon>
-                      <v-img
-                        :src="imageUrl"
-                        max-width="200px"
-                        max-height="200px"
-                      />
+                      <v-dialog v-model="imageDialog">
+                        <template #activator="{ on }">
+                          <v-img
+                            :src="imageUrl"
+                            max-height="200px"
+                            max-width="200px"
+                            v-on="on"
+                          ></v-img>
+                        </template>
+                        <v-card @click="imageDialog = false">
+                          <v-img
+                            contain
+                            :src="imageUrl"
+                            max-height="90vh"
+                            max-width="90vw"
+                          ></v-img>
+                        </v-card>
+                      </v-dialog>
                     </v-col>
                     <v-col>
                       <v-textarea
@@ -219,6 +232,7 @@ export default Vue.extend({
     addDialogRuleReferences: "",
     addDialogImage: null as File | null,
     clickedImage: null as string | null,
+    imageDialog: false,
     headers: [
       {
         text: "Date",
