@@ -52,7 +52,7 @@
     "jest-environment-jsdom": "29.4.3",
     "jest-transform-graphql": "2.1.0",
     "jest-transform-stub": "2.0.0",
-    "lint-staged": "13.1.2",
+    "lint-staged": "13.2.0",
     "mock-apollo-client": "1.2.1",
     "prettier": "2.8.4",
     "sass": "1.32.13",
