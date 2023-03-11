@@ -9,11 +9,11 @@
     <parent>
         <groupId>com.trib3</groupId>
         <artifactId>parent-pom</artifactId>
-        <version>[1.35.1,1.36-SNAPSHOT)</version>
+        <version>[2.0.1,2.1-SNAPSHOT)</version>
     </parent>
 
     <properties>
-        <version.leakycauldron>[1.35.1,1.36-SNAPSHOT)</version.leakycauldron>
+        <version.leakycauldron>[2.0.1,2.1-SNAPSHOT)</version.leakycauldron>
 
         <version.argon>2.11</version.argon>
         <version.google-http-client>1.43.1</version.google-http-client>

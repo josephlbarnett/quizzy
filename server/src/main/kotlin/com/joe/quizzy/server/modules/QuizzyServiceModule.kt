@@ -21,12 +21,12 @@ import com.trib3.server.filters.CookieTokenAuthFilter
 import com.trib3.server.modules.ServletConfig
 import com.trib3.server.modules.ServletFilterConfig
 import dev.misfitlabs.kotlinguice4.multibindings.KotlinMultibinder
-import io.dropwizard.Configuration
-import io.dropwizard.ConfiguredBundle
 import io.dropwizard.auth.AuthFilter
 import io.dropwizard.auth.Authorizer
 import io.dropwizard.auth.basic.BasicCredentialAuthFilter
 import io.dropwizard.auth.chained.ChainedAuthFilter
+import io.dropwizard.core.Configuration
+import io.dropwizard.core.ConfiguredBundle
 import io.dropwizard.servlets.assets.AssetServlet
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
