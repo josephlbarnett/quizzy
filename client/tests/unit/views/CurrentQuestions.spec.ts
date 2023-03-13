@@ -24,6 +24,7 @@ const mockUser: ApiUser = {
     status: "ACTIVE",
     defaultScore: 15,
     seasons: [],
+    supportsGroupMe: true,
   },
   email: "me@me.com",
   name: "me",

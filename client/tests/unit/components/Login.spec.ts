@@ -21,6 +21,7 @@ const mockUser: ApiUser = {
     __typename: "ApiInstance",
     defaultScore: 15,
     seasons: [],
+    supportsGroupMe: true,
   },
   email: "joe@test.com",
   name: "joe test",

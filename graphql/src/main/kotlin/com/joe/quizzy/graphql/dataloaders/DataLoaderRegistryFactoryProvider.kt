@@ -1,6 +1,7 @@
 package com.joe.quizzy.graphql.dataloaders
 
 import com.expediagroup.graphql.dataloader.KotlinDataLoaderRegistryFactory
+import com.joe.quizzy.graphql.groupme.GroupMeServiceFactory
 import com.joe.quizzy.persistence.api.GradeDAO
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
@@ -24,6 +25,7 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
     private val responseDAO: ResponseDAO,
     private val instanceDAO: InstanceDAO,
     private val seasonDAO: SeasonDAO,
+    private val groupMeServiceFactory: GroupMeServiceFactory,
 ) : Provider<KotlinDataLoaderRegistryFactoryProvider> {
     override fun get(): KotlinDataLoaderRegistryFactoryProvider {
         return { _, contextMap ->
@@ -35,6 +37,7 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
                 QuestionResponseLoader(responseDAO, contextMap),
                 BulkInstanceLoader(instanceDAO, contextMap),
                 InstanceSeasonLoader(seasonDAO, contextMap),
+                GroupMeServiceLoader(groupMeServiceFactory, contextMap),
             )
         }
     }

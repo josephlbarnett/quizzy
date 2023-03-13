@@ -34,6 +34,7 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
             responseDAO,
             mock(),
             mock(),
+            mock(),
         )
         val userUUID = UUID.randomUUID()
         val questionUUID = UUID.randomUUID()

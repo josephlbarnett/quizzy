@@ -4,6 +4,7 @@ import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.Season
 import com.joe.quizzy.graphql.dataloaders.InstanceTimePeriod
+import com.joe.quizzy.graphql.groupme.GroupMeService
 import graphql.schema.DataFetchingEnvironment
 import java.time.OffsetDateTime
 import java.util.UUID
@@ -37,6 +38,14 @@ data class ApiInstance(
                 .thenApply { it.orEmpty().sortedBy { s -> s.startTime } }
         } else {
             CompletableFuture.completedFuture(emptyList())
+        }
+    }
+
+    fun supportsGroupMe(dfe: DataFetchingEnvironment): CompletableFuture<Boolean> {
+        return if (id != null) {
+            dfe.getDataLoader<UUID, GroupMeService?>("groupmeservice").load(id).thenApply { it != null }
+        } else {
+            CompletableFuture.completedFuture(false)
         }
     }
 }

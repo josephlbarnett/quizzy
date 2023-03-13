@@ -7,6 +7,7 @@ query CurrentUser($endTime: DateTime) {
       id
       name
       defaultQuestionType
+      supportsGroupMe
       seasons(endTime: $endTime) {
         id
         name

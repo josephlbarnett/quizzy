@@ -73,7 +73,11 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col cols="12" style="text-align: right">
+                    <v-col
+                      v-if="supportsImage"
+                      cols="12"
+                      style="text-align: right"
+                    >
                       <v-file-input
                         v-model="addDialogImage"
                         placeholder="Image"
@@ -265,6 +269,7 @@ export default Vue.extend({
     ),
     timezone: "Autodetect",
     questionType: QuestionType.ShortAnswer,
+    supportsImage: false,
   }),
   computed: {
     imageUrl() {
@@ -309,8 +314,11 @@ export default Vue.extend({
       } else {
         this.timezone = "Autodetect";
       }
-      if (user.instance && user.instance.defaultQuestionType) {
-        this.questionType = user.instance.defaultQuestionType;
+      if (user.instance) {
+        this.supportsImage = user.instance.supportsGroupMe;
+        if (user.instance.defaultQuestionType) {
+          this.questionType = user.instance.defaultQuestionType;
+        }
       }
     },
     renderDateTime(date: string) {

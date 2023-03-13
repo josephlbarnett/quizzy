@@ -3,10 +3,12 @@ package com.joe.quizzy.graphql.models
 import assertk.assertThat
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isFalse
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.Season
 import com.joe.quizzy.graphql.dataloaders.InstanceTimePeriod
+import com.joe.quizzy.graphql.groupme.GroupMeService
 import com.trib3.testing.LeakyMock
 import graphql.schema.DataFetchingEnvironment
 import kotlinx.coroutines.future.await
@@ -35,6 +37,7 @@ class ApiInstanceTest {
         val mockDfe = LeakyMock.mock<DataFetchingEnvironment>()
         EasyMock.replay(mockDfe)
         assertThat(i.copy(id = null).seasons(mockDfe).await()).isEmpty()
+        assertThat(i.copy(id = null).supportsGroupMe(mockDfe).await()).isFalse()
         EasyMock.verify(mockDfe)
     }
 
@@ -56,6 +59,23 @@ class ApiInstanceTest {
         EasyMock.replay(mockDfe, mockLoader)
         val seasons = i.seasons(mockDfe, null, null)
         assertThat(seasons.await().map { it.name }).isEqualTo(listOf("s1", "s2"))
+        EasyMock.verify(mockDfe, mockLoader)
+    }
+
+    @Test
+    fun testGroupMeLoader() = runBlocking {
+        val mockDfe = LeakyMock.mock<DataFetchingEnvironment>()
+        val mockLoader = LeakyMock.mock<DataLoader<UUID, GroupMeService?>>()
+        EasyMock.expect(mockDfe.getDataLoader<UUID, GroupMeService?>("groupmeservice"))
+            .andReturn(mockLoader)
+        EasyMock.expect(mockLoader.load(i.id))
+            .andReturn(
+                CompletableFuture.completedFuture(
+                    null,
+                ),
+            )
+        EasyMock.replay(mockDfe, mockLoader)
+        assertThat(i.supportsGroupMe(mockDfe).await()).isFalse()
         EasyMock.verify(mockDfe, mockLoader)
     }
 }
