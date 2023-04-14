@@ -354,7 +354,7 @@ export default Vue.extend({
     async submitForm(mutate: (options: object) => Promise<FetchResult>) {
       let imageUrl = this.clickedImage;
       if (this.addDialogImage && this.imageUrl) {
-        // try to convert the image to a jpeg before uploading
+        // try to convert unsupported image type to a jpeg before uploading
         let convertedImage: Blob = this.addDialogImage;
         const image = new Image();
         image.src = this.imageUrl;
@@ -362,7 +362,12 @@ export default Vue.extend({
         canvas.height = image.height;
         canvas.width = image.width;
         const context = canvas.getContext("2d");
-        if (context) {
+        if (
+          context &&
+          !["image/jpeg", "image/gif", "image/png"].includes(
+            this.addDialogImage?.type || ""
+          )
+        ) {
           context.drawImage(image, 0, 0);
           const convertPromise = new Promise<Blob>((resolve, reject) => {
             canvas.toBlob((b) => {
