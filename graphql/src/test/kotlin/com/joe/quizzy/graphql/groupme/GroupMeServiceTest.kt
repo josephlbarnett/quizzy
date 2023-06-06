@@ -1,10 +1,10 @@
 package com.joe.quizzy.graphql.groupme
 
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.hasSize
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.messageContains
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.joe.quizzy.persistence.api.GroupMeInfo
@@ -50,9 +50,9 @@ class GroupMeServiceTest {
                 jackson()
             }
         }
-        assertThat {
+        assertFailure {
             GroupMeService(dao, client, UUID.randomUUID())
-        }.isFailure().messageContains("No groupme configured for instance")
+        }.messageContains("No groupme configured for instance")
         val service = GroupMeService(dao, client, goodUUID)
         service.postMessage("testMessage")
         val requestHistory = (client.engine as MockEngine).requestHistory

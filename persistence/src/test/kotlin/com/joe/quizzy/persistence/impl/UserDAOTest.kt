@@ -1,10 +1,10 @@
 package com.joe.quizzy.persistence.impl
 
 import assertk.all
+import assertk.assertFailure
 import assertk.assertThat
 import assertk.assertions.doesNotContain
 import assertk.assertions.isEqualTo
-import assertk.assertions.isFailure
 import assertk.assertions.isNull
 import assertk.assertions.messageContains
 import com.joe.quizzy.api.models.Instance
@@ -15,7 +15,6 @@ import com.trib3.testing.LeakyMock.Companion.contains
 import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
 import java.util.UUID
-import kotlin.streams.toList
 
 /**
  * Test the ThingDAO
@@ -89,8 +88,8 @@ class UserDAOTest : PostgresDAOTestBase() {
         dao.savePassword(updateThing, "crypt2")
         assertThat(dao.get(thingId)?.authCrypt).isEqualTo("crypt2")
 
-        assertThat {
+        assertFailure {
             dao.savePassword(updateThing.copy(id = UUID.randomUUID()), "crypt3")
-        }.isFailure().messageContains("rolling back")
+        }.messageContains("rolling back")
     }
 }
