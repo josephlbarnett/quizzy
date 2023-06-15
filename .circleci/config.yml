@@ -161,6 +161,8 @@ jobs:
           command: |
             CURRENT_VERSION=$(cat ~/jars/release/current_version.txt)
             cd ~/jars/fly
+            flyctl wireguard reset
+            flyctl wireguard websockets enable
             flyctl deploy --build-arg CURRENT_VERSION=${CURRENT_VERSION}
       - run:
           name: Create Release Notes
