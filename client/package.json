@@ -31,7 +31,7 @@
   "devDependencies": {
     "@babel/preset-env": "7.22.5",
     "@babel/preset-typescript": "7.22.5",
-    "@graphql-eslint/eslint-plugin": "3.19.1",
+    "@graphql-eslint/eslint-plugin": "3.20.0",
     "@rollup/plugin-graphql": "2.0.3",
     "@types/jest": "29.5.2",
     "@types/papaparse": "5.3.7",
