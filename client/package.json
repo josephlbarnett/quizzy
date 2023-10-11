@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "7.23.2",
-    "@babel/preset-typescript": "7.22.5",
+    "@babel/preset-typescript": "7.23.2",
     "@graphql-eslint/eslint-plugin": "3.20.1",
     "@rollup/plugin-graphql": "2.0.4",
     "@types/jest": "29.5.4",
