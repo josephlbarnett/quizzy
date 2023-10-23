@@ -21,7 +21,7 @@
     "moment-timezone": "0.5.43",
     "papaparse": "5.4.1",
     "pinia": "^2.1.6",
-    "vue": "2.7.14",
+    "vue": "2.7.15",
     "vue-apollo": "3.1.0",
     "vue-class-component": "7.2.6",
     "vue-property-decorator": "9.1.2",
@@ -60,7 +60,7 @@
     "typescript": "5.1.6",
     "unplugin-vue-components": "0.25.1",
     "vite": "4.4.9",
-    "vue-template-compiler": "2.7.14"
+    "vue-template-compiler": "2.7.15"
   },
   "overrides": {
     "word-wrap": "npm:@aashutoshrathi/word-wrap",
