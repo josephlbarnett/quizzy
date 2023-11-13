@@ -141,12 +141,12 @@ export default Vue.extend({
         this.selection = null;
       }
     },
-    rowToggle() // item: ApiUser,
-    // {
-    //   select,
-    //   isSelected,
-    // }: { select: (value: boolean) => void; isSelected: boolean }
-    {
+    rowToggle() {
+      // item: ApiUser,
+      // {
+      //   select,
+      //   isSelected,
+      // }: { select: (value: boolean) => void; isSelected: boolean }
       //select(!isSelected);
     },
     promote() {

@@ -93,18 +93,18 @@ describe("Current questions page tests", () => {
       () =>
         new Promise(() => {
           // never resolve
-        })
+        }),
     );
     const page = await mountCurrentQuestions(mockClient);
     expect(page.find(".v-progress-circular").vm.$props.indeterminate).toBe(
-      true
+      true,
     );
   });
 
   it("error state", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentQuestionsQuery, () =>
-      Promise.resolve({ data: null, errors: [{ message: "some error" }] })
+      Promise.resolve({ data: null, errors: [{ message: "some error" }] }),
     );
     const page = await mountCurrentQuestions(mockClient);
     expect(page.text()).toBe("An error occurred");
@@ -113,10 +113,10 @@ describe("Current questions page tests", () => {
   it("loads grid", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentQuestionsQuery, () =>
-      Promise.resolve({ data: { activeQuestions: mockQuestions } })
+      Promise.resolve({ data: { activeQuestions: mockQuestions } }),
     );
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const page = await mountCurrentQuestions(mockClient);
     const rows = page.findAll("tbody tr");
@@ -124,12 +124,12 @@ describe("Current questions page tests", () => {
     for (let i = 0; i < rows.length; i++) {
       const cols = rows.at(i).findAll("td");
       expect(cols.at(0).text()).toBe(
-        moment.tz(mockQuestions[i].activeAt, "UTC").format("ddd, MMM D YYYY")
+        moment.tz(mockQuestions[i].activeAt, "UTC").format("ddd, MMM D YYYY"),
       );
       expect(cols.at(1).text()).toBe(
         `${moment
           .tz(mockQuestions[i].closedAt, "UTC")
-          .format("ddd, MMM D YYYY, h:mmA")} (UTC)`
+          .format("ddd, MMM D YYYY, h:mmA")} (UTC)`,
       );
       expect(cols.at(2).text()).toBe(mockQuestions[i].body);
       expect(cols.at(3).text()).toBe(mockQuestions[i].response?.response || "");
@@ -139,10 +139,10 @@ describe("Current questions page tests", () => {
   it("loads and saves dialog", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentQuestionsQuery, () =>
-      Promise.resolve({ data: { activeQuestions: mockQuestions } })
+      Promise.resolve({ data: { activeQuestions: mockQuestions } }),
     );
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const mockMutation = jest.fn();
     mockClient.setRequestHandler(saveResponseMutation, mockMutation);
@@ -152,11 +152,11 @@ describe("Current questions page tests", () => {
       table.vm.$emit("click:row", mockQuestions[i]);
       await awaitVm(page);
       expect(page.find(".v-dialog .v-card__title").text()).toContain(
-        mockQuestions[i].author?.name
+        mockQuestions[i].author?.name,
       );
       expect(page.vm.$data.clickedQuestion.id).toBe(mockQuestions[i].id);
       expect(page.vm.$data.clickedResponse.id).toBe(
-        mockQuestions[i].response?.id
+        mockQuestions[i].response?.id,
       );
       const answerInput = page
         .findAll(".v-dialog .v-textarea")
@@ -164,7 +164,7 @@ describe("Current questions page tests", () => {
         .at(0)
         .find("textarea");
       expect((answerInput.element as HTMLTextAreaElement).value).toBe(
-        mockQuestions[i].response?.response || ""
+        mockQuestions[i].response?.response || "",
       );
       await answerInput.setValue(`answer${i}`);
       const referenceInput = page
@@ -173,7 +173,7 @@ describe("Current questions page tests", () => {
         .at(0)
         .find("textarea");
       expect((referenceInput.element as HTMLTextAreaElement).value).toBe(
-        mockQuestions[i].response?.ruleReferences || ""
+        mockQuestions[i].response?.ruleReferences || "",
       );
       await referenceInput.setValue(`reference${i}`);
       await page
@@ -184,13 +184,13 @@ describe("Current questions page tests", () => {
       expect(mockMutation.mock.calls.length).toBe(i + 1);
       expect(mockMutation.mock.calls[i][0].response).toBe(`answer${i}`);
       expect(mockMutation.mock.calls[i][0].ruleReferences).toBe(
-        `reference${i}`
+        `reference${i}`,
       );
       expect(mockMutation.mock.calls[i][0].id).toBe(
-        mockQuestions[i].response?.id
+        mockQuestions[i].response?.id,
       );
       expect(mockMutation.mock.calls[i][0].questionId).toBe(
-        mockQuestions[i].id
+        mockQuestions[i].id,
       );
     }
   });
@@ -198,12 +198,12 @@ describe("Current questions page tests", () => {
   it("null TZ handled", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(completedQuestionQuery, () =>
-      Promise.resolve({ data: { activeQuestions: mockQuestions } })
+      Promise.resolve({ data: { activeQuestions: mockQuestions } }),
     );
     const nullTZUser = JSON.parse(JSON.stringify(mockUser));
     nullTZUser.timeZoneId = null;
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: nullTZUser } })
+      Promise.resolve({ data: { user: nullTZUser } }),
     );
     const page = await mountCurrentQuestions(mockClient);
     expect(page.vm.$data.userTZ).toBe("Autodetect");

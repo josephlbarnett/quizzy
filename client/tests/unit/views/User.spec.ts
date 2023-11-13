@@ -52,18 +52,18 @@ describe("user page tests", () => {
       () =>
         new Promise(() => {
           // never resolve
-        })
+        }),
     );
     const userPage = await mountUser(mockClient);
     expect(userPage.find(".v-progress-circular").vm.$props.indeterminate).toBe(
-      true
+      true,
     );
   });
 
   it("error state", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ errors: [{ message: "Some Error" }], data: null })
+      Promise.resolve({ errors: [{ message: "Some Error" }], data: null }),
     );
     const userPage = await mountUser(mockClient);
     expect(userPage.text()).toBe("An error occurred");
@@ -72,16 +72,20 @@ describe("user page tests", () => {
   it("loads user data properly", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const userPage = await mountUser(mockClient);
     expect(userPage.vm.$data.timezone).toBe(mockUser.timeZoneId);
     expect(userPage.vm.$data.name).toBe(mockUser.name);
     expect(
-      userPage.vm.$data.tzs.map((x: { name: string; value: string }) => x.value)
+      userPage.vm.$data.tzs.map(
+        (x: { name: string; value: string }) => x.value,
+      ),
     ).toContain("Autodetect");
     expect(
-      userPage.vm.$data.tzs.map((x: { name: string; value: string }) => x.value)
+      userPage.vm.$data.tzs.map(
+        (x: { name: string; value: string }) => x.value,
+      ),
     ).toContain("America/New_York");
   });
 
@@ -90,7 +94,7 @@ describe("user page tests", () => {
     userWithBadTimezone.timeZoneId = "abacadaba";
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: userWithBadTimezone } })
+      Promise.resolve({ data: { user: userWithBadTimezone } }),
     );
     const userPage = await mountUser(mockClient);
     expect(userPage.vm.$data.timezone).toBe("Autodetect");
@@ -99,10 +103,10 @@ describe("user page tests", () => {
   it("user form success", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const mutationMock = jest.fn(() =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     mockClient.setRequestHandler(updateUserMutation, mutationMock);
     const userPage = await mountUser(mockClient);
@@ -117,7 +121,7 @@ describe("user page tests", () => {
   it("user form failure", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const mutationMock = jest.fn(() => Promise.reject("Error saving"));
     mockClient.setRequestHandler(updateUserMutation, mutationMock);
@@ -133,10 +137,10 @@ describe("user page tests", () => {
   it("pass form success", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const mutationMock = jest.fn(() =>
-      Promise.resolve({ data: { changePassword: true } })
+      Promise.resolve({ data: { changePassword: true } }),
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
     const userPage = await mountUser(mockClient);
@@ -151,10 +155,10 @@ describe("user page tests", () => {
   it("pass form failure", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const mutationMock = jest.fn((request: { old: string; new: string }) =>
-      Promise.resolve({ data: { changePassword: false }, rawInput: request })
+      Promise.resolve({ data: { changePassword: false }, rawInput: request }),
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
     const userPage = await mountUser(mockClient);
@@ -187,10 +191,10 @@ describe("user page tests", () => {
   it("pass form mismatch", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const mutationMock = jest.fn((request: { old: string; new: string }) =>
-      Promise.resolve({ data: { changePassword: true }, rawInput: request })
+      Promise.resolve({ data: { changePassword: true }, rawInput: request }),
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
     const userPage = await mountUser(mockClient);
@@ -223,14 +227,14 @@ describe("user page tests", () => {
   it("Enter key submits correct form", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const passMutationMock = jest.fn(() =>
-      Promise.resolve({ data: { changePassword: true } })
+      Promise.resolve({ data: { changePassword: true } }),
     );
     mockClient.setRequestHandler(changePasswordMutation, passMutationMock);
     const userMutationMock = jest.fn(() =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     mockClient.setRequestHandler(updateUserMutation, userMutationMock);
     const userPage = await mountUser(mockClient);

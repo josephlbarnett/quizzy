@@ -204,7 +204,7 @@ export default Vue.extend({
           name: user.name,
           email: user.email,
           instanceId: this.instanceId,
-        }))
+        })),
       );
     },
     getQueryDocument() {

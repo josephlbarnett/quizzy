@@ -152,11 +152,11 @@ export default Vue.extend({
     findAnswer(
       item: ApiQuestion,
       letter: string,
-      defaultValue: string
+      defaultValue: string,
     ): string {
       if (item.type == QuestionType.MultipleChoice) {
         const correctAnswer = item.answerChoices?.find(
-          (choice) => choice.letter == letter
+          (choice) => choice.letter == letter,
         );
         if (correctAnswer) {
           return correctAnswer.letter + ": " + correctAnswer.answer;

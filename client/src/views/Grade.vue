@@ -80,8 +80,8 @@
               clickedResponse.correct === 'correct'
                 ? true
                 : clickedResponse.correct === 'incorrect'
-                ? false
-                : null,
+                  ? false
+                  : null,
             id: clickedResponse.gradeId,
           }"
           :await-refetch-queries="true"
@@ -299,7 +299,7 @@ export default Vue.extend({
       if (this.clickedResponse?.question?.type == QuestionType.MultipleChoice) {
         const correctAnswer =
           this.clickedResponse?.question?.answerChoices?.find(
-            (choice) => choice.letter == this.clickedResponse?.question?.answer
+            (choice) => choice.letter == this.clickedResponse?.question?.answer,
           );
         if (correctAnswer) {
           return correctAnswer.letter + ": " + correctAnswer.answer;
@@ -344,8 +344,8 @@ export default Vue.extend({
           item.grade === null || item.grade?.correct === null
             ? "ungraded"
             : item.grade?.correct
-            ? "correct"
-            : "incorrect",
+              ? "correct"
+              : "incorrect",
         question: Object.assign({}, item.question),
         questionId: item.questionId,
         user: Object.assign({}, item.user),
@@ -368,12 +368,12 @@ export default Vue.extend({
     },
     mailToLink(clickedResponse: ApiResponse) {
       const subject = encodeURIComponent(
-        `Re: ${this.renderDate(clickedResponse.question?.activeAt)} Question`
+        `Re: ${this.renderDate(clickedResponse.question?.activeAt)} Question`,
       );
       const response = this.findAnswer(
         clickedResponse,
         clickedResponse.response,
-        clickedResponse.response
+        clickedResponse.response,
       );
       const quotedResponse = "> " + response.replace(/(?:\r\n|\r|\n)/g, "\n> ");
       const quotedRuleRefs =
@@ -388,11 +388,11 @@ export default Vue.extend({
     findAnswer(
       item: ApiResponse,
       letter: string,
-      defaultValue: string
+      defaultValue: string,
     ): string {
       if (item.question?.type == QuestionType.MultipleChoice) {
         const chosenAnswer = item.question?.answerChoices?.find(
-          (choice) => choice.letter == letter
+          (choice) => choice.letter == letter,
         );
         if (chosenAnswer) {
           return chosenAnswer.letter + ": " + chosenAnswer.answer;

@@ -95,7 +95,7 @@ export default Vue.extend({
       const parsed = moment.tz(
         `${this.date} ${this.time}`,
         "YYYY-MM-DD HH:mm",
-        browserTZ
+        browserTZ,
       );
       return parsed.format();
     },

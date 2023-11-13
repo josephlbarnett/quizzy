@@ -35,7 +35,7 @@ const mockUser: ApiUser = {
 async function mountLogin(
   mockClient: MockApolloClient,
   mockRoute = { query: {}, path: "/" },
-  mockRouter = { push: jest.fn() }
+  mockRouter = { push: jest.fn() },
 ) {
   const component = mount(Login, {
     stubs: ["router-view", "v-snackbar", "router-link"],
@@ -55,7 +55,7 @@ describe("Login Tests", () => {
   it("shows router stub when user returned", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const login = await mountLogin(mockClient);
     expect(login.find("router-view-stub")).toBeTruthy();
@@ -68,18 +68,18 @@ describe("Login Tests", () => {
       () =>
         new Promise(() => {
           // never fulfill promise
-        })
+        }),
     );
     const login = await mountLogin(mockClient);
     expect(login.find(".v-progress-circular").vm.$props.indeterminate).toBe(
-      true
+      true,
     );
   });
 
   it("error state", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ errors: [{ message: "Some Error" }], data: null })
+      Promise.resolve({ errors: [{ message: "Some Error" }], data: null }),
     );
     const login = await mountLogin(mockClient);
     expect(login.text()).toBe("An error occurred");
@@ -88,7 +88,7 @@ describe("Login Tests", () => {
   it("shows login screen when no user", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: null } })
+      Promise.resolve({ data: { user: null } }),
     );
     const login = await mountLogin(mockClient);
     const inputs = login.findAll(".v-text-field");
@@ -97,7 +97,7 @@ describe("Login Tests", () => {
     const passInput = inputs.at(1);
     expect(userInput.find("input").element.getAttribute("type")).toBe("text");
     expect(passInput.find("input").element.getAttribute("type")).toBe(
-      "password"
+      "password",
     );
     expect(login.find("button").element.getAttribute("label")).toBe("Login");
   });
@@ -105,10 +105,10 @@ describe("Login Tests", () => {
   it("clicking login calls mutate and shows error", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: null } })
+      Promise.resolve({ data: { user: null } }),
     );
     const mutationMock = jest.fn((arg) =>
-      Promise.resolve({ data: { login: false }, passthrough: arg })
+      Promise.resolve({ data: { login: false }, passthrough: arg }),
     );
     mockClient.setRequestHandler(loginMutation, mutationMock);
     const login = await mountLogin(mockClient);
@@ -121,18 +121,18 @@ describe("Login Tests", () => {
     expect(mutationMock.mock.calls[0][0].pass).toBe("secret");
     await awaitVm(login);
     expect(login.find("v-snackbar-stub").text()).toBe(
-      "Couldn't login, try again."
+      "Couldn't login, try again.",
     );
   });
 
   it("pressing enter calls mutate and  shows error", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: null } })
+      Promise.resolve({ data: { user: null } }),
     );
 
     const mutationMock = jest.fn(() =>
-      Promise.resolve({ data: { login: false } })
+      Promise.resolve({ data: { login: false } }),
     );
     mockClient.setRequestHandler(loginMutation, mutationMock);
 
@@ -144,27 +144,27 @@ describe("Login Tests", () => {
     expect(mutationMock.mock.calls.length).toBe(1);
     await awaitVm(login);
     expect(login.find("v-snackbar-stub").text()).toBe(
-      "Couldn't login, try again."
+      "Couldn't login, try again.",
     );
   });
 
   it("init of password reset flow", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: null } })
+      Promise.resolve({ data: { user: null } }),
     );
     const mutationMock = jest.fn((arg) =>
       Promise.resolve({
         data: { requestPasswordReset: true },
         passthrough: arg,
-      })
+      }),
     );
     mockClient.setRequestHandler(requestPasswordResetMutation, mutationMock);
     const pushMock = jest.fn();
     const login = await mountLogin(
       mockClient,
       { query: {}, path: "/initreset" },
-      { push: pushMock }
+      { push: pushMock },
     );
     login.setData({ email: "joe@joe.com" });
     await awaitVm(login);
@@ -180,20 +180,20 @@ describe("Login Tests", () => {
   it("failed init of password reset flow", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: null } })
+      Promise.resolve({ data: { user: null } }),
     );
     const mutationMock = jest.fn((arg) =>
       Promise.resolve({
         data: { requestPasswordReset: false },
         passthrough: arg,
-      })
+      }),
     );
     mockClient.setRequestHandler(requestPasswordResetMutation, mutationMock);
     const pushMock = jest.fn();
     const login = await mountLogin(
       mockClient,
       { query: {}, path: "/initreset" },
-      { push: pushMock }
+      { push: pushMock },
     );
     login.setData({ email: "joe@joe.com" });
     await awaitVm(login);
@@ -208,20 +208,20 @@ describe("Login Tests", () => {
   it("completion of password reset flow", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: null } })
+      Promise.resolve({ data: { user: null } }),
     );
     const mutationMock = jest.fn((arg) =>
       Promise.resolve({
         data: { completePasswordReset: true },
         passthrough: arg,
-      })
+      }),
     );
     mockClient.setRequestHandler(completePasswordResetMutation, mutationMock);
     const pushMock = jest.fn();
     const login = await mountLogin(
       mockClient,
       { query: { code: "123", email: "joe@joe.com" }, path: "/passreset" },
-      { push: pushMock }
+      { push: pushMock },
     );
     const button = login.find("button");
     const pw1Input = login
@@ -250,20 +250,20 @@ describe("Login Tests", () => {
   it("failed completion password reset flow", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: null } })
+      Promise.resolve({ data: { user: null } }),
     );
     const mutationMock = jest.fn((arg) =>
       Promise.resolve({
         data: { completePasswordReset: false },
         passthrough: arg,
-      })
+      }),
     );
     mockClient.setRequestHandler(completePasswordResetMutation, mutationMock);
     const pushMock = jest.fn();
     const login = await mountLogin(
       mockClient,
       { query: { code: "123", email: "joe@joe.com" }, path: "/passreset" },
-      { push: pushMock }
+      { push: pushMock },
     );
     const button = login.find("button");
     const pw1Input = login

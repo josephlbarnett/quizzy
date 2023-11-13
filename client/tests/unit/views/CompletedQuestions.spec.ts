@@ -130,18 +130,18 @@ async function mountCompletedQuestions(mockClient: MockApolloClient) {
 
 function assertDialogMatchesInputs<T extends Vue>(
   page: Wrapper<T>,
-  question: ApiQuestion
+  question: ApiQuestion,
 ) {
   expect(page.find(".v-dialog .v-card__title").text()).toContain(
     `Review Question: ${moment
       .tz(question.activeAt, "UTC")
-      .format("ddd, MMM D YYYY")} by`
+      .format("ddd, MMM D YYYY")} by`,
   );
   expect(page.find(".v-dialog .v-card__title").text()).toContain(
-    question.author?.name || "no author!?"
+    question.author?.name || "no author!?",
   );
   expect(page.find(".v-dialog .v-card__text").text()).toMatch(
-    new RegExp(`${question.body}.*`)
+    new RegExp(`${question.body}.*`),
   );
   const inputs = page.findAll(".v-dialog .v-textarea");
   expect(
@@ -150,7 +150,7 @@ function assertDialogMatchesInputs<T extends Vue>(
         .filter((x) => x.text() == "Answer Key")
         .at(0)
         .find("textarea").element as HTMLTextAreaElement
-    ).value
+    ).value,
   ).toBe(question.answer);
   expect(
     (
@@ -158,7 +158,7 @@ function assertDialogMatchesInputs<T extends Vue>(
         .filter((x) => x.text() == "Answer Key Rule References")
         .at(0)
         .find("textarea").element as HTMLTextAreaElement
-    ).value
+    ).value,
   ).toBe(question.ruleReferences);
   expect(
     (
@@ -166,7 +166,7 @@ function assertDialogMatchesInputs<T extends Vue>(
         .filter((x) => x.text() == "Your Response")
         .at(0)
         .find("textarea").element as HTMLTextAreaElement
-    ).value
+    ).value,
   ).toBe(question.response?.response);
   expect(
     (
@@ -174,7 +174,7 @@ function assertDialogMatchesInputs<T extends Vue>(
         .filter((x) => x.text() == "Your Rule References")
         .at(0)
         .find("textarea").element as HTMLTextAreaElement
-    ).value
+    ).value,
   ).toBe(question.response?.ruleReferences);
   const correctness = question.response?.grade?.correct;
   if (correctness === undefined || correctness === null) {
@@ -183,21 +183,21 @@ function assertDialogMatchesInputs<T extends Vue>(
         .findAll(".v-dialog .v-card__text div.row")
         .filter((x) => x.text().startsWith("Correct?:"))
         .at(0)
-        .text()
+        .text(),
     ).toMatch(new RegExp(`.*Ungraded`));
     expect(
       page
         .findAll(".v-dialog .v-card__text div.row")
         .filter((x) => x.text().startsWith("Bonus:"))
         .at(0)
-        .text()
+        .text(),
     ).toBe("Bonus:");
     expect(
       page
         .findAll(".v-dialog .v-card__text div.row")
         .filter((x) => x.text().startsWith("Score:"))
         .at(0)
-        .text()
+        .text(),
     ).toBe("Score:");
   } else {
     if (correctness) {
@@ -206,7 +206,7 @@ function assertDialogMatchesInputs<T extends Vue>(
           .findAll(".v-dialog .v-card__text div.row")
           .filter((x) => x.text().startsWith("Correct?:"))
           .at(0)
-          .text()
+          .text(),
       ).toMatch(new RegExp(`.*Yes`));
     } else {
       expect(
@@ -214,7 +214,7 @@ function assertDialogMatchesInputs<T extends Vue>(
           .findAll(".v-dialog .v-card__text div.row")
           .filter((x) => x.text().startsWith("Correct?:"))
           .at(0)
-          .text()
+          .text(),
       ).toMatch(new RegExp(`.*No`));
     }
     expect(
@@ -222,14 +222,14 @@ function assertDialogMatchesInputs<T extends Vue>(
         .findAll(".v-dialog .v-card__text div.row")
         .filter((x) => x.text().startsWith("Bonus:"))
         .at(0)
-        .text()
+        .text(),
     ).toMatch(new RegExp(`.*${question.response?.grade?.bonus || 0}`));
     expect(
       page
         .findAll(".v-dialog .v-card__text div.row")
         .filter((x) => x.text().startsWith("Score:"))
         .at(0)
-        .text()
+        .text(),
     ).toMatch(new RegExp(`.*${question.response?.grade?.score || 0}`));
   }
 }
@@ -242,18 +242,18 @@ describe("Completed Questions page tests", () => {
       () =>
         new Promise(() => {
           // never resolve
-        })
+        }),
     );
     const page = await mountCompletedQuestions(mockClient);
     expect(page.find(".v-progress-circular").vm.$props.indeterminate).toBe(
-      true
+      true,
     );
   });
 
   it("error state", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(completedQuestionQuery, () =>
-      Promise.resolve({ errors: [{ message: "Some Error" }], data: null })
+      Promise.resolve({ errors: [{ message: "Some Error" }], data: null }),
     );
     const page = await mountCompletedQuestions(mockClient);
     expect(page.text()).toBe("An error occurred");
@@ -262,10 +262,10 @@ describe("Completed Questions page tests", () => {
   it("renders grid", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(completedQuestionQuery, () =>
-      Promise.resolve({ data: { closedQuestions: mockQuestions } })
+      Promise.resolve({ data: { closedQuestions: mockQuestions } }),
     );
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const page = await mountCompletedQuestions(mockClient);
     expect(page.vm.$data.userTZ).toBe("UTC");
@@ -275,27 +275,27 @@ describe("Completed Questions page tests", () => {
       const row = rows.at(i);
       const cols = row.findAll("td");
       expect(cols.at(0).text()).toBe(
-        moment.tz(mockQuestions[i].activeAt, "UTC").format("ddd, MMM D YYYY")
+        moment.tz(mockQuestions[i].activeAt, "UTC").format("ddd, MMM D YYYY"),
       );
       expect(cols.at(1).text()).toBe(mockQuestions[i].body);
       expect(cols.at(2).text()).toBe(mockQuestions[i].answer);
       expect(cols.at(3).text()).toBe(mockQuestions[i].response?.response);
       if (!mockQuestions[i].response?.grade) {
         expect(cols.at(4).find("i").classes()).not.toContain(
-          "mdi-check-circle"
+          "mdi-check-circle",
         );
         expect(cols.at(4).find("i").classes()).not.toContain(
-          "mdi-close-circle"
+          "mdi-close-circle",
         );
         expect(cols.at(5).text()).toBe("");
       } else {
         expect(cols.at(4).find("i").classes()).toContain(
           mockQuestions[i].response?.grade?.correct
             ? "mdi-check-circle"
-            : "mdi-close-circle"
+            : "mdi-close-circle",
         );
         expect(cols.at(5).text()).toBe(
-          mockQuestions[i].response?.grade?.score.toString()
+          mockQuestions[i].response?.grade?.score.toString(),
         );
       }
     }
@@ -304,10 +304,10 @@ describe("Completed Questions page tests", () => {
   it("renders dialog", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(completedQuestionQuery, () =>
-      Promise.resolve({ data: { closedQuestions: mockQuestions } })
+      Promise.resolve({ data: { closedQuestions: mockQuestions } }),
     );
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const page = await mountCompletedQuestions(mockClient);
     const table = page.find(".v-data-table");
@@ -324,12 +324,12 @@ describe("Completed Questions page tests", () => {
   it("null TZ handled", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(completedQuestionQuery, () =>
-      Promise.resolve({ data: { closedQuestions: mockQuestions } })
+      Promise.resolve({ data: { closedQuestions: mockQuestions } }),
     );
     const nullTZUser = JSON.parse(JSON.stringify(mockUser));
     nullTZUser.timeZoneId = null;
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: nullTZUser } })
+      Promise.resolve({ data: { user: nullTZUser } }),
     );
     const page = await mountCompletedQuestions(mockClient);
     expect(page.vm.$data.userTZ).toBe("Autodetect");

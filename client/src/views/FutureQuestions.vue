@@ -265,7 +265,7 @@ export default Vue.extend({
       moment.tz.names().map((name) => ({
         name: `${name} (${moment.tz(name).zoneName()})`,
         value: name,
-      }))
+      })),
     ),
     timezone: "Autodetect",
     questionType: QuestionType.ShortAnswer,
@@ -301,7 +301,7 @@ export default Vue.extend({
       this.addDialogClose = item.closedAt;
       this.addDialogRuleReferences = item.ruleReferences;
       this.addDialogAnswerChoices = item.answerChoices?.map(
-        (choice) => choice.answer
+        (choice) => choice.answer,
       ) || ["", "", "", ""];
       this.clickedImage = item.imageUrl || null;
       this.addDialogImage = null;
@@ -365,7 +365,7 @@ export default Vue.extend({
         if (
           context &&
           !["image/jpeg", "image/gif", "image/png"].includes(
-            this.addDialogImage?.type || ""
+            this.addDialogImage?.type || "",
           )
         ) {
           context.drawImage(image, 0, 0);
@@ -386,7 +386,7 @@ export default Vue.extend({
             method: "POST",
             credentials: "include",
             body: convertedImage,
-          }
+          },
         );
         if (response.ok) {
           imageUrl = await response.text();

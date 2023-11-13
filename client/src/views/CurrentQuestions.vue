@@ -218,7 +218,7 @@ export default Vue.extend({
       this.clickedQuestion = Object.assign({}, item);
       this.clickedResponse = Object.assign(
         { response: "", ruleReferences: "" },
-        item.response
+        item.response,
       );
       this.responseDialog = true;
     },
@@ -244,7 +244,7 @@ export default Vue.extend({
     renderResponse(item: ApiQuestion, value: string) {
       if (item.type == QuestionType.MultipleChoice) {
         const selection = item.answerChoices?.find(
-          (choice) => choice.letter == value
+          (choice) => choice.letter == value,
         );
         if (selection) {
           return selection.letter + ": " + selection.answer;

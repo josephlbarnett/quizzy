@@ -78,18 +78,18 @@ describe("users page tests", () => {
       () =>
         new Promise(() => {
           // never resolve
-        })
+        }),
     );
     const usersPage = await mountUsers(mockClient);
     expect(usersPage.find(".v-progress-circular").vm.$props.indeterminate).toBe(
-      true
+      true,
     );
   });
 
   it("rendered grid state", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
-      Promise.resolve({ data: { users: mockUsers } })
+      Promise.resolve({ data: { users: mockUsers } }),
     );
     const usersPage = await mountUsers(mockClient);
     const tableRows = usersPage.findAll("tbody tr");
@@ -102,7 +102,7 @@ describe("users page tests", () => {
   it("selection works", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
-      Promise.resolve({ data: { users: mockUsers } })
+      Promise.resolve({ data: { users: mockUsers } }),
     );
     const usersPage = await mountUsers(mockClient);
     const table = usersPage.find(".v-data-table");
@@ -121,7 +121,7 @@ describe("users page tests", () => {
   xit("rowToggle calls selection callback", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
-      Promise.resolve({ data: { users: mockUsers } })
+      Promise.resolve({ data: { users: mockUsers } }),
     );
     const usersPage = await mountUsers(mockClient);
     const table = usersPage.find(".v-data-table");
@@ -147,7 +147,7 @@ describe("users page tests", () => {
   xit("delete dialog shows up and dismisses", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
-      Promise.resolve({ data: { users: mockUsers } })
+      Promise.resolve({ data: { users: mockUsers } }),
     );
     const usersPage = await mountUsers(mockClient);
     const table = usersPage.find(".v-data-table");
@@ -173,7 +173,7 @@ describe("users page tests", () => {
   xit("promote non-admin", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
-      Promise.resolve({ data: { users: mockUsers } })
+      Promise.resolve({ data: { users: mockUsers } }),
     );
     const usersPage = await mountUsers(mockClient);
     const promoteButtonPreSelection = usersPage
@@ -198,7 +198,7 @@ describe("users page tests", () => {
   xit("demote admin", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
-      Promise.resolve({ data: { users: mockUsers } })
+      Promise.resolve({ data: { users: mockUsers } }),
     );
     const usersPage = await mountUsers(mockClient);
     const demoteButtonPreSelection = usersPage

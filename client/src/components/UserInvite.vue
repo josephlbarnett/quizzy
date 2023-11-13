@@ -98,7 +98,7 @@ export default Vue.extend({
       moment.tz.names().map((name) => ({
         name: `${name} (${moment.tz(name).zoneName()})`,
         value: name,
-      }))
+      })),
     ),
   }),
   computed: {

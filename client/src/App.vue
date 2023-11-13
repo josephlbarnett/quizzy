@@ -167,7 +167,7 @@ export default Vue.extend({
   mounted() {
     if (window.matchMedia) {
       this.$vuetify.theme.dark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
+        "(prefers-color-scheme: dark)",
       ).matches;
     }
   },

@@ -44,7 +44,7 @@ async function mountComponent(mockClient: MockApolloClient) {
   });
   // watch the "Users" query to prevent warning on refetchQueries setting
   mockClient.setRequestHandler(UsersQuery, () =>
-    Promise.resolve({ data: { users: [] } })
+    Promise.resolve({ data: { users: [] } }),
   );
   await component.vm.$apollo.watchQuery({ query: UsersQuery });
   return component;
@@ -54,7 +54,7 @@ describe("CreateUserButton tests", () => {
   it("renders on single add tab", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
@@ -67,7 +67,7 @@ describe("CreateUserButton tests", () => {
   it("renders multiple add tab", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
@@ -81,7 +81,7 @@ describe("CreateUserButton tests", () => {
   it("single add tab entry", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
@@ -95,7 +95,7 @@ describe("CreateUserButton tests", () => {
         .findAll("button")
         .filter((b) => b.text().indexOf("Create") == 0)
         .at(0)
-        .text()
+        .text(),
     ).toContain("Create 0");
     expect(
       (
@@ -103,7 +103,7 @@ describe("CreateUserButton tests", () => {
           .findAll("button")
           .filter((b) => b.text().indexOf("Create") == 0)
           .at(0).element as HTMLButtonElement
-      ).disabled
+      ).disabled,
     ).toBeTruthy();
     await component
       .findAll(".v-text-field")
@@ -116,7 +116,7 @@ describe("CreateUserButton tests", () => {
         .findAll("button")
         .filter((b) => b.text().indexOf("Create") == 0)
         .at(0)
-        .text()
+        .text(),
     ).toContain("Create 1");
     expect(
       (
@@ -124,7 +124,7 @@ describe("CreateUserButton tests", () => {
           .findAll("button")
           .filter((b) => b.text().indexOf("Create") == 0)
           .at(0).element as HTMLButtonElement
-      ).disabled
+      ).disabled,
     ).toBeFalsy();
     expect(component.vm.$data.singleName).toBe("A name");
     expect(component.vm.$data.singleEmail).toBe("a@b.com");
@@ -136,7 +136,7 @@ describe("CreateUserButton tests", () => {
   it("multi add tab textarea entry", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
@@ -148,7 +148,7 @@ describe("CreateUserButton tests", () => {
       .setValue("name1,a@b.com\nname2,c@d.com\ne@f.com\ng");
     await awaitVm(component);
     expect(component.vm.$data.textarea).toBe(
-      "name1,a@b.com\nname2,c@d.com\ne@f.com\ng"
+      "name1,a@b.com\nname2,c@d.com\ne@f.com\ng",
     );
     expect(component.vm.$data.users).toEqual([
       { name: "name1", email: "a@b.com" },
@@ -160,7 +160,7 @@ describe("CreateUserButton tests", () => {
   it("multi add tab fileinput entry", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
@@ -183,7 +183,7 @@ describe("CreateUserButton tests", () => {
   it("submit form successfully", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
@@ -198,7 +198,7 @@ describe("CreateUserButton tests", () => {
     mockClient.setRequestHandler((component.vm as any).getQueryDocument(), () =>
       Promise.resolve({
         data: { user_0: mockUser, user_1: mockUser, user_2: mockUser },
-      })
+      }),
     );
     await component
       .findAll("button")
@@ -215,7 +215,7 @@ describe("CreateUserButton tests", () => {
   it("submit form partial success", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
@@ -231,7 +231,7 @@ describe("CreateUserButton tests", () => {
       Promise.resolve({
         data: { user_0: mockUser, user_1: null, user_2: mockUser },
         errors: [{ message: "e" }],
-      })
+      }),
     );
     await component
       .findAll("button")
@@ -243,7 +243,7 @@ describe("CreateUserButton tests", () => {
     expect(component.find(".v-snack").text()).toContain("Added 2 new users.");
     expect(component.vm.$data.addedWithError).toBe(1);
     expect(component.find(".v-snack").text()).toMatch(
-      /1 new user\s+already exists./
+      /1 new user\s+already exists./,
     );
     expect(component.vm.$data.dialog).toBeTruthy();
   });
@@ -251,7 +251,7 @@ describe("CreateUserButton tests", () => {
   it("submit form all error", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(currentUserQuery, () =>
-      Promise.resolve({ data: { user: mockUser } })
+      Promise.resolve({ data: { user: mockUser } }),
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
@@ -267,7 +267,7 @@ describe("CreateUserButton tests", () => {
       Promise.resolve({
         data: { user_0: null, user_1: null, user_2: null },
         errors: [{ message: "e" }, { message: "e" }, { message: "e" }],
-      })
+      }),
     );
     await component
       .findAll("button")
@@ -277,11 +277,11 @@ describe("CreateUserButton tests", () => {
     await awaitVm(component);
     expect(component.vm.$data.addedSuccesfully).toBe(0);
     expect(component.find(".v-snack").text()).not.toMatch(
-      /Added \d+ new users./
+      /Added \d+ new users./,
     );
     expect(component.vm.$data.addedWithError).toBe(3);
     expect(component.find(".v-snack").text()).toMatch(
-      /3 new users\s+already exist./
+      /3 new users\s+already exist./,
     );
     expect(component.vm.$data.dialog).toBeTruthy();
   });

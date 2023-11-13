@@ -25,4 +25,9 @@ module.exports = {
   },
   transformIgnorePatterns: ["/node_modules/(?!vuetify)/"],
   setupFilesAfterEnv: ["<rootDir>/tests/unit/setup.ts"],
+  globals: {
+    "vue-jest": {
+      templateCompiler: { prettify: false },
+    },
+  },
 };
