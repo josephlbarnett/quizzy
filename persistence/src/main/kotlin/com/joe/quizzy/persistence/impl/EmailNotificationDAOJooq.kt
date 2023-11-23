@@ -4,9 +4,9 @@ import com.joe.quizzy.api.models.EmailNotification
 import com.joe.quizzy.api.models.NotificationType
 import com.joe.quizzy.persistence.api.EmailNotificationDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
+import jakarta.inject.Inject
 import org.jooq.DSLContext
 import java.util.UUID
-import javax.inject.Inject
 
 class EmailNotificationDAOJooq @Inject constructor(
     private val ctx: DSLContext,

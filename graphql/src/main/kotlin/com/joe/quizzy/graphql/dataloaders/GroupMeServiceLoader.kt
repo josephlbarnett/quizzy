@@ -12,8 +12,8 @@ private val log = KotlinLogging.logger { }
 /**
  * Batch load GroupMeService by instance ID
  */
-class GroupMeServiceLoader(private val factory: GroupMeServiceFactory, contextMap: Map<*, Any>) :
-    CoroutineMappedBatchLoader<UUID, GroupMeService?>(contextMap) {
+class GroupMeServiceLoader(private val factory: GroupMeServiceFactory) :
+    CoroutineMappedBatchLoader<UUID, GroupMeService?>() {
     override val dataLoaderName = "groupmeservice"
 
     override suspend fun loadSuspend(keys: Set<UUID>, environment: BatchLoaderEnvironment): Map<UUID, GroupMeService?> {

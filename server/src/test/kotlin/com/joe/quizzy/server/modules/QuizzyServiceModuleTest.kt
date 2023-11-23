@@ -9,10 +9,10 @@ import com.joe.quizzy.graphql.Query
 import com.trib3.graphql.modules.GraphQLApplicationModule.Companion.GRAPHQL_PACKAGES_BIND_NAME
 import com.trib3.graphql.modules.GraphQLApplicationModule.Companion.GRAPHQL_QUERIES_BIND_NAME
 import io.dropwizard.auth.AuthFilter
+import jakarta.inject.Inject
+import jakarta.inject.Named
 import org.testng.annotations.Guice
 import org.testng.annotations.Test
-import javax.inject.Inject
-import javax.inject.Named
 
 @Guice(modules = [QuizzyServiceModule::class])
 class QuizzyServiceModuleTest

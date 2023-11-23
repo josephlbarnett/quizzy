@@ -17,7 +17,7 @@ class InstanceSeasonLoaderTest {
     fun testLoader() = runBlocking {
         val mockDAO = LeakyMock.mock<SeasonDAO>()
         val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
-        val loader = InstanceSeasonLoader(mockDAO, emptyMap<Any, Any>())
+        val loader = InstanceSeasonLoader(mockDAO)
         val seasons = mapOf(
             UUID.randomUUID() to listOf(
                 Season(UUID.randomUUID(), UUID.randomUUID(), "s1", OffsetDateTime.now(), OffsetDateTime.now()),

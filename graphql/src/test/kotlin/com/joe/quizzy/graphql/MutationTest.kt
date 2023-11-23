@@ -34,6 +34,9 @@ import com.trib3.config.ConfigLoader
 import com.trib3.server.config.TribeApplicationConfig
 import com.trib3.testing.LeakyMock
 import com.trib3.testing.mock
+import jakarta.mail.Message.RecipientType
+import jakarta.mail.internet.MimeMessage
+import jakarta.ws.rs.core.Response.ResponseBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.easymock.EasyMock
@@ -43,9 +46,6 @@ import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
 import java.util.Properties
 import java.util.UUID
-import javax.mail.Message.RecipientType
-import javax.mail.internet.MimeMessage
-import javax.ws.rs.core.Response.ResponseBuilder
 
 /**
  * Support class to set up a mock Mutation per test with access to various
@@ -367,7 +367,7 @@ class MutationTest {
             ).isTrue()
             val message = sentMessageCapture.value
             val mimeMessage = MimeMessage(
-                javax.mail.Session.getDefaultInstance(Properties()),
+                jakarta.mail.Session.getDefaultInstance(Properties()),
                 ByteArrayInputStream(message.decodeRaw()),
             )
             assertThat(mimeMessage.getRecipients(RecipientType.TO).toList().map { it.toString() })
@@ -767,7 +767,7 @@ class MutationTest {
             )
             val message = sentMessageCapture.value
             val mimeMessage = MimeMessage(
-                javax.mail.Session.getDefaultInstance(Properties()),
+                jakarta.mail.Session.getDefaultInstance(Properties()),
                 ByteArrayInputStream(message.decodeRaw()),
             )
             assertThat(mimeMessage.getRecipients(RecipientType.TO).toList().map { it.toString() })

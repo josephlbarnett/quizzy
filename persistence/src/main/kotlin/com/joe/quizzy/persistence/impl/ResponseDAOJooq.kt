@@ -10,13 +10,13 @@ import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.ResponsesRecord
+import jakarta.inject.Inject
 import mu.KotlinLogging
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.stream.Stream
-import javax.inject.Inject
 
 private val log = KotlinLogging.logger { }
 

@@ -9,11 +9,11 @@ import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.trib3.testing.LeakyMock
 import dev.misfitlabs.kotlinguice4.KotlinModule
+import jakarta.inject.Inject
 import org.easymock.EasyMock
 import org.testng.annotations.Guice
 import org.testng.annotations.Test
 import java.util.UUID
-import javax.inject.Inject
 
 val persistedUUID = UUID.randomUUID()
 val persistedInstance = Instance(persistedUUID, "persisted", "ACtIVE", persistedUUID.toString())

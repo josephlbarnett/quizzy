@@ -5,6 +5,7 @@ import assertk.assertions.isEqualTo
 import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.persistence.api.GradeDAO
 import com.trib3.testing.LeakyMock
+import graphql.GraphQLContext
 import kotlinx.coroutines.future.await
 import kotlinx.coroutines.runBlocking
 import org.dataloader.BatchLoaderEnvironment
@@ -18,7 +19,7 @@ class UserGradeLoaderTest {
     fun testResponseGradeLoader() = runBlocking {
         val gradeDAO = LeakyMock.mock<GradeDAO>()
         val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
-        val loader = UserGradeLoader(gradeDAO, mapOf<Any, Any>())
+        val loader = UserGradeLoader(gradeDAO)
         val grades = mapOf(
             UUID.randomUUID() to listOf(Grade(UUID.randomUUID(), UUID.randomUUID(), true, 1)),
             UUID.randomUUID() to listOf(
@@ -47,6 +48,7 @@ class UserGradeLoaderTest {
                 EasyMock.anyObject(),
             ),
         ).andReturn(moreGrades).once()
+        EasyMock.expect(mockEnv.getContext<GraphQLContext>()).andReturn(GraphQLContext.getDefault())
         EasyMock.replay(gradeDAO, mockEnv)
         val gs = loader.load(
             (

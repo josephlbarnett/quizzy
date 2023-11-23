@@ -11,10 +11,10 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.utils.io.jvm.javaio.toByteReadChannel
+import jakarta.inject.Inject
 import mu.KotlinLogging
 import java.io.InputStream
 import java.util.UUID
-import javax.inject.Inject
 
 private val log = KotlinLogging.logger { }
 

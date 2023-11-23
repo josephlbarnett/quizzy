@@ -10,9 +10,9 @@ import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import graphql.schema.DataFetchingEnvironment
+import jakarta.inject.Inject
 import java.security.Principal
 import java.time.OffsetDateTime
-import javax.inject.Inject
 
 /**
  * GraphQL entry point for queries.  Maps the DAO interfaces to the GraphQL models.

@@ -16,7 +16,7 @@ class GroupMeServiceLoaderTest {
     fun testLoader() = runBlocking {
         val factory = LeakyMock.mock<GroupMeServiceFactory>()
         val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
-        val loader = GroupMeServiceLoader(factory, emptyMap<Any, Any>())
+        val loader = GroupMeServiceLoader(factory)
         val instances = listOf(
             UUID.randomUUID(),
             UUID.randomUUID(),

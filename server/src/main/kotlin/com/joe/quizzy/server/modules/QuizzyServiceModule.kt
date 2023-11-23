@@ -32,22 +32,22 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.jackson.jackson
+import jakarta.inject.Inject
+import jakarta.inject.Provider
+import jakarta.servlet.Filter
+import jakarta.servlet.FilterChain
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.HttpServlet
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
+import jakarta.ws.rs.GET
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.Produces
+import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.Response
 import java.net.URI
 import java.security.Principal
-import javax.inject.Inject
-import javax.inject.Provider
-import javax.servlet.Filter
-import javax.servlet.FilterChain
-import javax.servlet.ServletRequest
-import javax.servlet.ServletResponse
-import javax.servlet.http.HttpServlet
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
-import javax.ws.rs.GET
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.Response
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
@@ -148,7 +148,7 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
         KotlinMultibinder.newSetBinder<ServletFilterConfig>(kotlinBinder).addBinding().toInstance(
             ServletFilterConfig(HttpsFilter::class.java.simpleName, HttpsFilter::class.java),
         )
-        dataLoaderRegistryFactoryProviderBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()
+        dataLoaderRegistryFactoryBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()
         authorizerBinder().setBinding().to<UserAuthorizer>()
         authFilterBinder().setBinding().toProvider<QuizzyAuthFilterProvider>()
         bind<HttpClient>().toInstance(

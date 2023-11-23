@@ -12,12 +12,12 @@ import io.dropwizard.auth.basic.BasicCredentialAuthFilter
 import io.dropwizard.testing.common.Resource
 import io.mockk.coEvery
 import io.mockk.mockk
+import jakarta.ws.rs.client.Entity
 import org.testng.annotations.Test
 import java.security.Principal
 import java.time.OffsetDateTime
 import java.util.Optional
 import java.util.UUID
-import javax.ws.rs.client.Entity
 
 val validInstanceUUID = UUID.randomUUID()
 val failUploadUUID = UUID.randomUUID()

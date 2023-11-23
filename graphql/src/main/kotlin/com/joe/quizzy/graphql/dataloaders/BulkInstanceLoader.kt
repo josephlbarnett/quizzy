@@ -9,8 +9,8 @@ import java.util.UUID
 /**
  * Batch load Instance by Id
  */
-class BulkInstanceLoader(private val instanceDAO: InstanceDAO, contextMap: Map<*, Any>) :
-    CoroutineMappedBatchLoader<UUID, Instance>(contextMap) {
+class BulkInstanceLoader(private val instanceDAO: InstanceDAO) :
+    CoroutineMappedBatchLoader<UUID, Instance>() {
     override val dataLoaderName = "batchinstances"
 
     override suspend fun loadSuspend(keys: Set<UUID>, environment: BatchLoaderEnvironment): Map<UUID, Instance> {

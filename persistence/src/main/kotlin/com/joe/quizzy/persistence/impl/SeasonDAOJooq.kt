@@ -3,11 +3,11 @@ package com.joe.quizzy.persistence.impl
 import com.joe.quizzy.api.models.Season
 import com.joe.quizzy.persistence.api.SeasonDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
+import jakarta.inject.Inject
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
 import java.util.UUID
-import javax.inject.Inject
 
 open class SeasonDAOJooq
 @Inject constructor(

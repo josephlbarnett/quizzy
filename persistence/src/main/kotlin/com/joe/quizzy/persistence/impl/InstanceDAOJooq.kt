@@ -5,11 +5,11 @@ import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.InstancesRecord
+import jakarta.inject.Inject
 import mu.KotlinLogging
 import org.jooq.DSLContext
 import java.util.UUID
 import java.util.stream.Stream
-import javax.inject.Inject
 
 private val log = KotlinLogging.logger { }
 

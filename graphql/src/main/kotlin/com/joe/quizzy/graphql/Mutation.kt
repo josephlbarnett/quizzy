@@ -23,6 +23,12 @@ import com.trib3.graphql.execution.GraphQLAuth
 import com.trib3.server.config.TribeApplicationConfig
 import graphql.schema.DataFetchingEnvironment
 import io.dropwizard.auth.basic.BasicCredentials
+import jakarta.inject.Inject
+import jakarta.mail.Message
+import jakarta.mail.internet.MimeMessage
+import jakarta.ws.rs.core.MediaType
+import jakarta.ws.rs.core.NewCookie
+import jakarta.ws.rs.core.Response.ResponseBuilder
 import java.io.InputStreamReader
 import java.io.StringWriter
 import java.net.URLEncoder
@@ -31,13 +37,6 @@ import java.time.OffsetDateTime
 import java.util.Date
 import java.util.Properties
 import java.util.UUID
-import javax.inject.Inject
-import javax.mail.Message
-import javax.mail.internet.MimeMessage
-import javax.ws.rs.core.Cookie
-import javax.ws.rs.core.MediaType
-import javax.ws.rs.core.NewCookie
-import javax.ws.rs.core.Response.ResponseBuilder
 
 private const val COOKIE_NAME = "x-quizzy-session"
 private const val MAX_COOKIE_AGE = 60 * 60 * 24 * 30 // expire in 30 days
@@ -78,18 +77,12 @@ class Mutation @Inject constructor(
             if (userId != null) {
                 val newSession = sessionDAO.save(Session(null, userId, OffsetDateTime.now(), OffsetDateTime.now()))
                 dfe.graphQlContext.get<ResponseBuilder>()?.cookie(
-                    NewCookie(
-                        COOKIE_NAME,
-                        newSession.id.toString(),
-                        null,
-                        null,
-                        1,
-                        null,
-                        MAX_COOKIE_AGE,
-                        null,
-                        true,
-                        true,
-                    ),
+                    NewCookie.Builder(COOKIE_NAME)
+                        .value(newSession.id.toString())
+                        .maxAge(MAX_COOKIE_AGE)
+                        .secure(true)
+                        .httpOnly(true)
+                        .build(),
                 )
                 return true
             }
@@ -123,14 +116,13 @@ class Mutation @Inject constructor(
         val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
             dfe.graphQlContext.get<ResponseBuilder>()?.cookie(
-                NewCookie(
-                    Cookie(COOKIE_NAME, ""),
-                    null,
-                    -1,
-                    Date(0), // expire 1970
-                    true,
-                    true,
-                ),
+                NewCookie.Builder(COOKIE_NAME)
+                    .value("")
+                    .maxAge(-1)
+                    .expiry(Date(0)) // expire 1970
+                    .httpOnly(true)
+                    .secure(true)
+                    .build(),
             )
             val session = principal.session
             if (session != null) {
@@ -147,7 +139,7 @@ class Mutation @Inject constructor(
             gmailServiceFactory.getService(user.instanceId)?.let { gmail ->
                 val instanceAddress = gmail.oauth.userinfo().v2().me().get().execute().email
                 val instanceName = instanceDAO.get(user.instanceId)?.name ?: "Quizzy"
-                val message = MimeMessage(javax.mail.Session.getDefaultInstance(Properties(), null))
+                val message = MimeMessage(jakarta.mail.Session.getDefaultInstance(Properties(), null))
                 val code = UUID.randomUUID().toString()
                 message.setFrom("$instanceName <$instanceAddress>")
                 message.addRecipients(
@@ -195,7 +187,7 @@ class Mutation @Inject constructor(
         gmailServiceFactory.getService(principal.user.instanceId)?.let { gmail ->
             val instanceAddress = gmail.oauth.userinfo().v2().me().get().execute().email
             val instanceName = instanceDAO.get(principal.user.instanceId)?.name ?: "Quizzy"
-            val message = MimeMessage(javax.mail.Session.getDefaultInstance(Properties(), null))
+            val message = MimeMessage(jakarta.mail.Session.getDefaultInstance(Properties(), null))
             message.setFrom("$instanceName <$instanceAddress>")
             message.addRecipients(
                 Message.RecipientType.TO,

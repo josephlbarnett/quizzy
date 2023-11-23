@@ -32,6 +32,8 @@ import com.trib3.testing.niceMock
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import jakarta.mail.Session
+import jakarta.mail.internet.MimeMessage
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.isActive
@@ -46,8 +48,6 @@ import java.util.Properties
 import java.util.UUID
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import javax.mail.Session
-import javax.mail.internet.MimeMessage
 
 class ScheduledEmailBundleTest {
     @Test
@@ -413,7 +413,7 @@ class ScheduledEmailBundleTest {
             Session.getDefaultInstance(Properties()),
             ByteArrayInputStream(message.decodeRaw()),
         )
-        assertThat(mimeMessage.getRecipients(javax.mail.Message.RecipientType.BCC).toList().map { it.toString() })
+        assertThat(mimeMessage.getRecipients(jakarta.mail.Message.RecipientType.BCC).toList().map { it.toString() })
             .isEqualTo(listOf("jim <jim@jim.com>"))
         assertThat(mimeMessage.from.toList().map { it.toString() })
             .isEqualTo(listOf("Instance Name <admin@gmail.com>"))
@@ -571,7 +571,7 @@ class ScheduledEmailBundleTest {
             Session.getDefaultInstance(Properties()),
             ByteArrayInputStream(message.decodeRaw()),
         )
-        assertThat(mimeMessage.getRecipients(javax.mail.Message.RecipientType.BCC).toList().map { it.toString() })
+        assertThat(mimeMessage.getRecipients(jakarta.mail.Message.RecipientType.BCC).toList().map { it.toString() })
             .isEqualTo(listOf("jim <jim@jim.com>"))
         assertThat(mimeMessage.from.toList().map { it.toString() })
             .isEqualTo(listOf("Instance Name <admin@gmail.com>"))
@@ -721,7 +721,7 @@ class ScheduledEmailBundleTest {
             Session.getDefaultInstance(Properties()),
             ByteArrayInputStream(message.decodeRaw()),
         )
-        assertThat(mimeMessage.getRecipients(javax.mail.Message.RecipientType.BCC).toList().map { it.toString() })
+        assertThat(mimeMessage.getRecipients(jakarta.mail.Message.RecipientType.BCC).toList().map { it.toString() })
             .isEqualTo(listOf("jim <jim@jim.com>"))
         assertThat(mimeMessage.from.toList().map { it.toString() })
             .isEqualTo(listOf("Instance Name <admin@gmail.com>"))

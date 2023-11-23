@@ -9,8 +9,8 @@ import java.util.UUID
 
 data class InstanceTimePeriod(val instanceId: UUID, val startTime: OffsetDateTime?, val endTime: OffsetDateTime?)
 
-class InstanceSeasonLoader(private val seasonDAO: SeasonDAO, contextMap: Map<*, Any>) :
-    CoroutineMappedBatchLoader<InstanceTimePeriod, List<Season>>(contextMap) {
+class InstanceSeasonLoader(private val seasonDAO: SeasonDAO) :
+    CoroutineMappedBatchLoader<InstanceTimePeriod, List<Season>>() {
     override val dataLoaderName = "instanceseasons"
 
     override suspend fun loadSuspend(

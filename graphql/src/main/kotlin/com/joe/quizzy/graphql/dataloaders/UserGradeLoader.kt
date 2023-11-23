@@ -12,8 +12,8 @@ data class UserTimePeriod(val userId: UUID, val startTime: OffsetDateTime?, val 
 /**
  * Batch load User ID -> List<Grade>
  */
-class UserGradeLoader(private val gradeDAO: GradeDAO, contextMap: Map<*, Any>) :
-    CoroutineMappedBatchLoader<UserTimePeriod, List<Grade>>(contextMap) {
+class UserGradeLoader(private val gradeDAO: GradeDAO) :
+    CoroutineMappedBatchLoader<UserTimePeriod, List<Grade>>() {
     override val dataLoaderName = "usergrades"
 
     override suspend fun loadSuspend(

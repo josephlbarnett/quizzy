@@ -3,13 +3,13 @@ package com.joe.quizzy.graphql.auth
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import io.dropwizard.auth.Authenticator
+import jakarta.inject.Inject
 import mu.KotlinLogging
 import java.security.Principal
 import java.time.Duration
 import java.time.OffsetDateTime
 import java.util.Optional
 import java.util.UUID
-import javax.inject.Inject
 
 private val log = KotlinLogging.logger {}
 

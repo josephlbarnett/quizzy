@@ -21,7 +21,7 @@ class QuestionResponseLoaderTest {
     fun testQuestionResponseLoader() = runBlocking {
         val responseDAO = LeakyMock.mock<ResponseDAO>()
         val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
-        val loader = QuestionResponseLoader(responseDAO, mapOf<Any, Any>())
+        val loader = QuestionResponseLoader(responseDAO)
         val questionResponses = mapOf(
             UUID.randomUUID() to Response(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "a1", "rr1"),
             UUID.randomUUID() to Response(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "a2", "rr2"),
@@ -54,7 +54,7 @@ class QuestionResponseLoaderTest {
     fun testNoContextUser() = runBlocking {
         val responseDAO = LeakyMock.mock<ResponseDAO>()
         val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
-        val loader = QuestionResponseLoader(responseDAO, mapOf<Any, Any>())
+        val loader = QuestionResponseLoader(responseDAO)
         EasyMock.expect(mockEnv.getContext<GraphQLContext?>())
             .andReturn(GraphQLContext.of(getGraphQLContextMap(this))).atLeastOnce()
         EasyMock.replay(responseDAO, mockEnv)

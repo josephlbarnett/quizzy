@@ -2,12 +2,12 @@ package com.joe.quizzy.graphql.groupme
 
 import com.joe.quizzy.graphql.auth.UserPrincipal
 import io.dropwizard.auth.Auth
+import jakarta.inject.Inject
+import jakarta.ws.rs.POST
+import jakarta.ws.rs.Path
+import jakarta.ws.rs.container.ContainerRequestContext
+import jakarta.ws.rs.core.Context
 import java.security.Principal
-import javax.inject.Inject
-import javax.ws.rs.POST
-import javax.ws.rs.Path
-import javax.ws.rs.container.ContainerRequestContext
-import javax.ws.rs.core.Context
 
 @Path("/image")
 class GroupMeResource @Inject constructor(

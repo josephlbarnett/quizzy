@@ -8,9 +8,8 @@ import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.SeasonDAO
 import com.joe.quizzy.persistence.api.UserDAO
-import com.trib3.graphql.modules.KotlinDataLoaderRegistryFactoryProvider
-import javax.inject.Inject
-import javax.inject.Provider
+import jakarta.inject.Inject
+import jakarta.inject.Provider
 
 /**
  * Provide a DataLoaderRegistry per request that forwards
@@ -26,19 +25,17 @@ class DataLoaderRegistryFactoryProvider @Inject constructor(
     private val instanceDAO: InstanceDAO,
     private val seasonDAO: SeasonDAO,
     private val groupMeServiceFactory: GroupMeServiceFactory,
-) : Provider<KotlinDataLoaderRegistryFactoryProvider> {
-    override fun get(): KotlinDataLoaderRegistryFactoryProvider {
-        return { _, contextMap ->
-            KotlinDataLoaderRegistryFactory(
-                ResponseGradeLoader(gradeDAO, contextMap),
-                UserGradeLoader(gradeDAO, contextMap),
-                BatchUserLoader(userDAO, contextMap),
-                BatchQuestionLoader(questionDAO, contextMap),
-                QuestionResponseLoader(responseDAO, contextMap),
-                BulkInstanceLoader(instanceDAO, contextMap),
-                InstanceSeasonLoader(seasonDAO, contextMap),
-                GroupMeServiceLoader(groupMeServiceFactory, contextMap),
-            )
-        }
+) : Provider<KotlinDataLoaderRegistryFactory> {
+    override fun get(): KotlinDataLoaderRegistryFactory {
+        return KotlinDataLoaderRegistryFactory(
+            ResponseGradeLoader(gradeDAO),
+            UserGradeLoader(gradeDAO),
+            BatchUserLoader(userDAO),
+            BatchQuestionLoader(questionDAO),
+            QuestionResponseLoader(responseDAO),
+            BulkInstanceLoader(instanceDAO),
+            InstanceSeasonLoader(seasonDAO),
+            GroupMeServiceLoader(groupMeServiceFactory),
+        )
     }
 }

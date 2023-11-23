@@ -20,6 +20,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.url
+import jakarta.inject.Inject
+import jakarta.mail.Message
+import jakarta.mail.Session
+import jakarta.mail.internet.MimeMessage
+import jakarta.ws.rs.core.MediaType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -35,11 +40,6 @@ import java.time.OffsetDateTime
 import java.util.Properties
 import java.util.UUID
 import java.util.concurrent.Executors
-import javax.inject.Inject
-import javax.mail.Message
-import javax.mail.Session
-import javax.mail.internet.MimeMessage
-import javax.ws.rs.core.MediaType
 
 private val log = KotlinLogging.logger {}
 private const val POLL_MINUTES = 5

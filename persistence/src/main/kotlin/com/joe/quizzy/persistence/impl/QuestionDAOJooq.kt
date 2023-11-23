@@ -8,6 +8,7 @@ import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
+import jakarta.inject.Inject
 import mu.KotlinLogging
 import org.jooq.DSLContext
 import org.jooq.Record
@@ -20,7 +21,6 @@ import java.util.UUID
 import java.util.stream.Collector
 import java.util.stream.Collectors
 import java.util.stream.Stream
-import javax.inject.Inject
 
 private val log = KotlinLogging.logger { }
 

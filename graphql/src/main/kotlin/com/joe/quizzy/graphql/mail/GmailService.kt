@@ -21,14 +21,14 @@ import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.FactoryModuleBuilder
 import com.joe.quizzy.persistence.api.InstanceDAO
 import dev.misfitlabs.kotlinguice4.KotlinModule
+import jakarta.inject.Inject
+import jakarta.mail.internet.MimeMessage
 import mu.KotlinLogging
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStreamReader
 import java.io.StringReader
 import java.util.UUID
-import javax.inject.Inject
-import javax.mail.internet.MimeMessage
 
 private val log = KotlinLogging.logger {}
 
@@ -37,8 +37,8 @@ open class GmailService @Inject constructor(
     dataStoreFactory: DataStoreFactory,
     @Assisted instanceId: UUID,
 ) {
-    open val gmail: Gmail
-    open val oauth: Oauth2
+    open lateinit var gmail: Gmail
+    open lateinit var oauth: Oauth2
 
     init {
         val envSecrets = System.getenv("GMAIL_CREDENTIALS_JSON")

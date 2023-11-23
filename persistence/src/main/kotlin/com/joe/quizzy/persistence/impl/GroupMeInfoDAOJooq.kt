@@ -3,9 +3,9 @@ package com.joe.quizzy.persistence.impl
 import com.joe.quizzy.persistence.api.GroupMeInfo
 import com.joe.quizzy.persistence.api.GroupMeInfoDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
+import jakarta.inject.Inject
 import org.jooq.DSLContext
 import java.util.UUID
-import javax.inject.Inject
 
 open class GroupMeInfoDAOJooq
 @Inject constructor(

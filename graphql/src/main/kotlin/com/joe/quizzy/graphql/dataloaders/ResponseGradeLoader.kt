@@ -9,8 +9,8 @@ import java.util.UUID
 /**
  * Batch load Response ID -> Grade
  */
-class ResponseGradeLoader(private val gradeDAO: GradeDAO, contextMap: Map<*, Any>) :
-    CoroutineMappedBatchLoader<UUID, Grade>(contextMap) {
+class ResponseGradeLoader(private val gradeDAO: GradeDAO) :
+    CoroutineMappedBatchLoader<UUID, Grade>() {
     override val dataLoaderName = "responsegrades"
 
     override suspend fun loadSuspend(keys: Set<UUID>, environment: BatchLoaderEnvironment): Map<UUID, Grade> {

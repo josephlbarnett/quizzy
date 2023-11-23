@@ -7,17 +7,17 @@ import com.trib3.server.modules.ServletConfig
 import com.trib3.server.modules.TribeApplicationModule
 import com.trib3.testing.LeakyMock
 import com.trib3.testing.server.ResourceTestBase
+import jakarta.inject.Inject
+import jakarta.inject.Named
+import jakarta.servlet.FilterChain
+import jakarta.servlet.ServletRequest
+import jakarta.servlet.ServletResponse
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.easymock.EasyMock
 import org.glassfish.jersey.client.ClientProperties.FOLLOW_REDIRECTS
 import org.testng.annotations.Guice
 import org.testng.annotations.Test
-import javax.inject.Inject
-import javax.inject.Named
-import javax.servlet.FilterChain
-import javax.servlet.ServletRequest
-import javax.servlet.ServletResponse
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 @Guice(modules = [QuizzyServiceModule::class])
 class RedirectTest @Inject constructor(

@@ -3,9 +3,9 @@ package com.joe.quizzy.graphql.auth
 import com.joe.quizzy.persistence.api.UserDAO
 import io.dropwizard.auth.Authenticator
 import io.dropwizard.auth.basic.BasicCredentials
+import jakarta.inject.Inject
 import java.security.Principal
 import java.util.Optional
-import javax.inject.Inject
 
 class UserAuthenticator
 @Inject constructor(
