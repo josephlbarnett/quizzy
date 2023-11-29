@@ -194,7 +194,7 @@ describe("Future Questions page tests", () => {
     mockClient.setRequestHandler(futureQuestionsQuery, () =>
       Promise.resolve({ data: { futureQuestions: mockQuestions } }),
     );
-    const mockMutation = jest.fn();
+    const mockMutation = vi.fn();
     mockClient.setRequestHandler(saveQuestionMutation, mockMutation);
     const page = await mountFutureQuestions(mockClient);
     const table = page.find(".v-data-table");

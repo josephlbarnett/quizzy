@@ -144,7 +144,7 @@ describe("Current questions page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } }),
     );
-    const mockMutation = jest.fn();
+    const mockMutation = vi.fn();
     mockClient.setRequestHandler(saveResponseMutation, mockMutation);
     const page = await mountCurrentQuestions(mockClient);
     const table = page.find(".v-data-table");

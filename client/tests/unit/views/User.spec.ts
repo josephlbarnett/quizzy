@@ -105,7 +105,7 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } }),
     );
-    const mutationMock = jest.fn(() =>
+    const mutationMock = vi.fn(() =>
       Promise.resolve({ data: { user: mockUser } }),
     );
     mockClient.setRequestHandler(updateUserMutation, mutationMock);
@@ -123,7 +123,7 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } }),
     );
-    const mutationMock = jest.fn(() => Promise.reject("Error saving"));
+    const mutationMock = vi.fn(() => Promise.reject("Error saving"));
     mockClient.setRequestHandler(updateUserMutation, mutationMock);
     const userPage = await mountUser(mockClient);
     const button = userPage.findAll("button").at(0);
@@ -139,7 +139,7 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } }),
     );
-    const mutationMock = jest.fn(() =>
+    const mutationMock = vi.fn(() =>
       Promise.resolve({ data: { changePassword: true } }),
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
@@ -157,7 +157,7 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } }),
     );
-    const mutationMock = jest.fn((request: { old: string; new: string }) =>
+    const mutationMock = vi.fn((request: { old: string; new: string }) =>
       Promise.resolve({ data: { changePassword: false }, rawInput: request }),
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
@@ -193,7 +193,7 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } }),
     );
-    const mutationMock = jest.fn((request: { old: string; new: string }) =>
+    const mutationMock = vi.fn((request: { old: string; new: string }) =>
       Promise.resolve({ data: { changePassword: true }, rawInput: request }),
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
@@ -229,11 +229,11 @@ describe("user page tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: mockUser } }),
     );
-    const passMutationMock = jest.fn(() =>
+    const passMutationMock = vi.fn(() =>
       Promise.resolve({ data: { changePassword: true } }),
     );
     mockClient.setRequestHandler(changePasswordMutation, passMutationMock);
-    const userMutationMock = jest.fn(() =>
+    const userMutationMock = vi.fn(() =>
       Promise.resolve({ data: { user: mockUser } }),
     );
     mockClient.setRequestHandler(updateUserMutation, userMutationMock);

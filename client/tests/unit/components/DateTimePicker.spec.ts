@@ -71,7 +71,7 @@ describe("DateTimePicker Tests", () => {
     });
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const vm = picker.vm as any;
-    const inputEvent = jest.fn();
+    const inputEvent = vi.fn();
     vm.$on("input", inputEvent);
     vm.onChange();
     expect(inputEvent).toHaveBeenCalledWith("2020-07-23T13:22:00Z");

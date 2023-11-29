@@ -118,14 +118,14 @@ describe("users page tests", () => {
     expect(usersPage.vm.$data.selection).toBeFalsy();
   });
 
-  xit("rowToggle calls selection callback", async () => {
+  it.skip("rowToggle calls selection callback", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } }),
     );
     const usersPage = await mountUsers(mockClient);
     const table = usersPage.find(".v-data-table");
-    const selectionCallback = jest.fn((selection: boolean) => {
+    const selectionCallback = vi.fn((selection: boolean) => {
       if (selection) {
         // do nothing
       }
@@ -144,7 +144,7 @@ describe("users page tests", () => {
     expect(selectionCallback.mock.calls[1][0]).toBe(false);
   });
 
-  xit("delete dialog shows up and dismisses", async () => {
+  it.skip("delete dialog shows up and dismisses", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } }),
@@ -170,7 +170,7 @@ describe("users page tests", () => {
     expect(usersPage.vm.$data.deleteDialog).toBeFalsy();
   });
 
-  xit("promote non-admin", async () => {
+  it.skip("promote non-admin", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } }),
@@ -195,7 +195,7 @@ describe("users page tests", () => {
     // TODO : test behavior once implemented
   });
 
-  xit("demote admin", async () => {
+  it.skip("demote admin", async () => {
     const mockClient = createMockClient();
     mockClient.setRequestHandler(usersQuery, () =>
       Promise.resolve({ data: { users: mockUsers } }),

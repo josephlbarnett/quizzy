@@ -3,7 +3,18 @@ import Vuetify from "vuetify";
 import VueApollo from "vue-apollo";
 import "regenerator-runtime/runtime";
 import { PiniaVuePlugin } from "pinia";
+import { beforeAll, vi } from "vitest";
 
-Vue.use(VueApollo);
-Vue.use(Vuetify);
-Vue.use(PiniaVuePlugin);
+vi.mock('vue', async () => {
+  const Vue = await vi.importActual('vue');
+  Vue.default.config.productionTip = false;
+  Vue.default.config.devtools = false;
+  return Vue;
+});
+
+beforeAll(() => {
+  Vue.config.devtools = false;
+  Vue.use(VueApollo);
+  Vue.use(Vuetify);
+  Vue.use(PiniaVuePlugin);
+});

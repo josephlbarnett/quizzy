@@ -35,7 +35,7 @@ const mockUser: ApiUser = {
 async function mountLogin(
   mockClient: MockApolloClient,
   mockRoute = { query: {}, path: "/" },
-  mockRouter = { push: jest.fn() },
+  mockRouter = { push: vi.fn() },
 ) {
   const component = mount(Login, {
     stubs: ["router-view", "v-snackbar", "router-link"],
@@ -107,7 +107,7 @@ describe("Login Tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: null } }),
     );
-    const mutationMock = jest.fn((arg) =>
+    const mutationMock = vi.fn((arg) =>
       Promise.resolve({ data: { login: false }, passthrough: arg }),
     );
     mockClient.setRequestHandler(loginMutation, mutationMock);
@@ -131,7 +131,7 @@ describe("Login Tests", () => {
       Promise.resolve({ data: { user: null } }),
     );
 
-    const mutationMock = jest.fn(() =>
+    const mutationMock = vi.fn(() =>
       Promise.resolve({ data: { login: false } }),
     );
     mockClient.setRequestHandler(loginMutation, mutationMock);
@@ -153,14 +153,14 @@ describe("Login Tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: null } }),
     );
-    const mutationMock = jest.fn((arg) =>
+    const mutationMock = vi.fn((arg) =>
       Promise.resolve({
         data: { requestPasswordReset: true },
         passthrough: arg,
       }),
     );
     mockClient.setRequestHandler(requestPasswordResetMutation, mutationMock);
-    const pushMock = jest.fn();
+    const pushMock = vi.fn();
     const login = await mountLogin(
       mockClient,
       { query: {}, path: "/initreset" },
@@ -182,14 +182,14 @@ describe("Login Tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: null } }),
     );
-    const mutationMock = jest.fn((arg) =>
+    const mutationMock = vi.fn((arg) =>
       Promise.resolve({
         data: { requestPasswordReset: false },
         passthrough: arg,
       }),
     );
     mockClient.setRequestHandler(requestPasswordResetMutation, mutationMock);
-    const pushMock = jest.fn();
+    const pushMock = vi.fn();
     const login = await mountLogin(
       mockClient,
       { query: {}, path: "/initreset" },
@@ -210,14 +210,14 @@ describe("Login Tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: null } }),
     );
-    const mutationMock = jest.fn((arg) =>
+    const mutationMock = vi.fn((arg) =>
       Promise.resolve({
         data: { completePasswordReset: true },
         passthrough: arg,
       }),
     );
     mockClient.setRequestHandler(completePasswordResetMutation, mutationMock);
-    const pushMock = jest.fn();
+    const pushMock = vi.fn();
     const login = await mountLogin(
       mockClient,
       { query: { code: "123", email: "joe@joe.com" }, path: "/passreset" },
@@ -252,14 +252,14 @@ describe("Login Tests", () => {
     mockClient.setRequestHandler(currentUserQuery, () =>
       Promise.resolve({ data: { user: null } }),
     );
-    const mutationMock = jest.fn((arg) =>
+    const mutationMock = vi.fn((arg) =>
       Promise.resolve({
         data: { completePasswordReset: false },
         passthrough: arg,
       }),
     );
     mockClient.setRequestHandler(completePasswordResetMutation, mutationMock);
-    const pushMock = jest.fn();
+    const pushMock = vi.fn();
     const login = await mountLogin(
       mockClient,
       { query: { code: "123", email: "joe@joe.com" }, path: "/passreset" },
