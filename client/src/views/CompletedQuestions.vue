@@ -58,7 +58,10 @@
     <graded-question-dialog
       v-model="detailDialog"
       :question="clickedQuestion"
+      :question-index="clickedQuestionIndex"
       :user-t-z="userTZ"
+      @next="next"
+      @prev="prev"
     />
   </div>
 </template>
@@ -83,8 +86,9 @@ export default Vue.extend({
     userTZ: "Autodetect",
     detailDialog: false,
     clickedQuestion: null as ApiQuestion | null,
+    clickedQuestionIndex: null as number | null,
     questionType: QuestionType.ShortAnswer,
-    completedQuestions: [],
+    completedQuestions: [] as Array<ApiQuestion>,
     headers: [
       {
         text: "Date",
@@ -144,6 +148,12 @@ export default Vue.extend({
     },
     clickRow(item: ApiQuestion) {
       this.clickedQuestion = item;
+      this.clickedQuestionIndex = this.completedQuestions.findIndex(
+        (x) => x.id == item.id,
+      );
+      if (this.clickedQuestionIndex < 0) {
+        this.clickedQuestionIndex = null;
+      }
       this.detailDialog = true;
     },
     shortAnswer(): boolean {
@@ -163,6 +173,32 @@ export default Vue.extend({
         }
       }
       return defaultValue;
+    },
+    prev() {
+      if (
+        this.clickedQuestionIndex != null &&
+        this.completedQuestions.length > 1
+      ) {
+        this.clickedQuestionIndex--;
+        if (this.clickedQuestionIndex < 0) {
+          this.clickedQuestionIndex = this.completedQuestions.length - 1;
+        }
+        this.clickedQuestion =
+          this.completedQuestions[this.clickedQuestionIndex];
+      }
+    },
+    next() {
+      if (
+        this.clickedQuestionIndex != null &&
+        this.completedQuestions.length > 1
+      ) {
+        this.clickedQuestionIndex++;
+        if (this.clickedQuestionIndex >= this.completedQuestions.length) {
+          this.clickedQuestionIndex = 0;
+        }
+        this.clickedQuestion =
+          this.completedQuestions[this.clickedQuestionIndex];
+      }
     },
   },
 });

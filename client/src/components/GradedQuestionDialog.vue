@@ -1,9 +1,14 @@
 <template>
   <v-dialog v-model="detailDialog">
     <v-card v-if="clickedQuestion && clickedQuestion.author">
-      <v-card-title
-        >Review Question: {{ renderDate(clickedQuestion.activeAt) }} by
-        {{ clickedQuestion.author.name }}
+      <v-card-title>
+        Review Question: {{ renderDate(clickedQuestion.activeAt) }} by
+        {{ clickedQuestion.author?.name }}
+        <v-spacer />
+        <div v-if="questionIndex != null">
+          <v-icon @click="$emit('prev')">mdi-chevron-left</v-icon>
+          <v-icon @click="$emit('next')">mdi-chevron-right</v-icon>
+        </div>
       </v-card-title>
       <v-card-text>
         <v-row>
@@ -175,6 +180,7 @@ import moment from "moment-timezone";
 export default Vue.extend({
   props: {
     question: { type: Object as PropType<ApiQuestion>, default: null },
+    questionIndex: { type: Number, default: null },
     value: { type: Boolean, default: false },
     userTZ: { type: String, default: "Autodetect" },
   },
