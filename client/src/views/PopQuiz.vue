@@ -11,9 +11,18 @@
     <div v-if="summary">
       <v-card-text>
         Quiz score: {{ score }} of {{ quizQuestions.length }}
+        <graded-question-dialog
+          v-model="reviewDialog"
+          :question="reviewQuestion"
+          :question-index="reviewIndex"
+          :user-t-z="userTZ"
+          @next="next"
+          @prev="prev"
+        />
       </v-card-text>
       <v-card-actions>
-        <v-btn color="accent" @click="restart">NEW POP QUIZ</v-btn>
+        <v-btn @click="restart">NEW POP QUIZ</v-btn>
+        <v-btn color="accent" @click="reviewDialog = true">REVIEW</v-btn>
       </v-card-actions>
     </div>
     <div v-else-if="created">
@@ -143,12 +152,15 @@ export default Vue.extend({
     userTZ: "Autodetect",
     numQuestions: 10,
     completedQuestions: [],
+    responses: [] as Array<ApiResponse>,
     quizQuestions: [] as Array<ApiQuestion>,
     questionIndex: 0,
+    reviewIndex: 0,
     answers: [] as Array<string>,
     imageDialog: false,
     currentResponse: { response: "", ruleReferences: "" } as ApiResponse,
     gradeDialog: false,
+    reviewDialog: false,
     score: 0,
     summary: false,
   }),
@@ -168,16 +180,22 @@ export default Vue.extend({
       q.response = this.currentResponse;
       return q;
     },
+    reviewQuestion(): ApiQuestion {
+      const q = Object.assign({}, this.quizQuestions[this.reviewIndex]);
+      q.response = this.responses[this.reviewIndex];
+      return q;
+    },
   },
   watch: {
     gradeDialog(newvalue: boolean, oldvalue: boolean) {
       if (oldvalue && !newvalue) {
+        if (this.currentResponse.response == this.currentQuestion.answer) {
+          this.score++;
+        }
+        this.responses.push(this.currentResponse);
         if (this.questionIndex >= this.quizQuestions.length - 1) {
           this.summary = true;
         } else {
-          if (this.currentResponse.response == this.currentQuestion.answer) {
-            this.score++;
-          }
           this.questionIndex++;
           this.currentResponse = {
             response: "",
@@ -203,6 +221,11 @@ export default Vue.extend({
       this.gradeDialog = false;
       this.quizQuestions = [];
       this.summary = false;
+      this.responses = [];
+      this.currentResponse = {
+        response: "",
+        ruleReferences: "",
+      } as ApiResponse;
     },
     createQuiz: function () {
       this.quizQuestions = this.completedQuestions.slice(0);
@@ -219,10 +242,15 @@ export default Vue.extend({
       ) {
         this.quizQuestions = this.quizQuestions.slice(0, this.numQuestions);
       }
+      this.responses = [];
       this.questionIndex = 0;
       this.score = 0;
       this.gradeDialog = false;
       this.summary = false;
+      this.currentResponse = {
+        response: "",
+        ruleReferences: "",
+      } as ApiResponse;
     },
     shortAnswer(): boolean {
       return this.currentQuestion?.type == QuestionType.ShortAnswer;
@@ -237,6 +265,18 @@ export default Vue.extend({
           : moment.tz.guess();
       const zonedMoment = moment.tz(value, moment.ISO_8601, browserTZ);
       return zonedMoment.format("ddd, MMM D YYYY");
+    },
+    next() {
+      this.reviewIndex++;
+      if (this.reviewIndex >= this.quizQuestions.length) {
+        this.reviewIndex = 0;
+      }
+    },
+    prev() {
+      this.reviewIndex--;
+      if (this.reviewIndex < 0) {
+        this.reviewIndex = this.quizQuestions.length - 1;
+      }
     },
   },
 });
