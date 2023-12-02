@@ -69,7 +69,6 @@
                 <v-icon
                   v-if="
                     clickedQuestion.response &&
-                    choice.letter == clickedQuestion.response.response &&
                     choice.letter == clickedQuestion.answer
                   "
                   color="green darken-2"

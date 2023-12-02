@@ -32,10 +32,12 @@ const routes = [
   {
     path: "/me",
     name: "User",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
     component: () => import("../views/User.vue"),
+  },
+  {
+    path: "/quiz",
+    name: "quiz",
+    component: () => import("../views/PopQuiz.vue"),
   },
 ];
 

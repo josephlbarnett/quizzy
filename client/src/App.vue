@@ -148,6 +148,7 @@ export default Vue.extend({
     commonLinks: [
       { title: "Current Questions", link: "/", icon: "mdi-file-find" },
       { title: "Completed Questions", link: "/review", icon: "mdi-history" },
+      { title: "Pop Quiz", link: "/quiz", icon: "mdi-auto-fix" },
     ],
     adminLinks: [
       { title: "Future Questions", link: "/write", icon: "mdi-pencil" },
