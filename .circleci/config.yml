@@ -145,9 +145,9 @@ jobs:
       - run:
           name: Install flyctl
           command: |
-            curl -L https://github.com/superfly/flyctl/releases/download/v0.0.385/flyctl_0.0.385_Linux_x86_64.tar.gz -o flyctl.tar.gz
+            curl -L https://github.com/superfly/flyctl/releases/download/v0.1.131/flyctl_0.1.131_Linux_x86_64.tar.gz -o flyctl.tar.gz
             tar xzf flyctl.tar.gz
-            echo "bd29e96460a0332879ae940c037359803739551fdf171d0bb67a39d434dc00d7  flyctl" > flyctl.sum
+            echo "40b249148a6651f07b04c4fd229e0ce8c9a0b33f0df1fe469ed2396526c1eb74  flyctl" > flyctl.sum
             sha256sum -c flyctl.sum
             if [ $? -ne 0 ]; then
                 echo "Bad flyctl checksum!"
@@ -156,6 +156,7 @@ jobs:
             rm flyctl.sum
             rm flyctl.tar.gz
             sudo mv flyctl /usr/bin/
+      - setup_remote_docker
       - run:
           name: Deploy
           command: |
@@ -163,7 +164,7 @@ jobs:
             cd ~/jars/fly
             flyctl wireguard reset
             flyctl wireguard websockets enable
-            flyctl deploy --build-arg CURRENT_VERSION=${CURRENT_VERSION}
+            flyctl deploy --local-only --build-arg CURRENT_VERSION=${CURRENT_VERSION}
       - run:
           name: Create Release Notes
           command: |
