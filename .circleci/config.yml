@@ -15,11 +15,11 @@ jobs:
       # get code
       - checkout
       # handle dependency caching and run build
-      - restore_cache:
-          keys:
-            - v8-dependencies-{{ .Branch }}-{{ .Revision }}
-            - v8-dependencies-{{ .Branch }}
-            - v8-dependencies-
+      #- restore_cache:
+      #    keys:
+      #      - v8-dependencies-{{ .Branch }}-{{ .Revision }}
+      #      - v8-dependencies-{{ .Branch }}
+      #      - v8-dependencies-
       - restore_cache:
           keys:
             - v8-npms-{{ .Branch }}-{{ .Revision }}
@@ -67,10 +67,10 @@ jobs:
             - ~/repo/client/node_modules
           key: v8-npms-{{ .Branch }}-{{ .Revision }}
       - run: mvn install -U -pl client,server
-      - save_cache:
-          paths:
-            - ~/.m2
-          key: v8-dependencies-{{ .Branch }}-{{ .Revision }}
+      #- save_cache:
+      #    paths:
+      #      - ~/.m2
+      #    key: v8-dependencies-{{ .Branch }}-{{ .Revision }}
       # collect test results and upload coverage
       - run: mkdir -p ~/test_results
       - run: find . -type f -regex ".*/target/surefire-reports/junitreports/.*xml" -exec cp {} ~/test_results/ \;
