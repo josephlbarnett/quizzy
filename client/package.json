@@ -54,7 +54,7 @@
     "unplugin-vue-components": "0.26.0",
     "vite": "5.0.8",
     "vitest": "^1.0.4",
-    "vue-template-compiler": "2.7.15"
+    "vue-template-compiler": "2.7.16"
   },
   "overrides": {
     "word-wrap": "npm:@aashutoshrathi/word-wrap",
