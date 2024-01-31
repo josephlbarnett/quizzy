@@ -46,7 +46,7 @@
     "flush-promises": "1.0.2",
     "graphql-tag": "2.12.6",
     "jsdom": "^24.0.0",
-    "lint-staged": "15.2.0",
+    "lint-staged": "15.2.1",
     "mock-apollo-client": "1.2.1",
     "prettier": "3.2.4",
     "sass": "1.32.13",
