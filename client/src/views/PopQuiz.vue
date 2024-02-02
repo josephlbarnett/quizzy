@@ -55,6 +55,14 @@
             <v-progress-circular :indeterminate="true" />
           </div>
           <div v-else-if="error" class="error">An error occurred</div>
+          <div v-else-if="!currentQuestion">
+            <v-card-title>No Questions</v-card-title>
+            <v-card-text>
+              There are no questions available to create a Pop Quiz from, try
+              selecting another season
+              <v-icon>mdi-calendar</v-icon> in the sidebar?
+            </v-card-text>
+          </div>
           <div v-else>
             <v-card-text>
               <v-row>
