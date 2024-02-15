@@ -12,7 +12,7 @@
     "test": "npm run test:unit"
   },
   "dependencies": {
-    "@apollo/client": "3.9.4",
+    "@apollo/client": "3.9.5",
     "@graphql-codegen/cli": "5.0.2",
     "@graphql-codegen/typescript": "4.0.4",
     "@types/moment-timezone": "0.5.30",
