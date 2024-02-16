@@ -16,49 +16,55 @@ import java.util.UUID
 
 class UserGradeLoaderTest {
     @Test
-    fun testResponseGradeLoader() = runBlocking {
-        val gradeDAO = LeakyMock.mock<GradeDAO>()
-        val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
-        val loader = UserGradeLoader(gradeDAO)
-        val grades = mapOf(
-            UUID.randomUUID() to listOf(Grade(UUID.randomUUID(), UUID.randomUUID(), true, 1)),
-            UUID.randomUUID() to listOf(
-                Grade(UUID.randomUUID(), UUID.randomUUID(), true, 2),
-                Grade(UUID.randomUUID(), UUID.randomUUID(), true, 3),
-            ),
-        )
-        val moreGrades = mapOf(
-            UUID.randomUUID() to listOf(Grade(UUID.randomUUID(), UUID.randomUUID(), true, 1)),
-            UUID.randomUUID() to listOf(
-                Grade(UUID.randomUUID(), UUID.randomUUID(), true, 2),
-                Grade(UUID.randomUUID(), UUID.randomUUID(), true, 3),
-            ),
-        )
-        EasyMock.expect(
-            gradeDAO.forUsers(
-                EasyMock.anyObject<List<UUID>>() ?: listOf(),
-                EasyMock.anyObject(),
-                EasyMock.anyObject(),
-            ),
-        ).andReturn(grades).once()
-        EasyMock.expect(
-            gradeDAO.forUsers(
-                EasyMock.anyObject<List<UUID>>() ?: listOf(),
-                EasyMock.anyObject(),
-                EasyMock.anyObject(),
-            ),
-        ).andReturn(moreGrades).once()
-        EasyMock.expect(mockEnv.getContext<GraphQLContext>()).andReturn(GraphQLContext.getDefault())
-        EasyMock.replay(gradeDAO, mockEnv)
-        val gs = loader.load(
-            (
-                grades.mapNotNull { UserTimePeriod(it.key, null, null) } +
-                    moreGrades.mapNotNull { UserTimePeriod(it.key, OffsetDateTime.MIN, OffsetDateTime.MAX) }
+    fun testResponseGradeLoader() =
+        runBlocking {
+            val gradeDAO = LeakyMock.mock<GradeDAO>()
+            val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
+            val loader = UserGradeLoader(gradeDAO)
+            val grades =
+                mapOf(
+                    UUID.randomUUID() to listOf(Grade(UUID.randomUUID(), UUID.randomUUID(), true, 1)),
+                    UUID.randomUUID() to
+                        listOf(
+                            Grade(UUID.randomUUID(), UUID.randomUUID(), true, 2),
+                            Grade(UUID.randomUUID(), UUID.randomUUID(), true, 3),
+                        ),
                 )
-                .toSet(),
-            mockEnv,
-        ).await()
-        assertThat(gs.mapKeys { it.key.userId }).isEqualTo(grades + moreGrades)
-        EasyMock.verify(gradeDAO, mockEnv)
-    }
+            val moreGrades =
+                mapOf(
+                    UUID.randomUUID() to listOf(Grade(UUID.randomUUID(), UUID.randomUUID(), true, 1)),
+                    UUID.randomUUID() to
+                        listOf(
+                            Grade(UUID.randomUUID(), UUID.randomUUID(), true, 2),
+                            Grade(UUID.randomUUID(), UUID.randomUUID(), true, 3),
+                        ),
+                )
+            EasyMock.expect(
+                gradeDAO.forUsers(
+                    EasyMock.anyObject<List<UUID>>() ?: listOf(),
+                    EasyMock.anyObject(),
+                    EasyMock.anyObject(),
+                ),
+            ).andReturn(grades).once()
+            EasyMock.expect(
+                gradeDAO.forUsers(
+                    EasyMock.anyObject<List<UUID>>() ?: listOf(),
+                    EasyMock.anyObject(),
+                    EasyMock.anyObject(),
+                ),
+            ).andReturn(moreGrades).once()
+            EasyMock.expect(mockEnv.getContext<GraphQLContext>()).andReturn(GraphQLContext.getDefault())
+            EasyMock.replay(gradeDAO, mockEnv)
+            val gs =
+                loader.load(
+                    (
+                        grades.mapNotNull { UserTimePeriod(it.key, null, null) } +
+                            moreGrades.mapNotNull { UserTimePeriod(it.key, OffsetDateTime.MIN, OffsetDateTime.MAX) }
+                    )
+                        .toSet(),
+                    mockEnv,
+                ).await()
+            assertThat(gs.mapKeys { it.key.userId }).isEqualTo(grades + moreGrades)
+            EasyMock.verify(gradeDAO, mockEnv)
+        }
 }

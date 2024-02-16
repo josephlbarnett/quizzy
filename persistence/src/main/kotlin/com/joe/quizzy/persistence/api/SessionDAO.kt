@@ -9,8 +9,12 @@ import java.util.stream.Stream
  */
 interface SessionDAO {
     fun all(): List<Session>
+
     fun stream(): Stream<Session>
+
     fun get(id: UUID): Session?
+
     fun save(thing: Session): Session
+
     fun delete(thing: Session): Int
 }

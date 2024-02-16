@@ -9,13 +9,27 @@ import java.util.stream.Stream
  */
 interface UserDAO {
     fun all(): List<User>
+
     fun stream(): Stream<User>
+
     fun get(id: UUID): User?
+
     fun get(ids: List<UUID>): List<User>
+
     fun save(thing: User): User
-    fun create(user: User, inviteCode: UUID, passwordHash: String): User?
+
+    fun create(
+        user: User,
+        inviteCode: UUID,
+        passwordHash: String,
+    ): User?
 
     fun getByEmail(email: String): User?
+
     fun getByInstance(instanceId: UUID): List<User>
-    fun savePassword(user: User, cryptedPass: String): Int
+
+    fun savePassword(
+        user: User,
+        cryptedPass: String,
+    ): Int
 }

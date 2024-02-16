@@ -13,7 +13,10 @@ class BatchQuestionLoader(private val questionDAO: QuestionDAO) :
     CoroutineMappedBatchLoader<UUID, Question>() {
     override val dataLoaderName = "batchquestions"
 
-    override suspend fun loadSuspend(keys: Set<UUID>, environment: BatchLoaderEnvironment): Map<UUID, Question> {
+    override suspend fun loadSuspend(
+        keys: Set<UUID>,
+        environment: BatchLoaderEnvironment,
+    ): Map<UUID, Question> {
         return questionDAO.get(keys.toList()).associateBy {
             val id = it.id
             requireNotNull(id)

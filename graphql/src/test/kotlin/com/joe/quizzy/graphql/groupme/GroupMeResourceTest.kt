@@ -24,29 +24,31 @@ val failUploadUUID = UUID.randomUUID()
 
 class GroupMeResourceTest : ResourceTestBase<GroupMeResource>() {
     override fun getResource(): GroupMeResource {
-        return GroupMeResource(object : GroupMeServiceFactory {
-            override fun create(instanceId: UUID): GroupMeService? {
-                return when (instanceId) {
-                    validInstanceUUID -> {
-                        val mockService = mockk<GroupMeService>()
-                        coEvery {
-                            mockService.uploadImage(any())
-                        } returns "testUrl"
-                        mockService
-                    }
+        return GroupMeResource(
+            object : GroupMeServiceFactory {
+                override fun create(instanceId: UUID): GroupMeService? {
+                    return when (instanceId) {
+                        validInstanceUUID -> {
+                            val mockService = mockk<GroupMeService>()
+                            coEvery {
+                                mockService.uploadImage(any())
+                            } returns "testUrl"
+                            mockService
+                        }
 
-                    failUploadUUID -> {
-                        val mockService = mockk<GroupMeService>()
-                        coEvery {
-                            mockService.uploadImage(any())
-                        } returns null
-                        mockService
-                    }
+                        failUploadUUID -> {
+                            val mockService = mockk<GroupMeService>()
+                            coEvery {
+                                mockService.uploadImage(any())
+                            } returns null
+                            mockService
+                        }
 
-                    else -> null
+                        else -> null
+                    }
                 }
-            }
-        })
+            },
+        )
     }
 
     override fun buildAdditionalResources(resourceBuilder: Resource.Builder<*>) {
@@ -55,11 +57,12 @@ class GroupMeResourceTest : ResourceTestBase<GroupMeResource>() {
             AuthDynamicFeature(
                 BasicCredentialAuthFilter.Builder<Principal>()
                     .setAuthenticator {
-                        val instanceUUID = when (it.username) {
-                            "a" -> validInstanceUUID
-                            "c" -> failUploadUUID
-                            else -> UUID.randomUUID()
-                        }
+                        val instanceUUID =
+                            when (it.username) {
+                                "a" -> validInstanceUUID
+                                "c" -> failUploadUUID
+                                else -> UUID.randomUUID()
+                            }
                         if (it.username == "d") {
                             Optional.of(Principal { "otherPrincipal Type" })
                         } else {
