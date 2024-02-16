@@ -20,110 +20,121 @@ private val log = KotlinLogging.logger { }
  * DAO implementation for Things
  */
 open class GradeDAOJooq
-@Inject constructor(
-    private val ctx: DSLContext,
-) : GradeDAO {
-    private fun getRecord(dsl: DSLContext, id: UUID): GradesRecord? {
-        return dsl.selectFrom(Tables.GRADES).where(Tables.GRADES.ID.eq(id)).fetchOne()
-    }
-
-    @Timed
-    override fun get(id: UUID): Grade? {
-        return getRecord(ctx, id)?.into(Grade::class.java)
-    }
-
-    @Timed
-    override fun save(thing: Grade): Grade {
-        return ctx.transactionResult { config ->
-            save(thing, config)
+    @Inject
+    constructor(
+        private val ctx: DSLContext,
+    ) : GradeDAO {
+        private fun getRecord(
+            dsl: DSLContext,
+            id: UUID,
+        ): GradesRecord? {
+            return dsl.selectFrom(Tables.GRADES).where(Tables.GRADES.ID.eq(id)).fetchOne()
         }
-    }
 
-    fun save(thing: Grade, config: Configuration): Grade {
-        val thingId = thing.id
-        val record = if (thingId == null) {
-            config.dsl().newRecord(
-                Tables.GRADES,
-                thing,
-            )
-        } else {
-            val existing = getRecord(config.dsl(), thingId)
-            if (existing != null) {
-                existing.from(thing)
-                existing
-            } else {
-                config.dsl().newRecord(
-                    Tables.GRADES,
-                    thing,
-                )
+        @Timed
+        override fun get(id: UUID): Grade? {
+            return getRecord(ctx, id)?.into(Grade::class.java)
+        }
+
+        @Timed
+        override fun save(thing: Grade): Grade {
+            return ctx.transactionResult { config ->
+                save(thing, config)
             }
         }
-        record.store()
-        return record.into(Grade::class.java)
-    }
 
-    @Timed
-    override fun forUser(userId: UUID): List<Grade> {
-        return ctx.select(Tables.GRADES.asterisk())
-            .from(Tables.GRADES)
-            .join(Tables.RESPONSES).on(Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID))
-            .where(Tables.RESPONSES.USER_ID.eq(userId)).fetchInto(Grade::class.java)
-    }
+        fun save(
+            thing: Grade,
+            config: Configuration,
+        ): Grade {
+            val thingId = thing.id
+            val record =
+                if (thingId == null) {
+                    config.dsl().newRecord(
+                        Tables.GRADES,
+                        thing,
+                    )
+                } else {
+                    val existing = getRecord(config.dsl(), thingId)
+                    if (existing != null) {
+                        existing.from(thing)
+                        existing
+                    } else {
+                        config.dsl().newRecord(
+                            Tables.GRADES,
+                            thing,
+                        )
+                    }
+                }
+            record.store()
+            return record.into(Grade::class.java)
+        }
 
-    @Timed
-    override fun forUsers(
-        userIds: List<UUID>,
-        startTime: OffsetDateTime?,
-        endTime: OffsetDateTime?,
-    ): Map<UUID, List<Grade>> {
-        val query = ctx.select(Tables.RESPONSES.USER_ID, Tables.GRADES.asterisk())
-            .from(Tables.GRADES)
-            .join(Tables.RESPONSES).on(Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID))
-            .join(Tables.QUESTIONS).on(Tables.RESPONSES.QUESTION_ID.eq(Tables.QUESTIONS.ID))
-            .where(
-                DSL.and(
-                    listOfNotNull(
-                        Tables.RESPONSES.USER_ID.`in`(userIds),
-                        startTime?.let {
-                            Tables.QUESTIONS.CLOSED_AT.ge(it)
-                        },
-                        endTime?.let {
-                            Tables.QUESTIONS.ACTIVE_AT.le(it)
-                        },
-                    ),
-                ),
-            )
-        log.info("get grades for users: $query")
-        return query.fetch()
-            .intoGroups(Tables.RESPONSES.USER_ID, Grade::class.java)
-    }
+        @Timed
+        override fun forUser(userId: UUID): List<Grade> {
+            return ctx.select(Tables.GRADES.asterisk())
+                .from(Tables.GRADES)
+                .join(Tables.RESPONSES).on(Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID))
+                .where(Tables.RESPONSES.USER_ID.eq(userId)).fetchInto(Grade::class.java)
+        }
 
-    @Timed
-    override fun forResponse(responseId: UUID): Grade? {
-        val query = ctx.select(Tables.GRADES.asterisk())
-            .from(Tables.GRADES)
-            .where(Tables.GRADES.RESPONSE_ID.eq(responseId))
-        log.info("get grade for response: $query")
-        return query.fetchOneInto(Grade::class.java)
-    }
+        @Timed
+        override fun forUsers(
+            userIds: List<UUID>,
+            startTime: OffsetDateTime?,
+            endTime: OffsetDateTime?,
+        ): Map<UUID, List<Grade>> {
+            val query =
+                ctx.select(Tables.RESPONSES.USER_ID, Tables.GRADES.asterisk())
+                    .from(Tables.GRADES)
+                    .join(Tables.RESPONSES).on(Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID))
+                    .join(Tables.QUESTIONS).on(Tables.RESPONSES.QUESTION_ID.eq(Tables.QUESTIONS.ID))
+                    .where(
+                        DSL.and(
+                            listOfNotNull(
+                                Tables.RESPONSES.USER_ID.`in`(userIds),
+                                startTime?.let {
+                                    Tables.QUESTIONS.CLOSED_AT.ge(it)
+                                },
+                                endTime?.let {
+                                    Tables.QUESTIONS.ACTIVE_AT.le(it)
+                                },
+                            ),
+                        ),
+                    )
+            log.info("get grades for users: $query")
+            return query.fetch()
+                .intoGroups(Tables.RESPONSES.USER_ID, Grade::class.java)
+        }
 
-    @Timed
-    override fun forResponses(responseIds: List<UUID>): Map<UUID, Grade> {
-        val query = ctx.select(Tables.GRADES.asterisk())
-            .from(Tables.GRADES)
-            .where(Tables.GRADES.RESPONSE_ID.`in`(responseIds))
-        log.info("get grade for responses: $query")
-        return query.fetch()
-            .intoMap(Tables.GRADES.RESPONSE_ID, Grade::class.java)
-    }
+        @Timed
+        override fun forResponse(responseId: UUID): Grade? {
+            val query =
+                ctx.select(Tables.GRADES.asterisk())
+                    .from(Tables.GRADES)
+                    .where(Tables.GRADES.RESPONSE_ID.eq(responseId))
+            log.info("get grade for response: $query")
+            return query.fetchOneInto(Grade::class.java)
+        }
 
-    @Timed
-    override fun all(): List<Grade> {
-        return ctx.select().from(Tables.GRADES).fetchInto(Grade::class.java)
-    }
+        @Timed
+        override fun forResponses(responseIds: List<UUID>): Map<UUID, Grade> {
+            val query =
+                ctx.select(Tables.GRADES.asterisk())
+                    .from(Tables.GRADES)
+                    .where(Tables.GRADES.RESPONSE_ID.`in`(responseIds))
+            log.info("get grade for responses: $query")
+            return query.fetch()
+                .intoMap(Tables.GRADES.RESPONSE_ID, Grade::class.java)
+        }
 
-    @Timed
-    override fun stream(): Stream<Grade> {
-        return ctx.select().from(Tables.GRADES).fetchStreamInto(Grade::class.java)
+        @Timed
+        override fun all(): List<Grade> {
+            return ctx.select().from(Tables.GRADES).fetchInto(Grade::class.java)
+        }
+
+        @Timed
+        override fun stream(): Stream<Grade> {
+            return ctx.select().from(Tables.GRADES).fetchStreamInto(Grade::class.java)
+        }
     }
-}

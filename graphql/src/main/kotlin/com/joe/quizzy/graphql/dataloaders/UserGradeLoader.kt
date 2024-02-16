@@ -21,10 +21,11 @@ class UserGradeLoader(private val gradeDAO: GradeDAO) :
         environment: BatchLoaderEnvironment,
     ): Map<UserTimePeriod, List<Grade>> {
         val groupedIds = keys.groupBy { it.startTime to it.endTime }
-        val all = groupedIds.map { groupedEntry ->
-            gradeDAO.forUsers(groupedEntry.value.map { it.userId }, groupedEntry.key.first, groupedEntry.key.second)
-                .mapKeys { UserTimePeriod(it.key, groupedEntry.key.first, groupedEntry.key.second) }
-        }
+        val all =
+            groupedIds.map { groupedEntry ->
+                gradeDAO.forUsers(groupedEntry.value.map { it.userId }, groupedEntry.key.first, groupedEntry.key.second)
+                    .mapKeys { UserTimePeriod(it.key, groupedEntry.key.first, groupedEntry.key.second) }
+            }
         return all.reduce { a, b ->
             a + b
         }

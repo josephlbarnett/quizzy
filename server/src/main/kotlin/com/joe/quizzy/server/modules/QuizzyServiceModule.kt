@@ -61,7 +61,11 @@ class RedirectResource {
 private const val X_FORWARDED_PROTOCOL = "X-Forwarded-Proto"
 
 class HttpsFilter : Filter {
-    override fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+    override fun doFilter(
+        request: ServletRequest,
+        response: ServletResponse,
+        chain: FilterChain,
+    ) {
         if (request is HttpServletRequest && response is HttpServletResponse) {
             if (request.getHeader(X_FORWARDED_PROTOCOL) != null) {
                 if (request.getHeader(X_FORWARDED_PROTOCOL).indexOf("https") != 0) {
@@ -74,33 +78,35 @@ class HttpsFilter : Filter {
     }
 }
 
-class QuizzyAuthFilterProvider @Inject constructor(
-    val userDAO: UserDAO,
-    val sessionDAO: SessionDAO,
-    val hasher: Hasher,
-    val authorizer: Authorizer<Principal>,
-) : Provider<AuthFilter<*, *>> {
-    override fun get(): AuthFilter<*, *> {
-        return ChainedAuthFilter<Any, Principal>(
-            listOf(
-                // Use BASIC auth to get a User from credentials
-                BasicCredentialAuthFilter.Builder<Principal>()
-                    .setAuthenticator(UserAuthenticator(userDAO, hasher))
-                    .setAuthorizer(authorizer)
-                    .buildAuthFilter(),
-                // Use cookie-based session auth to get a User from browser session
-                CookieTokenAuthFilter.Builder<Principal>("x-quizzy-session")
-                    .setAuthenticator(SessionAuthenticator(sessionDAO, userDAO))
-                    .setAuthorizer(authorizer)
-                    .buildAuthFilter(),
-                CookieTokenAuthFilter.Builder<Principal>("QUIZZY_AUTHORIZATION")
-                    .setAuthenticator(SessionAuthenticator(sessionDAO, userDAO))
-                    .setAuthorizer(authorizer)
-                    .buildAuthFilter(),
-            ),
-        )
+class QuizzyAuthFilterProvider
+    @Inject
+    constructor(
+        val userDAO: UserDAO,
+        val sessionDAO: SessionDAO,
+        val hasher: Hasher,
+        val authorizer: Authorizer<Principal>,
+    ) : Provider<AuthFilter<*, *>> {
+        override fun get(): AuthFilter<*, *> {
+            return ChainedAuthFilter<Any, Principal>(
+                listOf(
+                    // Use BASIC auth to get a User from credentials
+                    BasicCredentialAuthFilter.Builder<Principal>()
+                        .setAuthenticator(UserAuthenticator(userDAO, hasher))
+                        .setAuthorizer(authorizer)
+                        .buildAuthFilter(),
+                    // Use cookie-based session auth to get a User from browser session
+                    CookieTokenAuthFilter.Builder<Principal>("x-quizzy-session")
+                        .setAuthenticator(SessionAuthenticator(sessionDAO, userDAO))
+                        .setAuthorizer(authorizer)
+                        .buildAuthFilter(),
+                    CookieTokenAuthFilter.Builder<Principal>("QUIZZY_AUTHORIZATION")
+                        .setAuthenticator(SessionAuthenticator(sessionDAO, userDAO))
+                        .setAuthorizer(authorizer)
+                        .buildAuthFilter(),
+                ),
+            )
+        }
     }
-}
 
 /**
  * Binds this service's resources
@@ -138,7 +144,10 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
             ServletConfig(
                 "root-redirect",
                 object : HttpServlet() {
-                    override fun doGet(req: HttpServletRequest, resp: HttpServletResponse) {
+                    override fun doGet(
+                        req: HttpServletRequest,
+                        resp: HttpServletResponse,
+                    ) {
                         resp.sendRedirect("/app/")
                     }
                 },

@@ -9,8 +9,12 @@ import java.util.stream.Stream
  */
 interface InstanceDAO {
     fun all(): List<Instance>
+
     fun stream(): Stream<Instance>
+
     fun get(id: UUID): Instance?
+
     fun get(ids: List<UUID>): List<Instance>
+
     fun save(thing: Instance): Instance
 }

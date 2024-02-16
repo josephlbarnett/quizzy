@@ -10,19 +10,24 @@ import jakarta.ws.rs.core.Context
 import java.security.Principal
 
 @Path("/image")
-class GroupMeResource @Inject constructor(
-    val factory: GroupMeServiceFactory,
-) {
-    @Path("/upload")
-    @POST
-    suspend fun uploadImage(@Auth principal: Principal, @Context request: ContainerRequestContext): String {
-        if (principal is UserPrincipal) {
-            val groupMeService = factory.create(principal.user.instanceId)
-            val url = groupMeService?.uploadImage(request.entityStream)
-            if (url != null) {
-                return url
+class GroupMeResource
+    @Inject
+    constructor(
+        val factory: GroupMeServiceFactory,
+    ) {
+        @Path("/upload")
+        @POST
+        suspend fun uploadImage(
+            @Auth principal: Principal,
+            @Context request: ContainerRequestContext,
+        ): String {
+            if (principal is UserPrincipal) {
+                val groupMeService = factory.create(principal.user.instanceId)
+                val url = groupMeService?.uploadImage(request.entityStream)
+                if (url != null) {
+                    return url
+                }
             }
+            error("Could not upload image")
         }
-        error("Could not upload image")
     }
-}

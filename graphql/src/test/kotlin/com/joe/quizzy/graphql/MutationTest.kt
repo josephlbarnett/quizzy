@@ -65,42 +65,46 @@ class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
     val userAuthenticator = UserAuthenticator(userDAO, hasher)
     val instanceDAO: InstanceDAO = mock()
     val gmailServiceFactory: GmailServiceFactory = mock()
-    val mutation = Mutation(
-        questionDAO,
-        sessionDAO,
-        userDAO,
-        responseDAO,
-        gradeDAO,
-        userAuthenticator,
-        instanceDAO,
-        gmailServiceFactory,
-        TribeApplicationConfig(ConfigLoader()),
-    )
+    val mutation =
+        Mutation(
+            questionDAO,
+            sessionDAO,
+            userDAO,
+            responseDAO,
+            gradeDAO,
+            userAuthenticator,
+            instanceDAO,
+            gmailServiceFactory,
+            TribeApplicationConfig(ConfigLoader()),
+        )
     val emptyContext = getDFE(null, scope)
-    val user = User(
-        UUID.randomUUID(),
-        UUID.randomUUID(),
-        "user",
-        "user",
-        "pass",
-        false,
-        "UTC",
-    )
-    val admin = User(
-        UUID.randomUUID(),
-        UUID.randomUUID(),
-        "admin",
-        "admin@admin.com",
-        "pass",
-        true,
-        "UTC",
-    )
-    val session = Session(
-        UUID.randomUUID(),
-        user.id!!,
-        OffsetDateTime.now(),
-        OffsetDateTime.now(),
-    )
+    val user =
+        User(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "user",
+            "user",
+            "pass",
+            false,
+            "UTC",
+        )
+    val admin =
+        User(
+            UUID.randomUUID(),
+            UUID.randomUUID(),
+            "admin",
+            "admin@admin.com",
+            "pass",
+            true,
+            "UTC",
+        )
+    val session =
+        Session(
+            UUID.randomUUID(),
+            user.id!!,
+            OffsetDateTime.now(),
+            OffsetDateTime.now(),
+        )
     val userSessionContext = getDFE(UserPrincipal(user, session), scope)
     val userNoSessionContext = getDFE(UserPrincipal(user, null), scope)
     val adminContext = getDFE(UserPrincipal(admin, null), scope)
@@ -366,10 +370,11 @@ class MutationTest {
                 mutation.requestPasswordReset(user.email),
             ).isTrue()
             val message = sentMessageCapture.value
-            val mimeMessage = MimeMessage(
-                jakarta.mail.Session.getDefaultInstance(Properties()),
-                ByteArrayInputStream(message.decodeRaw()),
-            )
+            val mimeMessage =
+                MimeMessage(
+                    jakarta.mail.Session.getDefaultInstance(Properties()),
+                    ByteArrayInputStream(message.decodeRaw()),
+                )
             assertThat(mimeMessage.getRecipients(RecipientType.TO).toList().map { it.toString() })
                 .isEqualTo(listOf("user <user>"))
             assertThat(mimeMessage.from.toList().map { it.toString() })
@@ -471,15 +476,16 @@ class MutationTest {
     fun testQuestionSaveByAdmin() {
         lateinit var question: Question
         MockMutation {
-            question = Question(
-                null,
-                user.id!!,
-                "a question",
-                "an answer",
-                "rule reference",
-                OffsetDateTime.now(),
-                OffsetDateTime.now(),
-            )
+            question =
+                Question(
+                    null,
+                    user.id!!,
+                    "a question",
+                    "an answer",
+                    "rule reference",
+                    OffsetDateTime.now(),
+                    OffsetDateTime.now(),
+                )
             EasyMock.expect(questionDAO.save(question)).andReturn(question.copy(id = UUID.randomUUID()))
         }.test {
             assertThat(
@@ -543,12 +549,13 @@ class MutationTest {
     fun testGradeSaveByAdmin() {
         lateinit var grade: Grade
         MockMutation {
-            grade = Grade(
-                null,
-                UUID.randomUUID(),
-                true,
-                5,
-            )
+            grade =
+                Grade(
+                    null,
+                    UUID.randomUUID(),
+                    true,
+                    5,
+                )
             EasyMock.expect(gradeDAO.save(grade)).andReturn(grade.copy(id = UUID.randomUUID()))
         }.test {
             assertThat(
@@ -606,13 +613,14 @@ class MutationTest {
     fun testResponseSave() {
         lateinit var response: Response
         MockMutation {
-            response = Response(
-                null,
-                UUID.randomUUID(),
-                UUID.randomUUID(),
-                "an answer",
-                "with references",
-            )
+            response =
+                Response(
+                    null,
+                    UUID.randomUUID(),
+                    UUID.randomUUID(),
+                    "an answer",
+                    "with references",
+                )
             EasyMock.expect(responseDAO.save(response.copy(userId = user.id!!)))
                 .andReturn(response.copy(id = UUID.randomUUID(), userId = user.id!!))
             EasyMock.expect(instanceDAO.get(EasyMock.anyObject<UUID>() ?: UUID.randomUUID())).andReturn(
@@ -623,10 +631,11 @@ class MutationTest {
                 ),
             )
         }.test {
-            val savedResponse = mutation.response(
-                userSessionContext,
-                response,
-            )
+            val savedResponse =
+                mutation.response(
+                    userSessionContext,
+                    response,
+                )
             assertThat(savedResponse?.id).isNotNull()
             assertThat(savedResponse?.userId).isEqualTo(user.id)
         }
@@ -766,10 +775,11 @@ class MutationTest {
                 ),
             )
             val message = sentMessageCapture.value
-            val mimeMessage = MimeMessage(
-                jakarta.mail.Session.getDefaultInstance(Properties()),
-                ByteArrayInputStream(message.decodeRaw()),
-            )
+            val mimeMessage =
+                MimeMessage(
+                    jakarta.mail.Session.getDefaultInstance(Properties()),
+                    ByteArrayInputStream(message.decodeRaw()),
+                )
             assertThat(mimeMessage.getRecipients(RecipientType.TO).toList().map { it.toString() })
                 .isEqualTo(listOf("bill <bill@gmail.com>"))
             assertThat(mimeMessage.from.toList().map { it.toString() })

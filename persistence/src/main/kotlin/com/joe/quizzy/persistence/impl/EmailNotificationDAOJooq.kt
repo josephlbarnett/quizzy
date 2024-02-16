@@ -8,27 +8,33 @@ import jakarta.inject.Inject
 import org.jooq.DSLContext
 import java.util.UUID
 
-class EmailNotificationDAOJooq @Inject constructor(
-    private val ctx: DSLContext,
-) : EmailNotificationDAO {
-    override fun markNotified(notificationType: NotificationType, questionUUIDs: List<UUID>) {
-        if (questionUUIDs.isNotEmpty()) {
-            ctx.transaction { config ->
-                val firstRecord = config.dsl().insertInto(Tables.EMAIL_NOTIFICATIONS)
-                    .set(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE, notificationType.name)
-                    .set(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID, questionUUIDs.first())
-                questionUUIDs.slice(1 until questionUUIDs.size)
-                    .fold(firstRecord) { step, questionUUID ->
-                        step.newRecord()
+class EmailNotificationDAOJooq
+    @Inject
+    constructor(
+        private val ctx: DSLContext,
+    ) : EmailNotificationDAO {
+        override fun markNotified(
+            notificationType: NotificationType,
+            questionUUIDs: List<UUID>,
+        ) {
+            if (questionUUIDs.isNotEmpty()) {
+                ctx.transaction { config ->
+                    val firstRecord =
+                        config.dsl().insertInto(Tables.EMAIL_NOTIFICATIONS)
                             .set(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE, notificationType.name)
-                            .set(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID, questionUUID)
-                    }
-                    .onDuplicateKeyIgnore().execute()
+                            .set(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID, questionUUIDs.first())
+                    questionUUIDs.slice(1 until questionUUIDs.size)
+                        .fold(firstRecord) { step, questionUUID ->
+                            step.newRecord()
+                                .set(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE, notificationType.name)
+                                .set(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID, questionUUID)
+                        }
+                        .onDuplicateKeyIgnore().execute()
+                }
             }
         }
-    }
 
-    override fun all(): List<EmailNotification> {
-        return ctx.select().from(Tables.EMAIL_NOTIFICATIONS).fetchInto(EmailNotification::class.java)
+        override fun all(): List<EmailNotification> {
+            return ctx.select().from(Tables.EMAIL_NOTIFICATIONS).fetchInto(EmailNotification::class.java)
+        }
     }
-}

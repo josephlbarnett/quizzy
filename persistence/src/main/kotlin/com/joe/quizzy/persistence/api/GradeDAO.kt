@@ -10,10 +10,15 @@ import java.util.stream.Stream
  */
 interface GradeDAO {
     fun all(): List<Grade>
+
     fun stream(): Stream<Grade>
+
     fun get(id: UUID): Grade?
+
     fun save(thing: Grade): Grade
+
     fun forUser(userId: UUID): List<Grade>
+
     fun forUsers(
         userIds: List<UUID>,
         startTime: OffsetDateTime? = null,
@@ -21,5 +26,6 @@ interface GradeDAO {
     ): Map<UUID, List<Grade>>
 
     fun forResponse(responseId: UUID): Grade?
+
     fun forResponses(responseIds: List<UUID>): Map<UUID, Grade>
 }

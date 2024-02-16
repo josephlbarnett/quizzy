@@ -53,11 +53,12 @@ class QuestionDAOTest : PostgresDAOTestBase() {
         val userId = userDao.save(user).id!!
         val oneHourAgo = OffsetDateTime.now().minusHours(1)
         val oneHourFromNow = OffsetDateTime.now().plusHours(1)
-        val questions = listOf(
-            Question(null, userId, "current", "", "", oneHourAgo, oneHourFromNow),
-            Question(null, userId, "past", "", "", oneHourAgo, oneHourAgo),
-            Question(null, userId, "future", "", "", oneHourFromNow, oneHourFromNow),
-        )
+        val questions =
+            listOf(
+                Question(null, userId, "current", "", "", oneHourAgo, oneHourFromNow),
+                Question(null, userId, "past", "", "", oneHourAgo, oneHourAgo),
+                Question(null, userId, "future", "", "", oneHourFromNow, oneHourFromNow),
+            )
         questions.forEach { dao.save(it) }
         assertThat(dao.active(user.copy(id = userId)).map { it.body }.first()).isEqualTo("current")
         assertThat(dao.closed(user.copy(id = userId)).map { it.body }.first()).isEqualTo("past")
@@ -89,12 +90,13 @@ class QuestionDAOTest : PostgresDAOTestBase() {
         val userId = userDao.save(user).id!!
         val oneHourAgo = OffsetDateTime.now().minusHours(1)
         val oneHourFromNow = OffsetDateTime.now().plusHours(1)
-        val questions = listOf(
-            Question(null, userId, "current1", "", "", oneHourAgo, oneHourFromNow),
-            Question(null, userId, "past1", "", "", oneHourAgo, oneHourAgo),
-            Question(null, userId, "current2", "", "", oneHourAgo, oneHourFromNow),
-            Question(null, userId, "past2", "", "", oneHourAgo, oneHourAgo),
-        ).map { dao.save(it) }
+        val questions =
+            listOf(
+                Question(null, userId, "current1", "", "", oneHourAgo, oneHourFromNow),
+                Question(null, userId, "past1", "", "", oneHourAgo, oneHourAgo),
+                Question(null, userId, "current2", "", "", oneHourAgo, oneHourFromNow),
+                Question(null, userId, "past2", "", "", oneHourAgo, oneHourAgo),
+            ).map { dao.save(it) }
         notificationDao.markNotified(NotificationType.REMINDER, listOf(questions[0].id!!))
         notificationDao.markNotified(NotificationType.ANSWER, listOf(questions[1].id!!))
         val needReminders = dao.active(NotificationType.REMINDER).filter { it.authorId == userId }
@@ -161,22 +163,23 @@ class QuestionDAOTest : PostgresDAOTestBase() {
         val instanceId = instanceDao.save(instance).id!!
         val user = User(null, instanceId, "sally", "sally@gmail.com", null, false, "UTC")
         val userId = userDao.save(user).id!!
-        val q1 = Question(
-            null,
-            userId,
-            "a multiple choice question",
-            "C",
-            "some refs",
-            OffsetDateTime.now(),
-            OffsetDateTime.now(),
-            QuestionType.MULTIPLE_CHOICE,
-            listOf(
-                AnswerChoice(null, null, "A", "Choice A"),
-                AnswerChoice(null, null, "B", "Choice B"),
-                AnswerChoice(null, null, "C", "Choice C"),
-                AnswerChoice(null, null, "D", "Choice D"),
-            ),
-        )
+        val q1 =
+            Question(
+                null,
+                userId,
+                "a multiple choice question",
+                "C",
+                "some refs",
+                OffsetDateTime.now(),
+                OffsetDateTime.now(),
+                QuestionType.MULTIPLE_CHOICE,
+                listOf(
+                    AnswerChoice(null, null, "A", "Choice A"),
+                    AnswerChoice(null, null, "B", "Choice B"),
+                    AnswerChoice(null, null, "C", "Choice C"),
+                    AnswerChoice(null, null, "D", "Choice D"),
+                ),
+            )
         val savedQ = dao.save(q1)
         val savedQId = savedQ.id!!
         assertThat(savedQ.answerChoices).isNotNull().all {
@@ -187,22 +190,23 @@ class QuestionDAOTest : PostgresDAOTestBase() {
             }
         }
         assertThat(dao.get(savedQId)?.body).isEqualTo(savedQ.body)
-        val updatedQ = Question(
-            savedQId,
-            userId,
-            "an updated question",
-            "D",
-            "some refs",
-            OffsetDateTime.now(),
-            OffsetDateTime.now(),
-            QuestionType.MULTIPLE_CHOICE,
-            listOf(
-                AnswerChoice(null, null, "A", "Choice A1"),
-                AnswerChoice(null, null, "B", "Choice B2"),
-                AnswerChoice(null, null, "C", "Choice C3"),
-                AnswerChoice(null, null, "D", "Choice D4"),
-            ),
-        )
+        val updatedQ =
+            Question(
+                savedQId,
+                userId,
+                "an updated question",
+                "D",
+                "some refs",
+                OffsetDateTime.now(),
+                OffsetDateTime.now(),
+                QuestionType.MULTIPLE_CHOICE,
+                listOf(
+                    AnswerChoice(null, null, "A", "Choice A1"),
+                    AnswerChoice(null, null, "B", "Choice B2"),
+                    AnswerChoice(null, null, "C", "Choice C3"),
+                    AnswerChoice(null, null, "D", "Choice D4"),
+                ),
+            )
         val resavedQ = dao.save(updatedQ)
         assertThat(resavedQ.answerChoices).isNotNull().all {
             hasSize(4)

@@ -145,21 +145,23 @@ class ScheduledEmailBundle(
                         "domainLink" to "https://${appConfig.corsDomains[0]}",
                         "questionCount" to countObject(questions.size),
                         "answerCount" to countObject(answers.size),
-                        "question" to questions.mapIndexed { index, question ->
-                            mapOf(
-                                "index" to index + 1,
-                                "body" to question.body,
-                                "answerChoices" to question.answerChoices?.map { choiceMap(it) },
-                            )
-                        },
-                        "answer" to answers.mapIndexed { index, question ->
-                            mapOf(
-                                "index" to index + 1,
-                                "body" to question.body,
-                                "answer" to question.answer + multiChoiceAnswer(question),
-                                "ruleReferences" to question.ruleReferences,
-                            )
-                        },
+                        "question" to
+                            questions.mapIndexed { index, question ->
+                                mapOf(
+                                    "index" to index + 1,
+                                    "body" to question.body,
+                                    "answerChoices" to question.answerChoices?.map { choiceMap(it) },
+                                )
+                            },
+                        "answer" to
+                            answers.mapIndexed { index, question ->
+                                mapOf(
+                                    "index" to index + 1,
+                                    "body" to question.body,
+                                    "answer" to question.answer + multiChoiceAnswer(question),
+                                    "ruleReferences" to question.ruleReferences,
+                                )
+                            },
                     ),
                 ).toString(),
                 MediaType.TEXT_HTML,
@@ -198,59 +200,67 @@ class ScheduledEmailBundle(
     internal suspend fun sendEmails(now: OffsetDateTime) {
         val activeNotifications = questionDAO.active(NotificationType.REMINDER)
         val closedNotifications = questionDAO.closed(NotificationType.ANSWER)
-        val authors = if (activeNotifications.isEmpty() && closedNotifications.isEmpty()) {
-            mapOf()
-        } else {
-            userDAO.get(activeNotifications.map { it.authorId } + closedNotifications.map { it.authorId })
-                .associateBy { it.id }
-        }
+        val authors =
+            if (activeNotifications.isEmpty() && closedNotifications.isEmpty()) {
+                mapOf()
+            } else {
+                userDAO.get(activeNotifications.map { it.authorId } + closedNotifications.map { it.authorId })
+                    .associateBy { it.id }
+            }
         (activeNotifications + closedNotifications).distinct().groupBy {
             authors.getValue(it.authorId).instanceId
         }.forEach { entry ->
             val (questions, answers) = entry.value.partition { it.closedAt.isAfter(now) }
             val instanceId = entry.key
             if (questions.isNotEmpty() || answers.isNotEmpty()) {
-                val qString = if (questions.size == 1) {
-                    "Question"
-                } else {
-                    "Questions"
-                }
-                val aString = if (answers.size == 1) {
-                    "Answer"
-                } else {
-                    "Answers"
-                }
-                val questionAnswerString = if (questions.isNotEmpty() && answers.isNotEmpty()) {
-                    "$qString and $aString"
-                } else if (answers.isNotEmpty()) {
-                    aString
-                } else {
-                    qString
-                }
+                val qString =
+                    if (questions.size == 1) {
+                        "Question"
+                    } else {
+                        "Questions"
+                    }
+                val aString =
+                    if (answers.size == 1) {
+                        "Answer"
+                    } else {
+                        "Answers"
+                    }
+                val questionAnswerString =
+                    if (questions.isNotEmpty() && answers.isNotEmpty()) {
+                        "$qString and $aString"
+                    } else if (answers.isNotEmpty()) {
+                        aString
+                    } else {
+                        qString
+                    }
                 sendEmail(instanceId, questions, answers, questionAnswerString)
                 sendText(instanceId, questionAnswerString)
             }
         }
     }
 
-    override fun run(configuration: Configuration?, environment: Environment?) {
+    override fun run(
+        configuration: Configuration?,
+        environment: Environment?,
+    ) {
         // just use a configloader directly because too lazy to create a config object
         if (configLoader.load().extract("pollForEmails")) {
-            val newJob = launch {
-                while (isActive) {
-                    val now = OffsetDateTime.now()
-                    if (now.minute % minuteMod == 0) {
-                        runCatching {
-                            log.trace(
-                                client.get { url("https://${appConfig.corsDomains[0]}/app/ping") }.body<String>(),
-                            )
+            val newJob =
+                launch {
+                    while (isActive) {
+                        val now = OffsetDateTime.now()
+                        if (now.minute % minuteMod == 0) {
+                            runCatching {
+                                log.trace(
+                                    client.get { url("https://${appConfig.corsDomains[0]}/app/ping") }.body<String>(),
+                                )
+                            }
+                            sendEmails(now)
                         }
-                        sendEmails(now)
+                        val newNow = OffsetDateTime.now()
+                        delay(Duration.ofSeconds(Duration.ofMinutes(1).seconds - newNow.second))
                     }
-                    val newNow = OffsetDateTime.now()
-                    delay(Duration.ofSeconds(Duration.ofMinutes(1).seconds - newNow.second))
                 }
-            }
             newJob.invokeOnCompletion {
                 dispatcher.close()
             }

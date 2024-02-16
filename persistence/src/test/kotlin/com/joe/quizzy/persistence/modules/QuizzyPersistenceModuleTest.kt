@@ -11,15 +11,16 @@ import org.testng.annotations.Test
 
 @Guice(modules = [QuizzyPersistenceModule::class])
 class QuizzyPersistenceModuleTest
-@Inject constructor(
-    val dao: QuestionDAO,
-    val ctx: DSLContext,
-    val config: DbConfig,
-) {
-    @Test
-    fun testInjection() {
-        assertThat(dao).isNotNull()
-        assertThat(ctx).isNotNull()
-        assertThat(config).isNotNull()
+    @Inject
+    constructor(
+        val dao: QuestionDAO,
+        val ctx: DSLContext,
+        val config: DbConfig,
+    ) {
+        @Test
+        fun testInjection() {
+            assertThat(dao).isNotNull()
+            assertThat(ctx).isNotNull()
+            assertThat(config).isNotNull()
+        }
     }
-}

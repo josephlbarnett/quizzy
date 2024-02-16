@@ -16,21 +16,23 @@ import java.util.UUID
 
 class BatchQuestionLoaderTest {
     @Test
-    fun testQuestionLoader() = runBlocking {
-        val questionDAO = LeakyMock.mock<QuestionDAO>()
-        val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
-        val loader = BatchQuestionLoader(questionDAO)
-        val now = OffsetDateTime.now()
-        val questions = listOf(
-            Question(UUID.randomUUID(), UUID.randomUUID(), "q1", "a1", "r1", now, now),
-            Question(UUID.randomUUID(), UUID.randomUUID(), "q2", "a2", "r2", now, now),
-            Question(UUID.randomUUID(), UUID.randomUUID(), "q3", "a3", "r3", now, now),
-        )
-        EasyMock.expect(questionDAO.get(EasyMock.anyObject<List<UUID>>() ?: listOf())).andReturn(questions)
-        EasyMock.expect(mockEnv.getContext<GraphQLContext>()).andReturn(GraphQLContext.getDefault())
-        EasyMock.replay(questionDAO, mockEnv)
-        val qs = loader.load(questions.mapNotNull { it.id }.toSet(), mockEnv).await()
-        assertThat(qs).isEqualTo(questions.associateBy { it.id })
-        EasyMock.verify(questionDAO, mockEnv)
-    }
+    fun testQuestionLoader() =
+        runBlocking {
+            val questionDAO = LeakyMock.mock<QuestionDAO>()
+            val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
+            val loader = BatchQuestionLoader(questionDAO)
+            val now = OffsetDateTime.now()
+            val questions =
+                listOf(
+                    Question(UUID.randomUUID(), UUID.randomUUID(), "q1", "a1", "r1", now, now),
+                    Question(UUID.randomUUID(), UUID.randomUUID(), "q2", "a2", "r2", now, now),
+                    Question(UUID.randomUUID(), UUID.randomUUID(), "q3", "a3", "r3", now, now),
+                )
+            EasyMock.expect(questionDAO.get(EasyMock.anyObject<List<UUID>>() ?: listOf())).andReturn(questions)
+            EasyMock.expect(mockEnv.getContext<GraphQLContext>()).andReturn(GraphQLContext.getDefault())
+            EasyMock.replay(questionDAO, mockEnv)
+            val qs = loader.load(questions.mapNotNull { it.id }.toSet(), mockEnv).await()
+            assertThat(qs).isEqualTo(questions.associateBy { it.id })
+            EasyMock.verify(questionDAO, mockEnv)
+        }
 }

@@ -27,15 +27,16 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
     @Test
     fun testRegistry() {
         val responseDAO = mock<ResponseDAO>()
-        val factoryProvider = DataLoaderRegistryFactoryProvider(
-            mock(),
-            mock(),
-            mock(),
-            responseDAO,
-            mock(),
-            mock(),
-            mock(),
-        )
+        val factoryProvider =
+            DataLoaderRegistryFactoryProvider(
+                mock(),
+                mock(),
+                mock(),
+                responseDAO,
+                mock(),
+                mock(),
+                mock(),
+            )
         val userUUID = UUID.randomUUID()
         val questionUUID = UUID.randomUUID()
         // expect `byUserQuestions` to be called with context user UUID
@@ -45,13 +46,14 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
         replayAll()
         val factory = factoryProvider.get()
         val scope = CoroutineScope(Dispatchers.Default)
-        val contextMap = getGraphQLContextMap(
-            scope,
-            UserPrincipal(
-                User(userUUID, UUID.randomUUID(), "name", "email", "", false, ""),
-                null,
-            ),
-        )
+        val contextMap =
+            getGraphQLContextMap(
+                scope,
+                UserPrincipal(
+                    User(userUUID, UUID.randomUUID(), "name", "email", "", false, ""),
+                    null,
+                ),
+            )
         val registry = factory.generate(GraphQLContext.of(contextMap))
 
         val batchQuestionLoader = registry.getDataLoader<UUID, Question>("batchquestions")

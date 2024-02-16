@@ -106,6 +106,12 @@
 
         <dependency>
             <groupId>io.ktor</groupId>
+            <artifactId>ktor-http-jvm</artifactId>
+            <version>${version.ktor}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.ktor</groupId>
             <artifactId>ktor-client-cio-jvm</artifactId>
             <version>${version.ktor}</version>
         </dependency>

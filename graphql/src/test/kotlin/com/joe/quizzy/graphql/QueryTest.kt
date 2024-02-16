@@ -31,7 +31,10 @@ import org.testng.annotations.Test
 import java.time.OffsetDateTime
 import java.util.UUID
 
-fun getDFE(principal: UserPrincipal?, scope: CoroutineScope): DataFetchingEnvironment {
+fun getDFE(
+    principal: UserPrincipal?,
+    scope: CoroutineScope,
+): DataFetchingEnvironment {
     val dfe = LeakyMock.mock<DataFetchingEnvironment>()
     EasyMock.expect(dfe.graphQlContext).andReturn(
         GraphQLContext.of(
@@ -51,15 +54,16 @@ class QueryTest {
     val rUUID = UUID.randomUUID()
     val r2UUID = UUID.randomUUID()
     val user = User(uUUID, iUUID, "billy", "billy@gmail.com", "", false, "UTC")
-    val question = Question(
-        qUUID,
-        uUUID,
-        "question",
-        "answer",
-        "refs",
-        OffsetDateTime.now(),
-        OffsetDateTime.now(),
-    )
+    val question =
+        Question(
+            qUUID,
+            uUUID,
+            "question",
+            "answer",
+            "refs",
+            OffsetDateTime.now(),
+            OffsetDateTime.now(),
+        )
     val response = Response(rUUID, uUUID, qUUID, "response", "responseRefs")
     val gradedResponse = Response(r2UUID, uUUID, qUUID, "response2", "responseRefs2")
 
@@ -128,9 +132,10 @@ class QueryTest {
 
     @Test
     fun testFutureQuestions() {
-        val apiQuestions = query.futureQuestions(
-            getDFE(UserPrincipal(user.copy(admin = true), null), scope),
-        )
+        val apiQuestions =
+            query.futureQuestions(
+                getDFE(UserPrincipal(user.copy(admin = true), null), scope),
+            )
         assertThat(apiQuestions.first()).isEqualTo(ApiQuestion(question, 15))
 
         val noPermissionsQuestions = query.futureQuestions(getDFE(UserPrincipal(user, null), scope))
@@ -142,17 +147,19 @@ class QueryTest {
 
     @Test
     fun testResponses() {
-        val withGraded = query.responses(
-            getDFE(UserPrincipal(user.copy(admin = true), null), scope),
-            true,
-        )
+        val withGraded =
+            query.responses(
+                getDFE(UserPrincipal(user.copy(admin = true), null), scope),
+                true,
+            )
         assertThat(withGraded).contains(ApiResponse(response, 15))
         assertThat(withGraded).contains(ApiResponse(gradedResponse, 15))
 
-        val withoutGraded = query.responses(
-            getDFE(UserPrincipal(user.copy(admin = true), null), scope),
-            false,
-        )
+        val withoutGraded =
+            query.responses(
+                getDFE(UserPrincipal(user.copy(admin = true), null), scope),
+                false,
+            )
         assertThat(withoutGraded).contains(ApiResponse(response, 15))
         assertThat(withoutGraded).doesNotContain(ApiResponse(gradedResponse, 15))
 

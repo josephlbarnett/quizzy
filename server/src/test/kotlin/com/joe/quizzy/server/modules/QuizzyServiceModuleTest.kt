@@ -16,20 +16,21 @@ import org.testng.annotations.Test
 
 @Guice(modules = [QuizzyServiceModule::class])
 class QuizzyServiceModuleTest
-@Inject constructor(
-    @Named(GRAPHQL_PACKAGES_BIND_NAME)
-    val packages: Set<String>,
-    @Named(GRAPHQL_QUERIES_BIND_NAME)
-    val queries: Set<Any>,
-    val authFilter: AuthFilter<*, *>,
-) {
-    @Test
-    fun testResources() {
-        assertThat(packages).all {
-            contains("com.joe.quizzy.api")
-            contains("com.joe.quizzy.graphql")
+    @Inject
+    constructor(
+        @Named(GRAPHQL_PACKAGES_BIND_NAME)
+        val packages: Set<String>,
+        @Named(GRAPHQL_QUERIES_BIND_NAME)
+        val queries: Set<Any>,
+        val authFilter: AuthFilter<*, *>,
+    ) {
+        @Test
+        fun testResources() {
+            assertThat(packages).all {
+                contains("com.joe.quizzy.api")
+                contains("com.joe.quizzy.graphql")
+            }
+            assertThat(queries.first()).isInstanceOf(Query::class)
+            assertThat(authFilter).isNotNull()
         }
-        assertThat(queries.first()).isInstanceOf(Query::class)
-        assertThat(authFilter).isNotNull()
     }
-}

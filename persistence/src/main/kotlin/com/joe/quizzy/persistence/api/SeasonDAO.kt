@@ -11,7 +11,11 @@ interface SeasonDAO {
         endTime: OffsetDateTime? = null,
     ): Map<UUID, List<Season>>
 
-    fun getSeasons(instanceId: UUID, startTime: OffsetDateTime? = null, endTime: OffsetDateTime? = null): List<Season> {
+    fun getSeasons(
+        instanceId: UUID,
+        startTime: OffsetDateTime? = null,
+        endTime: OffsetDateTime? = null,
+    ): List<Season> {
         return getSeasons(listOf(instanceId), startTime, endTime)[instanceId].orEmpty()
     }
 }

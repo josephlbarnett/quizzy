@@ -17,25 +17,27 @@ import jakarta.inject.Provider
  * DataLoaders that fetch child objects are MappedDataLoaders,
  * DataLoaders that fetch parents are regular DataLoaders
  */
-class DataLoaderRegistryFactoryProvider @Inject constructor(
-    private val gradeDAO: GradeDAO,
-    private val userDAO: UserDAO,
-    private val questionDAO: QuestionDAO,
-    private val responseDAO: ResponseDAO,
-    private val instanceDAO: InstanceDAO,
-    private val seasonDAO: SeasonDAO,
-    private val groupMeServiceFactory: GroupMeServiceFactory,
-) : Provider<KotlinDataLoaderRegistryFactory> {
-    override fun get(): KotlinDataLoaderRegistryFactory {
-        return KotlinDataLoaderRegistryFactory(
-            ResponseGradeLoader(gradeDAO),
-            UserGradeLoader(gradeDAO),
-            BatchUserLoader(userDAO),
-            BatchQuestionLoader(questionDAO),
-            QuestionResponseLoader(responseDAO),
-            BulkInstanceLoader(instanceDAO),
-            InstanceSeasonLoader(seasonDAO),
-            GroupMeServiceLoader(groupMeServiceFactory),
-        )
+class DataLoaderRegistryFactoryProvider
+    @Inject
+    constructor(
+        private val gradeDAO: GradeDAO,
+        private val userDAO: UserDAO,
+        private val questionDAO: QuestionDAO,
+        private val responseDAO: ResponseDAO,
+        private val instanceDAO: InstanceDAO,
+        private val seasonDAO: SeasonDAO,
+        private val groupMeServiceFactory: GroupMeServiceFactory,
+    ) : Provider<KotlinDataLoaderRegistryFactory> {
+        override fun get(): KotlinDataLoaderRegistryFactory {
+            return KotlinDataLoaderRegistryFactory(
+                ResponseGradeLoader(gradeDAO),
+                UserGradeLoader(gradeDAO),
+                BatchUserLoader(userDAO),
+                BatchQuestionLoader(questionDAO),
+                QuestionResponseLoader(responseDAO),
+                BulkInstanceLoader(instanceDAO),
+                InstanceSeasonLoader(seasonDAO),
+                GroupMeServiceLoader(groupMeServiceFactory),
+            )
+        }
     }
-}

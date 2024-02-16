@@ -10,11 +10,23 @@ import java.util.stream.Stream
  */
 interface ResponseDAO {
     fun all(): List<Response>
+
     fun stream(): Stream<Response>
+
     fun get(id: UUID): Response?
+
     fun save(thing: Response): Response
-    fun byUserQuestion(userId: UUID, questionId: UUID): Response?
-    fun byUserQuestions(userId: UUID, questionIds: List<UUID>): Map<UUID, Response>
+
+    fun byUserQuestion(
+        userId: UUID,
+        questionId: UUID,
+    ): Response?
+
+    fun byUserQuestions(
+        userId: UUID,
+        questionIds: List<UUID>,
+    ): Map<UUID, Response>
+
     fun forInstance(
         instanceId: UUID,
         regrade: Boolean,

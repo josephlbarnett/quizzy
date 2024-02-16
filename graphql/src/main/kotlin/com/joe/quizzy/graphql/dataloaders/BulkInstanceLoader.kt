@@ -13,7 +13,10 @@ class BulkInstanceLoader(private val instanceDAO: InstanceDAO) :
     CoroutineMappedBatchLoader<UUID, Instance>() {
     override val dataLoaderName = "batchinstances"
 
-    override suspend fun loadSuspend(keys: Set<UUID>, environment: BatchLoaderEnvironment): Map<UUID, Instance> {
+    override suspend fun loadSuspend(
+        keys: Set<UUID>,
+        environment: BatchLoaderEnvironment,
+    ): Map<UUID, Instance> {
         return instanceDAO.get(keys.toList()).associateBy {
             val id = it.id
             requireNotNull(id)

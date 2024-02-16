@@ -17,58 +17,63 @@ private val log = KotlinLogging.logger { }
  * DAO implementation for Things
  */
 open class InstanceDAOJooq
-@Inject constructor(
-    private val ctx: DSLContext,
-) : InstanceDAO {
-    private fun getRecord(dsl: DSLContext, id: UUID): InstancesRecord? {
-        return dsl.selectFrom(Tables.INSTANCES).where(Tables.INSTANCES.ID.eq(id)).fetchOne()
-    }
+    @Inject
+    constructor(
+        private val ctx: DSLContext,
+    ) : InstanceDAO {
+        private fun getRecord(
+            dsl: DSLContext,
+            id: UUID,
+        ): InstancesRecord? {
+            return dsl.selectFrom(Tables.INSTANCES).where(Tables.INSTANCES.ID.eq(id)).fetchOne()
+        }
 
-    @Timed
-    override fun get(id: UUID): Instance? {
-        return getRecord(ctx, id)?.into(Instance::class.java)
-    }
+        @Timed
+        override fun get(id: UUID): Instance? {
+            return getRecord(ctx, id)?.into(Instance::class.java)
+        }
 
-    @Timed
-    override fun get(ids: List<UUID>): List<Instance> {
-        val query = ctx.selectFrom(Tables.INSTANCES).where(Tables.INSTANCES.ID.`in`(ids))
-        log.info("batch get instances: $query")
-        return query.fetchInto(Instance::class.java)
-    }
+        @Timed
+        override fun get(ids: List<UUID>): List<Instance> {
+            val query = ctx.selectFrom(Tables.INSTANCES).where(Tables.INSTANCES.ID.`in`(ids))
+            log.info("batch get instances: $query")
+            return query.fetchInto(Instance::class.java)
+        }
 
-    @Timed
-    override fun save(thing: Instance): Instance {
-        return ctx.transactionResult { config ->
-            val thingId = thing.id
-            val record = if (thingId == null) {
-                config.dsl().newRecord(
-                    Tables.INSTANCES,
-                    thing,
-                )
-            } else {
-                val existing = getRecord(config.dsl(), thingId)
-                if (existing != null) {
-                    existing.from(thing)
-                    existing
-                } else {
-                    config.dsl().newRecord(
-                        Tables.INSTANCES,
-                        thing,
-                    )
-                }
+        @Timed
+        override fun save(thing: Instance): Instance {
+            return ctx.transactionResult { config ->
+                val thingId = thing.id
+                val record =
+                    if (thingId == null) {
+                        config.dsl().newRecord(
+                            Tables.INSTANCES,
+                            thing,
+                        )
+                    } else {
+                        val existing = getRecord(config.dsl(), thingId)
+                        if (existing != null) {
+                            existing.from(thing)
+                            existing
+                        } else {
+                            config.dsl().newRecord(
+                                Tables.INSTANCES,
+                                thing,
+                            )
+                        }
+                    }
+                record.store()
+                record.into(Instance::class.java)
             }
-            record.store()
-            record.into(Instance::class.java)
+        }
+
+        @Timed
+        override fun all(): List<Instance> {
+            return ctx.select().from(Tables.INSTANCES).fetchInto(Instance::class.java)
+        }
+
+        @Timed
+        override fun stream(): Stream<Instance> {
+            return ctx.select().from(Tables.INSTANCES).fetchStreamInto(Instance::class.java)
         }
     }
-
-    @Timed
-    override fun all(): List<Instance> {
-        return ctx.select().from(Tables.INSTANCES).fetchInto(Instance::class.java)
-    }
-
-    @Timed
-    override fun stream(): Stream<Instance> {
-        return ctx.select().from(Tables.INSTANCES).fetchStreamInto(Instance::class.java)
-    }
-}
