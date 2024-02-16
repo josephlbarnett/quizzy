@@ -33,49 +33,52 @@ class ApiInstanceTest {
     }
 
     @Test
-    fun testNullId() = runBlocking {
-        val mockDfe = LeakyMock.mock<DataFetchingEnvironment>()
-        EasyMock.replay(mockDfe)
-        assertThat(i.copy(id = null).seasons(mockDfe).await()).isEmpty()
-        assertThat(i.copy(id = null).supportsGroupMe(mockDfe).await()).isFalse()
-        EasyMock.verify(mockDfe)
-    }
+    fun testNullId() =
+        runBlocking {
+            val mockDfe = LeakyMock.mock<DataFetchingEnvironment>()
+            EasyMock.replay(mockDfe)
+            assertThat(i.copy(id = null).seasons(mockDfe).await()).isEmpty()
+            assertThat(i.copy(id = null).supportsGroupMe(mockDfe).await()).isFalse()
+            EasyMock.verify(mockDfe)
+        }
 
     @Test
-    fun testSeasonLoader() = runBlocking {
-        val mockDfe = LeakyMock.mock<DataFetchingEnvironment>()
-        val mockLoader = LeakyMock.mock<DataLoader<InstanceTimePeriod, List<Season>>>()
-        EasyMock.expect(mockDfe.getDataLoader<InstanceTimePeriod, List<Season>>("instanceseasons"))
-            .andReturn(mockLoader)
-        EasyMock.expect(mockLoader.load(InstanceTimePeriod(i.id!!, null, null)))
-            .andReturn(
-                CompletableFuture.completedFuture(
-                    listOf(
-                        Season(UUID.randomUUID(), i.id!!, "s1", OffsetDateTime.now(), OffsetDateTime.now()),
-                        Season(UUID.randomUUID(), i.id!!, "s2", OffsetDateTime.now(), OffsetDateTime.now()),
+    fun testSeasonLoader() =
+        runBlocking {
+            val mockDfe = LeakyMock.mock<DataFetchingEnvironment>()
+            val mockLoader = LeakyMock.mock<DataLoader<InstanceTimePeriod, List<Season>>>()
+            EasyMock.expect(mockDfe.getDataLoader<InstanceTimePeriod, List<Season>>("instanceseasons"))
+                .andReturn(mockLoader)
+            EasyMock.expect(mockLoader.load(InstanceTimePeriod(i.id!!, null, null)))
+                .andReturn(
+                    CompletableFuture.completedFuture(
+                        listOf(
+                            Season(UUID.randomUUID(), i.id!!, "s1", OffsetDateTime.now(), OffsetDateTime.now()),
+                            Season(UUID.randomUUID(), i.id!!, "s2", OffsetDateTime.now(), OffsetDateTime.now()),
+                        ),
                     ),
-                ),
-            )
-        EasyMock.replay(mockDfe, mockLoader)
-        val seasons = i.seasons(mockDfe, null, null)
-        assertThat(seasons.await().map { it.name }).isEqualTo(listOf("s1", "s2"))
-        EasyMock.verify(mockDfe, mockLoader)
-    }
+                )
+            EasyMock.replay(mockDfe, mockLoader)
+            val seasons = i.seasons(mockDfe, null, null)
+            assertThat(seasons.await().map { it.name }).isEqualTo(listOf("s1", "s2"))
+            EasyMock.verify(mockDfe, mockLoader)
+        }
 
     @Test
-    fun testGroupMeLoader() = runBlocking {
-        val mockDfe = LeakyMock.mock<DataFetchingEnvironment>()
-        val mockLoader = LeakyMock.mock<DataLoader<UUID, GroupMeService?>>()
-        EasyMock.expect(mockDfe.getDataLoader<UUID, GroupMeService?>("groupmeservice"))
-            .andReturn(mockLoader)
-        EasyMock.expect(mockLoader.load(i.id))
-            .andReturn(
-                CompletableFuture.completedFuture(
-                    null,
-                ),
-            )
-        EasyMock.replay(mockDfe, mockLoader)
-        assertThat(i.supportsGroupMe(mockDfe).await()).isFalse()
-        EasyMock.verify(mockDfe, mockLoader)
-    }
+    fun testGroupMeLoader() =
+        runBlocking {
+            val mockDfe = LeakyMock.mock<DataFetchingEnvironment>()
+            val mockLoader = LeakyMock.mock<DataLoader<UUID, GroupMeService?>>()
+            EasyMock.expect(mockDfe.getDataLoader<UUID, GroupMeService?>("groupmeservice"))
+                .andReturn(mockLoader)
+            EasyMock.expect(mockLoader.load(i.id))
+                .andReturn(
+                    CompletableFuture.completedFuture(
+                        null,
+                    ),
+                )
+            EasyMock.replay(mockDfe, mockLoader)
+            assertThat(i.supportsGroupMe(mockDfe).await()).isFalse()
+            EasyMock.verify(mockDfe, mockLoader)
+        }
 }

@@ -21,7 +21,6 @@ import org.testng.annotations.Test
 import java.time.OffsetDateTime
 
 class EmailNotificationDAOTest : PostgresDAOTestBase() {
-
     lateinit var userDao: UserDAO
     lateinit var instanceDao: InstanceDAO
     lateinit var questionDao: QuestionDAO
@@ -42,13 +41,14 @@ class EmailNotificationDAOTest : PostgresDAOTestBase() {
         val instanceId = instanceDao.save(instance).id!!
         val user = User(null, instanceId, "abc", "abc@gmail.com", null, false, "UTC")
         val userId = userDao.save(user).id!!
-        val questions = listOf(
-            Question(null, userId, "q1", "a1", "r1", OffsetDateTime.now(), OffsetDateTime.now()),
-            Question(null, userId, "q2", "a2", "r2", OffsetDateTime.now(), OffsetDateTime.now()),
-            Question(null, userId, "q3", "a3", "r3", OffsetDateTime.now(), OffsetDateTime.now()),
-        ).map {
-            questionDao.save(it)
-        }
+        val questions =
+            listOf(
+                Question(null, userId, "q1", "a1", "r1", OffsetDateTime.now(), OffsetDateTime.now()),
+                Question(null, userId, "q2", "a2", "r2", OffsetDateTime.now(), OffsetDateTime.now()),
+                Question(null, userId, "q3", "a3", "r3", OffsetDateTime.now(), OffsetDateTime.now()),
+            ).map {
+                questionDao.save(it)
+            }
         dao.markNotified(NotificationType.REMINDER, listOf())
         assertThat(dao.all()).isEmpty()
 

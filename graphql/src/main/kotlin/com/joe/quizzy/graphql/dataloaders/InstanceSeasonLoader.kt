@@ -18,14 +18,15 @@ class InstanceSeasonLoader(private val seasonDAO: SeasonDAO) :
         environment: BatchLoaderEnvironment,
     ): Map<InstanceTimePeriod, List<Season>> {
         val groupedIds = keys.groupBy { it.startTime to it.endTime }
-        val all = groupedIds.map { groupedEntry ->
-            seasonDAO.getSeasons(
-                groupedEntry.value.map { it.instanceId },
-                groupedEntry.key.first,
-                groupedEntry.key.second,
-            )
-                .mapKeys { InstanceTimePeriod(it.key, groupedEntry.key.first, groupedEntry.key.second) }
-        }
+        val all =
+            groupedIds.map { groupedEntry ->
+                seasonDAO.getSeasons(
+                    groupedEntry.value.map { it.instanceId },
+                    groupedEntry.key.first,
+                    groupedEntry.key.second,
+                )
+                    .mapKeys { InstanceTimePeriod(it.key, groupedEntry.key.first, groupedEntry.key.second) }
+            }
         return all.reduce { a, b ->
             a + b
         }

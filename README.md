@@ -11,7 +11,7 @@ Getting Started
 ---------------
 #### Install jdk and maven
 * Install openjdk 17 or newer
-* Install maven 3.5 or newer
+* Install maven 3.9.2 or newer (or use included ./mvnw script instead of mvn)
 #### Build and run tests
 * Building with maven will run tests
 ```

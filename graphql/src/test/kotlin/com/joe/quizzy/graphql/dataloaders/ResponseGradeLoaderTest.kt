@@ -15,19 +15,21 @@ import java.util.UUID
 
 class ResponseGradeLoaderTest {
     @Test
-    fun testResponseGradeLoader() = runBlocking {
-        val gradeDAO = LeakyMock.mock<GradeDAO>()
-        val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
-        val loader = ResponseGradeLoader(gradeDAO)
-        val grades = mapOf(
-            UUID.randomUUID() to Grade(UUID.randomUUID(), UUID.randomUUID(), true, 1),
-            UUID.randomUUID() to Grade(UUID.randomUUID(), UUID.randomUUID(), true, 2),
-        )
-        EasyMock.expect(gradeDAO.forResponses(EasyMock.anyObject<List<UUID>>() ?: listOf())).andReturn(grades)
-        EasyMock.expect(mockEnv.getContext<GraphQLContext>()).andReturn(GraphQLContext.getDefault())
-        EasyMock.replay(gradeDAO, mockEnv)
-        val gs = loader.load(grades.mapNotNull { it.key }.toSet(), mockEnv).await()
-        assertThat(gs).isEqualTo(grades)
-        EasyMock.verify(gradeDAO, mockEnv)
-    }
+    fun testResponseGradeLoader() =
+        runBlocking {
+            val gradeDAO = LeakyMock.mock<GradeDAO>()
+            val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
+            val loader = ResponseGradeLoader(gradeDAO)
+            val grades =
+                mapOf(
+                    UUID.randomUUID() to Grade(UUID.randomUUID(), UUID.randomUUID(), true, 1),
+                    UUID.randomUUID() to Grade(UUID.randomUUID(), UUID.randomUUID(), true, 2),
+                )
+            EasyMock.expect(gradeDAO.forResponses(EasyMock.anyObject<List<UUID>>() ?: listOf())).andReturn(grades)
+            EasyMock.expect(mockEnv.getContext<GraphQLContext>()).andReturn(GraphQLContext.getDefault())
+            EasyMock.replay(gradeDAO, mockEnv)
+            val gs = loader.load(grades.mapNotNull { it.key }.toSet(), mockEnv).await()
+            assertThat(gs).isEqualTo(grades)
+            EasyMock.verify(gradeDAO, mockEnv)
+        }
 }

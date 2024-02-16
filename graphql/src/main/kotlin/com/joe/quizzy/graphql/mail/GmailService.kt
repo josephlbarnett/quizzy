@@ -32,97 +32,106 @@ import java.util.UUID
 
 private val log = KotlinLogging.logger {}
 
-open class GmailService @Inject constructor(
-    jsonFactory: JsonFactory,
-    dataStoreFactory: DataStoreFactory,
-    @Assisted instanceId: UUID,
-) {
-    open lateinit var gmail: Gmail
-    open lateinit var oauth: Oauth2
+open class GmailService
+    @Inject
+    constructor(
+        jsonFactory: JsonFactory,
+        dataStoreFactory: DataStoreFactory,
+        @Assisted instanceId: UUID,
+    ) {
+        open lateinit var gmail: Gmail
+        open lateinit var oauth: Oauth2
 
-    init {
-        val envSecrets = System.getenv("GMAIL_CREDENTIALS_JSON")
-        val secretsReader = if (envSecrets.isNullOrBlank()) {
-            this::class.java.getResourceAsStream("/gmail-credentials.json")?.let { InputStreamReader(it) }
-        } else {
-            StringReader(envSecrets)
-        }
-        val secrets = secretsReader?.use { reader ->
-            GoogleClientSecrets.load(jsonFactory, reader)
-        }
-        val credential = AuthorizationCodeInstalledApp(
-            GoogleAuthorizationCodeFlow.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                jsonFactory,
-                secrets,
-                listOf(GmailScopes.GMAIL_SEND, Oauth2Scopes.USERINFO_EMAIL),
-            )
-                .setDataStoreFactory(dataStoreFactory)
-                .setAccessType("offline")
-                .build(),
+        init {
+            val envSecrets = System.getenv("GMAIL_CREDENTIALS_JSON")
+            val secretsReader =
+                if (envSecrets.isNullOrBlank()) {
+                    this::class.java.getResourceAsStream("/gmail-credentials.json")?.let { InputStreamReader(it) }
+                } else {
+                    StringReader(envSecrets)
+                }
+            val secrets =
+                secretsReader?.use { reader ->
+                    GoogleClientSecrets.load(jsonFactory, reader)
+                }
+            val credential =
+                AuthorizationCodeInstalledApp(
+                    GoogleAuthorizationCodeFlow.Builder(
+                        GoogleNetHttpTransport.newTrustedTransport(),
+                        jsonFactory,
+                        secrets,
+                        listOf(GmailScopes.GMAIL_SEND, Oauth2Scopes.USERINFO_EMAIL),
+                    )
+                        .setDataStoreFactory(dataStoreFactory)
+                        .setAccessType("offline")
+                        .build(),
 //            LocalServerReceiver.Builder().setPort(8888)
 //                .build() // < --to allow for setting refresh token w / localhost server
-            object : VerificationCodeReceiver { // <-- don't get new tokens
-                override fun waitForCode(): String {
-                    throw IOException("Can't wait for code, need a refresh token persisted")
-                }
+                    object : VerificationCodeReceiver { // <-- don't get new tokens
+                        override fun waitForCode(): String {
+                            throw IOException("Can't wait for code, need a refresh token persisted")
+                        }
 
-                override fun stop() {
-                    // do nothing
-                }
+                        override fun stop() {
+                            // do nothing
+                        }
 
-                override fun getRedirectUri(): String {
-                    throw IOException("No redirect URI, need a refresh token persisted")
-                }
-            },
-        ).authorize(instanceId.toString())
+                        override fun getRedirectUri(): String {
+                            throw IOException("No redirect URI, need a refresh token persisted")
+                        }
+                    },
+                ).authorize(instanceId.toString())
 
-        gmail = Gmail.Builder(
-            GoogleNetHttpTransport.newTrustedTransport(),
-            jsonFactory,
-            credential,
-        ).setApplicationName("rules exchange").build()
+            gmail =
+                Gmail.Builder(
+                    GoogleNetHttpTransport.newTrustedTransport(),
+                    jsonFactory,
+                    credential,
+                ).setApplicationName("rules exchange").build()
 
-        oauth = Oauth2.Builder(
-            GoogleNetHttpTransport.newTrustedTransport(),
-            jsonFactory,
-            credential,
-        ).setApplicationName("rules exchange").build()
+            oauth =
+                Oauth2.Builder(
+                    GoogleNetHttpTransport.newTrustedTransport(),
+                    jsonFactory,
+                    credential,
+                ).setApplicationName("rules exchange").build()
+        }
     }
-}
 
 interface InternalGmailMailServiceFactory {
     fun create(instanceId: UUID): GmailService
 }
 
-open class GmailServiceFactory @Inject constructor(
-    private val factory: InternalGmailMailServiceFactory,
-    private val dataStoreFactory: DataStoreFactory,
-    private val instanceDAO: InstanceDAO,
-) {
-    open fun getService(instanceId: UUID): GmailService? {
-        val credStore = StoredCredential.getDefaultDataStore(dataStoreFactory)
-        val instance = instanceDAO.get(instanceId)
-        val existingToken = instance?.gmailRefreshToken
-        if (existingToken != null) {
-            credStore.set(instanceId.toString(), StoredCredential().apply { refreshToken = existingToken })
-        }
-        return try {
-            factory.create(instanceId)
-        } catch (e: Exception) {
-            log.warn("Could not create GmailSender for instance $instanceId", e)
-            null
-        } finally {
-            val refreshedRefreshToken = credStore.get(instanceId.toString())?.refreshToken
-            if (instance != null &&
-                refreshedRefreshToken != null &&
-                existingToken != refreshedRefreshToken
-            ) {
-                instanceDAO.save(instance.copy(gmailRefreshToken = refreshedRefreshToken))
+open class GmailServiceFactory
+    @Inject
+    constructor(
+        private val factory: InternalGmailMailServiceFactory,
+        private val dataStoreFactory: DataStoreFactory,
+        private val instanceDAO: InstanceDAO,
+    ) {
+        open fun getService(instanceId: UUID): GmailService? {
+            val credStore = StoredCredential.getDefaultDataStore(dataStoreFactory)
+            val instance = instanceDAO.get(instanceId)
+            val existingToken = instance?.gmailRefreshToken
+            if (existingToken != null) {
+                credStore.set(instanceId.toString(), StoredCredential().apply { refreshToken = existingToken })
+            }
+            return try {
+                factory.create(instanceId)
+            } catch (e: Exception) {
+                log.warn("Could not create GmailSender for instance $instanceId", e)
+                null
+            } finally {
+                val refreshedRefreshToken = credStore.get(instanceId.toString())?.refreshToken
+                if (instance != null &&
+                    refreshedRefreshToken != null &&
+                    existingToken != refreshedRefreshToken
+                ) {
+                    instanceDAO.save(instance.copy(gmailRefreshToken = refreshedRefreshToken))
+                }
             }
         }
     }
-}
 
 class GmailServiceModule : KotlinModule() {
     override fun configure() {
@@ -135,7 +144,10 @@ class GmailServiceModule : KotlinModule() {
 /**
  * Convenience extension method to send a [MimeMessage] instead of a [Message]
  */
-fun Gmail.sendEmail(userId: String, message: MimeMessage): Send {
+fun Gmail.sendEmail(
+    userId: String,
+    message: MimeMessage,
+): Send {
     val buffer = ByteArrayOutputStream()
     message.writeTo(buffer)
     val encodedEmail = BaseEncoding.base64Url().omitPadding().encode(buffer.toByteArray())

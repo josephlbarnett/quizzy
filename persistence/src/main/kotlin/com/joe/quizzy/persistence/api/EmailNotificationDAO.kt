@@ -5,6 +5,10 @@ import com.joe.quizzy.api.models.NotificationType
 import java.util.UUID
 
 interface EmailNotificationDAO {
-    fun markNotified(notificationType: NotificationType, questionUUIDs: List<UUID>)
+    fun markNotified(
+        notificationType: NotificationType,
+        questionUUIDs: List<UUID>,
+    )
+
     fun all(): List<EmailNotification>
 }

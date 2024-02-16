@@ -16,7 +16,10 @@ class GroupMeServiceLoader(private val factory: GroupMeServiceFactory) :
     CoroutineMappedBatchLoader<UUID, GroupMeService?>() {
     override val dataLoaderName = "groupmeservice"
 
-    override suspend fun loadSuspend(keys: Set<UUID>, environment: BatchLoaderEnvironment): Map<UUID, GroupMeService?> {
+    override suspend fun loadSuspend(
+        keys: Set<UUID>,
+        environment: BatchLoaderEnvironment,
+    ): Map<UUID, GroupMeService?> {
         return keys.associateWith {
             try {
                 factory.create(it)
