@@ -141,7 +141,7 @@ open class QuestionDAOJooq
                     .andNotExists(
                         gradeExists(user),
                     ),
-            ).orderBy(Tables.QUESTIONS.CLOSED_AT)
+            ).orderBy(Tables.QUESTIONS.ACTIVE_AT)
         log.info("active questions query: $query")
         return query.collectAndMap()
     }
@@ -159,7 +159,7 @@ open class QuestionDAOJooq
                 Tables.QUESTIONS.ACTIVE_AT.le(now)
                     .and(Tables.QUESTIONS.CLOSED_AT.ge(now))
                     .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull),
-            ).orderBy(Tables.QUESTIONS.CLOSED_AT)
+            ).orderBy(Tables.QUESTIONS.ACTIVE_AT)
         return query.collectAndMap()
     }
 
@@ -181,7 +181,7 @@ open class QuestionDAOJooq
                         },
                     ),
                 ),
-            ).orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
+            ).orderBy(Tables.QUESTIONS.ACTIVE_AT.desc())
         log.info("closed questions query: $query")
         return query.collectAndMap()
     }
@@ -202,7 +202,7 @@ open class QuestionDAOJooq
                     .and(Tables.EMAIL_NOTIFICATIONS.ID.isNull)
                     .and(DSL.not(Tables.INSTANCES.AUTO_GRADE.isTrue)),
             )
-            .orderBy(Tables.QUESTIONS.CLOSED_AT.desc())
+            .orderBy(Tables.QUESTIONS.ACTIVE_AT.desc())
         return query.collectAndMap()
     }
 
@@ -210,19 +210,19 @@ open class QuestionDAOJooq
     override fun future(user: User): List<Question> {
         val now = OffsetDateTime.now()
         val query = instanceQuestions(user)
-            .where(Tables.QUESTIONS.ACTIVE_AT.gt(now)).orderBy(Tables.QUESTIONS.CLOSED_AT)
+            .where(Tables.QUESTIONS.ACTIVE_AT.gt(now)).orderBy(Tables.QUESTIONS.ACTIVE_AT)
         log.info("future questions query: $query")
         return query.collectAndMap()
     }
 
     @Timed
     override fun all(): List<Question> {
-        return ctx.select().from(questionsAndChoices).orderBy(Tables.QUESTIONS.CLOSED_AT).collectAndMap()
+        return ctx.select().from(questionsAndChoices).orderBy(Tables.QUESTIONS.ACTIVE_AT).collectAndMap()
     }
 
     @Timed
     override fun stream(): Stream<Question> {
-        return ctx.select().from(Tables.QUESTIONS).orderBy(Tables.QUESTIONS.CLOSED_AT)
+        return ctx.select().from(Tables.QUESTIONS).orderBy(Tables.QUESTIONS.ACTIVE_AT)
             .fetchStreamInto(Question::class.java)
     }
 }
