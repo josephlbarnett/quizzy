@@ -137,7 +137,7 @@ open class ResponseDAOJooq
                     ),
                 ),
             )
-            .orderBy(Tables.QUESTIONS.CLOSED_AT.desc(), Tables.USERS.NAME)
+            .orderBy(Tables.QUESTIONS.ACTIVE_AT.desc(), Tables.USERS.NAME)
 
         log.info("graded query : $query")
         return query.fetchInto(Response::class.java)
