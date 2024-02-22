@@ -4,3 +4,4 @@ target/
 *.iml
 service.log*
 gmail-credentials.json
+.mvn/wrapper/maven-wrapper.jar

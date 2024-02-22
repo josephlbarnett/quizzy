@@ -5,7 +5,7 @@ orbs:
 jobs:
   build:
     machine:
-      image: ubuntu-2204:2023.07.2
+      image: default
 
     working_directory: ~/repo
     environment:
@@ -42,17 +42,20 @@ jobs:
             - ~/repo/emails/node_modules
           key: v8-email-npms-{{ .Branch }}-{{ .Revision }}
       - run:
+          name: Set JAVA_HOME for mvnw commands
+          command: echo 'export JAVA_HOME=`java -XshowSettings:properties -version 2>&1 |grep java.home | sed "s/.*java\.home = //"`' >> "$BASH_ENV"
+      - run:
           name: Set Maven Version
           command: |
-            BASE_VERSION=$(mvn -q  -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec|sed 's/-SNAPSHOT.*//')
+            BASE_VERSION=$(./mvnw -q  -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec|sed 's/-SNAPSHOT.*//')
             if [ "$CIRCLE_BRANCH" = "main" ]; then
               NEW_PROJECT_VERSION=${BASE_VERSION}.${CIRCLE_BUILD_NUM}
             else
               NEW_PROJECT_VERSION=${BASE_VERSION}-${CIRCLE_BRANCH}-SNAPSHOT
             fi
-            mvn versions:set -DgenerateBackupPoms=false -DnewVersion=${NEW_PROJECT_VERSION}
+            ./mvnw versions:set -DgenerateBackupPoms=false -DnewVersion=${NEW_PROJECT_VERSION}
             echo ${NEW_PROJECT_VERSION} > ~/repo/current_version.txt
-      - run: mvn install -U -pl .,api,emails,persistence,graphql,client
+      - run: ./mvnw install -U -pl .,api,emails,persistence,graphql,client
       - run:
           name: npm build client
           command: |
@@ -66,7 +69,7 @@ jobs:
           paths:
             - ~/repo/client/node_modules
           key: v8-npms-{{ .Branch }}-{{ .Revision }}
-      - run: mvn install -U -pl client,server
+      - run: ./mvnw install -U -pl client,server
       #- save_cache:
       #    paths:
       #      - ~/.m2
