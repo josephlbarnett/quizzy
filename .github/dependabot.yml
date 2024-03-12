@@ -4,6 +4,8 @@ updates:
   directory: "/"
   schedule:
     interval: daily
+    time: "04:00"
+    timezone: "America/Los_Angeles"
   pull-request-branch-name:
     separator: "-"
   open-pull-requests-limit: 99
@@ -15,6 +17,8 @@ updates:
   directory: "/client"
   schedule:
     interval: daily
+    time: "04:00"
+    timezone: "America/Los_Angeles"
   pull-request-branch-name:
     separator: "-"
   open-pull-requests-limit: 99
@@ -29,6 +33,8 @@ updates:
   directory: "/emails"
   schedule:
     interval: daily
+    time: "04:00"
+    timezone: "America/Los_Angeles"
   pull-request-branch-name:
     separator: "-"
   open-pull-requests-limit: 99
