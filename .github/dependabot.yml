@@ -29,6 +29,9 @@ updates:
   - dependency-name: vue
     versions:
     - ">= 3.0.0"
+  - dependency-name: "@vue/test-utils"
+    versions:
+    - ">= 2.0.0"
 - package-ecosystem: npm
   directory: "/emails"
   schedule:
