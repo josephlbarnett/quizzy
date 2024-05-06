@@ -8,4 +8,4 @@ ADD server/target/server-${CURRENT_VERSION}-shaded.jar /app/server.jar
 ENV PORT 8080
 EXPOSE 8080
 
-CMD fallocate -l $(($(stat -f -c "(%a*%s/10)*7" .))) _swapfile && mkswap _swapfile && swapon _swapfile && JDBC_DATABASE_URL=`echo $DATABASE_URL | sed 's/^postgres:\/\/\([^:]*\):\([^@]*\)@\(.*\)$/jdbc:postgresql:\/\/\3?user=\1\&password=\2/'` java -XX:MaxRAM=70m -jar /app/server.jar
+CMD JDBC_DATABASE_URL=`echo $DATABASE_URL | sed 's/^postgres:\/\/\([^:]*\):\([^@]*\)@\(.*\)$/jdbc:postgresql:\/\/\3?user=\1\&password=\2/'` java -XX:MaxRAM=70m -jar /app/server.jar
