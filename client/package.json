@@ -14,7 +14,7 @@
   "dependencies": {
     "@apollo/client": "3.10.4",
     "@graphql-codegen/cli": "5.0.2",
-    "@graphql-codegen/typescript": "4.0.6",
+    "@graphql-codegen/typescript": "4.0.7",
     "@types/moment-timezone": "0.5.30",
     "core-js": "3.37.1",
     "graphql": "16.8.1",
