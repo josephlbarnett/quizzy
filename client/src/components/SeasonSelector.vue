@@ -4,15 +4,14 @@
     v-model="currentSeason"
     :items="instanceStore.seasons"
     label="Season"
-    item-text="name"
-    @change="change"
+    item-title="name"
+    @update:model-value="change"
   />
 </template>
 <script lang="ts">
-import Vue from "vue";
 import { useInstanceStore } from "@/stores/instance";
 
-export default Vue.extend({
+export default {
   name: "UserInvite",
   setup() {
     const instanceStore = useInstanceStore();
@@ -40,5 +39,5 @@ export default Vue.extend({
       this.$emit("change", event);
     },
   },
-});
+};
 </script>

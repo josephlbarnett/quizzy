@@ -1,7 +1,7 @@
 <template>
   <div class="user">
     <ApolloQuery
-      :query="require('../graphql/CurrentUser.gql')"
+      :query="CurrentUser"
       @result="
         (result) => {
           if (result && result.data && result.data.user) {
@@ -16,10 +16,10 @@
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
-        <div v-else-if="error" class="error">An error occurred</div>
+        <div v-else-if="error" class="bg-error">An error occurred</div>
         <v-container v-else-if="data.user">
           <ApolloMutation
-            :mutation="require('../graphql/UpdateUser.gql')"
+            :mutation="UpdateUser"
             :variables="{
               name,
               id: data.user.id,
@@ -54,7 +54,7 @@
                         v-model="timezone"
                         :items="tzs"
                         label="Timezone"
-                        item-text="name"
+                        item-title="name"
                         item-value="value"
                       ></v-autocomplete>
                       <v-checkbox
@@ -70,7 +70,7 @@
                     </v-card-actions>
                     <v-snackbar v-model="saveError" color="error"
                       >Could not save settings, try again.
-                      <template #action="{ attrs }">
+                      <template #actions="attrs">
                         <v-btn v-bind="attrs" @click="saveError = false"
                           >OK</v-btn
                         ></template
@@ -78,7 +78,7 @@
                     </v-snackbar>
                     <v-snackbar v-model="saveConfirm" color="accent"
                       >Settings saved.
-                      <template #action="{ attrs }">
+                      <template #actions="attrs">
                         <v-btn v-bind="attrs" @click="saveConfirm = false"
                           >OK</v-btn
                         ></template
@@ -91,7 +91,7 @@
           </ApolloMutation>
 
           <ApolloMutation
-            :mutation="require('../graphql/ChangePassword.gql')"
+            :mutation="ChangePassword"
             :variables="{
               old: oldPassword,
               new: newPassword,
@@ -134,7 +134,7 @@
                     </v-card-actions>
                     <v-snackbar v-model="passError" color="error"
                       >Could not change password, try again.
-                      <template #action="{ attrs }">
+                      <template #actions="attrs">
                         <v-btn v-bind="attrs" @click="passError = false"
                           >OK</v-btn
                         ></template
@@ -142,7 +142,7 @@
                     </v-snackbar>
                     <v-snackbar v-model="passConfirm" color="accent"
                       >Password changed.
-                      <template #action="{ attrs }">
+                      <template #actions="attrs">
                         <v-btn v-bind="attrs" @click="passConfirm = false"
                           >OK
                         </v-btn></template
@@ -160,10 +160,12 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import moment from "moment-timezone";
+import CurrentUser from "@/graphql/CurrentUser.gql";
+import UpdateUser from "@/graphql/UpdateUser.gql";
+import ChangePassword from "@/graphql/ChangePassword.gql";
 
-export default Vue.extend({
+export default {
   name: "UserSettings",
   data: () => ({
     saveError: false,
@@ -189,6 +191,9 @@ export default Vue.extend({
         value: name,
       })),
     ),
+    CurrentUser,
+    UpdateUser,
+    ChangePassword,
   }),
   computed: {
     newPassword: function (): string | null {
@@ -226,5 +231,5 @@ export default Vue.extend({
       }
     },
   },
-});
+};
 </script>

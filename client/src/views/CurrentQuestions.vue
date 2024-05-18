@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <ApolloQuery
-      :query="require('../graphql/CurrentUser.gql')"
+      :query="CurrentUser"
       @result="
         (result) => {
           result &&
@@ -16,7 +16,7 @@
       <template #default="{}" />
     </ApolloQuery>
     <ApolloQuery
-      :query="require('../graphql/CurrentQuestions.gql')"
+      :query="CurrentQuestions"
       fetch-policy="cache-and-network"
       @result="
         (result) => {
@@ -28,7 +28,7 @@
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
-        <div v-else-if="error" class="error">An error occurred</div>
+        <div v-else-if="error" class="bg-error">An error occurred</div>
         <v-card v-if="data && data.activeQuestions">
           <v-card-title> Current Questions</v-card-title>
           <v-data-table
@@ -60,7 +60,7 @@
         </v-card-title>
         <ApolloMutation
           v-if="clickedQuestion"
-          :mutation="require('../graphql/SaveResponse.gql')"
+          :mutation="SaveResponse"
           :refetch-queries="() => [`CurrentQuestions`]"
           :await-refetch-queries="true"
           :variables="{
@@ -80,17 +80,17 @@
               <v-row>
                 <v-col v-if="clickedQuestion.imageUrl" cols="12" lg="1">
                   <v-dialog v-model="imageDialog">
-                    <template #activator="{ on }">
+                    <template #activator="{ props }">
                       <v-img
                         :src="clickedQuestion.imageUrl"
                         max-height="200px"
                         max-width="200px"
-                        v-on="on"
+                        v-bind="props"
                       ></v-img>
                     </template>
                     <v-card @click="imageDialog = false">
                       <v-img
-                        contain
+                        cover
                         :src="clickedQuestion.imageUrl"
                         max-height="90vh"
                         max-width="90vw"
@@ -132,7 +132,7 @@
             </v-card-actions>
             <v-snackbar v-model="saveError" color="error">
               Couldn't save, try again.
-              <template #action="{ attrs }">
+              <template #actions="attrs">
                 <v-btn v-bind="attrs" @click="saveError = false">OK </v-btn>
               </template>
             </v-snackbar>
@@ -149,13 +149,15 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import moment from "moment-timezone";
 import { ApiQuestion, ApiResponse, QuestionType } from "@/generated/types.d";
 import { FetchResult } from "@apollo/client/core";
 import GradedQuestionDialog from "@/components/GradedQuestionDialog.vue";
+import CurrentUser from "@/graphql/CurrentUser.gql";
+import CurrentQuestions from "@/graphql/CurrentQuestions.gql";
+import SaveResponse from "@/graphql/SaveResponse.gql";
 
-export default Vue.extend({
+export default {
   name: "CurrentQuestions",
   components: { GradedQuestionDialog },
   data: () => ({
@@ -164,22 +166,22 @@ export default Vue.extend({
     gradedQuestion: null as ApiQuestion | null,
     headers: [
       {
-        text: "Date",
+        title: "Date",
         value: "activeAt",
         sortable: false,
       },
       {
-        text: "Respond By",
+        title: "Respond By",
         value: "closedAt",
         sortable: false,
       },
       {
-        text: "Question",
+        title: "Question",
         value: "body",
         sortable: false,
       },
       {
-        text: "Your Response",
+        title: "Your Response",
         value: "response.response",
         sortable: false,
       },
@@ -191,6 +193,9 @@ export default Vue.extend({
     clickedResponse: null as ApiResponse | null,
     userId: "",
     saveError: false,
+    CurrentUser,
+    CurrentQuestions,
+    SaveResponse,
   }),
   methods: {
     renderDateTime(date: string) {
@@ -253,5 +258,5 @@ export default Vue.extend({
       return value;
     },
   },
-});
+};
 </script>

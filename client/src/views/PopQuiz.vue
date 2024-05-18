@@ -27,7 +27,7 @@
     </div>
     <div v-else-if="created">
       <ApolloQuery
-        :query="require('../graphql/CurrentUser.gql')"
+        :query="CurrentUser"
         @result="
           (result) => {
             result &&
@@ -40,7 +40,7 @@
         <template #default="{}" />
       </ApolloQuery>
       <ApolloQuery
-        :query="require('../graphql/CompletedQuestions.gql')"
+        :query="CompletedQuestions"
         :variables="qvars"
         fetch-policy="cache-and-network"
         @result="
@@ -54,7 +54,7 @@
           <div v-if="isLoading">
             <v-progress-circular :indeterminate="true" />
           </div>
-          <div v-else-if="error" class="error">An error occurred</div>
+          <div v-else-if="error" class="bg-error">An error occurred</div>
           <div v-else-if="!currentQuestion">
             <v-card-title>No Questions</v-card-title>
             <v-card-text>
@@ -68,17 +68,17 @@
               <v-row>
                 <v-col v-if="currentQuestion.imageUrl" cols="12" lg="1">
                   <v-dialog v-model="imageDialog">
-                    <template #activator="{ on }">
+                    <template #activator="{ props }">
                       <v-img
                         :src="currentQuestion.imageUrl"
                         max-height="200px"
                         max-width="200px"
-                        v-on="on"
+                        v-bind="props"
                       ></v-img>
                     </template>
                     <v-card @click="imageDialog = false">
                       <v-img
-                        contain
+                        cover
                         :src="currentQuestion.imageUrl"
                         max-height="90vh"
                         max-width="90vw"
@@ -142,13 +142,16 @@
   </v-card>
 </template>
 <script lang="ts">
-import Vue from "vue";
 import { useInstanceStore } from "@/stores/instance";
 import { ApiQuestion, ApiResponse, QuestionType } from "@/generated/types.d";
 import moment from "moment-timezone";
+import CurrentUser from "@/graphql/CurrentUser.gql";
+import CompletedQuestions from "@/graphql/CompletedQuestions.gql";
+import GradedQuestionDialog from "@/components/GradedQuestionDialog.vue";
 
-export default Vue.extend({
+export default {
   name: "PopQuiz",
+  components: { GradedQuestionDialog },
   setup() {
     const instanceStore = useInstanceStore();
     return {
@@ -171,6 +174,8 @@ export default Vue.extend({
     reviewDialog: false,
     score: 0,
     summary: false,
+    CurrentUser,
+    CompletedQuestions,
   }),
   computed: {
     qvars() {
@@ -287,5 +292,5 @@ export default Vue.extend({
       }
     },
   },
-});
+};
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div class="futureQuestions">
     <ApolloQuery
-      :query="require('../graphql/CurrentUser.gql')"
+      :query="CurrentUser"
       @result="
         (result) => {
           result &&
@@ -13,12 +13,12 @@
     >
       <template #default="{}" />
     </ApolloQuery>
-    <ApolloQuery :query="require('../graphql/FutureQuestions.gql')">
+    <ApolloQuery :query="FutureQuestions">
       <template #default="{ result: { error, data }, isLoading }">
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
-        <div v-else-if="error" class="error">An error occurred</div>
+        <div v-else-if="error" class="bg-error">An error occurred</div>
         <v-card v-if="data && data.futureQuestions">
           <v-card-title>
             Upcoming Questions
@@ -27,8 +27,12 @@
               v-model="addDialog"
               @click:outside="addDialogError = false"
             >
-              <template #activator="{ on }">
-                <v-btn color="accent" v-on="on" @click="resetAddDialogState">
+              <template #activator="{ props }">
+                <v-btn
+                  color="accent"
+                  v-bind="props"
+                  @click="resetAddDialogState"
+                >
                   ADD QUESTION
                 </v-btn>
               </template>
@@ -58,7 +62,7 @@
                   </v-row>
                   <v-row>
                     <v-col>
-                      <ApolloQuery :query="require('../graphql/Users.gql')">
+                      <ApolloQuery :query="Users">
                         <template #default="{ result: { data: userData } }">
                           <v-autocomplete
                             v-if="userData"
@@ -66,7 +70,7 @@
                             label="Question Author:"
                             :items="userData && userData.users"
                             item-value="id"
-                            item-text="name"
+                            item-title="name"
                           />
                         </template>
                       </ApolloQuery>
@@ -86,17 +90,17 @@
                         >mdi-close
                       </v-icon>
                       <v-dialog v-model="imageDialog">
-                        <template #activator="{ on }">
+                        <template #activator="{ props }">
                           <v-img
                             :src="imageUrl"
                             max-height="200px"
                             max-width="200px"
-                            v-on="on"
+                            v-bind="props"
                           ></v-img>
                         </template>
                         <v-card @click="imageDialog = false">
                           <v-img
-                            contain
+                            cover
                             :src="imageUrl"
                             max-height="90vh"
                             max-width="90vw"
@@ -107,7 +111,6 @@
                     <v-col>
                       <v-textarea
                         v-model="addDialogBody"
-                        height="232px"
                         label="Question Body:"
                       />
                     </v-col>
@@ -128,7 +131,7 @@
                           <v-radio :value="getLetterIndex(index)" />
                           <v-text-field
                             v-model="addDialogAnswerChoices[index]"
-                            :value="choice"
+                            :model-value="choice"
                             :label="'Answer ' + getLetterIndex(index)"
                           />
                           <v-icon
@@ -156,7 +159,7 @@
                 </v-card-text>
                 <v-card-actions>
                   <ApolloMutation
-                    :mutation="require('../graphql/SaveQuestion.gql')"
+                    :mutation="SaveQuestion"
                     :refetch-queries="
                       () => [`FutureQuestions`, `CurrentQuestions`]
                     "
@@ -176,7 +179,7 @@
                       <v-snackbar v-model="addDialogError" color="error"
                         >Could not <span v-if="addDialogId">edit</span
                         ><span v-else>add</span> question, try again.
-                        <template #action="{ attrs }">
+                        <template #actions="attrs">
                           <v-btn v-bind="attrs" @click="addDialogError = false"
                             >OK
                           </v-btn>
@@ -209,7 +212,6 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import moment from "moment-timezone";
 import DateTimePicker from "@/components/DateTimePicker.vue";
 import {
@@ -219,8 +221,12 @@ import {
   QuestionType,
 } from "@/generated/types.d";
 import { FetchResult } from "@apollo/client/core";
+import CurrentUser from "@/graphql/CurrentUser.gql";
+import FutureQuestions from "@/graphql/FutureQuestions.gql";
+import Users from "@/graphql/Users.gql";
+import SaveQuestion from "@/graphql/SaveQuestion.gql";
 
-export default Vue.extend({
+export default {
   name: "FutureQuestions",
   components: { DateTimePicker },
   data: () => ({
@@ -239,17 +245,17 @@ export default Vue.extend({
     imageDialog: false,
     headers: [
       {
-        text: "Date",
+        title: "Date",
         value: "activeAt",
         sortable: false,
       },
       {
-        text: "Respond By",
+        title: "Respond By",
         value: "closedAt",
         sortable: false,
       },
       {
-        text: "Question",
+        title: "Question",
         value: "body",
         sortable: false,
       },
@@ -270,6 +276,10 @@ export default Vue.extend({
     timezone: "Autodetect",
     questionType: QuestionType.ShortAnswer,
     supportsImage: false,
+    CurrentUser,
+    FutureQuestions,
+    Users,
+    SaveQuestion,
   }),
   computed: {
     imageUrl() {
@@ -407,5 +417,5 @@ export default Vue.extend({
       await mutate({ variables: options });
     },
   },
-});
+};
 </script>

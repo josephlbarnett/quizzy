@@ -1,8 +1,6 @@
-import Vue from "vue";
-import Vuetify from "vuetify/lib";
-import colors from "vuetify/lib/util/colors";
+import { createVuetify } from "vuetify";
+import colors from "vuetify/util/colors";
 
-Vue.use(Vuetify);
 const colorScheme = {
   primary: colors.indigo.base,
   secondary: colors.indigo.darken2,
@@ -12,11 +10,13 @@ const colorScheme = {
   success: "#4CAF50",
   warning: "#FFC107",
 };
-export default new Vuetify({
+const vuetify = createVuetify({
   theme: {
     themes: {
-      dark: colorScheme,
-      light: colorScheme,
+      dark: { dark: true, colors: colorScheme },
+      light: { dark: false, colors: colorScheme },
     },
   },
 });
+
+export default vuetify;

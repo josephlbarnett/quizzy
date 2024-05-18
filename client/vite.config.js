@@ -1,18 +1,13 @@
 import { defineConfig } from "vite";
-import vuePlugin from "@vitejs/plugin-vue2";
+import vuePlugin from "@vitejs/plugin-vue";
 import path from "path";
 import graphqlPlugin from "@rollup/plugin-graphql";
-import Components from "unplugin-vue-components/vite";
-import { VuetifyResolver } from "unplugin-vue-components/resolvers";
+import vuetify from "vite-plugin-vuetify";
 
 // https://vitejs.dev/config/
 export default defineConfig({
   base: "/app/assets/",
-  plugins: [
-    vuePlugin(),
-    graphqlPlugin(),
-    Components({ resolvers: [VuetifyResolver()] }),
-  ],
+  plugins: [vuePlugin(), graphqlPlugin(), vuetify({ autoImport: true })],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

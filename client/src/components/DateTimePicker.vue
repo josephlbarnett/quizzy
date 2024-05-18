@@ -3,16 +3,15 @@
     <v-col>
       <v-menu
         v-model="dateMenu"
-        :close-on-click="true"
         :close-on-content-click="false"
         min-width="100px"
       >
-        <template #activator="{ on }">
+        <template #activator="{ props }">
           <v-text-field
             readonly
             :label="label"
-            :value="renderDate(dateTime)"
-            v-on="on"
+            :model-value="renderDate(dateTime)"
+            v-bind="props"
           />
         </template>
         <v-date-picker
@@ -28,17 +27,21 @@
     <v-col>
       <v-menu
         v-model="timeMenu"
-        :close-on-click="true"
         :close-on-content-click="false"
         min-width="100px"
       >
-        <template #activator="{ on }">
-          <v-text-field readonly :value="renderTime(dateTime)" v-on="on" />
+        <template #activator="{ props }">
+          <v-text-field
+            readonly
+            :model-value="renderTime(dateTime)"
+            v-bind="props"
+          />
         </template>
         <v-time-picker
           v-if="timeMenu"
           v-model="time"
           class="time-picker"
+          ampm-in-title
           :allowed-minutes="(x) => x % 5 === 0"
           @input="onChange"
           ><v-btn color="accent" @click="timeMenu = false"
@@ -50,8 +53,8 @@
   </v-row>
 </template>
 <script lang="ts">
-import Vue from "vue";
 import moment from "moment-timezone";
+import { VTimePicker } from "vuetify/labs/VTimePicker";
 
 function modelTime(date: string): string {
   const zonedMoment = moment(date, moment.ISO_8601);
@@ -62,17 +65,18 @@ function modelTime(date: string): string {
     return formatted;
   }
 }
-function modelDate(date: string): string {
+function modelDate(date: string): Date | null {
   const zonedMoment = moment(date, moment.ISO_8601);
   const formatted = zonedMoment.format("YYYY-MM-DD");
   if (formatted.indexOf("Invalid date") >= 0) {
-    return "";
+    return null;
   } else {
-    return formatted;
+    return zonedMoment.toDate();
   }
 }
 
-export default Vue.extend({
+export default {
+  components: { VTimePicker },
   props: {
     value: { type: String, default: null },
     timezone: { type: String, default: null },
@@ -88,6 +92,8 @@ export default Vue.extend({
   },
   computed: {
     dateTime(): string {
+      console.log(" date " + this.date);
+      console.log(" time " + this.time);
       const browserTZ =
         this.timezone != null && this.timezone != "Autodetect"
           ? this.timezone
@@ -134,5 +140,5 @@ export default Vue.extend({
       this.timeMenu = true;
     },
   },
-});
+};
 </script>

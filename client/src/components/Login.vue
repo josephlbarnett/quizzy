@@ -1,11 +1,11 @@
 <template>
-  <ApolloQuery :query="require('../graphql/CurrentUser.gql')">
+  <ApolloQuery :query="CurrentUser">
     <template #default="{ result: { error, data }, isLoading }">
       <!-- Loading -->
       <v-progress-circular v-if="isLoading" :indeterminate="true" />
 
       <!-- Error -->
-      <div v-else-if="error" class="error apollo">An error occurred</div>
+      <div v-else-if="error" class="bg-error apollo">An error occurred</div>
 
       <!-- Result -->
       <!--            <v-app-bar v-else-if="data.user" class="result apollo">-->
@@ -18,7 +18,7 @@
       <user-invite v-else-if="invitePage" />
       <div v-else class="no-result apollo">
         <ApolloMutation
-          :mutation="require('../graphql/Login.gql')"
+          :mutation="Login"
           :variables="{
             email,
             pass,
@@ -33,13 +33,13 @@
               <v-text-field
                 v-model="email"
                 label="Email"
-                @keypress="(e) => key(e, mutate)"
+                @keyup.enter="mutate"
               />
               <v-text-field
                 v-model="pass"
                 label="Password"
                 type="password"
-                @keypress="(e) => key(e, mutate)"
+                @keyup.enter="mutate"
               />
               <v-btn
                 :disabled="loading || !email || !pass"
@@ -54,7 +54,7 @@
             </v-container>
             <v-container v-else-if="resetPage">
               <ApolloMutation
-                :mutation="require('../graphql/RequestPasswordReset.gql')"
+                :mutation="RequestPasswordReset"
                 :variables="{
                   email,
                 }"
@@ -70,7 +70,7 @@
                   <v-text-field
                     v-model="email"
                     label="Email"
-                    @keypress="(e) => key(e, resetMutate)"
+                    @keyup.enter="resetMutate"
                   />
                   <v-btn
                     :disabled="resetLoading || !email"
@@ -90,7 +90,7 @@
             </v-container>
             <v-container v-else>
               <ApolloMutation
-                :mutation="require('../graphql/CompletePasswordReset.gql')"
+                :mutation="CompletePasswordReset"
                 :variables="{
                   email,
                   code: resetCode,
@@ -110,24 +110,24 @@
                   <v-text-field
                     v-model="email"
                     label="Email"
-                    @keypress="(e) => key(e, resetMutate)"
+                    @keyup.enter="resetMutate"
                   />
                   <v-text-field
                     v-model="resetCode"
                     label="Password Reset Code"
-                    @keypress="(e) => key(e, resetMutate)"
+                    @keyup.enter="resetMutate"
                   />
                   <v-text-field
                     v-model="newPasswordOne"
                     label="New Password"
                     type="password"
-                    @keypress="(e) => key(e, resetMutate)"
+                    @keyup.enter="resetMutate"
                   />
                   <v-text-field
                     v-model="newPasswordTwo"
                     label="Confirm New Password"
                     type="password"
-                    @keypress="(e) => key(e, resetMutate)"
+                    @keyup.enter="resetMutate"
                   />
                   <v-btn
                     :disabled="resetLoading || !newPassword || !resetCode"
@@ -150,13 +150,13 @@
       </div>
       <v-snackbar v-if="failedLogin" v-model="failedLogin" color="error">
         Couldn't login, try again.
-        <template #action="{ attrs }">
+        <template #actions="attrs">
           <v-btn v-bind="attrs" @click="failedLogin = false">OK</v-btn>
         </template>
       </v-snackbar>
       <v-snackbar v-if="failedReset" v-model="failedReset" color="error"
         >Could not reset password, try again.
-        <template #action="{ attrs }">
+        <template #actions="attrs">
           <v-btn v-bind="attrs" @click="failedReset = false"
             >OK</v-btn
           ></template
@@ -164,7 +164,7 @@
       </v-snackbar>
       <v-snackbar v-if="successReset" v-model="successReset" color="accent"
         >Password reset successfully. Please login.
-        <template #action="{ attrs }">
+        <template #actions="attrs">
           <v-btn v-bind="attrs" @click="successReset = false"
             >OK</v-btn
           ></template
@@ -173,7 +173,7 @@
       <v-snackbar v-if="initedReset" v-model="initedReset" color="accent"
         >A password reset code has been sent to your email, enter it to reset
         your password.
-        <template #action="{ attrs }">
+        <template #actions="attrs">
           <v-btn v-bind="attrs" @click="initedReset = false"
             >OK</v-btn
           ></template
@@ -183,10 +183,13 @@
   </ApolloQuery>
 </template>
 <script lang="ts">
-import Vue from "vue";
 import UserInvite from "@/components/UserInvite.vue";
+import CurrentUser from "@/graphql/CurrentUser.gql";
+import Login from "@/graphql/Login.gql";
+import RequestPasswordReset from "@/graphql/RequestPasswordReset.gql";
+import CompletePasswordReset from "@/graphql/CompletePasswordReset.gql";
 
-export default Vue.extend({
+export default {
   name: "LoginRouterWrapper",
   components: { UserInvite },
   data: function () {
@@ -200,6 +203,10 @@ export default Vue.extend({
       resetCode: this.$route.query.code,
       newPasswordOne: "",
       newPasswordTwo: "",
+      CurrentUser,
+      Login,
+      RequestPasswordReset,
+      CompletePasswordReset,
     };
   },
   computed: {
@@ -256,11 +263,6 @@ export default Vue.extend({
         this.failedReset = true;
       }
     },
-    key({ key }: { key: string }, mutate: () => void) {
-      if (key == "Enter") {
-        mutate();
-      }
-    },
   },
-});
+};
 </script>

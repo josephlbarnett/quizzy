@@ -14,17 +14,17 @@
         <v-row>
           <v-col v-if="clickedQuestion.imageUrl" cols="12" lg="1">
             <v-dialog v-model="imageDialog">
-              <template #activator="{ on }">
+              <template #activator="{ props }">
                 <v-img
                   :src="clickedQuestion.imageUrl"
                   max-height="200px"
                   max-width="200px"
-                  v-on="on"
+                  v-bind="props"
                 ></v-img>
               </template>
               <v-card @click="imageDialog = false">
                 <v-img
-                  contain
+                  cover
                   :src="clickedQuestion.imageUrl"
                   max-height="90vh"
                   max-width="90vw"
@@ -56,7 +56,7 @@
           <v-col cols="12">
             <v-radio-group
               readonly
-              :value="
+              :model-value="
                 clickedQuestion.response && clickedQuestion.response.response
               "
             >
@@ -76,7 +76,7 @@
                     clickedQuestion.response &&
                     choice.letter == clickedQuestion.answer
                   "
-                  color="green darken-2"
+                  color="green-darken-2"
                   >mdi-check-circle
                 </v-icon>
                 <v-icon
@@ -85,7 +85,7 @@
                     choice.letter == clickedQuestion.response.response &&
                     choice.letter != clickedQuestion.answer
                   "
-                  color="red darken-2"
+                  color="red-darken-2"
                   >mdi-close-circle
                 </v-icon>
               </v-row>
@@ -134,7 +134,7 @@
                 clickedQuestion.response.grade.correct === true
               "
             >
-              <v-icon color="green darken-2">mdi-check-circle</v-icon>Yes</span
+              <v-icon color="green-darken-2">mdi-check-circle</v-icon>Yes</span
             >
             <span
               v-else-if="
@@ -143,10 +143,10 @@
                 clickedQuestion.response.grade.correct === false
               "
             >
-              <v-icon color="red darken-2">mdi-close-circle</v-icon>No</span
+              <v-icon color="red-darken-2">mdi-close-circle</v-icon>No</span
             >
             <span v-else>
-              <v-icon color="grey darken-2">mdi-help-circle</v-icon
+              <v-icon color="grey-darken-2">mdi-help-circle</v-icon
               >Ungraded</span
             >
           </v-col>
@@ -173,11 +173,11 @@
   </v-dialog>
 </template>
 <script lang="ts">
-import Vue, { PropType } from "vue";
 import { ApiQuestion, QuestionType } from "@/generated/types.d";
 import moment from "moment-timezone";
+import { PropType } from "vue";
 
-export default Vue.extend({
+export default {
   props: {
     question: { type: Object as PropType<ApiQuestion>, default: null },
     questionIndex: { type: Number, default: null },
@@ -234,5 +234,5 @@ export default Vue.extend({
       return this.clickedQuestion?.type == QuestionType.ShortAnswer;
     },
   },
-});
+};
 </script>

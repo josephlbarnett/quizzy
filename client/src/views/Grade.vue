@@ -1,7 +1,7 @@
 <template>
   <div class="grade">
     <ApolloQuery
-      :query="require('../graphql/CurrentUser.gql')"
+      :query="CurrentUser"
       @result="
         (result) => {
           result &&
@@ -16,7 +16,7 @@
       <template #default="{}" />
     </ApolloQuery>
     <ApolloQuery
-      :query="require('../graphql/Grader.gql')"
+      :query="Grader"
       fetch-policy="cache-and-network"
       :variables="{
         includeGraded: !hideGraded,
@@ -27,7 +27,7 @@
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
-        <div v-else-if="error" class="error">An error occurred</div>
+        <div v-else-if="error" class="bg-error">An error occurred</div>
         <v-card v-if="data && data.responses">
           <v-card-title>
             Responses to grade
@@ -49,13 +49,13 @@
               {{ findAnswer(item, value, item.response) }}
             </template>
             <template #item.grade.correct="{ value }">
-              <v-icon v-if="value === true" color="green darken-2"
+              <v-icon v-if="value === true" color="green-darken-2"
                 >mdi-check-circle
               </v-icon>
-              <v-icon v-else-if="value === false" color="red darken-2"
+              <v-icon v-else-if="value === false" color="red-darken-2"
                 >mdi-close-circle
               </v-icon>
-              <v-icon v-else color="grey darken-2">mdi-help-circle</v-icon>
+              <v-icon v-else color="grey-darken-2">mdi-help-circle</v-icon>
             </template>
           </v-data-table>
         </v-card>
@@ -72,7 +72,7 @@
       <v-card>
         <ApolloMutation
           :refetch-queries="() => [`Grader`, `CompletedQuestions`, `Users`]"
-          :mutation="require('../graphql/Grade.gql')"
+          :mutation="Grade"
           :variables="{
             responseId: clickedResponse.id,
             bonus: clickedResponse.bonus || null,
@@ -102,17 +102,17 @@
                   lg="1"
                 >
                   <v-dialog v-model="imageDialog">
-                    <template #activator="{ on }">
+                    <template #activator="{ props }">
                       <v-img
                         :src="clickedResponse.question?.imageUrl"
                         max-height="200px"
                         max-width="200px"
-                        v-on="on"
+                        v-bind="props"
                       ></v-img>
                     </template>
                     <v-card @click="imageDialog = false">
                       <v-img
-                        contain
+                        cover
                         :src="clickedResponse.question?.imageUrl"
                         max-height="90vh"
                         max-width="90vw"
@@ -142,7 +142,10 @@
               </v-row>
               <v-row v-else-if="clickedResponse.question">
                 <v-col cols="12">
-                  <v-radio-group readonly :value="clickedResponse.response">
+                  <v-radio-group
+                    readonly
+                    :model-value="clickedResponse.response"
+                  >
                     <v-row
                       v-for="choice in clickedResponse.question.answerChoices"
                       :key="choice.letter"
@@ -160,7 +163,7 @@
                           choice.letter == clickedResponse.response &&
                           choice.letter == clickedResponse.question.answer
                         "
-                        color="green darken-2"
+                        color="green-darken-2"
                         >mdi-check-circle
                       </v-icon>
                       <v-icon
@@ -169,7 +172,7 @@
                           choice.letter == clickedResponse.response &&
                           choice.letter != clickedResponse.question.answer
                         "
-                        color="red darken-2"
+                        color="red-darken-2"
                         >mdi-close-circle
                       </v-icon>
                     </v-row>
@@ -231,7 +234,7 @@
             </v-card-actions>
             <v-snackbar v-model="saveError" color="error">
               Couldn't save, try again.
-              <template #action="{ attrs }">
+              <template #actions="attrs">
                 <v-btn v-bind="attrs" @click="saveError = false">OK</v-btn>
               </template>
             </v-snackbar>
@@ -243,12 +246,14 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import moment from "moment-timezone";
 import { ApiResponse, QuestionType } from "@/generated/types.d";
 import { useInstanceStore } from "@/stores/instance";
+import CurrentUser from "@/graphql/CurrentUser.gql";
+import Grader from "@/graphql/Grader.gql";
+import Grade from "@/graphql/Grade.gql";
 
-export default Vue.extend({
+export default {
   name: "ResponseGrader",
   setup() {
     return { instanceStore: useInstanceStore() };
@@ -257,32 +262,32 @@ export default Vue.extend({
     userTZ: "Autodetect",
     headers: [
       {
-        text: "Date",
+        title: "Date",
         value: "question.activeAt",
         sortable: false,
       },
       {
-        text: "Question",
+        title: "Question",
         value: "question.body",
         sortable: false,
       },
       {
-        text: "User",
+        title: "User",
         value: "user.name",
         sortable: false,
       },
       {
-        text: "Response",
+        title: "Response",
         value: "response",
         sortable: false,
       },
       {
-        text: "Correct",
+        title: "Correct",
         value: "grade.correct",
         sortable: false,
       },
       {
-        text: "Score",
+        title: "Score",
         value: "grade.score",
         sortable: false,
       },
@@ -293,6 +298,9 @@ export default Vue.extend({
     gradeDialog: false,
     imageDialog: false,
     clickedResponse: null as ApiResponse | null,
+    CurrentUser,
+    Grader,
+    Grade,
   }),
   computed: {
     correctAnswerChoice(): string {
@@ -401,5 +409,5 @@ export default Vue.extend({
       return defaultValue;
     },
   },
-});
+};
 </script>

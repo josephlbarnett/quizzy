@@ -1,18 +1,18 @@
-import Vue from "vue";
-import App from "./App.vue";
+import { createApp } from "vue";
 import router from "./router";
 import vuetify from "./plugins/vuetify";
 import { createProvider } from "./vue-apollo";
-import "regenerator-runtime/runtime";
-import { createPinia, PiniaVuePlugin } from "pinia";
+import { createPinia } from "pinia";
+import App from "./App.vue";
+import VueApolloPlugin from "@vue/apollo-components";
 
-Vue.config.productionTip = false;
-Vue.use(PiniaVuePlugin);
-
-new Vue({
-  router,
-  vuetify,
-  apolloProvider: createProvider(),
-  pinia: createPinia(),
-  render: (h) => h(App),
-}).$mount("#app");
+// Vue.config.productionTip = false;
+// Vue.use(PiniaVuePlugin);
+const pinia = createPinia();
+const app = createApp(App);
+app.use(router);
+app.use(vuetify);
+app.use(createProvider());
+app.use(pinia);
+app.use(VueApolloPlugin);
+app.mount("#app");

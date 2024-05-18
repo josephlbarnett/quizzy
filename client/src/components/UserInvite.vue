@@ -1,7 +1,7 @@
 <template>
   <div class="invite">
     <ApolloMutation
-      :mutation="require('@/graphql/UserInvite.gql')"
+      :mutation="UserInvite"
       :variables="{
         inviteCode,
         password,
@@ -37,7 +37,7 @@
               v-model="timeZoneId"
               :items="tzs"
               label="Timezone"
-              item-text="name"
+              item-title="name"
               item-value="value"
             ></v-autocomplete>
             <v-checkbox
@@ -53,13 +53,13 @@
           </v-card-actions>
           <v-snackbar v-model="error" color="error"
             >Could not create user, try again.
-            <template #action="{ attrs }">
+            <template #actions="attrs">
               <v-btn v-bind="attrs" @click="error = false">OK</v-btn></template
             >
           </v-snackbar>
           <v-snackbar v-model="success" color="accent"
             >Created new user, please login.
-            <template #action="{ attrs }">
+            <template #actions="attrs">
               <v-btn v-bind="attrs" @click="success = false"
                 >OK</v-btn
               ></template
@@ -71,12 +71,12 @@
   </div>
 </template>
 <script lang="ts">
-import Vue from "vue";
 import moment from "moment-timezone";
 import { FetchResult } from "@apollo/client/core";
 import { User } from "@/generated/types.d";
+import UserInvite from "@/graphql/UserInvite.gql";
 
-export default Vue.extend({
+export default {
   name: "UserInvite",
   data: () => ({
     passwordOne: "",
@@ -100,6 +100,7 @@ export default Vue.extend({
         value: name,
       })),
     ),
+    UserInvite,
   }),
   computed: {
     inviteCode(): string {
@@ -128,5 +129,5 @@ export default Vue.extend({
       }
     },
   },
-});
+};
 </script>

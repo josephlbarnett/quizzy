@@ -2,7 +2,7 @@
   <div class="users">
     <!-- fetch-policy=cache-and-network so that updated grades get picked up and bypass graphql cache -->
     <ApolloQuery
-      :query="require('../graphql/Users.gql')"
+      :query="Users"
       :variables="qvars"
       fetch-policy="cache-and-network"
       @result="
@@ -15,7 +15,7 @@
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
-        <div v-else-if="error" class="error">An error occurred</div>
+        <div v-else-if="error" class="bg-error">An error occurred</div>
         <v-card v-if="data && data.users">
           <v-card-title>
             Users
@@ -35,8 +35,8 @@
               >DEMOTE</v-btn
             >
             <v-dialog v-model="deleteDialog">
-              <template v-slot:activator="{ on }">
-                <v-btn color="error" v-on="on" :disabled="!selection"
+              <template v-slot:activator="{ props }">
+                <v-btn color="error" v-bind="props" :disabled="!selection"
                   >DELETE</v-btn
                 >
               </template>
@@ -71,16 +71,12 @@
             single-select
             no-data-text="No users found"
             :search="search"
-            sort-by="score"
-            sort-desc
+            :sort-by="[{ key: 'score', order: 'desc' }]"
             @input="selected"
             @click:row="rowToggle"
           >
             <template #item.admin="{ item }">
-              <v-simple-checkbox
-                v-model="item.admin"
-                disabled
-              ></v-simple-checkbox>
+              <v-checkbox v-model="item.admin" disabled></v-checkbox>
             </template>
           </v-data-table>
         </v-card>
@@ -90,12 +86,12 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import { ApiUser } from "@/generated/types";
 import CreateUserButton from "@/components/CreateUserButton.vue";
 import { useInstanceStore } from "@/stores/instance";
+import Users from "@/graphql/Users.gql";
 
-export default Vue.extend({
+export default {
   name: "UsersList",
   components: { CreateUserButton },
   setup() {
@@ -106,23 +102,24 @@ export default Vue.extend({
     search: "",
     headers: [
       {
-        text: "Name",
+        title: "Name",
         value: "name",
         sortable: false,
       },
       {
-        text: "Admin",
+        title: "Admin",
         value: "admin",
         sortable: false,
       },
       {
-        text: "Score",
+        title: "Score",
         value: "score",
         sortable: false,
       },
     ],
     selection: null as ApiUser | null,
     deleteDialog: false,
+    Users,
   }),
   computed: {
     qvars() {
@@ -159,5 +156,5 @@ export default Vue.extend({
       this.deleteDialog = false;
     },
   },
-});
+};
 </script>

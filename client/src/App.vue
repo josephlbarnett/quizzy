@@ -1,12 +1,12 @@
 <template>
   <v-app>
     <ApolloQuery
-      :query="require('@/graphql/CurrentUser.gql')"
+      :query="CurrentUser"
       :variables="{ endTime: now }"
       @result="(result) => setTitle(result)"
     >
       <template #default="{ result: { /*error,*/ data }, isLoading }">
-        <v-app-bar app color="primary" dark>
+        <v-app-bar color="primary">
           <v-app-bar-nav-icon
             v-if="data && data.user"
             @click="navDrawMini = !navDrawMini"
@@ -14,21 +14,20 @@
           <span v-else-if="!isLoading">Please login.</span>
           <v-spacer />
           <v-menu v-if="data && data.user" open-on-hover>
-            <template #activator="{ on }">
-              <v-icon v-on="on">mdi-account</v-icon>
+            <template #activator="{ props }">
+              <v-icon v-bind="props">mdi-account</v-icon>
             </template>
             <v-list>
               <v-list-item text to="/me">
-                <v-list-item-icon>
+                <template #prepend>
                   <v-icon>mdi-account</v-icon>
-                </v-list-item-icon>
+                </template>
                 <v-list-item-title>{{ data.user.name }}</v-list-item-title>
               </v-list-item>
               <ApolloMutation
-                :mutation="require('@/graphql/Logout.gql')"
+                :mutation="Logout"
                 :refetch-queries="() => [`CurrentUser`]"
                 :await-refetch-queries="true"
-                @done="loggedOut"
               >
                 <template #default="{ mutate, loading /*, error*/ }">
                   <v-list-item
@@ -38,9 +37,9 @@
                     outlined
                     @click="doLogout(mutate)"
                   >
-                    <v-list-item-icon>
+                    <template #prepend>
                       <v-icon>mdi-logout-variant</v-icon>
-                    </v-list-item-icon>
+                    </template>
                     <v-list-item-title>Logout</v-list-item-title>
                   </v-list-item>
                 </template>
@@ -50,29 +49,29 @@
         </v-app-bar>
         <v-navigation-drawer
           v-if="data && data.user"
-          :mini-variant="navDrawMini"
-          app
-          stateless
+          :rail="navDrawMini"
           permanent
         >
           <v-list nav>
             <v-list-item @click="navDrawMini = !navDrawMini">
-              <v-list-item-icon>
+              <template #prepend>
                 <v-img alt="Quizzy" :src="logo" width="24" />
-              </v-list-item-icon>
+              </template>
               <v-list-item-title
                 >{{ data.user.instance.name }}
               </v-list-item-title>
             </v-list-item>
             <v-list-item>
-              <v-list-item-icon @click="navDrawMini = !navDrawMini">
-                <v-tooltip :disabled="!navDrawMini" bottom>
-                  <template #activator="{ on }">
-                    <v-icon v-on="on">mdi-calendar</v-icon>
+              <template #prepend>
+                <v-tooltip :disabled="!navDrawMini" location="bottom">
+                  <template #activator="{ props }">
+                    <v-icon v-bind="props" @click="navDrawMini = !navDrawMini"
+                      >mdi-calendar</v-icon
+                    >
                   </template>
                   {{ instanceStore.season?.name }}
                 </v-tooltip>
-              </v-list-item-icon>
+              </template>
               <v-list-item-title>
                 <season-selector @change="navDrawMini = true" />
               </v-list-item-title>
@@ -85,14 +84,14 @@
               color="accent"
               @click="navDrawMini = true"
             >
-              <v-list-item-icon>
-                <v-tooltip :disabled="!navDrawMini" bottom>
-                  <template #activator="{ on }">
-                    <v-icon v-on="on">{{ navLink.icon }}</v-icon>
+              <template #prepend>
+                <v-tooltip :disabled="!navDrawMini" location="bottom">
+                  <template #activator="{ props }">
+                    <v-icon v-bind="props">{{ navLink.icon }}</v-icon>
                   </template>
                   {{ navLink.title }}
                 </v-tooltip>
-              </v-list-item-icon>
+              </template>
               <v-list-item-title>{{ navLink.title }}</v-list-item-title>
             </v-list-item>
             <span v-if="data && data.user && data.user.admin">
@@ -105,14 +104,14 @@
                 color="error"
                 @click="navDrawMini = true"
               >
-                <v-list-item-icon>
-                  <v-tooltip :disabled="!navDrawMini" bottom>
-                    <template #activator="{ on }">
-                      <v-icon v-on="on">{{ navLink.icon }}</v-icon>
+                <template #prepend>
+                  <v-tooltip :disabled="!navDrawMini" location="bottom">
+                    <template #activator="{ props }">
+                      <v-icon v-bind="props">{{ navLink.icon }}</v-icon>
                     </template>
                     {{ navLink.title }}
                   </v-tooltip>
-                </v-list-item-icon>
+                </template>
                 <v-list-item-title>{{ navLink.title }}</v-list-item-title>
               </v-list-item>
             </span>
@@ -127,20 +126,27 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
+import { useTheme } from "vuetify";
 import Login from "@/components/Login.vue";
+import SeasonSelector from "@/components/SeasonSelector.vue";
+import CurrentUser from "@/graphql/CurrentUser.gql";
+import Logout from "@/graphql/Logout.gql";
 import logo from "@/assets/logo.png";
 import { useInstanceStore } from "@/stores/instance";
 import { ApiInstance } from "@/generated/types";
-import moment from "moment-timezone";
+import moment from "moment-timezone"; //import { useTheme } from "vuetify";
+//import { useTheme } from "vuetify";
 
-export default Vue.extend({
+//const theme = useTheme();
+export default {
   name: "App",
   components: {
     Login,
+    SeasonSelector,
   },
   setup() {
-    return { instanceStore: useInstanceStore() };
+    const theme = useTheme();
+    return { instanceStore: useInstanceStore(), theme };
   },
   data: () => ({
     navDrawMini: true,
@@ -159,6 +165,8 @@ export default Vue.extend({
       },
       { title: "Users", link: "/users", icon: "mdi-account-multiple" },
     ],
+    CurrentUser,
+    Logout,
   }),
   computed: {
     now() {
@@ -167,18 +175,17 @@ export default Vue.extend({
   },
   mounted() {
     if (window.matchMedia) {
-      this.$vuetify.theme.dark = window.matchMedia(
+      this.theme.global.name.value = window.matchMedia(
         "(prefers-color-scheme: dark)",
-      ).matches;
+      ).matches
+        ? "dark"
+        : "light";
     }
   },
   methods: {
-    doLogout(mutate: () => void) {
-      this.$apollo.getClient().resetStore();
-      mutate();
-    },
-    loggedOut() {
-      window.location.reload();
+    async doLogout(mutate: () => Promise<void>) {
+      await mutate();
+      await this.$apollo.getClient().resetStore();
     },
     setTitle(obj: { data: { user: { instance: ApiInstance } } }) {
       if (obj.data && obj.data.user && obj.data.user.instance) {
@@ -187,10 +194,5 @@ export default Vue.extend({
       }
     },
   },
-});
+};
 </script>
-<style>
-.v-card__title {
-  word-break: normal;
-}
-</style>

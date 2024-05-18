@@ -1,7 +1,7 @@
 <template>
   <div>
     <ApolloQuery
-      :query="require('../graphql/CurrentUser.gql')"
+      :query="CurrentUser"
       @result="
         (result) => {
           if (result && result.data && result.data.user) {
@@ -13,8 +13,8 @@
       <template #default="{}" />
     </ApolloQuery>
     <v-dialog v-model="dialog">
-      <template #activator="{ on }">
-        <v-btn color="accent" v-on="on" @click="resetDialog">ADD</v-btn>
+      <template #activator="{ props }">
+        <v-btn color="accent" v-bind="props" @click="resetDialog">ADD</v-btn>
       </template>
       <v-card>
         <ApolloMutation
@@ -30,7 +30,7 @@
               <v-tabs v-model="tabs">
                 <v-tab key="single">Add One</v-tab>
                 <v-tab key="multiple">Add Multiple</v-tab>
-                <v-tab-item key="single">
+                <v-window-item key="single">
                   <v-text-field
                     v-model="singleName"
                     label="Name"
@@ -41,15 +41,15 @@
                     label="Email"
                     @keypress.enter="submitForm(mutate)"
                   ></v-text-field>
-                </v-tab-item>
-                <v-tab-item key="multiple">
+                </v-window-item>
+                <v-window-item key="multiple">
                   <v-textarea
                     v-model="textarea"
                     :disabled="uploadedCsv != null"
                     label="Comma separated name/email pairs per line"
                   />
                   <v-file-input label="Or upload a csv" @change="selectFile" />
-                </v-tab-item>
+                </v-window-item>
               </v-tabs>
               <v-btn @click="dialog = false">CANCEL</v-btn>
               <v-btn
@@ -78,27 +78,27 @@
         {{ addedWithError }} new user<span v-if="addedWithError > 1">s</span>
         already exist<span v-if="addedWithError === 1">s</span>.
       </div>
-      <template #action="{ attrs }">
+      <template #actions="attrs">
         <v-btn v-bind="attrs" @click="snackbar = false">OK</v-btn></template
       >
     </v-snackbar>
   </div>
 </template>
 <script lang="ts">
-import Vue from "vue";
 import Papa from "papaparse";
 import { MutationBaseOptions } from "@apollo/client/core/watchQueryOptions";
 import { User } from "@/generated/types";
 import { ExecutionResult } from "graphql";
 import AddUser from "@/graphql/AddUser.gql";
 import combinedQuery, { CombinedQueryBuilder } from "graphql-combine-query";
+import CurrentUser from "@/graphql/CurrentUser.gql";
 
 type AddUserInfo = {
   name: string;
   email: string;
 };
 
-export default Vue.extend({
+export default {
   name: "CreateUserButton",
   data: function () {
     return {
@@ -113,6 +113,7 @@ export default Vue.extend({
       addedSuccesfully: 0,
       addedWithError: 0,
       instanceId: "",
+      CurrentUser,
     };
   },
   watch: {
@@ -228,5 +229,5 @@ export default Vue.extend({
       this.snackbar = true;
     },
   },
-});
+};
 </script>

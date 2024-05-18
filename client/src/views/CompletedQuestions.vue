@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <ApolloQuery
-      :query="require('../graphql/CurrentUser.gql')"
+      :query="CurrentUser"
       @result="
         (result) =>
           result && result.data && result.data.user && setUser(result.data.user)
@@ -10,7 +10,7 @@
       <template #default="{}" />
     </ApolloQuery>
     <ApolloQuery
-      :query="require('../graphql/CompletedQuestions.gql')"
+      :query="CompletedQuestions"
       :variables="qvars"
       fetch-policy="cache-and-network"
       @result="
@@ -23,7 +23,7 @@
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
-        <div v-else-if="error" class="error">An error occurred</div>
+        <div v-else-if="error" class="bg-error">An error occurred</div>
         <v-card v-if="data && data.closedQuestions">
           <v-card-title>Completed Questions</v-card-title>
           <v-data-table
@@ -43,13 +43,13 @@
               {{ findAnswer(item, value, value || "&mdash;") }}
             </template>
             <template #item.response.grade.correct="{ value }">
-              <v-icon v-if="value === true" color="green darken-2"
+              <v-icon v-if="value === true" color="green-darken-2"
                 >mdi-check-circle
               </v-icon>
-              <v-icon v-else-if="value === false" color="red darken-2"
+              <v-icon v-else-if="value === false" color="red-darken-2"
                 >mdi-close-circle
               </v-icon>
-              <v-icon v-else color="grey darken-2">mdi-help-circle</v-icon>
+              <v-icon v-else color="grey-darken-2">mdi-help-circle</v-icon>
             </template>
           </v-data-table>
         </v-card>
@@ -67,13 +67,14 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import moment from "moment-timezone";
 import { ApiQuestion, ApiUser, QuestionType } from "@/generated/types.d";
 import GradedQuestionDialog from "@/components/GradedQuestionDialog.vue";
 import { useInstanceStore } from "@/stores/instance";
+import CurrentUser from "@/graphql/CurrentUser.gql";
+import CompletedQuestions from "@/graphql/CompletedQuestions.gql";
 
-export default Vue.extend({
+export default {
   name: "CompletedQuestions",
   components: { GradedQuestionDialog },
   setup() {
@@ -91,36 +92,38 @@ export default Vue.extend({
     completedQuestions: [] as Array<ApiQuestion>,
     headers: [
       {
-        text: "Date",
+        title: "Date",
         value: "activeAt",
         sortable: false,
       },
       {
-        text: "Question",
+        title: "Question",
         value: "body",
         sortable: false,
       },
       {
-        text: "Answer Key",
+        title: "Answer Key",
         value: "answer",
         sortable: false,
       },
       {
-        text: "Your Response",
+        title: "Your Response",
         value: "response.response",
         sortable: false,
       },
       {
-        text: "Correct",
+        title: "Correct",
         value: "response.grade.correct",
         sortable: false,
       },
       {
-        text: "Score",
+        title: "Score",
         value: "response.grade.score",
         sortable: false,
       },
     ],
+    CurrentUser,
+    CompletedQuestions,
   }),
   computed: {
     qvars() {
@@ -201,5 +204,5 @@ export default Vue.extend({
       }
     },
   },
-});
+};
 </script>
