@@ -345,7 +345,7 @@ export default {
         this.userTZ = tz;
       }
     },
-    clickRow(item: ApiResponse) {
+    clickRow(event: Event, { item }: { item: ApiResponse }) {
       const response = {
         bonus: item.grade && item.grade.bonus,
         correct:

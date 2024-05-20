@@ -219,7 +219,7 @@ export default {
         this.userTZ = tz;
       }
     },
-    clickRow(item: ApiQuestion) {
+    clickRow(event: Event, { item }: { item: ApiQuestion }) {
       this.clickedQuestion = Object.assign({}, item);
       this.clickedResponse = Object.assign(
         { response: "", ruleReferences: "" },

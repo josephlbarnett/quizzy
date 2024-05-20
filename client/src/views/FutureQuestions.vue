@@ -3,11 +3,8 @@
     <ApolloQuery
       :query="CurrentUser"
       @result="
-        (result) => {
-          result &&
-            result.data &&
-            result.data.user &&
-            setUser(result.data.user);
+        (result: ApolloQueryResult<Query>) => {
+          setUser(result);
         }
       "
     >
@@ -77,11 +74,7 @@
                     </v-col>
                   </v-row>
                   <v-row>
-                    <v-col
-                      v-if="supportsImage"
-                      cols="12"
-                      style="text-align: right"
-                    >
+                    <v-col v-if="supportsImage" cols="12">
                       <v-file-input
                         v-model="addDialogImage"
                         placeholder="Image"
@@ -92,6 +85,7 @@
                       <v-dialog v-model="imageDialog">
                         <template #activator="{ props }">
                           <v-img
+                            v-if="imageUrl"
                             :src="imageUrl"
                             max-height="200px"
                             max-width="200px"
@@ -100,6 +94,7 @@
                         </template>
                         <v-card @click="imageDialog = false">
                           <v-img
+                            v-if="imageUrl"
                             cover
                             :src="imageUrl"
                             max-height="90vh"
@@ -131,7 +126,6 @@
                           <v-radio :value="getLetterIndex(index)" />
                           <v-text-field
                             v-model="addDialogAnswerChoices[index]"
-                            :model-value="choice"
                             :label="'Answer ' + getLetterIndex(index)"
                           />
                           <v-icon
@@ -216,11 +210,11 @@ import moment from "moment-timezone";
 import DateTimePicker from "@/components/DateTimePicker.vue";
 import {
   AnswerChoice,
-  ApiUser,
+  Query,
   Question,
   QuestionType,
 } from "@/generated/types.d";
-import { FetchResult } from "@apollo/client/core";
+import { ApolloQueryResult, FetchResult } from "@apollo/client/core";
 import CurrentUser from "@/graphql/CurrentUser.gql";
 import FutureQuestions from "@/graphql/FutureQuestions.gql";
 import Users from "@/graphql/Users.gql";
@@ -302,7 +296,7 @@ export default {
       this.addDialogImage = null;
       this.clickedImage = null;
     },
-    clickRow(item: Question) {
+    clickRow(event: Event, { item }: { item: Question }) {
       this.addDialogId = item.id;
       this.addDialogBody = item.body;
       this.addDialogAnswer = item.answer;
@@ -317,17 +311,20 @@ export default {
       this.addDialogImage = null;
       this.addDialog = true;
     },
-    setUser(user: ApiUser) {
-      const tz = user.timeZoneId;
-      if (tz && this.tzs.map((x) => x.value).indexOf(tz) > -1) {
-        this.timezone = tz;
-      } else {
-        this.timezone = "Autodetect";
-      }
-      if (user.instance) {
-        this.supportsImage = user.instance.supportsGroupMe;
-        if (user.instance.defaultQuestionType) {
-          this.questionType = user.instance.defaultQuestionType;
+    setUser(result: ApolloQueryResult<Query>) {
+      if (result && result.data && result.data.user) {
+        const user = result.data.user;
+        const tz = user.timeZoneId;
+        if (tz && this.tzs.map((x) => x.value).indexOf(tz) > -1) {
+          this.timezone = tz;
+        } else {
+          this.timezone = "Autodetect";
+        }
+        if (user.instance) {
+          this.supportsImage = user.instance.supportsGroupMe;
+          if (user.instance.defaultQuestionType) {
+            this.questionType = user.instance.defaultQuestionType;
+          }
         }
       }
     },

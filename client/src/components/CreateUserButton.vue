@@ -14,7 +14,12 @@
     </ApolloQuery>
     <v-dialog v-model="dialog">
       <template #activator="{ props }">
-        <v-btn color="accent" v-bind="props" @click="resetDialog">ADD</v-btn>
+        <v-btn
+          color="accent"
+          v-bind="props"
+          @click="(e: Event) => resetDialog(e, props)"
+          >ADD</v-btn
+        >
       </template>
       <v-card>
         <ApolloMutation
@@ -30,26 +35,31 @@
               <v-tabs v-model="tabs">
                 <v-tab key="single">Add One</v-tab>
                 <v-tab key="multiple">Add Multiple</v-tab>
-                <v-window-item key="single">
-                  <v-text-field
-                    v-model="singleName"
-                    label="Name"
-                    @keypress.enter="submitForm(mutate)"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="singleEmail"
-                    label="Email"
-                    @keypress.enter="submitForm(mutate)"
-                  ></v-text-field>
-                </v-window-item>
-                <v-window-item key="multiple">
-                  <v-textarea
-                    v-model="textarea"
-                    :disabled="uploadedCsv != null"
-                    label="Comma separated name/email pairs per line"
-                  />
-                  <v-file-input label="Or upload a csv" @change="selectFile" />
-                </v-window-item>
+                <v-tabs-window>
+                  <v-tabs-window-item key="single">
+                    <v-text-field
+                      v-model="singleName"
+                      label="Name"
+                      @keypress.enter="submitForm(mutate)"
+                    ></v-text-field>
+                    <v-text-field
+                      v-model="singleEmail"
+                      label="Email"
+                      @keypress.enter="submitForm(mutate)"
+                    ></v-text-field>
+                  </v-tabs-window-item>
+                  <v-tabs-window-item key="multiple">
+                    <v-textarea
+                      v-model="textarea"
+                      :disabled="uploadedCsv != null"
+                      label="Comma separated name/email pairs per line"
+                    />
+                    <v-file-input
+                      label="Or upload a csv"
+                      @change="selectFile"
+                    />
+                  </v-tabs-window-item>
+                </v-tabs-window>
               </v-tabs>
               <v-btn @click="dialog = false">CANCEL</v-btn>
               <v-btn
@@ -134,7 +144,7 @@ export default {
     },
   },
   methods: {
-    resetDialog() {
+    resetDialog(event: Event, { onClick }: { onClick: (Event) => void }) {
       this.singleName = "";
       this.singleEmail = "";
       this.textarea = "";
@@ -145,6 +155,7 @@ export default {
       this.snackbar = false;
       this.addedSuccesfully = 0;
       this.addedWithError = 0;
+      onClick(event);
     },
     async recalculateUsers(): Promise<AddUserInfo[]> {
       return (

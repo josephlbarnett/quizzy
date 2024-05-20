@@ -3,59 +3,19 @@
     <ApolloQuery
       :query="CurrentUser"
       :variables="{ endTime: now }"
-      @result="(result) => setTitle(result)"
+      @result="(result: ApolloQueryResult<Query>) => setTitle(result)"
     >
       <template #default="{ result: { /*error,*/ data }, isLoading }">
-        <v-app-bar color="primary">
-          <v-app-bar-nav-icon
-            v-if="data && data.user"
-            @click="navDrawMini = !navDrawMini"
-          ></v-app-bar-nav-icon>
-          <span v-else-if="!isLoading">Please login.</span>
-          <v-spacer />
-          <v-menu v-if="data && data.user" open-on-hover>
-            <template #activator="{ props }">
-              <v-icon v-bind="props">mdi-account</v-icon>
-            </template>
-            <v-list>
-              <v-list-item text to="/me">
-                <template #prepend>
-                  <v-icon>mdi-account</v-icon>
-                </template>
-                <v-list-item-title>{{ data.user.name }}</v-list-item-title>
-              </v-list-item>
-              <ApolloMutation
-                :mutation="Logout"
-                :refetch-queries="() => [`CurrentUser`]"
-                :await-refetch-queries="true"
-              >
-                <template #default="{ mutate, loading /*, error*/ }">
-                  <v-list-item
-                    :disabled="loading"
-                    label="Logout"
-                    color="error"
-                    outlined
-                    @click="doLogout(mutate)"
-                  >
-                    <template #prepend>
-                      <v-icon>mdi-logout-variant</v-icon>
-                    </template>
-                    <v-list-item-title>Logout</v-list-item-title>
-                  </v-list-item>
-                </template>
-              </ApolloMutation>
-            </v-list>
-          </v-menu>
-        </v-app-bar>
         <v-navigation-drawer
           v-if="data && data.user"
           :rail="navDrawMini"
           permanent
+          order="0"
         >
           <v-list nav>
             <v-list-item @click="navDrawMini = !navDrawMini">
               <template #prepend>
-                <v-img alt="Quizzy" :src="logo" width="24" />
+                <v-icon><v-img alt="Quizzy" :src="logo" /></v-icon>
               </template>
               <v-list-item-title
                 >{{ data.user.instance.name }}
@@ -117,6 +77,47 @@
             </span>
           </v-list>
         </v-navigation-drawer>
+        <v-app-bar color="primary" order="1">
+          <v-app-bar-nav-icon
+            v-if="data && data.user"
+            @click="navDrawMini = !navDrawMini"
+          ></v-app-bar-nav-icon>
+          <span v-else-if="!isLoading">Please login.</span>
+          <v-spacer />
+          <v-menu v-if="data && data.user" open-on-hover>
+            <template #activator="{ props }">
+              <v-icon v-bind="props">mdi-account</v-icon>
+            </template>
+            <v-list>
+              <v-list-item to="/me">
+                <template #prepend>
+                  <v-icon>mdi-account</v-icon>
+                </template>
+                <v-list-item-title>{{ data.user.name }}</v-list-item-title>
+              </v-list-item>
+              <ApolloMutation
+                :mutation="Logout"
+                :refetch-queries="() => [`CurrentUser`]"
+                :await-refetch-queries="true"
+              >
+                <template #default="{ mutate, loading /*, error*/ }">
+                  <v-list-item
+                    :disabled="loading"
+                    label="Logout"
+                    color="error"
+                    outlined
+                    @click="doLogout(mutate)"
+                  >
+                    <template #prepend>
+                      <v-icon>mdi-logout-variant</v-icon>
+                    </template>
+                    <v-list-item-title>Logout</v-list-item-title>
+                  </v-list-item>
+                </template>
+              </ApolloMutation>
+            </v-list>
+          </v-menu>
+        </v-app-bar>
         <v-main>
           <Login />
         </v-main>
@@ -133,9 +134,9 @@ import CurrentUser from "@/graphql/CurrentUser.gql";
 import Logout from "@/graphql/Logout.gql";
 import logo from "@/assets/logo.png";
 import { useInstanceStore } from "@/stores/instance";
-import { ApiInstance } from "@/generated/types";
-import moment from "moment-timezone"; //import { useTheme } from "vuetify";
-//import { useTheme } from "vuetify";
+import { Query } from "@/generated/types";
+import moment from "moment-timezone";
+import { ApolloQueryResult } from "@apollo/client/core";
 
 //const theme = useTheme();
 export default {
@@ -145,8 +146,7 @@ export default {
     SeasonSelector,
   },
   setup() {
-    const theme = useTheme();
-    return { instanceStore: useInstanceStore(), theme };
+    return { instanceStore: useInstanceStore(), theme: useTheme() };
   },
   data: () => ({
     navDrawMini: true,
@@ -187,7 +187,7 @@ export default {
       await mutate();
       await this.$apollo.getClient().resetStore();
     },
-    setTitle(obj: { data: { user: { instance: ApiInstance } } }) {
+    setTitle(obj: ApolloQueryResult<Query>) {
       if (obj.data && obj.data.user && obj.data.user.instance) {
         document.title = obj.data.user.instance.name;
         this.instanceStore.setInstance(obj.data.user.instance);

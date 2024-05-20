@@ -64,30 +64,28 @@
                 v-for="choice in clickedQuestion.answerChoices"
                 :key="choice.letter"
               >
-                <v-radio
-                  :key="choice.letter"
-                  :label="choice.letter + ': ' + choice.answer"
-                  :value="choice.letter"
-                  readonly
-                ></v-radio
-                >&nbsp;&nbsp;
-                <v-icon
-                  v-if="
-                    clickedQuestion.response &&
-                    choice.letter == clickedQuestion.answer
-                  "
-                  color="green-darken-2"
-                  >mdi-check-circle
-                </v-icon>
-                <v-icon
-                  v-if="
-                    clickedQuestion.response &&
-                    choice.letter == clickedQuestion.response.response &&
-                    choice.letter != clickedQuestion.answer
-                  "
-                  color="red-darken-2"
-                  >mdi-close-circle
-                </v-icon>
+                <v-radio :key="choice.letter" :value="choice.letter" readonly>
+                  <template #label>
+                    {{ choice.letter }}: {{ choice.answer }}&nbsp;&nbsp;
+                    <v-icon
+                      v-if="
+                        clickedQuestion.response &&
+                        choice.letter == clickedQuestion.answer
+                      "
+                      color="green-darken-2"
+                      >mdi-check-circle
+                    </v-icon>
+                    <v-icon
+                      v-if="
+                        clickedQuestion.response &&
+                        choice.letter == clickedQuestion.response.response &&
+                        choice.letter != clickedQuestion.answer
+                      "
+                      color="red-darken-2"
+                      >mdi-close-circle
+                    </v-icon>
+                  </template>
+                </v-radio>
               </v-row>
             </v-radio-group>
             <v-text-field
@@ -179,7 +177,7 @@ import { PropType } from "vue";
 
 export default {
   props: {
-    question: { type: Object as PropType<ApiQuestion>, default: null },
+    question: { type: Object as PropType<ApiQuestion | null>, default: null },
     questionIndex: { type: Number, default: null },
     value: { type: Boolean, default: false },
     userTZ: { type: String, default: "Autodetect" },
@@ -194,17 +192,17 @@ export default {
       get() {
         return this.value;
       },
-      set(value) {
-        this.$emit("input", value);
+      set(value: boolean) {
+        this.$emit("update:modelValue", value);
       },
     },
     clickedQuestion() {
       return this.question;
     },
     correctAnswerChoice(): string {
-      if (this.question.type == QuestionType.MultipleChoice) {
+      if (this.question?.type == QuestionType.MultipleChoice) {
         const correctAnswer = this.question.answerChoices?.find(
-          (choice) => choice.letter == this.question.answer,
+          (choice) => choice.letter == this.question?.answer,
         );
         if (correctAnswer) {
           return correctAnswer.letter + ": " + correctAnswer.answer;

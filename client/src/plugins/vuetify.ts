@@ -1,5 +1,6 @@
 import { createVuetify } from "vuetify";
 import colors from "vuetify/util/colors";
+import "vuetify/styles";
 
 const colorScheme = {
   primary: colors.indigo.base,

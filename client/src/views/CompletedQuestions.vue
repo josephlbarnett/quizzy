@@ -149,7 +149,7 @@ export default {
       }
       this.questionType = user.instance.defaultQuestionType;
     },
-    clickRow(item: ApiQuestion) {
+    clickRow(event: Event, { item }: { item: ApiQuestion }) {
       this.clickedQuestion = item;
       this.clickedQuestionIndex = this.completedQuestions.findIndex(
         (x) => x.id == item.id,
