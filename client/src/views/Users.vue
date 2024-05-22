@@ -5,11 +5,6 @@
       :query="Users"
       :variables="qvars"
       fetch-policy="cache-and-network"
-      @result="
-        (result) => {
-          users = result && result.users;
-        }
-      "
     >
       <template #default="{ result: { error, data }, isLoading }">
         <div v-if="isLoading">
@@ -98,7 +93,6 @@ export default {
     return { instanceStore: useInstanceStore() };
   },
   data: () => ({
-    users: [],
     search: "",
     headers: [
       {

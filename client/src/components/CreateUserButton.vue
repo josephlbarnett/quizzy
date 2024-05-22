@@ -1,25 +1,11 @@
 <template>
   <div>
-    <ApolloQuery
-      :query="CurrentUser"
-      @result="
-        (result) => {
-          if (result && result.data && result.data.user) {
-            instanceId = result.data.user.instanceId;
-          }
-        }
-      "
-    >
+    <ApolloQuery :query="CurrentUser" @result="setInstance">
       <template #default="{}" />
     </ApolloQuery>
     <v-dialog v-model="dialog">
       <template #activator="{ props }">
-        <v-btn
-          color="accent"
-          v-bind="props"
-          @click="(e: Event) => resetDialog(e, props)"
-          >ADD</v-btn
-        >
+        <v-btn color="accent" v-bind="props" @click="resetDialog">ADD</v-btn>
       </template>
       <v-card>
         <ApolloMutation
@@ -35,32 +21,29 @@
               <v-tabs v-model="tabs">
                 <v-tab key="single">Add One</v-tab>
                 <v-tab key="multiple">Add Multiple</v-tab>
-                <v-tabs-window>
-                  <v-tabs-window-item key="single">
-                    <v-text-field
-                      v-model="singleName"
-                      label="Name"
-                      @keypress.enter="submitForm(mutate)"
-                    ></v-text-field>
-                    <v-text-field
-                      v-model="singleEmail"
-                      label="Email"
-                      @keypress.enter="submitForm(mutate)"
-                    ></v-text-field>
-                  </v-tabs-window-item>
-                  <v-tabs-window-item key="multiple">
-                    <v-textarea
-                      v-model="textarea"
-                      :disabled="uploadedCsv != null"
-                      label="Comma separated name/email pairs per line"
-                    />
-                    <v-file-input
-                      label="Or upload a csv"
-                      @change="selectFile"
-                    />
-                  </v-tabs-window-item>
-                </v-tabs-window>
               </v-tabs>
+              <v-tabs-window v-model="tabs">
+                <v-tabs-window-item key="single">
+                  <v-text-field
+                    v-model="singleName"
+                    label="Name"
+                    @keypress.enter="submitForm(mutate)"
+                  ></v-text-field>
+                  <v-text-field
+                    v-model="singleEmail"
+                    label="Email"
+                    @keypress.enter="submitForm(mutate)"
+                  ></v-text-field>
+                </v-tabs-window-item>
+                <v-tabs-window-item key="multiple">
+                  <v-textarea
+                    v-model="textarea"
+                    :disabled="uploadedCsv != null"
+                    label="Comma separated name/email pairs per line"
+                  />
+                  <v-file-input label="Or upload a csv" @change="selectFile" />
+                </v-tabs-window-item>
+              </v-tabs-window>
               <v-btn @click="dialog = false">CANCEL</v-btn>
               <v-btn
                 :disabled="users.length <= 0"
@@ -97,11 +80,12 @@
 <script lang="ts">
 import Papa from "papaparse";
 import { MutationBaseOptions } from "@apollo/client/core/watchQueryOptions";
-import { User } from "@/generated/types";
+import { Query, User } from "@/generated/types";
 import { ExecutionResult } from "graphql";
 import AddUser from "@/graphql/AddUser.gql";
 import combinedQuery, { CombinedQueryBuilder } from "graphql-combine-query";
 import CurrentUser from "@/graphql/CurrentUser.gql";
+import { ApolloQueryResult } from "@apollo/client/core";
 
 type AddUserInfo = {
   name: string;
@@ -144,18 +128,17 @@ export default {
     },
   },
   methods: {
-    resetDialog(event: Event, { onClick }: { onClick: (Event) => void }) {
+    resetDialog() {
       this.singleName = "";
       this.singleEmail = "";
       this.textarea = "";
       this.uploadedCsv = null;
       this.tabs = 0;
       this.users = [];
-      this.dialog = false;
       this.snackbar = false;
       this.addedSuccesfully = 0;
       this.addedWithError = 0;
-      onClick(event);
+      this.dialog = true;
     },
     async recalculateUsers(): Promise<AddUserInfo[]> {
       return (
@@ -238,6 +221,11 @@ export default {
         this.dialog = false;
       }
       this.snackbar = true;
+    },
+    setInstance(result: ApolloQueryResult<Query>) {
+      if (result && result.data && result.data.user) {
+        this.instanceId = result.data.user.instanceId;
+      }
     },
   },
 };
