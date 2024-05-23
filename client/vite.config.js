@@ -36,26 +36,14 @@ export default defineConfig({
       },
     },
   },
-  // silence sass/css warning https://github.com/vitejs/vite/issues/6333
-  css: {
-    postcss: {
-      plugins: [
-        {
-          postcssPlugin: "internal:charset-removal",
-          AtRule: {
-            charset: (atRule) => {
-              if (atRule.name === "charset") {
-                atRule.remove();
-              }
-            },
-          },
-        },
-      ],
-    },
-  },
   test: {
     globals: true,
     environment: "jsdom",
+    server: {
+      deps: {
+        inline: ["vuetify", "@vue/apollo-components"],
+      },
+    },
     setupFiles: "./tests/unit/setup.ts",
   },
 });

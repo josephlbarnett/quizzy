@@ -18,6 +18,11 @@ const vuetify = createVuetify({
       light: { dark: false, colors: colorScheme },
     },
   },
+  defaults: {
+    VCardTitle: {
+      class: 'd-flex',
+    },
+  },
 });
 
 export default vuetify;

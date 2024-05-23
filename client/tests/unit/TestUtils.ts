@@ -1,8 +1,7 @@
 import flushPromises from "flush-promises";
-import { Wrapper } from "@vue/test-utils";
-import Vue from "vue";
+import { VueWrapper } from "@vue/test-utils";
 
-export async function awaitVm<T extends Vue>(wrapper: Wrapper<T>) {
+export async function awaitVm<T>(wrapper: VueWrapper<T>) {
   await wrapper.vm.$nextTick();
   await flushPromises();
 }

@@ -1,13 +1,15 @@
 import { mount } from "@vue/test-utils";
 import Login from "@/components/Login.vue";
 import { createMockClient, MockApolloClient } from "mock-apollo-client";
-import VueApollo from "vue-apollo";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import loginMutation from "@/graphql/Login.gql";
 import requestPasswordResetMutation from "@/graphql/RequestPasswordReset.gql";
 import completePasswordResetMutation from "@/graphql/CompletePasswordReset.gql";
 import { awaitVm } from "../TestUtils";
 import { ApiUser, QuestionType } from "@/generated/types.d";
+import VueApolloPlugin from "@vue/apollo-components";
+import { createProvider } from "@/vue-apollo";
+import { createVuetify } from "vuetify";
 
 const mockUser: ApiUser = {
   id: 123,
@@ -38,13 +40,19 @@ async function mountLogin(
   mockRouter = { push: vi.fn() },
 ) {
   const component = mount(Login, {
-    stubs: ["router-view", "v-snackbar", "router-link"],
-    apolloProvider: new VueApollo({
-      defaultClient: mockClient,
-    }),
-    mocks: {
-      $route: mockRoute,
-      $router: mockRouter,
+    global: {
+      stubs: ["router-view", "v-snackbar", "router-link"],
+      mocks: {
+        $route: mockRoute,
+        $router: mockRouter,
+      },
+      plugins: [
+        VueApolloPlugin,
+        createProvider({ defaultClient: mockClient }),
+        createVuetify({
+          /*components, directives */
+        }),
+      ],
     },
   });
   await awaitVm(component);
