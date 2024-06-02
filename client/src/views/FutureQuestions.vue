@@ -41,6 +41,7 @@
                 <v-card-text>
                   <v-row>
                     <v-col>
+		      <!-- TODO: init values -->
                       <date-time-picker
                         v-model="addDialogActive"
                         label="Date:"
@@ -118,6 +119,7 @@
                   <v-row v-else>
                     <v-col>
                       Answer Choices:
+		      <!-- TODO: spacing! -->
                       <v-radio-group v-model="addDialogAnswer">
                         <v-row
                           v-for="(choice, index) in addDialogAnswerChoices"

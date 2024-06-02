@@ -1,15 +1,17 @@
 import { mount } from "@vue/test-utils";
 import CreateUserButton from "@/components/CreateUserButton.vue";
 import { createMockClient, MockApolloClient } from "mock-apollo-client";
-import VueApollo from "vue-apollo";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import UsersQuery from "@/graphql/Users.gql";
-import vuetify from "@/plugins/vuetify";
 import { awaitVm } from "../TestUtils";
 import { ApiUser, QuestionType } from "@/generated/types.d";
+import { describe, expect, it } from "vitest";
+import Vuetify from "@/plugins/vuetify";
+import VueApolloPlugin from "@vue/apollo-components";
+import { createProvider } from "@/vue-apollo";
 
 // silence a VDialog warning!?
-document.body.setAttribute("data-app", "true");
+//document.body.setAttribute("data-app", "true");
 
 const mockUser: ApiUser = {
   id: 123,
@@ -36,11 +38,19 @@ const mockUser: ApiUser = {
 
 async function mountComponent(mockClient: MockApolloClient) {
   const component = mount(CreateUserButton, {
-    stubs: [],
-    vuetify,
-    apolloProvider: new VueApollo({
-      defaultClient: mockClient,
-    }),
+    propsData: {
+      inTest: true,
+    },
+    global: {
+      stubs: [],
+      plugins: [
+        VueApolloPlugin,
+        Vuetify,
+        createProvider({
+          defaultClient: mockClient,
+        }),
+      ],
+    },
   });
   // watch the "Users" query to prevent warning on refetchQueries setting
   mockClient.setRequestHandler(UsersQuery, () =>
@@ -57,11 +67,16 @@ describe("CreateUserButton tests", () => {
       Promise.resolve({ data: { user: mockUser } }),
     );
     const component = await mountComponent(mockClient);
-    await component.find("button").trigger("click");
+    const prom = component.find("button").trigger("click");
+    await prom;
     expect(component.findAll(".v-text-field").length).toBe(2);
-    expect(component.findAll(".v-text-field").at(0).text()).toBe("Name");
-    expect(component.findAll(".v-text-field").at(1).text()).toBe("Email");
-    expect(component.find(".v-tab--active").text()).toBe("Add One");
+    expect(
+      component.findAll(".v-text-field .v-field-label--floating")[0].text(),
+    ).toBe("Name");
+    expect(
+      component.findAll(".v-text-field .v-field-label--floating")[1].text(),
+    ).toBe("Email");
+    expect(component.find(".v-tab--selected").text()).toBe("Add One");
   });
 
   it("renders multiple add tab", async () => {
@@ -71,9 +86,9 @@ describe("CreateUserButton tests", () => {
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
-    await component.findAll(".v-tab").at(1).trigger("click");
+    await component.findAll(".v-tab")[1].trigger("click");
     await awaitVm(component);
-    expect(component.find(".v-tab--active").text()).toBe("Add Multiple");
+    expect(component.find(".v-tab--selected").text()).toBe("Add Multiple");
     expect(component.findAll(".v-textarea").length).toBe(1);
     expect(component.findAll(".v-file-input").length).toBe(1);
   });
@@ -86,44 +101,40 @@ describe("CreateUserButton tests", () => {
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
     await component
-      .findAll(".v-text-field")
-      .at(0)
+      .findAll(".v-text-field")[0]
       .find("input")
       .setValue("A name");
     expect(
       component
         .findAll("button")
-        .filter((b) => b.text().indexOf("Create") == 0)
-        .at(0)
+        .filter((b) => b.text().indexOf("Create") == 0)[0]
         .text(),
     ).toContain("Create 0");
     expect(
       (
         component
           .findAll("button")
-          .filter((b) => b.text().indexOf("Create") == 0)
-          .at(0).element as HTMLButtonElement
+          .filter((b) => b.text().indexOf("Create") == 0)[0]
+          .element as HTMLButtonElement
       ).disabled,
     ).toBeTruthy();
     await component
-      .findAll(".v-text-field")
-      .at(1)
+      .findAll(".v-text-field")[1]
       .find("input")
       .setValue("a@b.com");
     await awaitVm(component);
     expect(
       component
         .findAll("button")
-        .filter((b) => b.text().indexOf("Create") == 0)
-        .at(0)
+        .filter((b) => b.text().indexOf("Create") == 0)[0]
         .text(),
     ).toContain("Create 1");
     expect(
       (
         component
           .findAll("button")
-          .filter((b) => b.text().indexOf("Create") == 0)
-          .at(0).element as HTMLButtonElement
+          .filter((b) => b.text().indexOf("Create") == 0)[0]
+          .element as HTMLButtonElement
       ).disabled,
     ).toBeFalsy();
     expect(component.vm.$data.singleName).toBe("A name");
@@ -140,7 +151,7 @@ describe("CreateUserButton tests", () => {
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
-    await component.findAll(".v-tab").at(1).trigger("click");
+    await component.findAll(".v-tab")[1].trigger("click");
     await awaitVm(component);
     await component
       .find(".v-textarea")
@@ -164,13 +175,18 @@ describe("CreateUserButton tests", () => {
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
-    await component.findAll(".v-tab").at(1).trigger("click");
+    await component.findAll(".v-tab")[1].trigger("click");
     await awaitVm(component);
     const input = component.find(".v-file-input").find("input");
     Object.defineProperty(input.element, "files", {
-      get: () => ["name1,a@b.com\nname2,c@d.com\ne@f.com\ng"],
+      get: () => [
+        new File(["name1,a@b.com\nname2,c@d.com\ne@f.com\ng"], "filename.txt", {
+          type: "text/plain",
+        }),
+      ],
     });
     await input.trigger("change");
+    await awaitVm(component);
     await awaitVm(component);
     expect(component.vm.$data.uploadedCsv).toBeTruthy();
     expect(component.vm.$data.users).toEqual([
@@ -187,27 +203,27 @@ describe("CreateUserButton tests", () => {
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
-    await component.findAll(".v-tab").at(1).trigger("click");
+    await component.findAll(".v-tab")[1].trigger("click");
     await awaitVm(component);
     await component
       .find(".v-textarea")
       .find("textarea")
       .setValue("name1,a@b.com\nname2,c@d.com\ne@f.com\ng");
     await awaitVm(component);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mockClient.setRequestHandler((component.vm as any).getQueryDocument(), () =>
+    mockClient.setRequestHandler(component.vm.getQueryDocument(), () =>
       Promise.resolve({
         data: { user_0: mockUser, user_1: mockUser, user_2: mockUser },
       }),
     );
     await component
       .findAll("button")
-      .filter((b) => b.text().indexOf("Create") == 0)
-      .at(0)
+      .filter((b) => b.text().indexOf("Create") == 0)[0]
       .trigger("click");
     await awaitVm(component);
     expect(component.vm.$data.addedSuccesfully).toBe(3);
-    expect(component.find(".v-snack").text()).toContain("Added 3 new users.");
+    expect(component.find(".v-snackbar").text()).toContain(
+      "Added 3 new users.",
+    );
     expect(component.vm.$data.addedWithError).toBe(0);
     expect(component.vm.$data.dialog).toBeFalsy();
   });
@@ -219,15 +235,14 @@ describe("CreateUserButton tests", () => {
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
-    await component.findAll(".v-tab").at(1).trigger("click");
+    await component.findAll(".v-tab")[1].trigger("click");
     await awaitVm(component);
     await component
       .find(".v-textarea")
       .find("textarea")
       .setValue("name1,a@b.com\nname2,c@d.com\ne@f.com\ng");
     await awaitVm(component);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mockClient.setRequestHandler((component.vm as any).getQueryDocument(), () =>
+    mockClient.setRequestHandler(component.vm.getQueryDocument(), () =>
       Promise.resolve({
         data: { user_0: mockUser, user_1: null, user_2: mockUser },
         errors: [{ message: "e" }],
@@ -235,14 +250,15 @@ describe("CreateUserButton tests", () => {
     );
     await component
       .findAll("button")
-      .filter((b) => b.text().indexOf("Create") == 0)
-      .at(0)
+      .filter((b) => b.text().indexOf("Create") == 0)[0]
       .trigger("click");
     await awaitVm(component);
     expect(component.vm.$data.addedSuccesfully).toBe(2);
-    expect(component.find(".v-snack").text()).toContain("Added 2 new users.");
+    expect(component.find(".v-snackbar").text()).toContain(
+      "Added 2 new users.",
+    );
     expect(component.vm.$data.addedWithError).toBe(1);
-    expect(component.find(".v-snack").text()).toMatch(
+    expect(component.find(".v-snackbar").text()).toMatch(
       /1 new user\s+already exists./,
     );
     expect(component.vm.$data.dialog).toBeTruthy();
@@ -255,15 +271,14 @@ describe("CreateUserButton tests", () => {
     );
     const component = await mountComponent(mockClient);
     await component.find("button").trigger("click");
-    await component.findAll(".v-tab").at(1).trigger("click");
+    await component.findAll(".v-tab")[1].trigger("click");
     await awaitVm(component);
     await component
       .find(".v-textarea")
       .find("textarea")
       .setValue("name1,a@b.com\nname2,c@d.com\ne@f.com\ng");
     await awaitVm(component);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mockClient.setRequestHandler((component.vm as any).getQueryDocument(), () =>
+    mockClient.setRequestHandler(component.vm.getQueryDocument(), () =>
       Promise.resolve({
         data: { user_0: null, user_1: null, user_2: null },
         errors: [{ message: "e" }, { message: "e" }, { message: "e" }],
@@ -271,16 +286,15 @@ describe("CreateUserButton tests", () => {
     );
     await component
       .findAll("button")
-      .filter((b) => b.text().indexOf("Create") == 0)
-      .at(0)
+      .filter((b) => b.text().indexOf("Create") == 0)[0]
       .trigger("click");
     await awaitVm(component);
     expect(component.vm.$data.addedSuccesfully).toBe(0);
-    expect(component.find(".v-snack").text()).not.toMatch(
+    expect(component.find(".v-snackbar").text()).not.toMatch(
       /Added \d+ new users./,
     );
     expect(component.vm.$data.addedWithError).toBe(3);
-    expect(component.find(".v-snack").text()).toMatch(
+    expect(component.find(".v-snackbar").text()).toMatch(
       /3 new users\s+already exist./,
     );
     expect(component.vm.$data.dialog).toBeTruthy();

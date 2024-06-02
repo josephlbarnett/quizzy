@@ -4,6 +4,7 @@ import {
   createHttpLink,
   InMemoryCache,
 } from "@apollo/client/core";
+import { ApolloProviderOptions } from "@vue/apollo-option/types/apollo-provider";
 
 // Install the vue plugin
 
@@ -58,7 +59,9 @@ const defaultOptions = {
 };
 
 // Call this in the Vue app file
-export function createProvider(options = {}): ApolloProvider {
+export function createProvider(
+  options: ApolloProviderOptions | null = null,
+): ApolloProvider {
   // Create apollo client
   const apolloClient = new ApolloClient({
     link: createHttpLink({
@@ -67,12 +70,12 @@ export function createProvider(options = {}): ApolloProvider {
     }),
     cache: new InMemoryCache(),
     ...defaultOptions,
-    ...options,
   });
 
   // Create vue apollo provider
+  const client = options?.defaultClient ? options.defaultClient : apolloClient;
   return createApolloProvider({
-    defaultClient: apolloClient,
+    defaultClient: client,
     defaultOptions: {
       $query: {
         // fetchPolicy: 'cache-and-network',

@@ -20,7 +20,7 @@ const vuetify = createVuetify({
   },
   defaults: {
     VCardTitle: {
-      class: 'd-flex',
+      class: "d-flex",
     },
   },
 });

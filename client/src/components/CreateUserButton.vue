@@ -3,7 +3,7 @@
     <ApolloQuery :query="CurrentUser" @result="setInstance">
       <template #default="{}" />
     </ApolloQuery>
-    <v-dialog v-model="dialog">
+    <v-dialog v-model="dialog" :attach="inTest">
       <template #activator="{ props }">
         <v-btn color="accent" v-bind="props" @click="resetDialog">ADD</v-btn>
       </template>
@@ -41,7 +41,10 @@
                     :disabled="uploadedCsv != null"
                     label="Comma separated name/email pairs per line"
                   />
-                  <v-file-input label="Or upload a csv" @change="selectFile" />
+                  <v-file-input
+                    label="Or upload a csv"
+                    @update:modelValue="selectFile"
+                  />
                 </v-tabs-window-item>
               </v-tabs-window>
               <v-btn @click="dialog = false">CANCEL</v-btn>
@@ -60,6 +63,7 @@
     </v-dialog>
     <v-snackbar
       v-model="snackbar"
+      :attach="inTest"
       :color="addedSuccesfully > 0 || addedWithError === 0 ? 'accent' : 'error'"
     >
       <div v-if="addedSuccesfully > 0">
@@ -94,6 +98,9 @@ type AddUserInfo = {
 
 export default {
   name: "CreateUserButton",
+  props: {
+    inTest: { type: Boolean, default: false },
+  },
   data: function () {
     return {
       singleName: "",
@@ -186,8 +193,12 @@ export default {
         });
       });
     },
-    selectFile(file: File) {
-      this.uploadedCsv = file;
+    selectFile(file: File | File[]) {
+      if (file instanceof File) {
+        this.uploadedCsv = file;
+      } else {
+        this.uploadedCsv = file[0];
+      }
     },
     submitForm(mutate: (options: MutationBaseOptions) => void) {
       mutate({ errorPolicy: "all" });
