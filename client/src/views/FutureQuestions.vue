@@ -41,7 +41,7 @@
                 <v-card-text>
                   <v-row>
                     <v-col>
-		      <!-- TODO: init values -->
+                      <!-- TODO: init values -->
                       <date-time-picker
                         v-model="addDialogActive"
                         label="Date:"
@@ -116,34 +116,38 @@
                       <v-textarea v-model="addDialogAnswer" label="Answer:" />
                     </v-col>
                   </v-row>
-                  <v-row v-else>
-                    <v-col>
-                      Answer Choices:
-		      <!-- TODO: spacing! -->
-                      <v-radio-group v-model="addDialogAnswer">
-                        <v-row
-                          v-for="(choice, index) in addDialogAnswerChoices"
-                          :key="index"
-                        >
-                          <v-radio :value="getLetterIndex(index)" />
-                          <v-text-field
-                            v-model="addDialogAnswerChoices[index]"
-                            :label="'Answer ' + getLetterIndex(index)"
-                          />
-                          <v-icon
-                            v-if="addDialogAnswerChoices.length > 1"
-                            @click="addDialogAnswerChoices.splice(index, 1)"
-                            >mdi-close
-                          </v-icon>
-                        </v-row>
-                        <v-row>
-                          <v-icon @click="addDialogAnswerChoices.push('')"
-                            >mdi-plus
-                          </v-icon>
-                        </v-row>
-                      </v-radio-group>
-                    </v-col>
-                  </v-row>
+                  <div v-else>
+                    <v-row><v-col>Answer Choices:</v-col></v-row>
+                    <v-row>
+                      <v-col>
+                        <v-radio-group v-model="addDialogAnswer">
+                          <v-row
+                            v-for="(choice, index) in addDialogAnswerChoices"
+                            :key="index"
+                          >
+                            <v-radio
+                              :value="getLetterIndex(index)"
+                              class="flex-0-0"
+                            />
+                            <v-text-field
+                              v-model="addDialogAnswerChoices[index]"
+                              :label="'Answer ' + getLetterIndex(index)"
+                            />
+                            <v-icon
+                              v-if="addDialogAnswerChoices.length > 1"
+                              @click="addDialogAnswerChoices.splice(index, 1)"
+                              >mdi-close
+                            </v-icon>
+                          </v-row>
+                          <v-row>
+                            <v-icon @click="addDialogAnswerChoices.push('')"
+                              >mdi-plus
+                            </v-icon>
+                          </v-row>
+                        </v-radio-group>
+                      </v-col>
+                    </v-row>
+                  </div>
                   <v-row>
                     <v-col>
                       <v-textarea

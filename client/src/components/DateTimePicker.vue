@@ -75,14 +75,14 @@ function modelDate(date: string): Date | null {
 export default {
   components: { VTimePicker },
   props: {
-    value: { type: String, default: null },
+    modelValue: { type: String, default: null },
     timezone: { type: String, default: null },
     label: { type: String, required: true },
   },
   data: function () {
     return {
-      time: modelTime(this.value),
-      date: modelDate(this.value),
+      time: modelTime(this.modelValue),
+      date: modelDate(this.modelValue),
       dateMenu: false,
       timeMenu: false,
     };
