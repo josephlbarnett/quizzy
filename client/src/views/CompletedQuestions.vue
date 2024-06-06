@@ -60,6 +60,7 @@
       :question="clickedQuestion"
       :question-index="clickedQuestionIndex"
       :user-t-z="userTZ"
+      :in-test="inTest"
       @next="next"
       @prev="prev"
     />
@@ -77,6 +78,9 @@ import CompletedQuestions from "@/graphql/CompletedQuestions.gql";
 export default {
   name: "CompletedQuestions",
   components: { GradedQuestionDialog },
+  props: {
+    inTest: { type: Boolean, default: false },
+  },
   setup() {
     const instanceStore = useInstanceStore();
     return {

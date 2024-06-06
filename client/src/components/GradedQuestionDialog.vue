@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="detailDialog">
+  <v-dialog v-model="detailDialog" :attach="inTest">
     <v-card v-if="clickedQuestion && clickedQuestion.author">
       <v-card-title>
         Review Question: {{ renderDate(clickedQuestion.activeAt) }} by
@@ -181,6 +181,7 @@ export default {
     questionIndex: { type: Number, default: null },
     value: { type: Boolean, default: false },
     userTZ: { type: String, default: "Autodetect" },
+    inTest: { type: Boolean, default: false },
   },
   data: function () {
     return {

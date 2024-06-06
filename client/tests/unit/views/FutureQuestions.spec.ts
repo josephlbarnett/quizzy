@@ -2,15 +2,17 @@ import { mount } from "@vue/test-utils";
 import FutureQuestions from "@/views/FutureQuestions.vue";
 import { createMockClient, MockApolloClient } from "mock-apollo-client";
 import vuetify from "@/plugins/vuetify";
-import VueApollo from "vue-apollo";
+import VueApolloPlugin from "@vue/apollo-components";
 import futureQuestionsQuery from "@/graphql/FutureQuestions.gql";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import saveQuestionMutation from "@/graphql/SaveQuestion.gql";
 import moment from "moment-timezone";
 import { awaitVm } from "../TestUtils";
 import { ApiQuestion, ApiUser, QuestionType } from "@/generated/types.d";
-// silence a VDialog warning!?
-document.body.setAttribute("data-app", "true");
+import { describe, expect, it, vi } from "vitest";
+import { createProvider } from "@/vue-apollo";
+import { VProgressCircular } from "vuetify/components/VProgressCircular";
+import { VDataTable, VDataTableRow } from "vuetify/components/VDataTable";
 
 const mockUser: ApiUser = {
   id: 987,
@@ -64,11 +66,19 @@ const mockQuestions: ApiQuestion[] = [
 
 async function mountFutureQuestions(mockClient: MockApolloClient) {
   const page = mount(FutureQuestions, {
-    stubs: ["date-time-picker"],
-    vuetify,
-    apolloProvider: new VueApollo({
-      defaultClient: mockClient,
-    }),
+    props: {
+      inTest: true,
+    },
+    global: {
+      stubs: ["date-time-picker"],
+      plugins: [
+        vuetify,
+        VueApolloPlugin,
+        createProvider({
+          defaultClient: mockClient,
+        }),
+      ],
+    },
   });
   await awaitVm(page);
   return page;
@@ -85,7 +95,7 @@ describe("Future Questions page tests", () => {
         }),
     );
     const page = await mountFutureQuestions(mockClient);
-    expect(page.find(".v-progress-circular").vm.$props.indeterminate).toBe(
+    expect(page.findComponent(VProgressCircular).vm.$props.indeterminate).toBe(
       true,
     );
   });
@@ -126,17 +136,17 @@ describe("Future Questions page tests", () => {
     const rows = page.findAll("tbody tr");
     expect(rows.length).toBe(mockQuestions.length);
     for (let i = 0; i < rows.length; i++) {
-      const row = rows.at(i);
+      const row = rows[i];
       const cols = row.findAll("td");
-      expect(cols.at(0).text()).toBe(
+      expect(cols[0].text()).toBe(
         moment.tz(mockQuestions[i].activeAt, "UTC").format("ddd, MMM D YYYY"),
       );
-      expect(cols.at(1).text()).toBe(
+      expect(cols[1].text()).toBe(
         `${moment
           .tz(mockQuestions[i].closedAt, "UTC")
           .format("ddd, MMM D YYYY, h:mmA")} (UTC)`,
       );
-      expect(cols.at(2).text()).toBe(mockQuestions[i].body);
+      expect(cols[2].text()).toBe(mockQuestions[i].body);
     }
   });
 
@@ -149,11 +159,10 @@ describe("Future Questions page tests", () => {
       Promise.resolve({ data: { futureQuestions: mockQuestions } }),
     );
     const page = await mountFutureQuestions(mockClient);
-    const table = page.find(".v-data-table");
+    const table = page.findComponent(VDataTable);
 
     for (let i = 0; i < mockQuestions.length; i++) {
-      table.vm.$emit("click:row", mockQuestions[i]);
-      await awaitVm(page);
+      await table.findAllComponents(VDataTableRow)[i].trigger("click");
       expect(page.vm.$data.addDialog).toBe(true);
       expect(page.vm.$data.addDialogId).toBe(mockQuestions[i].id);
       expect(page.vm.$data.addDialogBody).toBe(mockQuestions[i].body);
@@ -166,15 +175,13 @@ describe("Future Questions page tests", () => {
       );
       await page
         .findAll(".v-dialog button")
-        .filter((x) => x.text() == "CANCEL")
-        .at(0)
+        .filter((x) => x.text() == "CANCEL")[0]
         .trigger("click");
       expect(page.vm.$data.addDialog).toBe(false);
     }
     await page
       .findAll("button")
-      .filter((x) => x.text() == "ADD QUESTION")
-      .at(0)
+      .filter((x) => x.text() == "ADD QUESTION")[0]
       .trigger("click");
     expect(page.vm.$data.addDialog).toBe(true);
     expect(page.vm.$data.addDialogId).toBe(null);
@@ -197,28 +204,23 @@ describe("Future Questions page tests", () => {
     const mockMutation = vi.fn();
     mockClient.setRequestHandler(saveQuestionMutation, mockMutation);
     const page = await mountFutureQuestions(mockClient);
-    const table = page.find(".v-data-table");
-    table.vm.$emit("click:row", mockQuestions[0]);
+    const table = page.findComponent(VDataTable);
+    await table.findComponent(VDataTableRow).trigger("click");
     await awaitVm(page);
-    const bodyInput = page
-      .findAll(".v-dialog .v-textarea")
-      .at(0)
-      .find("textarea");
+    const bodyInput = page.findAll(".v-dialog .v-textarea")[0].find("textarea");
     expect((bodyInput.element as HTMLTextAreaElement).value).toBe(
       mockQuestions[0].body,
     );
     await bodyInput.setValue(`Q1V2`);
     const answerInput = page
-      .findAll(".v-dialog .v-textarea")
-      .at(1)
+      .findAll(".v-dialog .v-textarea")[1]
       .find("textarea");
     expect((answerInput.element as HTMLTextAreaElement).value).toBe(
       mockQuestions[0].answer,
     );
     await answerInput.setValue(`A1V2`);
     const ruleRefInput = page
-      .findAll(".v-dialog .v-textarea")
-      .at(2)
+      .findAll(".v-dialog .v-textarea")[2]
       .find("textarea");
     expect((ruleRefInput.element as HTMLTextAreaElement).value).toBe(
       mockQuestions[0].ruleReferences,
@@ -226,8 +228,7 @@ describe("Future Questions page tests", () => {
     await ruleRefInput.setValue(`Ref1V2`);
     await page
       .findAll(".v-dialog button")
-      .filter((x) => x.text() == "SAVE")
-      .at(0)
+      .filter((x) => x.text() == "SAVE")[0]
       .trigger("click");
     expect(mockMutation.mock.calls.length).toBe(1);
     expect(mockMutation.mock.calls[0][0].id).toBe(mockQuestions[0].id);

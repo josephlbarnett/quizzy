@@ -22,6 +22,7 @@
             <v-spacer />
             <v-dialog
               v-model="addDialog"
+              :attach="inTest"
               @click:outside="addDialogError = false"
             >
               <template #activator="{ props }">
@@ -83,7 +84,7 @@
                       <v-icon v-if="clickedImage" @click="clickedImage = null"
                         >mdi-close
                       </v-icon>
-                      <v-dialog v-model="imageDialog">
+                      <v-dialog v-model="imageDialog" :attach="inTest">
                         <template #activator="{ props }">
                           <v-img
                             v-if="imageUrl"
@@ -229,6 +230,9 @@ import SaveQuestion from "@/graphql/SaveQuestion.gql";
 export default {
   name: "FutureQuestions",
   components: { DateTimePicker },
+  props: {
+    inTest: { type: Boolean, default: false },
+  },
   data: () => ({
     addDialogError: false,
     addDialog: false,

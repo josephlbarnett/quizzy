@@ -5,13 +5,15 @@ import currentUserQuery from "@/graphql/CurrentUser.gql";
 import saveResponseMutation from "@/graphql/SaveResponse.gql";
 import { createMockClient, MockApolloClient } from "mock-apollo-client";
 import vuetify from "@/plugins/vuetify";
-import VueApollo from "vue-apollo";
 import moment from "moment-timezone";
 import completedQuestionQuery from "@/graphql/CompletedQuestions.gql";
 import { awaitVm } from "../TestUtils";
 import { ApiQuestion, ApiUser, QuestionType } from "@/generated/types.d";
-// silence a VDialog warning!?
-document.body.setAttribute("data-app", "true");
+import { describe, expect, it, vi } from "vitest";
+import { createProvider } from "@/vue-apollo";
+import ApolloVuePlugin from "@vue/apollo-components";
+import { VProgressCircular } from "vuetify/components/VProgressCircular";
+import { VDataTable, VDataTableRow } from "vuetify/components/VDataTable";
 
 const mockUser: ApiUser = {
   id: 987,
@@ -75,11 +77,19 @@ const mockQuestions: ApiQuestion[] = [
 
 async function mountCurrentQuestions(mockClient: MockApolloClient) {
   const page = mount(CurrentQuestions, {
-    stubs: [],
-    vuetify,
-    apolloProvider: new VueApollo({
-      defaultClient: mockClient,
-    }),
+    props: {
+      inTest: true,
+    },
+    global: {
+      stubs: [],
+      plugins: [
+        ApolloVuePlugin,
+        vuetify,
+        createProvider({
+          defaultClient: mockClient,
+        }),
+      ],
+    },
   });
   await awaitVm(page);
   return page;
@@ -96,7 +106,7 @@ describe("Current questions page tests", () => {
         }),
     );
     const page = await mountCurrentQuestions(mockClient);
-    expect(page.find(".v-progress-circular").vm.$props.indeterminate).toBe(
+    expect(page.findComponent(VProgressCircular).vm.$props.indeterminate).toBe(
       true,
     );
   });
@@ -122,17 +132,17 @@ describe("Current questions page tests", () => {
     const rows = page.findAll("tbody tr");
     expect(rows.length).toBe(mockQuestions.length);
     for (let i = 0; i < rows.length; i++) {
-      const cols = rows.at(i).findAll("td");
-      expect(cols.at(0).text()).toBe(
+      const cols = rows[i].findAll("td");
+      expect(cols[0].text()).toBe(
         moment.tz(mockQuestions[i].activeAt, "UTC").format("ddd, MMM D YYYY"),
       );
-      expect(cols.at(1).text()).toBe(
+      expect(cols[1].text()).toBe(
         `${moment
           .tz(mockQuestions[i].closedAt, "UTC")
           .format("ddd, MMM D YYYY, h:mmA")} (UTC)`,
       );
-      expect(cols.at(2).text()).toBe(mockQuestions[i].body);
-      expect(cols.at(3).text()).toBe(mockQuestions[i].response?.response || "");
+      expect(cols[2].text()).toBe(mockQuestions[i].body);
+      expect(cols[3].text()).toBe(mockQuestions[i].response?.response || "");
     }
   });
 
@@ -147,21 +157,20 @@ describe("Current questions page tests", () => {
     const mockMutation = vi.fn();
     mockClient.setRequestHandler(saveResponseMutation, mockMutation);
     const page = await mountCurrentQuestions(mockClient);
-    const table = page.find(".v-data-table");
+    const table = page.findComponent(VDataTable);
     for (let i = 0; i < mockQuestions.length; i++) {
-      table.vm.$emit("click:row", mockQuestions[i]);
+      await table.findAllComponents(VDataTableRow)[i].trigger("click");
       await awaitVm(page);
-      expect(page.find(".v-dialog .v-card__title").text()).toContain(
+      expect(page.find(".v-dialog .v-card-title").text()).toContain(
         mockQuestions[i].author?.name,
       );
-      expect(page.vm.$data.clickedQuestion.id).toBe(mockQuestions[i].id);
-      expect(page.vm.$data.clickedResponse.id).toBe(
+      expect(page.vm.$data.clickedQuestion?.id).toBe(mockQuestions[i].id);
+      expect(page.vm.$data.clickedResponse?.id).toBe(
         mockQuestions[i].response?.id,
       );
       const answerInput = page
         .findAll(".v-dialog .v-textarea")
-        .filter((x) => x.text() == "Response")
-        .at(0)
+        .filter((x) => x.text().startsWith("Response"))[0]
         .find("textarea");
       expect((answerInput.element as HTMLTextAreaElement).value).toBe(
         mockQuestions[i].response?.response || "",
@@ -169,8 +178,7 @@ describe("Current questions page tests", () => {
       await answerInput.setValue(`answer${i}`);
       const referenceInput = page
         .findAll(".v-dialog .v-textarea")
-        .filter((x) => x.text() == "Rule Reference")
-        .at(0)
+        .filter((x) => x.text().startsWith("Rule Reference"))[0]
         .find("textarea");
       expect((referenceInput.element as HTMLTextAreaElement).value).toBe(
         mockQuestions[i].response?.ruleReferences || "",
@@ -178,8 +186,7 @@ describe("Current questions page tests", () => {
       await referenceInput.setValue(`reference${i}`);
       await page
         .findAll(".v-dialog button")
-        .filter((x) => x.text() == "save response")
-        .at(0)
+        .filter((x) => x.text() == "save response")[0]
         .trigger("click");
       expect(mockMutation.mock.calls.length).toBe(i + 1);
       expect(mockMutation.mock.calls[i][0].response).toBe(`answer${i}`);

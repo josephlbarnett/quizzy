@@ -52,7 +52,7 @@
       </template>
     </ApolloQuery>
 
-    <v-dialog v-model="responseDialog">
+    <v-dialog v-model="responseDialog" :attach="inTest">
       <v-card v-if="clickedQuestion">
         <v-card-title
           >Question: {{ renderDate(clickedQuestion.activeAt) }} by
@@ -79,7 +79,7 @@
             <v-card-text>
               <v-row>
                 <v-col v-if="clickedQuestion.imageUrl" cols="12" lg="1">
-                  <v-dialog v-model="imageDialog">
+                  <v-dialog v-model="imageDialog" :attach="inTest">
                     <template #activator="{ props }">
                       <v-img
                         :src="clickedQuestion.imageUrl"
@@ -144,6 +144,7 @@
       v-model="gradeDialog"
       :question="gradedQuestion"
       :user-t-z="userTZ"
+      :in-test="inTest"
     />
   </div>
 </template>
@@ -160,6 +161,9 @@ import SaveResponse from "@/graphql/SaveResponse.gql";
 export default {
   name: "CurrentQuestions",
   components: { GradedQuestionDialog },
+  props: {
+    inTest: { type: Boolean, default: false },
+  },
   data: () => ({
     userTZ: "Autodetect",
     activeQuestions: [],

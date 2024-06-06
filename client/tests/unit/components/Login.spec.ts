@@ -1,4 +1,4 @@
-import { mount } from "@vue/test-utils";
+import { config, mount } from "@vue/test-utils";
 import Login from "@/components/Login.vue";
 import { createMockClient, MockApolloClient } from "mock-apollo-client";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
@@ -10,6 +10,11 @@ import { ApiUser, QuestionType } from "@/generated/types.d";
 import VueApolloPlugin from "@vue/apollo-components";
 import { createProvider } from "@/vue-apollo";
 import { createVuetify } from "vuetify";
+import { describe, expect, it, vi } from "vitest";
+import { VProgressCircular } from "vuetify/components/VProgressCircular";
+import { VTextField } from "vuetify/components/VTextField";
+
+config.global.renderStubDefaultSlot = true;
 
 const mockUser: ApiUser = {
   id: 123,
@@ -79,7 +84,7 @@ describe("Login Tests", () => {
         }),
     );
     const login = await mountLogin(mockClient);
-    expect(login.find(".v-progress-circular").vm.$props.indeterminate).toBe(
+    expect(login.findComponent(VProgressCircular).vm.$props.indeterminate).toBe(
       true,
     );
   });
@@ -101,8 +106,8 @@ describe("Login Tests", () => {
     const login = await mountLogin(mockClient);
     const inputs = login.findAll(".v-text-field");
     expect(inputs.length).toBe(2);
-    const userInput = inputs.at(0);
-    const passInput = inputs.at(1);
+    const userInput = inputs[0];
+    const passInput = inputs[1];
     expect(userInput.find("input").element.getAttribute("type")).toBe("text");
     expect(passInput.find("input").element.getAttribute("type")).toBe(
       "password",
@@ -120,8 +125,7 @@ describe("Login Tests", () => {
     );
     mockClient.setRequestHandler(loginMutation, mutationMock);
     const login = await mountLogin(mockClient);
-    login.setData({ email: "joe@joe.com", pass: "secret" });
-    await awaitVm(login);
+    await login.setData({ email: "joe@joe.com", pass: "secret" });
     const button = login.find("button");
     await button.trigger("click");
     expect(mutationMock.mock.calls.length).toBe(1);
@@ -145,10 +149,10 @@ describe("Login Tests", () => {
     mockClient.setRequestHandler(loginMutation, mutationMock);
 
     const login = await mountLogin(mockClient);
-    const userInput = login.findAll(".v-text-field").at(0);
-    await userInput.vm.$emit("keypress", { key: "a" });
+    const userInput = login.findAllComponents(VTextField)[0];
+    userInput.trigger("keyup.a");
     expect(mutationMock.mock.calls.length).toBe(0);
-    await userInput.vm.$emit("keypress", { key: "Enter" });
+    userInput.trigger("keyup.enter");
     expect(mutationMock.mock.calls.length).toBe(1);
     await awaitVm(login);
     expect(login.find("v-snackbar-stub").text()).toBe(
@@ -234,12 +238,10 @@ describe("Login Tests", () => {
     const button = login.find("button");
     const pw1Input = login
       .findAll(".v-input")
-      .filter((x) => x.text() == "New Password")
-      .at(0);
+      .filter((x) => x.text().startsWith("New Password"))[0];
     const pw2Input = login
       .findAll(".v-input")
-      .filter((x) => x.text() == "Confirm New Password")
-      .at(0);
+      .filter((x) => x.text().startsWith("Confirm New Password"))[0];
     await pw1Input.find("input").setValue("456");
     await button.trigger("click");
     await login.vm.$nextTick();
@@ -276,12 +278,10 @@ describe("Login Tests", () => {
     const button = login.find("button");
     const pw1Input = login
       .findAll(".v-input")
-      .filter((x) => x.text() == "New Password")
-      .at(0);
+      .filter((x) => x.text().startsWith("New Password"))[0];
     const pw2Input = login
       .findAll(".v-input")
-      .filter((x) => x.text() == "Confirm New Password")
-      .at(0);
+      .filter((x) => x.text().startsWith("Confirm New Password"))[0];
     await pw1Input.find("input").setValue("456");
     await pw2Input.find("input").setValue("456");
     await button.trigger("click");

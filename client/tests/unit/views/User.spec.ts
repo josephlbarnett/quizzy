@@ -1,13 +1,17 @@
 import { mount } from "@vue/test-utils";
 import User from "@/views/User.vue";
 import { createMockClient, MockApolloClient } from "mock-apollo-client";
-import VueApollo from "vue-apollo";
+import { createProvider } from "@/vue-apollo";
+import { describe, expect, it, vi } from "vitest";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import updateUserMutation from "@/graphql/UpdateUser.gql";
 import changePasswordMutation from "@/graphql/ChangePassword.gql";
 import vuetify from "@/plugins/vuetify";
+import VueApolloPlugin from "@vue/apollo-components";
 import { awaitVm } from "../TestUtils";
 import { ApiUser, QuestionType } from "@/generated/types.d";
+import { VProgressCircular } from "vuetify/components/VProgressCircular";
+import { VTextField } from "vuetify/components/VTextField";
 
 const mockUser: ApiUser = {
   id: 123,
@@ -34,11 +38,16 @@ const mockUser: ApiUser = {
 
 async function mountUser(mockClient: MockApolloClient) {
   const page = mount(User, {
-    stubs: ["v-autocomplete", "v-snackbar"],
-    vuetify,
-    apolloProvider: new VueApollo({
-      defaultClient: mockClient,
-    }),
+    global: {
+      stubs: ["v-snackbar"],
+      plugins: [
+        vuetify,
+        VueApolloPlugin,
+        createProvider({
+          defaultClient: mockClient,
+        }),
+      ],
+    },
   });
   await awaitVm(page);
   return page;
@@ -55,9 +64,9 @@ describe("user page tests", () => {
         }),
     );
     const userPage = await mountUser(mockClient);
-    expect(userPage.find(".v-progress-circular").vm.$props.indeterminate).toBe(
-      true,
-    );
+    expect(
+      userPage.findComponent(VProgressCircular).vm.$props.indeterminate,
+    ).toBe(true);
   });
 
   it("error state", async () => {
@@ -110,7 +119,7 @@ describe("user page tests", () => {
     );
     mockClient.setRequestHandler(updateUserMutation, mutationMock);
     const userPage = await mountUser(mockClient);
-    const button = userPage.findAll("button").at(0);
+    const button = userPage.findAll("button")[0];
     await button.trigger("click");
     await awaitVm(userPage);
     expect(mutationMock.mock.calls.length).toBe(1);
@@ -126,7 +135,7 @@ describe("user page tests", () => {
     const mutationMock = vi.fn(() => Promise.reject("Error saving"));
     mockClient.setRequestHandler(updateUserMutation, mutationMock);
     const userPage = await mountUser(mockClient);
-    const button = userPage.findAll("button").at(0);
+    const button = userPage.findAll("button")[0];
     await button.trigger("click");
     await awaitVm(userPage);
     expect(mutationMock.mock.calls.length).toBe(1);
@@ -144,7 +153,7 @@ describe("user page tests", () => {
     );
     mockClient.setRequestHandler(changePasswordMutation, mutationMock);
     const userPage = await mountUser(mockClient);
-    const button = userPage.findAll("button").at(1);
+    const button = userPage.findAll("button")[1];
     await button.trigger("click");
     await awaitVm(userPage);
     expect(mutationMock.mock.calls.length).toBe(1);
@@ -164,21 +173,18 @@ describe("user page tests", () => {
     const userPage = await mountUser(mockClient);
     const oldPass = userPage
       .findAll(".v-text-field")
-      .filter((x) => x.text() == "Current Password")
-      .at(0);
+      .filter((x) => x.text().startsWith("Current Password"))[0];
     const pass1 = userPage
       .findAll(".v-text-field")
-      .filter((x) => x.text() == "New Password")
-      .at(0);
+      .filter((x) => x.text().startsWith("New Password"))[0];
     const pass2 = userPage
       .findAll(".v-text-field")
-      .filter((x) => x.text() == "Confirm New Password")
-      .at(0);
-    oldPass.find("input").setValue("abcd");
-    pass1.find("input").setValue("defg");
-    pass2.find("input").setValue("defg");
+      .filter((x) => x.text().startsWith("Confirm New Password"))[0];
+    await oldPass.find("input").setValue("abcd");
+    await pass1.find("input").setValue("defg");
+    await pass2.find("input").setValue("defg");
     await awaitVm(userPage);
-    const button = userPage.findAll("button").at(1);
+    const button = userPage.findAll("button")[1];
     await button.trigger("click");
     await awaitVm(userPage);
     expect(mutationMock.mock.calls.length).toBe(1);
@@ -200,21 +206,18 @@ describe("user page tests", () => {
     const userPage = await mountUser(mockClient);
     const oldPass = userPage
       .findAll(".v-text-field")
-      .filter((x) => x.text() == "Current Password")
-      .at(0);
+      .filter((x) => x.text().startsWith("Current Password"))[0];
     const pass1 = userPage
       .findAll(".v-text-field")
-      .filter((x) => x.text() == "New Password")
-      .at(0);
+      .filter((x) => x.text().startsWith("New Password"))[0];
     const pass2 = userPage
       .findAll(".v-text-field")
-      .filter((x) => x.text() == "Confirm New Password")
-      .at(0);
-    oldPass.find("input").setValue("abcd");
-    pass1.find("input").setValue("defg");
-    pass2.find("input").setValue("hijkl");
+      .filter((x) => x.text().startsWith("Confirm New Password"))[0];
+    await oldPass.find("input").setValue("abcd");
+    await pass1.find("input").setValue("defg");
+    await pass2.find("input").setValue("hijkl");
     await awaitVm(userPage);
-    const button = userPage.findAll("button").at(1);
+    const button = userPage.findAll("button")[1];
     await button.trigger("click");
     await awaitVm(userPage);
     expect(mutationMock.mock.calls.length).toBe(1);
@@ -238,33 +241,35 @@ describe("user page tests", () => {
     );
     mockClient.setRequestHandler(updateUserMutation, userMutationMock);
     const userPage = await mountUser(mockClient);
-    const inputs = userPage.findAll(".v-text-field");
-    const nameInput = inputs.filter((x) => x.text() == "Name").at(0);
-    await nameInput.vm.$emit("keypress", { key: "a" });
+    const inputs = userPage.findAllComponents(VTextField);
+    const nameInput = inputs.filter((x) => x.text().startsWith("Name"))[0];
+    await nameInput.trigger("keyup.a");
     expect(userMutationMock.mock.calls.length).toBe(0);
-    await nameInput.vm.$emit("keypress", { key: "Enter" });
+    await nameInput.trigger("keyup.enter");
     expect(userMutationMock.mock.calls.length).toBe(1);
 
-    const currentPassInput = inputs
-      .filter((x) => x.text() == "Current Password")
-      .at(0);
-    await currentPassInput.vm.$emit("keypress", { key: "a" });
+    const currentPassInput = inputs.filter((x) =>
+      x.text().startsWith("Current Password"),
+    )[0];
+    await currentPassInput.trigger("keyup.a");
     expect(passMutationMock.mock.calls.length).toBe(0);
-    await currentPassInput.vm.$emit("keypress", { key: "Enter" });
+    await currentPassInput.trigger("keyup.enter");
     expect(passMutationMock.mock.calls.length).toBe(1);
 
-    const newPassInput = inputs.filter((x) => x.text() == "New Password").at(0);
-    await newPassInput.vm.$emit("keypress", { key: "a" });
+    const newPassInput = inputs.filter((x) =>
+      x.text().startsWith("New Password"),
+    )[0];
+    await newPassInput.trigger("keyup.a");
     expect(passMutationMock.mock.calls.length).toBe(1);
-    await newPassInput.vm.$emit("keypress", { key: "Enter" });
+    await newPassInput.trigger("keyup.enter");
     expect(passMutationMock.mock.calls.length).toBe(2);
 
-    const confNewPassInput = inputs
-      .filter((x) => x.text() == "Confirm New Password")
-      .at(0);
-    await confNewPassInput.vm.$emit("keypress", { key: "a" });
+    const confNewPassInput = inputs.filter((x) =>
+      x.text().startsWith("Confirm New Password"),
+    )[0];
+    await confNewPassInput.trigger("keyup.a");
     expect(passMutationMock.mock.calls.length).toBe(2);
-    await confNewPassInput.vm.$emit("keypress", { key: "Enter" });
+    await confNewPassInput.trigger("keyup.enter");
     expect(passMutationMock.mock.calls.length).toBe(3);
   });
 });

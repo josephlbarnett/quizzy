@@ -7,7 +7,7 @@ describe("DateTimePicker Tests", () => {
   it("initializes properly", () => {
     const initializedPicker = shallowMount(DateTimePicker, {
       props: {
-        value: "2020-07-23 13:22:01",
+        modelValue: "2020-07-23 13:22:01",
         timezone: "UTC",
         label: "some_text",
       },
@@ -22,7 +22,7 @@ describe("DateTimePicker Tests", () => {
   it("initializes empty", () => {
     const invalidPicker = shallowMount(DateTimePicker, {
       props: {
-        value: "Not a Timestamp!",
+        modelValue: "Not a Timestamp!",
         timezone: "Autodetect",
         label: "some_text",
       },
@@ -63,7 +63,7 @@ describe("DateTimePicker Tests", () => {
   it("emits update values when pickers are changed", () => {
     const picker = shallowMount(DateTimePicker, {
       props: {
-        value: "2020-07-23 13:22:01",
+        modelValue: "2020-07-23 13:22:01",
         timezone: "UTC",
         label: "some_text",
       },
@@ -73,16 +73,13 @@ describe("DateTimePicker Tests", () => {
     picker.vm.onChange(false);
     picker.vm.time = "15:27";
     picker.vm.onChange(false);
-    expect(picker.emitted("update:modelValue")).toHaveLength(3);
-    expect(picker.emitted("update:modelValue")[0]).toEqual([
-      "2020-07-23T13:22:00Z",
-    ]);
-    expect(picker.emitted("update:modelValue")[1]).toEqual([
-      "2020-07-22T13:22:00Z",
-    ]);
-    expect(picker.emitted("update:modelValue")[2]).toEqual([
-      "2020-07-22T15:27:00Z",
-    ]);
+    const emittedValues = picker.emitted("update:modelValue");
+    expect(emittedValues).toHaveLength(3);
+    if (emittedValues) {
+      expect(emittedValues[0]).toEqual(["2020-07-23T13:22:00Z"]);
+      expect(emittedValues[1]).toEqual(["2020-07-22T13:22:00Z"]);
+      expect(emittedValues[2]).toEqual(["2020-07-22T15:27:00Z"]);
+    }
   });
 
   it("close date opens time", () => {

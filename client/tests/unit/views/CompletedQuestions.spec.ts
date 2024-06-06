@@ -1,17 +1,18 @@
-import { mount, Wrapper } from "@vue/test-utils";
+import { mount, VueWrapper } from "@vue/test-utils";
 import CompletedQuestions from "@/views/CompletedQuestions.vue";
 import { createMockClient, MockApolloClient } from "mock-apollo-client";
-import VueApollo from "vue-apollo";
 import moment from "moment-timezone";
 import completedQuestionQuery from "@/graphql/CompletedQuestions.gql";
 import currentUserQuery from "@/graphql/CurrentUser.gql";
 import vuetify from "@/plugins/vuetify";
 import { ApiQuestion, ApiUser, QuestionType } from "@/generated/types.d";
-import Vue from "vue";
 import { awaitVm } from "../TestUtils";
 import { createPinia } from "pinia";
-// silence a VDialog warning!?
-document.body.setAttribute("data-app", "true");
+import { createProvider } from "@/vue-apollo";
+import VueApolloPlugin from "@vue/apollo-components";
+import { describe, expect, it } from "vitest";
+import { VProgressCircular } from "vuetify/components/VProgressCircular";
+import { VDataTable, VDataTableRow } from "vuetify/components/VDataTable";
 
 const mockUser: ApiUser = {
   id: 987,
@@ -117,62 +118,65 @@ const mockQuestions: ApiQuestion[] = [
 
 async function mountCompletedQuestions(mockClient: MockApolloClient) {
   const page = mount(CompletedQuestions, {
-    stubs: [],
-    vuetify,
-    apolloProvider: new VueApollo({
-      defaultClient: mockClient,
-    }),
-    pinia: createPinia(),
+    props: {
+      inTest: true,
+    },
+    global: {
+      stubs: [],
+      plugins: [
+        VueApolloPlugin,
+        vuetify,
+        createProvider({
+          defaultClient: mockClient,
+        }),
+        createPinia(),
+      ],
+    },
   });
   await awaitVm(page);
   return page;
 }
 
-function assertDialogMatchesInputs<T extends Vue>(
-  page: Wrapper<T>,
+function assertDialogMatchesInputs<T>(
+  page: VueWrapper<T>,
   question: ApiQuestion,
 ) {
-  expect(page.find(".v-dialog .v-card__title").text()).toContain(
+  expect(page.find(".v-dialog .v-card-title").text()).toContain(
     `Review Question: ${moment
       .tz(question.activeAt, "UTC")
       .format("ddd, MMM D YYYY")} by`,
   );
-  expect(page.find(".v-dialog .v-card__title").text()).toContain(
+  expect(page.find(".v-dialog .v-card-title").text()).toContain(
     question.author?.name || "no author!?",
   );
-  expect(page.find(".v-dialog .v-card__text").text()).toMatch(
+  expect(page.find(".v-dialog .v-card-text").text()).toMatch(
     new RegExp(`${question.body}.*`),
   );
   const inputs = page.findAll(".v-dialog .v-textarea");
   expect(
     (
-      inputs
-        .filter((x) => x.text() == "Answer Key")
-        .at(0)
-        .find("textarea").element as HTMLTextAreaElement
+      inputs.filter((x) => x.text().endsWith("Answer Key"))[0].find("textarea")
+        .element as HTMLTextAreaElement
     ).value,
   ).toBe(question.answer);
   expect(
     (
       inputs
-        .filter((x) => x.text() == "Answer Key Rule References")
-        .at(0)
+        .filter((x) => x.text().endsWith("Answer Key Rule References"))[0]
         .find("textarea").element as HTMLTextAreaElement
     ).value,
   ).toBe(question.ruleReferences);
   expect(
     (
       inputs
-        .filter((x) => x.text() == "Your Response")
-        .at(0)
+        .filter((x) => x.text().endsWith("Your Response"))[0]
         .find("textarea").element as HTMLTextAreaElement
     ).value,
   ).toBe(question.response?.response);
   expect(
     (
       inputs
-        .filter((x) => x.text() == "Your Rule References")
-        .at(0)
+        .filter((x) => x.text().endsWith("Your Rule References"))[0]
         .find("textarea").element as HTMLTextAreaElement
     ).value,
   ).toBe(question.response?.ruleReferences);
@@ -180,55 +184,48 @@ function assertDialogMatchesInputs<T extends Vue>(
   if (correctness === undefined || correctness === null) {
     expect(
       page
-        .findAll(".v-dialog .v-card__text div.row")
-        .filter((x) => x.text().startsWith("Correct?:"))
-        .at(0)
+        .findAll(".v-dialog .v-card-text div.v-row")
+        .filter((x) => x.text().startsWith("Correct?:"))[0]
         .text(),
     ).toMatch(new RegExp(`.*Ungraded`));
     expect(
       page
-        .findAll(".v-dialog .v-card__text div.row")
-        .filter((x) => x.text().startsWith("Bonus:"))
-        .at(0)
+        .findAll(".v-dialog .v-card-text div.v-row")
+        .filter((x) => x.text().startsWith("Bonus:"))[0]
         .text(),
     ).toBe("Bonus:");
     expect(
       page
-        .findAll(".v-dialog .v-card__text div.row")
-        .filter((x) => x.text().startsWith("Score:"))
-        .at(0)
+        .findAll(".v-dialog .v-card-text div.v-row")
+        .filter((x) => x.text().startsWith("Score:"))[0]
         .text(),
     ).toBe("Score:");
   } else {
     if (correctness) {
       expect(
         page
-          .findAll(".v-dialog .v-card__text div.row")
-          .filter((x) => x.text().startsWith("Correct?:"))
-          .at(0)
+          .findAll(".v-dialog .v-card-text div.v-row")
+          .filter((x) => x.text().startsWith("Correct?:"))[0]
           .text(),
       ).toMatch(new RegExp(`.*Yes`));
     } else {
       expect(
         page
-          .findAll(".v-dialog .v-card__text div.row")
-          .filter((x) => x.text().startsWith("Correct?:"))
-          .at(0)
+          .findAll(".v-dialog .v-card-text div.v-row")
+          .filter((x) => x.text().startsWith("Correct?:"))[0]
           .text(),
       ).toMatch(new RegExp(`.*No`));
     }
     expect(
       page
-        .findAll(".v-dialog .v-card__text div.row")
-        .filter((x) => x.text().startsWith("Bonus:"))
-        .at(0)
+        .findAll(".v-dialog .v-card-text div.v-row")
+        .filter((x) => x.text().startsWith("Bonus:"))[0]
         .text(),
     ).toMatch(new RegExp(`.*${question.response?.grade?.bonus || 0}`));
     expect(
       page
-        .findAll(".v-dialog .v-card__text div.row")
-        .filter((x) => x.text().startsWith("Score:"))
-        .at(0)
+        .findAll(".v-dialog .v-card-text div.v-row")
+        .filter((x) => x.text().startsWith("Score:"))[0]
         .text(),
     ).toMatch(new RegExp(`.*${question.response?.grade?.score || 0}`));
   }
@@ -244,14 +241,20 @@ describe("Completed Questions page tests", () => {
           // never resolve
         }),
     );
+    mockClient.setRequestHandler(currentUserQuery, () =>
+      Promise.resolve({ data: { user: mockUser } }),
+    );
     const page = await mountCompletedQuestions(mockClient);
-    expect(page.find(".v-progress-circular").vm.$props.indeterminate).toBe(
+    expect(page.findComponent(VProgressCircular).vm.$props.indeterminate).toBe(
       true,
     );
   });
 
   it("error state", async () => {
     const mockClient = createMockClient();
+    mockClient.setRequestHandler(currentUserQuery, () =>
+      Promise.resolve({ data: { user: mockUser } }),
+    );
     mockClient.setRequestHandler(completedQuestionQuery, () =>
       Promise.resolve({ errors: [{ message: "Some Error" }], data: null }),
     );
@@ -272,29 +275,25 @@ describe("Completed Questions page tests", () => {
     const rows = page.findAll("tbody tr");
     expect(rows.length).toBe(mockQuestions.length);
     for (let i = 0; i < rows.length; i++) {
-      const row = rows.at(i);
+      const row = rows[i];
       const cols = row.findAll("td");
-      expect(cols.at(0).text()).toBe(
+      expect(cols[0].text()).toBe(
         moment.tz(mockQuestions[i].activeAt, "UTC").format("ddd, MMM D YYYY"),
       );
-      expect(cols.at(1).text()).toBe(mockQuestions[i].body);
-      expect(cols.at(2).text()).toBe(mockQuestions[i].answer);
-      expect(cols.at(3).text()).toBe(mockQuestions[i].response?.response);
+      expect(cols[1].text()).toBe(mockQuestions[i].body);
+      expect(cols[2].text()).toBe(mockQuestions[i].answer);
+      expect(cols[3].text()).toBe(mockQuestions[i].response?.response);
       if (!mockQuestions[i].response?.grade) {
-        expect(cols.at(4).find("i").classes()).not.toContain(
-          "mdi-check-circle",
-        );
-        expect(cols.at(4).find("i").classes()).not.toContain(
-          "mdi-close-circle",
-        );
-        expect(cols.at(5).text()).toBe("");
+        expect(cols[4].find("i").classes()).not.toContain("mdi-check-circle");
+        expect(cols[4].find("i").classes()).not.toContain("mdi-close-circle");
+        expect(cols[5].text()).toBe("");
       } else {
-        expect(cols.at(4).find("i").classes()).toContain(
+        expect(cols[4].find("i").classes()).toContain(
           mockQuestions[i].response?.grade?.correct
             ? "mdi-check-circle"
             : "mdi-close-circle",
         );
-        expect(cols.at(5).text()).toBe(
+        expect(cols[5].text()).toBe(
           mockQuestions[i].response?.grade?.score.toString(),
         );
       }
@@ -310,12 +309,12 @@ describe("Completed Questions page tests", () => {
       Promise.resolve({ data: { user: mockUser } }),
     );
     const page = await mountCompletedQuestions(mockClient);
-    const table = page.find(".v-data-table");
+    const table = page.findComponent(VDataTable);
 
     for (let i = 0; i < mockQuestions.length; i++) {
-      table.vm.$emit("click:row", mockQuestions[i]);
+      table.findAllComponents(VDataTableRow)[i].vm.$emit("click");
       await awaitVm(page);
-      expect(page.vm.$data.clickedQuestion).toBe(mockQuestions[i]);
+      expect(page.vm.$data.clickedQuestion?.id).toEqual(mockQuestions[i].id);
       assertDialogMatchesInputs(page, mockQuestions[i]);
       await page.find(".v-dialog button").trigger("click");
     }

@@ -48,7 +48,7 @@
                       <v-text-field
                         v-model="name"
                         label="Name"
-                        @keypress="(e) => key(e, mutate)"
+                        @keyup.enter="mutate"
                       ></v-text-field>
                       <v-autocomplete
                         v-model="timezone"
@@ -111,19 +111,19 @@
                         v-model="oldPassword"
                         label="Current Password"
                         type="password"
-                        @keypress="(e) => key(e, mutate)"
+                        @keyup.enter="mutate"
                       ></v-text-field>
                       <v-text-field
                         v-model="newPasswordOne"
                         label="New Password"
                         type="password"
-                        @keypress="(e) => key(e, mutate)"
+                        @keyup.enter="mutate"
                       ></v-text-field>
                       <v-text-field
                         v-model="newPasswordTwo"
                         label="Confirm New Password"
                         type="password"
-                        @keypress="(e) => key(e, mutate)"
+                        @keyup.enter="mutate"
                       ></v-text-field>
                     </v-card-text>
                     <v-card-actions>
@@ -216,11 +216,6 @@ export default {
         this.newPasswordOne = "";
         this.newPasswordTwo = "";
         this.oldPassword = "";
-      }
-    },
-    key({ key }: { key: string }, mutate: () => void) {
-      if (key == "Enter") {
-        mutate();
       }
     },
     setTz(tz: string) {
