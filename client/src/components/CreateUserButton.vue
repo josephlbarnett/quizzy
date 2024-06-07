@@ -43,7 +43,7 @@
                   />
                   <v-file-input
                     label="Or upload a csv"
-                    @update:modelValue="selectFile"
+                    @update:model-value="selectFile"
                   />
                 </v-tabs-window-item>
               </v-tabs-window>

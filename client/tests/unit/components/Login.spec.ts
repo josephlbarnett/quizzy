@@ -14,6 +14,8 @@ import { describe, expect, it, vi } from "vitest";
 import { VProgressCircular } from "vuetify/components/VProgressCircular";
 import { VTextField } from "vuetify/components/VTextField";
 
+// since we assert on the default slot contents of the snackbar
+// (probably should use test/data attributes instead?)
 config.global.renderStubDefaultSlot = true;
 
 const mockUser: ApiUser = {

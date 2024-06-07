@@ -22,7 +22,10 @@ export default defineConfig({
             return "vuetifycomponents";
           } else if (id.includes("node_modules/vuetify")) {
             return "vuetify";
-          } else if (id.includes("node_modules/vue")) {
+          } else if (
+            id.includes("node_modules/vue") ||
+            id.includes("node_modules/@vue")
+          ) {
             return "vue";
           } else if (
             id.includes("node_modules/moment-timezone") &&

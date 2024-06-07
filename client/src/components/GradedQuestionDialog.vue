@@ -183,6 +183,7 @@ export default {
     userTZ: { type: String, default: "Autodetect" },
     inTest: { type: Boolean, default: false },
   },
+  emits: ["prev", "next", "update:modelValue"],
   data: function () {
     return {
       imageDialog: false,

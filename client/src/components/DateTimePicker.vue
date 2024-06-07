@@ -79,6 +79,7 @@ export default {
     timezone: { type: String, default: null },
     label: { type: String, required: true },
   },
+  emits: ["update:modelValue"],
   data: function () {
     return {
       time: modelTime(this.modelValue),

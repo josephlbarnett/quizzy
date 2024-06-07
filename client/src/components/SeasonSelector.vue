@@ -13,6 +13,7 @@ import { useInstanceStore } from "@/stores/instance";
 
 export default {
   name: "UserInvite",
+  emits: ["change"],
   setup() {
     const instanceStore = useInstanceStore();
     return { instanceStore };
