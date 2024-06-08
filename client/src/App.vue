@@ -84,7 +84,12 @@
           ></v-app-bar-nav-icon>
           <span v-else-if="!isLoading">Please login.</span>
           <v-spacer />
-          <v-menu v-if="data && data.user" open-on-hover>
+          <v-menu
+            v-if="data && data.user"
+            open-on-hover
+            open-on-click
+            origin="overlap"
+          >
             <template #activator="{ props }">
               <v-icon v-bind="props">mdi-account</v-icon>
             </template>
@@ -196,3 +201,8 @@ export default {
   },
 };
 </script>
+<style>
+.v-data-table-headers--mobile {
+  display: none;
+}
+</style>

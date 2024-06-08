@@ -20,7 +20,10 @@ const vuetify = createVuetify({
   },
   defaults: {
     VCardTitle: {
-      class: "d-flex",
+      class: "d-sm-flex",
+    },
+    VDataTable: {
+      mobile: null,
     },
   },
 });

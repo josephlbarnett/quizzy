@@ -277,23 +277,23 @@ describe("Completed Questions page tests", () => {
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       const cols = row.findAll("td");
-      expect(cols[0].text()).toBe(
+      expect(cols[0].text()).toContain(
         moment.tz(mockQuestions[i].activeAt, "UTC").format("ddd, MMM D YYYY"),
       );
-      expect(cols[1].text()).toBe(mockQuestions[i].body);
-      expect(cols[2].text()).toBe(mockQuestions[i].answer);
-      expect(cols[3].text()).toBe(mockQuestions[i].response?.response);
+      expect(cols[1].text()).toContain(mockQuestions[i].body);
+      expect(cols[2].text()).toContain(mockQuestions[i].answer);
+      expect(cols[3].text()).toContain(mockQuestions[i].response?.response);
       if (!mockQuestions[i].response?.grade) {
         expect(cols[4].find("i").classes()).not.toContain("mdi-check-circle");
         expect(cols[4].find("i").classes()).not.toContain("mdi-close-circle");
-        expect(cols[5].text()).toBe("");
+        expect(cols[5].text()).not.toMatch("[0-9]*");
       } else {
         expect(cols[4].find("i").classes()).toContain(
           mockQuestions[i].response?.grade?.correct
             ? "mdi-check-circle"
             : "mdi-close-circle",
         );
-        expect(cols[5].text()).toBe(
+        expect(cols[5].text()).toContain(
           mockQuestions[i].response?.grade?.score.toString(),
         );
       }

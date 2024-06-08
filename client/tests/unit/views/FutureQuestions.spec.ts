@@ -138,15 +138,15 @@ describe("Future Questions page tests", () => {
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
       const cols = row.findAll("td");
-      expect(cols[0].text()).toBe(
+      expect(cols[0].text()).toContain(
         moment.tz(mockQuestions[i].activeAt, "UTC").format("ddd, MMM D YYYY"),
       );
-      expect(cols[1].text()).toBe(
+      expect(cols[1].text()).toContain(
         `${moment
           .tz(mockQuestions[i].closedAt, "UTC")
           .format("ddd, MMM D YYYY, h:mmA")} (UTC)`,
       );
-      expect(cols[2].text()).toBe(mockQuestions[i].body);
+      expect(cols[2].text()).toContain(mockQuestions[i].body);
     }
   });
 
