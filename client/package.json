@@ -24,7 +24,7 @@
     "papaparse": "5.4.1",
     "pinia": "^2.1.7",
     "vue": "3.4.28",
-    "vue-router": "4.3.2",
+    "vue-router": "4.3.3",
     "vuetify": "3.6.8"
   },
   "devDependencies": {
