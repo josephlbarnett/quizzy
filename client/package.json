@@ -18,7 +18,7 @@
     "@vue/apollo-components": "4.0.0",
     "@vue/apollo-option": "4.0.0",
     "core-js": "3.37.1",
-    "graphql": "16.8.1",
+    "graphql": "16.8.2",
     "graphql-combine-query": "1.2.4",
     "moment-timezone": "0.5.45",
     "papaparse": "5.4.1",
