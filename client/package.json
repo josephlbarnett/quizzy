@@ -25,7 +25,7 @@
     "pinia": "^2.1.7",
     "vue": "3.4.29",
     "vue-router": "4.3.3",
-    "vuetify": "3.6.8"
+    "vuetify": "3.6.9"
   },
   "devDependencies": {
     "@graphql-eslint/eslint-plugin": "3.20.1",
