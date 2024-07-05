@@ -168,4 +168,17 @@ class ApiQuestionTest {
             assertThat(resp).isNull()
             EasyMock.verify(mockEnv, mockDataLoader)
         }
+
+    @Test
+    fun testResults() =
+        runBlocking {
+            val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
+            val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Pair<Int, Int>>>()
+            EasyMock.expect(mockEnv.getDataLoader<UUID, Pair<Int, Int>>("questionstats")).andReturn(mockDataLoader)
+            EasyMock.expect(mockDataLoader.load(q.id)).andReturn(CompletableFuture.completedFuture(5 to 4))
+            EasyMock.replay(mockEnv, mockDataLoader)
+            val resp = q.percentCorrect(mockEnv).await()
+            assertThat(resp).isEqualTo(80.0)
+            EasyMock.verify(mockEnv, mockDataLoader)
+        }
 }

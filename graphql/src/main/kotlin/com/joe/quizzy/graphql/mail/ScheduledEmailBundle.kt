@@ -113,6 +113,36 @@ class ScheduledEmailBundle(
         }
     }
 
+    private fun getContentMap(
+        instanceName: String,
+        questions: List<Question>,
+        answers: List<Question>,
+    ): Map<String, *> {
+        return mapOf(
+            "instanceName" to instanceName,
+            "domainLink" to "https://${appConfig.corsDomains[0]}",
+            "questionCount" to countObject(questions.size),
+            "answerCount" to countObject(answers.size),
+            "question" to
+                questions.mapIndexed { index, question ->
+                    mapOf(
+                        "index" to index + 1,
+                        "body" to question.body,
+                        "answerChoices" to question.answerChoices?.map { choiceMap(it) },
+                    )
+                },
+            "answer" to
+                answers.mapIndexed { index, question ->
+                    mapOf(
+                        "index" to index + 1,
+                        "body" to question.body,
+                        "answer" to question.answer + multiChoiceAnswer(question),
+                        "ruleReferences" to question.ruleReferences,
+                    )
+                },
+        )
+    }
+
     /**
      * Sends an email to all users with notifications enabled containing
      * the newly available questions and any newly published answers
@@ -140,29 +170,7 @@ class ScheduledEmailBundle(
             message.setContent(
                 htmlTemplate?.execute(
                     StringWriter(),
-                    mapOf(
-                        "instanceName" to instanceName,
-                        "domainLink" to "https://${appConfig.corsDomains[0]}",
-                        "questionCount" to countObject(questions.size),
-                        "answerCount" to countObject(answers.size),
-                        "question" to
-                            questions.mapIndexed { index, question ->
-                                mapOf(
-                                    "index" to index + 1,
-                                    "body" to question.body,
-                                    "answerChoices" to question.answerChoices?.map { choiceMap(it) },
-                                )
-                            },
-                        "answer" to
-                            answers.mapIndexed { index, question ->
-                                mapOf(
-                                    "index" to index + 1,
-                                    "body" to question.body,
-                                    "answer" to question.answer + multiChoiceAnswer(question),
-                                    "ruleReferences" to question.ruleReferences,
-                                )
-                            },
-                    ),
+                    getContentMap(instanceName, questions, answers),
                 ).toString(),
                 MediaType.TEXT_HTML,
             )

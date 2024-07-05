@@ -5,6 +5,7 @@ import assertk.assertions.contains
 import assertk.assertions.doesNotContain
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
+import assertk.assertions.isNotNull
 import assertk.assertions.isNull
 import com.joe.quizzy.api.models.Instance
 import com.joe.quizzy.api.models.Question
@@ -83,6 +84,7 @@ class QueryTest {
         EasyMock.expect(rDAO.forInstance(iUUID, true)).andReturn(listOf(response, gradedResponse))
         EasyMock.expect(rDAO.forInstance(iUUID, false)).andReturn(listOf(response))
         EasyMock.expect(iDAO.get(iUUID)).andReturn(Instance(iUUID, "instance", "ACTIVE", defaultScore = 15)).anyTimes()
+        EasyMock.expect(rDAO.forQuestion(iUUID, qUUID)).andReturn(listOf(response, gradedResponse))
         EasyMock.replay(
             qDAO,
             uDAO,
@@ -168,5 +170,15 @@ class QueryTest {
 
         val noResponses = query.responses(getDFE(null, scope), true)
         assertThat(noResponses).isEmpty()
+    }
+
+    @Test
+    fun testQuestionResponses() {
+        val rs = query.questionResponses(getDFE(UserPrincipal(user.copy(admin = true), null), scope), qUUID)
+        assertThat(rs).isNotNull().contains(ApiResponse(response, 15))
+        assertThat(rs).isNotNull().contains(ApiResponse(gradedResponse, 15))
+
+        val noRs = query.questionResponses(getDFE(null, scope), qUUID)
+        assertThat(noRs).isNull()
     }
 }

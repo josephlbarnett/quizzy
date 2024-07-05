@@ -4,6 +4,7 @@ import assertk.all
 import assertk.assertThat
 import assertk.assertions.contains
 import assertk.assertions.doesNotContain
+import assertk.assertions.hasSize
 import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
@@ -128,5 +129,10 @@ class ResponseDAOTest : PostgresDAOTestBase() {
         val g4 = gradeDao.forResponse(r4id)
         assertThat(g3?.correct).isNotNull().isFalse()
         assertThat(g4?.correct).isNotNull().isTrue()
+
+        val q2Responses = dao.forQuestion(instanceId, q2Id)
+        assertThat(q2Responses).hasSize(2)
+        assertThat(q2Responses.map { it.id }).contains(r3id)
+        assertThat(q2Responses.map { it.id }).contains(r4id)
     }
 }

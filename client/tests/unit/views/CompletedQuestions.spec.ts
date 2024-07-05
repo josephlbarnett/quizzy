@@ -48,6 +48,7 @@ const mockQuestions: ApiQuestion[] = [
     type: QuestionType.ShortAnswer,
     imageUrl: null,
     answerChoices: [],
+    percentCorrect: 100.0,
     response: {
       id: 789,
       response: "Resp1",
@@ -76,6 +77,7 @@ const mockQuestions: ApiQuestion[] = [
     imageUrl: null,
     answerChoices: [],
     ruleReferences: "Ref2",
+    percentCorrect: 100.0,
     response: {
       id: 790,
       response: "Resp2",
@@ -104,6 +106,7 @@ const mockQuestions: ApiQuestion[] = [
     imageUrl: null,
     answerChoices: [],
     ruleReferences: "Ref3",
+    percentCorrect: 100.0,
     response: {
       id: 791,
       response: "Resp3",

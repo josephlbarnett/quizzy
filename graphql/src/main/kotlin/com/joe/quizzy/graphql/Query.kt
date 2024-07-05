@@ -9,10 +9,12 @@ import com.joe.quizzy.persistence.api.InstanceDAO
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
+import com.trib3.graphql.execution.GraphQLAuth
 import graphql.schema.DataFetchingEnvironment
 import jakarta.inject.Inject
 import java.security.Principal
 import java.time.OffsetDateTime
+import java.util.UUID
 
 /**
  * GraphQL entry point for queries.  Maps the DAO interfaces to the GraphQL models.
@@ -104,5 +106,21 @@ class Query
                 }
             }
             return emptyList()
+        }
+
+        @GraphQLAuth(["ADMIN"])
+        fun questionResponses(
+            dfe: DataFetchingEnvironment,
+            questionId: UUID,
+        ): List<ApiResponse>? {
+            val principal = dfe.graphQlContext.get<Principal>()
+            if (principal is UserPrincipal) {
+                val defaultScore = getDefaultScore(principal)
+                return responseDAO.forQuestion(
+                    principal.user.instanceId,
+                    questionId,
+                ).map { ApiResponse(it, defaultScore) }
+            }
+            return null
         }
     }

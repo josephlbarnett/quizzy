@@ -34,5 +34,15 @@ interface ResponseDAO {
         endTime: OffsetDateTime? = null,
     ): List<Response>
 
+    fun forQuestion(
+        instanceId: UUID,
+        questionId: UUID,
+    ): List<Response>
+
+    fun statsForQuestions(
+        instanceId: UUID,
+        questionIds: List<UUID>,
+    ): Map<UUID, Pair<Int, Int>>
+
     fun forUser(userId: UUID): List<Response>
 }

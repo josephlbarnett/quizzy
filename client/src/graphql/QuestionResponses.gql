@@ -1,0 +1,14 @@
+query QuestionResponses($questionId: UUID!) {
+  questionResponses(questionId: $questionId) {
+    id
+    response
+    grade {
+      id
+      correct
+    }
+    user {
+      id
+      name
+    }
+  }
+}

@@ -8,11 +8,14 @@ import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.Response
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.graphql.auth.UserPrincipal
+import com.trib3.graphql.execution.GraphQLAuth
 import graphql.schema.DataFetchingEnvironment
 import java.security.Principal
 import java.time.OffsetDateTime
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
+
+private const val PERCENT = 100.0
 
 /**
  * like a [Question] but can fetch current [User]'s [Response]s
@@ -61,5 +64,11 @@ data class ApiQuestion(
     fun author(dfe: DataFetchingEnvironment): CompletableFuture<ApiUser?> {
         return dfe.getDataLoader<UUID, User>("batchusers").load(authorId)
             .thenApply { it?.let { u -> ApiUser(u, defaultScore) } }
+    }
+
+    @GraphQLAuth(["ADMIN"])
+    fun percentCorrect(dfe: DataFetchingEnvironment): CompletableFuture<Double?> {
+        return dfe.getDataLoader<UUID, Pair<Int, Int>>("questionstats").load(id)
+            .thenApply { it?.let { p -> PERCENT * p.second / p.first } }
     }
 }

@@ -38,6 +38,7 @@ class DataLoaderRegistryFactoryProvider
                 BulkInstanceLoader(instanceDAO),
                 InstanceSeasonLoader(seasonDAO),
                 GroupMeServiceLoader(groupMeServiceFactory),
+                QuestionStatsLoader(responseDAO),
             )
         }
     }

@@ -117,6 +117,45 @@ open class ResponseDAOJooq
         }
 
         @Timed
+        override fun forQuestion(
+            instanceId: UUID,
+            questionId: UUID,
+        ): List<Response> {
+            val query =
+                ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
+                    .join(Tables.USERS).on(
+                        Tables.RESPONSES.USER_ID.eq(Tables.USERS.ID).and(
+                            Tables.USERS.INSTANCE_ID.eq(instanceId),
+                        ),
+                    )
+                    .where(Tables.RESPONSES.QUESTION_ID.eq(questionId).and(Tables.USERS.INSTANCE_ID.eq(instanceId)))
+            log.info("question responses query : $query")
+            return query.fetchInto(Response::class.java)
+        }
+
+        @Timed
+        override fun statsForQuestions(
+            instanceId: UUID,
+            questionIds: List<UUID>,
+        ): Map<UUID, Pair<Int, Int>> {
+            val query =
+                ctx.select(Tables.RESPONSES.QUESTION_ID, DSL.count(), DSL.count().filterWhere(Tables.GRADES.CORRECT))
+                    .from(Tables.RESPONSES)
+                    .join(Tables.USERS).on(
+                        Tables.RESPONSES.USER_ID.eq(Tables.USERS.ID).and(
+                            Tables.USERS.INSTANCE_ID.eq(instanceId),
+                        ),
+                    )
+                    .leftJoin(Tables.GRADES).on(Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID))
+                    .where(Tables.RESPONSES.QUESTION_ID.`in`(questionIds).and(Tables.USERS.INSTANCE_ID.eq(instanceId)))
+                    .groupBy(Tables.RESPONSES.QUESTION_ID)
+            log.info("question stats query : $query")
+            return query.fetch().intoMap(Tables.RESPONSES.QUESTION_ID) { record ->
+                record.component2() to record.component3()
+            }
+        }
+
+        @Timed
         override fun forInstance(
             instanceId: UUID,
             regrade: Boolean,
