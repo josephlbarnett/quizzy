@@ -2,10 +2,7 @@
   <div class="home">
     <ApolloQuery
       :query="CurrentUser"
-      @result="
-        (result) =>
-          result && result.data && result.data.user && setUser(result.data.user)
-      "
+      @result="(result: ApolloQueryResult<Query>) => setUser(result)"
     >
       <template #default="{}" />
     </ApolloQuery>
@@ -14,8 +11,10 @@
       :variables="qvars"
       fetch-policy="cache-and-network"
       @result="
-        (result) => {
-          completedQuestions = result.data.closedQuestions;
+        (result: ApolloQueryResult<Query>) => {
+          if (result.data?.closedQuestions) {
+            completedQuestions = result.data?.closedQuestions;
+          }
         }
       "
     >
@@ -24,6 +23,208 @@
           <v-progress-circular :indeterminate="true" />
         </div>
         <div v-else-if="error" class="bg-error">An error occurred</div>
+        <v-dialog v-model="resultsDialog">
+          <v-card>
+            <v-card-title
+              >Responses for Question {{ (resultQuestionIndex ?? 0) + 1 }} of
+              {{ completedQuestions.length }}:
+              {{ renderDate(resultQuestion?.activeAt) }}
+              by
+              {{ resultQuestion?.author?.name }}
+              <v-spacer />
+              <div v-if="resultQuestionIndex != null">
+                <v-icon @click="prevResult">mdi-chevron-left</v-icon>
+                <v-icon @click="nextResult">mdi-chevron-right</v-icon>
+              </div>
+            </v-card-title>
+            <v-card-text>
+              <ApolloQuery
+                :query="QuestionResponses"
+                :variables="{ questionId: resultQuestion?.id }"
+              >
+                <template
+                  #default="{
+                    result: { error: responseError, data: responseData },
+                    isLoading: responseIsLoading,
+                  }"
+                >
+                  <v-row>
+                    <v-col v-if="resultQuestion?.imageUrl" cols="12" lg="1">
+                      <v-dialog v-model="imageDialog">
+                        <template #activator="{ props }">
+                          <v-img
+                            :src="resultQuestion.imageUrl"
+                            max-height="200px"
+                            max-width="200px"
+                            v-bind="props"
+                          ></v-img>
+                        </template>
+                        <v-card @click="imageDialog = false">
+                          <v-img
+                            cover
+                            :src="resultQuestion.imageUrl"
+                            max-height="90vh"
+                            max-width="90vw"
+                          ></v-img>
+                        </v-card>
+                      </v-dialog>
+                    </v-col>
+                    <v-col align-self="center">{{
+                      resultQuestion?.body
+                    }}</v-col>
+                  </v-row>
+                  <v-row
+                    v-for="choice in resultQuestion?.answerChoices"
+                    :key="choice.letter"
+                  >
+                    {{ choice.letter }}: {{ choice.answer }}&nbsp;&nbsp;
+                    <v-icon
+                      v-if="choice.letter == resultQuestion?.answer"
+                      color="green-darken-2"
+                      >mdi-check-circle
+                    </v-icon>
+                  </v-row>
+
+                  <v-progress-circular v-if="responseIsLoading" indeterminate />
+                  <div v-else-if="responseError" class="bg-error">
+                    An error occurred
+                  </div>
+                  <v-data-table
+                    v-else-if="responseData"
+                    :items="responseData.questionResponses"
+                    :headers="[
+                      { title: 'Name', value: 'user.name' },
+                      ...(resultQuestion?.answerChoices?.map((i) => ({
+                        title: i.letter,
+                        value: i.letter,
+                      })) || []),
+                      // { title: 'Response', value: 'response' },
+                      // { title: 'Correct', value: 'grade.correct' },
+                    ]"
+                    item-key="id"
+                  >
+                    <template #item.grade.correct="{ value: correct }">
+                      <v-icon v-if="correct === true" color="green-darken-2"
+                        >mdi-check-circle
+                      </v-icon>
+                      <v-icon v-else-if="correct === false" color="red-darken-2"
+                        >mdi-close-circle
+                      </v-icon>
+                      <v-icon v-else color="grey-darken-2"
+                        >mdi-help-circle</v-icon
+                      >
+                    </template>
+                    <template #item.A="{ item: colItem }">
+                      <v-icon
+                        v-if="colItem.response == 'A' && colItem.grade.correct"
+                        color="green-darken-2"
+                        >mdi-check-circle
+                      </v-icon>
+                      <v-icon
+                        v-else-if="
+                          colItem.response == 'A' && !colItem.grade.correct
+                        "
+                        color="red-darken-2"
+                        >mdi-close-circle
+                      </v-icon>
+                      <v-icon v-else color="grey-darken-2"
+                        >mdi-minus-circle</v-icon
+                      >
+                    </template>
+                    <template #item.B="{ item: colItem }">
+                      <v-icon
+                        v-if="colItem.response == 'B' && colItem.grade.correct"
+                        color="green-darken-2"
+                        >mdi-check-circle
+                      </v-icon>
+                      <v-icon
+                        v-else-if="
+                          colItem.response == 'B' && !colItem.grade.correct
+                        "
+                        color="red-darken-2"
+                        >mdi-close-circle
+                      </v-icon>
+                      <v-icon v-else color="grey-darken-2"
+                        >mdi-minus-circle</v-icon
+                      >
+                    </template>
+                    <template #item.C="{ item: colItem }">
+                      <v-icon
+                        v-if="colItem.response == 'C' && colItem.grade.correct"
+                        color="green-darken-2"
+                        >mdi-check-circle
+                      </v-icon>
+                      <v-icon
+                        v-else-if="
+                          colItem.response == 'C' && !colItem.grade.correct
+                        "
+                        color="red-darken-2"
+                        >mdi-close-circle
+                      </v-icon>
+                      <v-icon v-else color="grey-darken-2"
+                        >mdi-minus-circle</v-icon
+                      >
+                    </template>
+                    <template #item.D="{ item: colItem }">
+                      <v-icon
+                        v-if="colItem.response == 'D' && colItem.grade.correct"
+                        color="green-darken-2"
+                        >mdi-check-circle
+                      </v-icon>
+                      <v-icon
+                        v-else-if="
+                          colItem.response == 'D' && !colItem.grade.correct
+                        "
+                        color="red-darken-2"
+                        >mdi-close-circle
+                      </v-icon>
+                      <v-icon v-else color="grey-darken-2"
+                        >mdi-minus-circle</v-icon
+                      >
+                    </template>
+                    <template #item.E="{ item: colItem }">
+                      <v-icon
+                        v-if="colItem.response == 'E' && colItem.grade.correct"
+                        color="green-darken-2"
+                        >mdi-check-circle
+                      </v-icon>
+                      <v-icon
+                        v-else-if="
+                          colItem.response == 'E' && !colItem.grade.correct
+                        "
+                        color="red-darken-2"
+                        >mdi-close-circle
+                      </v-icon>
+                      <v-icon v-else color="grey-darken-2"
+                        >mdi-minus-circle</v-icon
+                      >
+                    </template>
+                    <template #item.F="{ item: colItem }">
+                      <v-icon
+                        v-if="colItem.response == 'F' && colItem.grade.correct"
+                        color="green-darken-2"
+                        >mdi-check-circle
+                      </v-icon>
+                      <v-icon
+                        v-else-if="
+                          colItem.response == 'F' && !colItem.grade.correct
+                        "
+                        color="red-darken-2"
+                        >mdi-close-circle
+                      </v-icon>
+                      <v-icon v-else color="grey-darken-2"
+                        >mdi-minus-circle</v-icon
+                      >
+                    </template>
+                  </v-data-table>
+                </template>
+              </ApolloQuery>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn color="accent" @click="resultsDialog = false">OK</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
         <v-card v-if="data && data.closedQuestions">
           <v-card-title>Completed Questions</v-card-title>
           <v-data-table
@@ -37,224 +238,12 @@
               {{ renderDate(value) }}
             </template>
             <template #item.percentCorrect="{ value, item }">
-              <v-dialog>
-                <template #activator="{ props }">
-                  <v-chip v-bind="props" :color="getColor(value)"
-                    >{{ value.toFixed(0) }}%</v-chip
-                  >
-                </template>
-                <v-card>
-                  <v-card-title
-                    >Responses for Question: {{ renderDate(item.activeAt) }} by
-                    {{ item.author?.name }}</v-card-title
-                  >
-                  <v-card-text>
-                    <ApolloQuery
-                      :query="QuestionResponses"
-                      :variables="{ questionId: item.id }"
-                    >
-                      <template
-                        #default="{
-                          result: { error: responseError, data: responseData },
-                          isLoading: responseIsLoading,
-                        }"
-                      >
-                        <v-row>
-                          <v-col v-if="item.imageUrl" cols="12" lg="1">
-                            <v-dialog v-model="imageDialog">
-                              <template #activator="{ props }">
-                                <v-img
-                                  :src="item.imageUrl"
-                                  max-height="200px"
-                                  max-width="200px"
-                                  v-bind="props"
-                                ></v-img>
-                              </template>
-                              <v-card @click="imageDialog = false">
-                                <v-img
-                                  cover
-                                  :src="item.imageUrl"
-                                  max-height="90vh"
-                                  max-width="90vw"
-                                ></v-img>
-                              </v-card>
-                            </v-dialog>
-                          </v-col>
-                          <v-col align-self="center">{{ item.body }}</v-col>
-                        </v-row>
-                        <v-row
-                          v-for="choice in item.answerChoices"
-                          :key="choice.letter"
-                        >
-                          {{ choice.letter }}: {{ choice.answer }}&nbsp;&nbsp;
-                          <v-icon
-                            v-if="choice.letter == item.answer"
-                            color="green-darken-2"
-                            >mdi-check-circle
-                          </v-icon>
-                        </v-row>
-                        <v-data-table
-                          v-if="responseData"
-                          :items="responseData.questionResponses"
-                          :headers="[
-                            { title: 'Name', value: 'user.name' },
-                            ...item.answerChoices.map((i) => ({
-                              title: i.letter,
-                              value: i.letter,
-                            })),
-                            // { title: 'Response', value: 'response' },
-                            // { title: 'Correct', value: 'grade.correct' },
-                          ]"
-                          item-key="id"
-                        >
-                          <template #item.grade.correct="{ value: correct }">
-                            <v-icon
-                              v-if="correct === true"
-                              color="green-darken-2"
-                              >mdi-check-circle
-                            </v-icon>
-                            <v-icon
-                              v-else-if="correct === false"
-                              color="red-darken-2"
-                              >mdi-close-circle
-                            </v-icon>
-                            <v-icon v-else color="grey-darken-2"
-                              >mdi-help-circle</v-icon
-                            >
-                          </template>
-                          <template #item.A="{ item: colItem }">
-                            <v-icon
-                              v-if="
-                                colItem.response == 'A' && colItem.grade.correct
-                              "
-                              color="green-darken-2"
-                              >mdi-check-circle
-                            </v-icon>
-                            <v-icon
-                              v-else-if="
-                                colItem.response == 'A' &&
-                                !colItem.grade.correct
-                              "
-                              color="red-darken-2"
-                              >mdi-close-circle
-                            </v-icon>
-                            <v-icon v-else color="grey-darken-2"
-                              >mdi-minus-circle</v-icon
-                            >
-                          </template>
-                          <template #item.B="{ item: colItem }">
-                            <v-icon
-                              v-if="
-                                colItem.response == 'B' && colItem.grade.correct
-                              "
-                              color="green-darken-2"
-                              >mdi-check-circle
-                            </v-icon>
-                            <v-icon
-                              v-else-if="
-                                colItem.response == 'B' &&
-                                !colItem.grade.correct
-                              "
-                              color="red-darken-2"
-                              >mdi-close-circle
-                            </v-icon>
-                            <v-icon v-else color="grey-darken-2"
-                              >mdi-minus-circle</v-icon
-                            >
-                          </template>
-                          <template #item.C="{ item: colItem }">
-                            <v-icon
-                              v-if="
-                                colItem.response == 'C' && colItem.grade.correct
-                              "
-                              color="green-darken-2"
-                              >mdi-check-circle
-                            </v-icon>
-                            <v-icon
-                              v-else-if="
-                                colItem.response == 'C' &&
-                                !colItem.grade.correct
-                              "
-                              color="red-darken-2"
-                              >mdi-close-circle
-                            </v-icon>
-                            <v-icon v-else color="grey-darken-2"
-                              >mdi-minus-circle</v-icon
-                            >
-                          </template>
-                          <template #item.D="{ item: colItem }">
-                            <v-icon
-                              v-if="
-                                colItem.response == 'D' && colItem.grade.correct
-                              "
-                              color="green-darken-2"
-                              >mdi-check-circle
-                            </v-icon>
-                            <v-icon
-                              v-else-if="
-                                colItem.response == 'D' &&
-                                !colItem.grade.correct
-                              "
-                              color="red-darken-2"
-                              >mdi-close-circle
-                            </v-icon>
-                            <v-icon v-else color="grey-darken-2"
-                              >mdi-minus-circle</v-icon
-                            >
-                          </template>
-                          <template #item.E="{ item: colItem }">
-                            <v-icon
-                              v-if="
-                                colItem.response == 'E' && colItem.grade.correct
-                              "
-                              color="green-darken-2"
-                              >mdi-check-circle
-                            </v-icon>
-                            <v-icon
-                              v-else-if="
-                                colItem.response == 'E' &&
-                                !colItem.grade.correct
-                              "
-                              color="red-darken-2"
-                              >mdi-close-circle
-                            </v-icon>
-                            <v-icon v-else color="grey-darken-2"
-                              >mdi-minus-circle</v-icon
-                            >
-                          </template>
-                          <template #item.F="{ item: colItem }">
-                            <v-icon
-                              v-if="
-                                colItem.response == 'F' && colItem.grade.correct
-                              "
-                              color="green-darken-2"
-                              >mdi-check-circle
-                            </v-icon>
-                            <v-icon
-                              v-else-if="
-                                colItem.response == 'F' &&
-                                !colItem.grade.correct
-                              "
-                              color="red-darken-2"
-                              >mdi-close-circle
-                            </v-icon>
-                            <v-icon v-else color="grey-darken-2"
-                              >mdi-minus-circle</v-icon
-                            >
-                          </template>
-                        </v-data-table>
-                        <v-progress-circular
-                          v-else-if="responseIsLoading"
-                          indeterminate
-                        />
-                        <div v-else-if="responseError" class="bg-error">
-                          An error occurred
-                        </div>
-                      </template>
-                    </ApolloQuery>
-                  </v-card-text>
-                </v-card>
-              </v-dialog>
+              <v-chip
+                :color="getColor(value)"
+                @click="openResultsDialog(item, $event)"
+              >
+                {{ value.toFixed(0) }}%
+              </v-chip>
             </template>
             <template #item.answer="{ item, value }">
               {{ findAnswer(item, value, item.answer) }}
@@ -279,6 +268,7 @@
       v-model="detailDialog"
       :question="clickedQuestion"
       :question-index="clickedQuestionIndex"
+      :question-count="completedQuestions.length"
       :user-t-z="userTZ"
       :in-test="inTest"
       @next="next"
@@ -289,12 +279,13 @@
 
 <script lang="ts">
 import moment from "moment-timezone";
-import { ApiQuestion, ApiUser, QuestionType } from "@/generated/types.d";
+import { ApiQuestion, Query, QuestionType } from "@/generated/types.d";
 import GradedQuestionDialog from "@/components/GradedQuestionDialog.vue";
 import { useInstanceStore } from "@/stores/instance";
 import CurrentUser from "@/graphql/CurrentUser.gql";
 import CompletedQuestions from "@/graphql/CompletedQuestions.gql";
 import QuestionResponses from "@/graphql/QuestionResponses.gql";
+import { ApolloQueryResult } from "@apollo/client/core";
 
 export default {
   name: "CompletedQuestions",
@@ -315,6 +306,9 @@ export default {
     clickedQuestion: null as ApiQuestion | null,
     clickedQuestionIndex: null as number | null,
     imageDialog: false,
+    resultsDialog: false,
+    resultQuestion: null as ApiQuestion | null,
+    resultQuestionIndex: null as number | null,
     questionType: QuestionType.ShortAnswer,
     completedQuestions: [] as Array<ApiQuestion>,
     baseheaders: [
@@ -385,12 +379,15 @@ export default {
       const zonedMoment = moment.tz(value, moment.ISO_8601, browserTZ);
       return zonedMoment.format("ddd, MMM D YYYY");
     },
-    setUser(user: ApiUser) {
-      if (user.timeZoneId) {
-        this.userTZ = user.timeZoneId;
+    setUser(result: ApolloQueryResult<Query>) {
+      const user = result.data?.user;
+      if (user) {
+        if (user.timeZoneId) {
+          this.userTZ = user.timeZoneId;
+        }
+        this.questionType = user.instance.defaultQuestionType;
+        this.admin = user.admin;
       }
-      this.questionType = user.instance.defaultQuestionType;
-      this.admin = user.admin;
     },
     clickRow(event: Event, { item }: { item: ApiQuestion }) {
       this.clickedQuestion = item;
@@ -446,6 +443,30 @@ export default {
           this.completedQuestions[this.clickedQuestionIndex];
       }
     },
+    prevResult() {
+      if (
+        this.resultQuestionIndex != null &&
+        this.completedQuestions.length > 1
+      ) {
+        this.resultQuestionIndex--;
+        if (this.resultQuestionIndex < 0) {
+          this.resultQuestionIndex = this.completedQuestions.length - 1;
+        }
+        this.resultQuestion = this.completedQuestions[this.resultQuestionIndex];
+      }
+    },
+    nextResult() {
+      if (
+        this.resultQuestionIndex != null &&
+        this.completedQuestions.length > 1
+      ) {
+        this.resultQuestionIndex++;
+        if (this.resultQuestionIndex >= this.completedQuestions.length) {
+          this.resultQuestionIndex = 0;
+        }
+        this.resultQuestion = this.completedQuestions[this.resultQuestionIndex];
+      }
+    },
     getColor(value: number) {
       if (value > 80) {
         return "green";
@@ -454,6 +475,14 @@ export default {
       } else {
         return "red";
       }
+    },
+    openResultsDialog(item: ApiQuestion, event: Event) {
+      this.resultQuestion = item;
+      this.resultQuestionIndex = this.completedQuestions.findIndex(
+        (x) => x.id == item.id,
+      );
+      this.resultsDialog = true;
+      event.stopPropagation();
     },
   },
 };

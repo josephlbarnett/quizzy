@@ -15,6 +15,7 @@
           v-model="reviewDialog"
           :question="reviewQuestion"
           :question-index="reviewIndex"
+          :question-count="quizQuestions.length"
           :user-t-z="userTZ"
           @next="next"
           @prev="prev"

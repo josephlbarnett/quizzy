@@ -145,9 +145,7 @@ function assertDialogMatchesInputs<T>(
   question: ApiQuestion,
 ) {
   expect(page.find(".v-dialog .v-card-title").text()).toContain(
-    `Review Question: ${moment
-      .tz(question.activeAt, "UTC")
-      .format("ddd, MMM D YYYY")} by`,
+    `${moment.tz(question.activeAt, "UTC").format("ddd, MMM D YYYY")} by`,
   );
   expect(page.find(".v-dialog .v-card-title").text()).toContain(
     question.author?.name || "no author!?",

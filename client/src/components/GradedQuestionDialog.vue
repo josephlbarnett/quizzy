@@ -2,7 +2,10 @@
   <v-dialog v-model="detailDialog" :attach="inTest">
     <v-card v-if="clickedQuestion && clickedQuestion.author">
       <v-card-title>
-        Review Question: {{ renderDate(clickedQuestion.activeAt) }} by
+        Review Question
+        <span v-if="questionIndex !== null && questionCount">
+          &nbsp;{{ (questionIndex ?? 0) + 1 }} of {{ questionCount }}</span
+        >: {{ renderDate(clickedQuestion.activeAt) }} by
         {{ clickedQuestion.author?.name }}
         <v-spacer />
         <div v-if="questionIndex != null">
@@ -179,6 +182,7 @@ export default {
   props: {
     question: { type: Object as PropType<ApiQuestion | null>, default: null },
     questionIndex: { type: Number, default: null },
+    questionCount: { type: Number, default: null },
     value: { type: Boolean, default: false },
     userTZ: { type: String, default: "Autodetect" },
     inTest: { type: Boolean, default: false },
