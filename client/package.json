@@ -31,7 +31,7 @@
     "@graphql-eslint/eslint-plugin": "3.20.1",
     "@rollup/plugin-graphql": "2.0.4",
     "@types/papaparse": "5.3.14",
-    "@typescript-eslint/eslint-plugin": "7.16.0",
+    "@typescript-eslint/eslint-plugin": "7.16.1",
     "@typescript-eslint/parser": "7.16.1",
     "@vitejs/plugin-vue": "5.0.5",
     "@vitest/coverage-v8": "^2.0.3",
