@@ -22,7 +22,7 @@
     "graphql-combine-query": "1.2.4",
     "moment-timezone": "0.5.45",
     "papaparse": "5.4.1",
-    "pinia": "^2.2.0",
+    "pinia": "^2.2.1",
     "vue": "3.4.35",
     "vue-router": "4.4.2",
     "vuetify": "3.6.14"
