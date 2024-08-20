@@ -17,7 +17,7 @@
     "@graphql-codegen/typescript": "4.0.9",
     "@vue/apollo-components": "4.0.0",
     "@vue/apollo-option": "4.2.0",
-    "core-js": "3.38.0",
+    "core-js": "3.38.1",
     "graphql": "16.9.0",
     "graphql-combine-query": "1.2.4",
     "moment-timezone": "0.5.45",
