@@ -40,9 +40,10 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
         val userUUID = UUID.randomUUID()
         val questionUUID = UUID.randomUUID()
         // expect `byUserQuestions` to be called with context user UUID
-        EasyMock.expect(
-            responseDAO.byUserQuestions(EasyMock.eq(userUUID) ?: userUUID, EasyMock.anyObject() ?: listOf()),
-        ).andReturn(mapOf(questionUUID to Response(UUID.randomUUID(), userUUID, questionUUID, "r", "rr")))
+        EasyMock
+            .expect(
+                responseDAO.byUserQuestions(EasyMock.eq(userUUID) ?: userUUID, EasyMock.anyObject() ?: listOf()),
+            ).andReturn(mapOf(questionUUID to Response(UUID.randomUUID(), userUUID, questionUUID, "r", "rr")))
         replayAll()
         val factory = factoryProvider.get()
         val scope = CoroutineScope(Dispatchers.Default)

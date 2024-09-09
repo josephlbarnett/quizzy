@@ -9,18 +9,18 @@ import java.util.UUID
 /**
  * Batch load Users by ID
  */
-class BatchUserLoader(private val userDAO: UserDAO) :
-    CoroutineMappedBatchLoader<UUID, User>() {
+class BatchUserLoader(
+    private val userDAO: UserDAO,
+) : CoroutineMappedBatchLoader<UUID, User>() {
     override val dataLoaderName = "batchusers"
 
     override suspend fun loadSuspend(
         keys: Set<UUID>,
         environment: BatchLoaderEnvironment,
-    ): Map<UUID, User> {
-        return userDAO.get(keys.toList()).associateBy {
+    ): Map<UUID, User> =
+        userDAO.get(keys.toList()).associateBy {
             val id = it.id
             requireNotNull(id)
             id
         }
-    }
 }

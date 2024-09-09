@@ -5,7 +5,5 @@ import com.expediagroup.graphql.plugin.schema.hooks.SchemaGeneratorHooksProvider
 import com.trib3.graphql.execution.LeakyCauldronHooks
 
 class HooksProvider : SchemaGeneratorHooksProvider {
-    override fun hooks(): SchemaGeneratorHooks {
-        return LeakyCauldronHooks()
-    }
+    override fun hooks(): SchemaGeneratorHooks = LeakyCauldronHooks()
 }

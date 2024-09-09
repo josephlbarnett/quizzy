@@ -9,18 +9,18 @@ import java.util.UUID
 /**
  * Batch load Questions by ID
  */
-class BatchQuestionLoader(private val questionDAO: QuestionDAO) :
-    CoroutineMappedBatchLoader<UUID, Question>() {
+class BatchQuestionLoader(
+    private val questionDAO: QuestionDAO,
+) : CoroutineMappedBatchLoader<UUID, Question>() {
     override val dataLoaderName = "batchquestions"
 
     override suspend fun loadSuspend(
         keys: Set<UUID>,
         environment: BatchLoaderEnvironment,
-    ): Map<UUID, Question> {
-        return questionDAO.get(keys.toList()).associateBy {
+    ): Map<UUID, Question> =
+        questionDAO.get(keys.toList()).associateBy {
             val id = it.id
             requireNotNull(id)
             id
         }
-    }
 }

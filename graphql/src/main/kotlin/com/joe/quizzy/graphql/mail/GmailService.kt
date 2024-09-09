@@ -56,45 +56,47 @@ open class GmailService
                 }
             val credential =
                 AuthorizationCodeInstalledApp(
-                    GoogleAuthorizationCodeFlow.Builder(
-                        GoogleNetHttpTransport.newTrustedTransport(),
-                        jsonFactory,
-                        secrets,
-                        listOf(GmailScopes.GMAIL_SEND, Oauth2Scopes.USERINFO_EMAIL),
-                    )
-                        .setDataStoreFactory(dataStoreFactory)
+                    GoogleAuthorizationCodeFlow
+                        .Builder(
+                            GoogleNetHttpTransport.newTrustedTransport(),
+                            jsonFactory,
+                            secrets,
+                            listOf(GmailScopes.GMAIL_SEND, Oauth2Scopes.USERINFO_EMAIL),
+                        ).setDataStoreFactory(dataStoreFactory)
                         .setAccessType("offline")
                         .build(),
 //            LocalServerReceiver.Builder().setPort(8888)
 //                .build() // < --to allow for setting refresh token w / localhost server
                     object : VerificationCodeReceiver { // <-- don't get new tokens
-                        override fun waitForCode(): String {
+                        override fun waitForCode(): String =
                             throw IOException("Can't wait for code, need a refresh token persisted")
-                        }
 
                         override fun stop() {
                             // do nothing
                         }
 
-                        override fun getRedirectUri(): String {
+                        override fun getRedirectUri(): String =
                             throw IOException("No redirect URI, need a refresh token persisted")
-                        }
                     },
                 ).authorize(instanceId.toString())
 
             gmail =
-                Gmail.Builder(
-                    GoogleNetHttpTransport.newTrustedTransport(),
-                    jsonFactory,
-                    credential,
-                ).setApplicationName("rules exchange").build()
+                Gmail
+                    .Builder(
+                        GoogleNetHttpTransport.newTrustedTransport(),
+                        jsonFactory,
+                        credential,
+                    ).setApplicationName("rules exchange")
+                    .build()
 
             oauth =
-                Oauth2.Builder(
-                    GoogleNetHttpTransport.newTrustedTransport(),
-                    jsonFactory,
-                    credential,
-                ).setApplicationName("rules exchange").build()
+                Oauth2
+                    .Builder(
+                        GoogleNetHttpTransport.newTrustedTransport(),
+                        jsonFactory,
+                        credential,
+                    ).setApplicationName("rules exchange")
+                    .build()
         }
     }
 

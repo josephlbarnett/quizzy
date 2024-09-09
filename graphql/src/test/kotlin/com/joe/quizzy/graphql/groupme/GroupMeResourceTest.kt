@@ -23,11 +23,11 @@ val validInstanceUUID = UUID.randomUUID()
 val failUploadUUID = UUID.randomUUID()
 
 class GroupMeResourceTest : ResourceTestBase<GroupMeResource>() {
-    override fun getResource(): GroupMeResource {
-        return GroupMeResource(
+    override fun getResource(): GroupMeResource =
+        GroupMeResource(
             object : GroupMeServiceFactory {
-                override fun create(instanceId: UUID): GroupMeService? {
-                    return when (instanceId) {
+                override fun create(instanceId: UUID): GroupMeService? =
+                    when (instanceId) {
                         validInstanceUUID -> {
                             val mockService = mockk<GroupMeService>()
                             coEvery {
@@ -46,16 +46,15 @@ class GroupMeResourceTest : ResourceTestBase<GroupMeResource>() {
 
                         else -> null
                     }
-                }
             },
         )
-    }
 
     override fun buildAdditionalResources(resourceBuilder: Resource.Builder<*>) {
         val userId = UUID.randomUUID()
         resourceBuilder.addProvider(
             AuthDynamicFeature(
-                BasicCredentialAuthFilter.Builder<Principal>()
+                BasicCredentialAuthFilter
+                    .Builder<Principal>()
                     .setAuthenticator {
                         val instanceUUID =
                             when (it.username) {
@@ -73,8 +72,7 @@ class GroupMeResourceTest : ResourceTestBase<GroupMeResource>() {
                                 ),
                             )
                         }
-                    }
-                    .buildAuthFilter(),
+                    }.buildAuthFilter(),
             ),
         )
     }
@@ -82,7 +80,9 @@ class GroupMeResourceTest : ResourceTestBase<GroupMeResource>() {
     @Test
     fun testImageUpload() {
         val returnedUrl =
-            resource.target("/image/upload").request()
+            resource
+                .target("/image/upload")
+                .request()
                 .header("Authorization", "Basic YTpiCg==") // a:b
                 .post(Entity.text("test"))
                 .readEntity(String::class.java)
@@ -92,7 +92,9 @@ class GroupMeResourceTest : ResourceTestBase<GroupMeResource>() {
     @Test
     fun testNoInstanceImageUpload() {
         val returnedUrl =
-            resource.target("/image/upload").request()
+            resource
+                .target("/image/upload")
+                .request()
                 .header("Authorization", "Basic YjpiCg==") // b:b
                 .post(Entity.text("test"))
                 .readEntity(String::class.java)
@@ -102,7 +104,9 @@ class GroupMeResourceTest : ResourceTestBase<GroupMeResource>() {
     @Test
     fun testFailImageUpload() {
         val returnedUrl =
-            resource.target("/image/upload").request()
+            resource
+                .target("/image/upload")
+                .request()
                 .header("Authorization", "Basic YzpiCg==") // c:b
                 .post(Entity.text("test"))
                 .readEntity(String::class.java)
@@ -112,7 +116,9 @@ class GroupMeResourceTest : ResourceTestBase<GroupMeResource>() {
     @Test
     fun testInvalidPrincipalImageUpload() {
         val returnedUrl =
-            resource.target("/image/upload").request()
+            resource
+                .target("/image/upload")
+                .request()
                 .header("Authorization", "Basic ZDpiCg==") // d:b
                 .post(Entity.text("test"))
                 .readEntity(String::class.java)

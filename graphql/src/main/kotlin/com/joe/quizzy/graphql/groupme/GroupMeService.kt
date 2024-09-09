@@ -19,14 +19,24 @@ import java.util.UUID
 private val log = KotlinLogging.logger { }
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class UploadUrls(val url: String?, val pictureUrl: String?)
+data class UploadUrls(
+    val url: String?,
+    val pictureUrl: String?,
+)
 
-data class UploadResponse(val payload: UploadUrls?)
+data class UploadResponse(
+    val payload: UploadUrls?,
+)
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
-data class Message(val sourceGuid: UUID, val text: String)
+data class Message(
+    val sourceGuid: UUID,
+    val text: String,
+)
 
-data class MessageRequest(val message: Message)
+data class MessageRequest(
+    val message: Message,
+)
 
 interface GroupMeServiceFactory {
     fun create(instanceId: UUID): GroupMeService?

@@ -57,7 +57,8 @@ class ScheduledEmailBundle(
     val client: HttpClient,
     val dispatcher: ExecutorCoroutineDispatcher,
     val minuteMod: Int,
-) : ConfiguredBundle<Configuration>, CoroutineScope by CoroutineScope(dispatcher) {
+) : ConfiguredBundle<Configuration>,
+    CoroutineScope by CoroutineScope(dispatcher) {
     @Inject
     constructor(
         configLoader: ConfigLoader,
@@ -79,9 +80,10 @@ class ScheduledEmailBundle(
         gmailServiceFactory,
         groupMeServiceFactory,
         ktorClient,
-        Executors.newSingleThreadExecutor {
-            Thread(it, "ScheduledEmailBundle").apply { isDaemon = true }
-        }.asCoroutineDispatcher(),
+        Executors
+            .newSingleThreadExecutor {
+                Thread(it, "ScheduledEmailBundle").apply { isDaemon = true }
+            }.asCoroutineDispatcher(),
         POLL_MINUTES,
     )
 
@@ -93,13 +95,12 @@ class ScheduledEmailBundle(
             }
         }
 
-    private fun countObject(size: Int): Map<String, Any>? {
-        return when (size) {
+    private fun countObject(size: Int): Map<String, Any>? =
+        when (size) {
             0 -> null
             1 -> mapOf("num" to size, "plural" to " is")
             else -> mapOf("num" to size, "plural" to "s are")
         }
-    }
 
     internal suspend fun sendText(
         instanceId: UUID,
@@ -117,8 +118,8 @@ class ScheduledEmailBundle(
         instanceName: String,
         questions: List<Question>,
         answers: List<Question>,
-    ): Map<String, *> {
-        return mapOf(
+    ): Map<String, *> =
+        mapOf(
             "instanceName" to instanceName,
             "domainLink" to "https://${appConfig.corsDomains[0]}",
             "questionCount" to countObject(questions.size),
@@ -141,7 +142,6 @@ class ScheduledEmailBundle(
                     )
                 },
         )
-    }
 
     /**
      * Sends an email to all users with notifications enabled containing
@@ -156,7 +156,14 @@ class ScheduledEmailBundle(
         val usersToNotify =
             userDAO.getByInstance(instanceId).filter { it.notifyViaEmail }
         gmailServiceFactory.getService(instanceId)?.let { gmail ->
-            val instanceAddress = gmail.oauth.userinfo().v2().me().get().execute().email
+            val instanceAddress =
+                gmail.oauth
+                    .userinfo()
+                    .v2()
+                    .me()
+                    .get()
+                    .execute()
+                    .email
             val instanceName = instanceDAO.get(instanceId)?.name ?: "Quizzy"
             val message = MimeMessage(Session.getDefaultInstance(Properties(), null))
             message.setFrom("$instanceName <$instanceAddress>")
@@ -168,10 +175,11 @@ class ScheduledEmailBundle(
             }
             message.subject = "New $questionAnswerString Available from $instanceName"
             message.setContent(
-                htmlTemplate?.execute(
-                    StringWriter(),
-                    getContentMap(instanceName, questions, answers),
-                ).toString(),
+                htmlTemplate
+                    ?.execute(
+                        StringWriter(),
+                        getContentMap(instanceName, questions, answers),
+                    ).toString(),
                 MediaType.TEXT_HTML,
             )
             emailNotificationDAO.markNotified(NotificationType.REMINDER, (questions + answers).mapNotNull { it.id })
@@ -184,12 +192,11 @@ class ScheduledEmailBundle(
         }
     }
 
-    private fun choiceMap(choice: AnswerChoice): Map<String, String> {
-        return mapOf(
+    private fun choiceMap(choice: AnswerChoice): Map<String, String> =
+        mapOf(
             "letter" to choice.letter,
             "answerChoiceAnswer" to choice.answer,
         )
-    }
 
     private fun multiChoiceAnswer(question: Question): String {
         if (question.type == QuestionType.MULTIPLE_CHOICE) {
@@ -212,39 +219,42 @@ class ScheduledEmailBundle(
             if (activeNotifications.isEmpty() && closedNotifications.isEmpty()) {
                 mapOf()
             } else {
-                userDAO.get(activeNotifications.map { it.authorId } + closedNotifications.map { it.authorId })
+                userDAO
+                    .get(activeNotifications.map { it.authorId } + closedNotifications.map { it.authorId })
                     .associateBy { it.id }
             }
-        (activeNotifications + closedNotifications).distinct().groupBy {
-            authors.getValue(it.authorId).instanceId
-        }.forEach { entry ->
-            val (questions, answers) = entry.value.partition { it.closedAt.isAfter(now) }
-            val instanceId = entry.key
-            if (questions.isNotEmpty() || answers.isNotEmpty()) {
-                val qString =
-                    if (questions.size == 1) {
-                        "Question"
-                    } else {
-                        "Questions"
-                    }
-                val aString =
-                    if (answers.size == 1) {
-                        "Answer"
-                    } else {
-                        "Answers"
-                    }
-                val questionAnswerString =
-                    if (questions.isNotEmpty() && answers.isNotEmpty()) {
-                        "$qString and $aString"
-                    } else if (answers.isNotEmpty()) {
-                        aString
-                    } else {
-                        qString
-                    }
-                sendEmail(instanceId, questions, answers, questionAnswerString)
-                sendText(instanceId, questionAnswerString)
+        (activeNotifications + closedNotifications)
+            .distinct()
+            .groupBy {
+                authors.getValue(it.authorId).instanceId
+            }.forEach { entry ->
+                val (questions, answers) = entry.value.partition { it.closedAt.isAfter(now) }
+                val instanceId = entry.key
+                if (questions.isNotEmpty() || answers.isNotEmpty()) {
+                    val qString =
+                        if (questions.size == 1) {
+                            "Question"
+                        } else {
+                            "Questions"
+                        }
+                    val aString =
+                        if (answers.size == 1) {
+                            "Answer"
+                        } else {
+                            "Answers"
+                        }
+                    val questionAnswerString =
+                        if (questions.isNotEmpty() && answers.isNotEmpty()) {
+                            "$qString and $aString"
+                        } else if (answers.isNotEmpty()) {
+                            aString
+                        } else {
+                            qString
+                        }
+                    sendEmail(instanceId, questions, answers, questionAnswerString)
+                    sendText(instanceId, questionAnswerString)
+                }
             }
-        }
     }
 
     override fun run(

@@ -13,8 +13,9 @@ import java.util.UUID
 /**
  * Batch load Question ID -> Response for context User
  */
-class QuestionResponseLoader(private val responseDAO: ResponseDAO) :
-    CoroutineMappedBatchLoader<UUID, Response>() {
+class QuestionResponseLoader(
+    private val responseDAO: ResponseDAO,
+) : CoroutineMappedBatchLoader<UUID, Response>() {
     override val dataLoaderName = "questionresponses"
 
     override suspend fun loadSuspend(

@@ -20,11 +20,10 @@ data class ApiGrade(
         defaultScore,
     )
 
-    fun score(): Int {
-        return if (correct == true) {
+    fun score(): Int =
+        if (correct == true) {
             defaultScore + (bonus ?: 0)
         } else {
             0
         }
-    }
 }

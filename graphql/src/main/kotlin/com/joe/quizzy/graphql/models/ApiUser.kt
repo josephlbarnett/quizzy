@@ -46,15 +46,16 @@ data class ApiUser(
         if (id == null) {
             return CompletableFuture.completedFuture(0)
         }
-        return dfe.getDataLoader<UserTimePeriod, List<Grade>>("usergrades").load(UserTimePeriod(id, startTime, endTime))
-            .thenApply {
+        return dfe
+            .getDataLoader<UserTimePeriod, List<Grade>>("usergrades")
+            ?.load(UserTimePeriod(id, startTime, endTime))
+            ?.thenApply {
                 it?.map { g -> ApiGrade(g, defaultScore).score() }?.fold(0, Int::plus) ?: 0
-            }
+            } ?: CompletableFuture.completedFuture(0)
     }
 
-    fun instance(dfe: DataFetchingEnvironment): CompletableFuture<ApiInstance> {
-        return dfe.getDataLoader<UUID, Instance>("batchinstances").load(instanceId).thenApply {
+    fun instance(dfe: DataFetchingEnvironment): CompletableFuture<ApiInstance> =
+        dfe.getDataLoader<UUID, Instance>("batchinstances")?.load(instanceId)?.thenApply {
             ApiInstance(it)
-        }
-    }
+        } ?: CompletableFuture.completedFuture(null)
 }

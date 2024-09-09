@@ -60,7 +60,8 @@ class InstanceSeasonLoaderTest {
                         ),
                 )
             EasyMock.expect(mockDAO.getSeasons(seasons.keys.toList())).andReturn(seasons)
-            EasyMock.expect(mockDAO.getSeasons(moreSeasons.keys.toList(), OffsetDateTime.MIN, OffsetDateTime.MAX))
+            EasyMock
+                .expect(mockDAO.getSeasons(moreSeasons.keys.toList(), OffsetDateTime.MIN, OffsetDateTime.MAX))
                 .andReturn(moreSeasons)
             EasyMock.replay(mockDAO, mockEnv)
             val loaded =

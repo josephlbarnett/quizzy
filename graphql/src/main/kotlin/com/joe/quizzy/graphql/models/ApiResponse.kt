@@ -37,9 +37,9 @@ data class ApiResponse(
     fun user(dfe: DataFetchingEnvironment): CompletableFuture<ApiUser?> {
         val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
-            return dfe.getDataLoader<UUID, User>("batchusers").load(userId).thenApply {
+            return dfe.getDataLoader<UUID, User>("batchusers")?.load(userId)?.thenApply {
                 it?.let { u -> ApiUser(u, defaultScore) }
-            }
+            } ?: CompletableFuture.completedFuture(null)
         }
         return CompletableFuture.completedFuture(null)
     }
@@ -47,17 +47,21 @@ data class ApiResponse(
     fun question(dfe: DataFetchingEnvironment): CompletableFuture<ApiQuestion?> {
         val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal) {
-            val gradeFuture = dfe.getDataLoader<UUID, Grade>("responsegrades").load(id)
-            return dfe.getDataLoader<UUID, Question>("batchquestions").load(questionId)
-                .thenCombine(gradeFuture) { question, grade ->
-                    question?.let {
-                        if (grade == null) {
-                            ApiQuestion(it, defaultScore).copy(answer = "", ruleReferences = "")
-                        } else {
-                            ApiQuestion(it, defaultScore)
+            val gradeFuture = dfe.getDataLoader<UUID, Grade>("responsegrades")?.load(id)
+            if (gradeFuture != null) {
+                return dfe
+                    .getDataLoader<UUID, Question>("batchquestions")
+                    ?.load(questionId)
+                    ?.thenCombine(gradeFuture) { question, grade ->
+                        question?.let {
+                            if (grade == null) {
+                                ApiQuestion(it, defaultScore).copy(answer = "", ruleReferences = "")
+                            } else {
+                                ApiQuestion(it, defaultScore)
+                            }
                         }
-                    }
-                }
+                    } ?: CompletableFuture.completedFuture(null)
+            }
         }
         return CompletableFuture.completedFuture(null)
     }
@@ -65,8 +69,10 @@ data class ApiResponse(
     fun grade(dfe: DataFetchingEnvironment): CompletableFuture<ApiGrade?> {
         val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal && id != null) {
-            return dfe.getDataLoader<UUID, Grade>("responsegrades").load(id)
-                .thenApply { it?.let { g -> ApiGrade(g, defaultScore) } }
+            return dfe
+                .getDataLoader<UUID, Grade>("responsegrades")
+                ?.load(id)
+                ?.thenApply { it?.let { g -> ApiGrade(g, defaultScore) } } ?: CompletableFuture.completedFuture(null)
         }
         return CompletableFuture.completedFuture(null)
     }

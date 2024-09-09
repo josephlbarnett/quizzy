@@ -26,7 +26,9 @@ class SeasonDAOTest : PostgresDAOTestBase() {
         val instanceId = instanceDAO.save(Instance(null, "season", "ACTIVE")).id!!
         val instanceId2 = instanceDAO.save(Instance(null, "season2", "ACTIVE")).id!!
         ctx.transaction { config ->
-            config.dsl().insertInto(SEASONS)
+            config
+                .dsl()
+                .insertInto(SEASONS)
                 .columns(SEASONS.INSTANCE_ID, SEASONS.NAME, SEASONS.START_TIME, SEASONS.END_TIME)
                 .values(instanceId, "s1", OffsetDateTime.now().minusDays(5), OffsetDateTime.now().minusDays(4))
                 .values(instanceId, "s2", OffsetDateTime.now().plusDays(5), OffsetDateTime.now().plusDays(6))
@@ -36,16 +38,19 @@ class SeasonDAOTest : PostgresDAOTestBase() {
         }
         assertThat(dao.getSeasons(instanceId).map { it.name }).containsExactlyInAnyOrder("s1", "s2")
         assertThat(
-            dao.getSeasons(listOf(instanceId, instanceId2))
+            dao
+                .getSeasons(listOf(instanceId, instanceId2))
                 .flatMap { it.value.map { s -> s.name } },
         ).containsExactlyInAnyOrder("s1", "s2", "s3", "s4")
         assertThat(dao.getSeasons(instanceId, OffsetDateTime.now(), OffsetDateTime.now())).isEmpty()
         assertThat(
-            dao.getSeasons(listOf(instanceId, instanceId2), OffsetDateTime.now(), null)
+            dao
+                .getSeasons(listOf(instanceId, instanceId2), OffsetDateTime.now(), null)
                 .flatMap { it.value.map { s -> s.name } },
         ).containsExactlyInAnyOrder("s2", "s4")
         assertThat(
-            dao.getSeasons(listOf(instanceId, instanceId2), null, OffsetDateTime.now())
+            dao
+                .getSeasons(listOf(instanceId, instanceId2), null, OffsetDateTime.now())
                 .flatMap { it.value.map { s -> s.name } },
         ).containsExactlyInAnyOrder("s1", "s3")
     }

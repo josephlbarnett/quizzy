@@ -31,21 +31,19 @@ data class ApiInstance(
         dfe: DataFetchingEnvironment,
         startTime: OffsetDateTime? = null,
         endTime: OffsetDateTime? = null,
-    ): CompletableFuture<List<Season>> {
-        return if (id != null) {
-            dfe.getDataLoader<InstanceTimePeriod, List<Season>>("instanceseasons")
-                .load(InstanceTimePeriod(id, startTime, endTime))
-                .thenApply { it.orEmpty().sortedBy { s -> s.startTime } }
-        } else {
-            CompletableFuture.completedFuture(emptyList())
-        }
-    }
+    ): CompletableFuture<List<Season>> =
+        id?.let {
+            dfe.getDataLoader<InstanceTimePeriod, List<Season>>("instanceseasons")?.let { loader ->
+                loader
+                    .load(InstanceTimePeriod(it, startTime, endTime))
+                    .thenApply { it.orEmpty().sortedBy { s -> s.startTime } }
+            }
+        } ?: CompletableFuture.completedFuture(emptyList())
 
-    fun supportsGroupMe(dfe: DataFetchingEnvironment): CompletableFuture<Boolean> {
-        return if (id != null) {
-            dfe.getDataLoader<UUID, GroupMeService?>("groupmeservice").load(id).thenApply { it != null }
-        } else {
-            CompletableFuture.completedFuture(false)
-        }
-    }
+    fun supportsGroupMe(dfe: DataFetchingEnvironment): CompletableFuture<Boolean> =
+        id?.let {
+            dfe.getDataLoader<UUID, GroupMeService?>("groupmeservice")?.let { loader ->
+                loader.load(it).thenApply { it != null }
+            }
+        } ?: CompletableFuture.completedFuture(false)
 }

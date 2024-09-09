@@ -35,18 +35,14 @@ open class ResponseDAOJooq
         private fun getRecord(
             dsl: DSLContext,
             id: UUID,
-        ): ResponsesRecord? {
-            return dsl.selectFrom(Tables.RESPONSES).where(Tables.RESPONSES.ID.eq(id)).fetchOne()
-        }
+        ): ResponsesRecord? = dsl.selectFrom(Tables.RESPONSES).where(Tables.RESPONSES.ID.eq(id)).fetchOne()
 
         @Timed
-        override fun get(id: UUID): Response? {
-            return getRecord(ctx, id)?.into(Response::class.java)
-        }
+        override fun get(id: UUID): Response? = getRecord(ctx, id)?.into(Response::class.java)
 
         @Timed
-        override fun save(thing: Response): Response {
-            return ctx.transactionResult { config ->
+        override fun save(thing: Response): Response =
+            ctx.transactionResult { config ->
                 val thingId = thing.id
                 val record =
                     if (thingId == null) {
@@ -90,7 +86,6 @@ open class ResponseDAOJooq
                 }
                 record.into(Response::class.java)
             }
-        }
 
         @Timed
         override fun byUserQuestion(
@@ -98,8 +93,14 @@ open class ResponseDAOJooq
             questionId: UUID,
         ): Response? {
             val query =
-                ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
-                    .where(Tables.RESPONSES.USER_ID.eq(userId).and(Tables.RESPONSES.QUESTION_ID.eq(questionId)))
+                ctx
+                    .select(Tables.RESPONSES.asterisk())
+                    .from(Tables.RESPONSES)
+                    .where(
+                        Tables.RESPONSES.USER_ID
+                            .eq(userId)
+                            .and(Tables.RESPONSES.QUESTION_ID.eq(questionId)),
+                    )
             log.info("user question responses query : $query")
             return query.fetchOneInto(Response::class.java)
         }
@@ -110,8 +111,14 @@ open class ResponseDAOJooq
             questionIds: List<UUID>,
         ): Map<UUID, Response> {
             val query =
-                ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
-                    .where(Tables.RESPONSES.USER_ID.eq(userId).and(Tables.RESPONSES.QUESTION_ID.`in`(questionIds)))
+                ctx
+                    .select(Tables.RESPONSES.asterisk())
+                    .from(Tables.RESPONSES)
+                    .where(
+                        Tables.RESPONSES.USER_ID
+                            .eq(userId)
+                            .and(Tables.RESPONSES.QUESTION_ID.`in`(questionIds)),
+                    )
             log.info("batch user question responses query : $query")
             return query.fetch().intoMap(Tables.RESPONSES.QUESTION_ID, Response::class.java)
         }
@@ -122,13 +129,19 @@ open class ResponseDAOJooq
             questionId: UUID,
         ): List<Response> {
             val query =
-                ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
-                    .join(Tables.USERS).on(
+                ctx
+                    .select(Tables.RESPONSES.asterisk())
+                    .from(Tables.RESPONSES)
+                    .join(Tables.USERS)
+                    .on(
                         Tables.RESPONSES.USER_ID.eq(Tables.USERS.ID).and(
                             Tables.USERS.INSTANCE_ID.eq(instanceId),
                         ),
+                    ).where(
+                        Tables.RESPONSES.QUESTION_ID
+                            .eq(questionId)
+                            .and(Tables.USERS.INSTANCE_ID.eq(instanceId)),
                     )
-                    .where(Tables.RESPONSES.QUESTION_ID.eq(questionId).and(Tables.USERS.INSTANCE_ID.eq(instanceId)))
             log.info("question responses query : $query")
             return query.fetchInto(Response::class.java)
         }
@@ -139,16 +152,21 @@ open class ResponseDAOJooq
             questionIds: List<UUID>,
         ): Map<UUID, Pair<Int, Int>> {
             val query =
-                ctx.select(Tables.RESPONSES.QUESTION_ID, DSL.count(), DSL.count().filterWhere(Tables.GRADES.CORRECT))
+                ctx
+                    .select(Tables.RESPONSES.QUESTION_ID, DSL.count(), DSL.count().filterWhere(Tables.GRADES.CORRECT))
                     .from(Tables.RESPONSES)
-                    .join(Tables.USERS).on(
+                    .join(Tables.USERS)
+                    .on(
                         Tables.RESPONSES.USER_ID.eq(Tables.USERS.ID).and(
                             Tables.USERS.INSTANCE_ID.eq(instanceId),
                         ),
-                    )
-                    .leftJoin(Tables.GRADES).on(Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID))
-                    .where(Tables.RESPONSES.QUESTION_ID.`in`(questionIds).and(Tables.USERS.INSTANCE_ID.eq(instanceId)))
-                    .groupBy(Tables.RESPONSES.QUESTION_ID)
+                    ).leftJoin(Tables.GRADES)
+                    .on(Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID))
+                    .where(
+                        Tables.RESPONSES.QUESTION_ID
+                            .`in`(questionIds)
+                            .and(Tables.USERS.INSTANCE_ID.eq(instanceId)),
+                    ).groupBy(Tables.RESPONSES.QUESTION_ID)
             log.info("question stats query : $query")
             return query.fetch().intoMap(Tables.RESPONSES.QUESTION_ID) { record ->
                 record.component2() to record.component3()
@@ -163,36 +181,39 @@ open class ResponseDAOJooq
             endTime: OffsetDateTime?,
         ): List<Response> {
             val initialQuery =
-                ctx.select(Tables.RESPONSES.asterisk()).from(Tables.RESPONSES)
-                    .join(Tables.USERS).on(
+                ctx
+                    .select(Tables.RESPONSES.asterisk())
+                    .from(Tables.RESPONSES)
+                    .join(Tables.USERS)
+                    .on(
                         Tables.RESPONSES.USER_ID.eq(Tables.USERS.ID).and(
                             Tables.USERS.INSTANCE_ID.eq(instanceId),
                         ),
-                    )
-                    .join(Tables.QUESTIONS).on(
+                    ).join(Tables.QUESTIONS)
+                    .on(
                         Tables.QUESTIONS.ID.eq(Tables.RESPONSES.QUESTION_ID),
                     )
             val query =
                 if (regrade) {
                     initialQuery.where()
                 } else {
-                    initialQuery.leftJoin(Tables.GRADES).on(
-                        Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID),
-                    ).where(Tables.GRADES.CORRECT.isNull)
-                }
-                    .and(
-                        DSL.and(
-                            listOfNotNull(
-                                startTime?.let {
-                                    Tables.QUESTIONS.CLOSED_AT.ge(it)
-                                },
-                                endTime?.let {
-                                    Tables.QUESTIONS.ACTIVE_AT.le(it)
-                                },
-                            ),
+                    initialQuery
+                        .leftJoin(Tables.GRADES)
+                        .on(
+                            Tables.GRADES.RESPONSE_ID.eq(Tables.RESPONSES.ID),
+                        ).where(Tables.GRADES.CORRECT.isNull)
+                }.and(
+                    DSL.and(
+                        listOfNotNull(
+                            startTime?.let {
+                                Tables.QUESTIONS.CLOSED_AT.ge(it)
+                            },
+                            endTime?.let {
+                                Tables.QUESTIONS.ACTIVE_AT.le(it)
+                            },
                         ),
-                    )
-                    .orderBy(Tables.QUESTIONS.ACTIVE_AT.desc(), Tables.USERS.NAME)
+                    ),
+                ).orderBy(Tables.QUESTIONS.ACTIVE_AT.desc(), Tables.USERS.NAME)
 
             log.info("graded query : $query")
             return query.fetchInto(Response::class.java)
@@ -201,20 +222,19 @@ open class ResponseDAOJooq
         @Timed
         override fun forUser(userId: UUID): List<Response> {
             val query =
-                ctx.select(
-                    Tables.RESPONSES.asterisk(),
-                ).from(Tables.RESPONSES).where(Tables.RESPONSES.USER_ID.eq(userId))
+                ctx
+                    .select(
+                        Tables.RESPONSES.asterisk(),
+                    ).from(Tables.RESPONSES)
+                    .where(Tables.RESPONSES.USER_ID.eq(userId))
             log.info("user responses query : $query")
             return query.fetchInto(Response::class.java)
         }
 
         @Timed
-        override fun all(): List<Response> {
-            return ctx.select().from(Tables.RESPONSES).fetchInto(Response::class.java)
-        }
+        override fun all(): List<Response> = ctx.select().from(Tables.RESPONSES).fetchInto(Response::class.java)
 
         @Timed
-        override fun stream(): Stream<Response> {
-            return ctx.select().from(Tables.RESPONSES).fetchStreamInto(Response::class.java)
-        }
+        override fun stream(): Stream<Response> =
+            ctx.select().from(Tables.RESPONSES).fetchStreamInto(Response::class.java)
     }

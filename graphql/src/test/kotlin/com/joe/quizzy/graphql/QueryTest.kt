@@ -37,11 +37,17 @@ fun getDFE(
     scope: CoroutineScope,
 ): DataFetchingEnvironment {
     val dfe = LeakyMock.mock<DataFetchingEnvironment>()
-    EasyMock.expect(dfe.graphQlContext).andReturn(
-        GraphQLContext.of(
-            getGraphQLContextMap(scope, principal) + contextMap(jakarta.ws.rs.core.Response.ok()),
-        ),
-    ).anyTimes()
+    EasyMock
+        .expect(dfe.graphQlContext)
+        .andReturn(
+            GraphQLContext.of(
+                getGraphQLContextMap(scope, principal) +
+                    contextMap(
+                        jakarta.ws.rs.core.Response
+                            .ok(),
+                    ),
+            ),
+        ).anyTimes()
     EasyMock.replay(dfe)
     return dfe
 }

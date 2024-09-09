@@ -101,7 +101,8 @@ class Query
             if (principal is UserPrincipal) {
                 if (principal.user.admin) {
                     val defaultScore = getDefaultScore(principal)
-                    return responseDAO.forInstance(principal.user.instanceId, includeGraded, startTime, endTime)
+                    return responseDAO
+                        .forInstance(principal.user.instanceId, includeGraded, startTime, endTime)
                         .map { ApiResponse(it, defaultScore) }
                 }
             }
@@ -116,10 +117,11 @@ class Query
             val principal = dfe.graphQlContext.get<Principal>()
             if (principal is UserPrincipal) {
                 val defaultScore = getDefaultScore(principal)
-                return responseDAO.forQuestion(
-                    principal.user.instanceId,
-                    questionId,
-                ).map { ApiResponse(it, defaultScore) }
+                return responseDAO
+                    .forQuestion(
+                        principal.user.instanceId,
+                        questionId,
+                    ).map { ApiResponse(it, defaultScore) }
             }
             return null
         }
