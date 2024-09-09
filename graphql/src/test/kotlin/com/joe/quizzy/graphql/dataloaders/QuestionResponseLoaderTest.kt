@@ -29,23 +29,26 @@ class QuestionResponseLoaderTest {
                     UUID.randomUUID() to Response(UUID.randomUUID(), UUID.randomUUID(), UUID.randomUUID(), "a2", "rr2"),
                 )
             val userId = UUID.randomUUID()
-            EasyMock.expect(
-                responseDAO.byUserQuestions(
-                    EasyMock.eq(userId) ?: userId,
-                    EasyMock.anyObject<List<UUID>>() ?: listOf(),
-                ),
-            ).andReturn(questionResponses)
-            EasyMock.expect(mockEnv.getContext<GraphQLContext>()).andReturn(
-                GraphQLContext.of(
-                    getGraphQLContextMap(
-                        this,
-                        UserPrincipal(
-                            User(userId, UUID.randomUUID(), "user", "user@user.com", "", false, ""),
-                            null,
+            EasyMock
+                .expect(
+                    responseDAO.byUserQuestions(
+                        EasyMock.eq(userId) ?: userId,
+                        EasyMock.anyObject<List<UUID>>() ?: listOf(),
+                    ),
+                ).andReturn(questionResponses)
+            EasyMock
+                .expect(mockEnv.getContext<GraphQLContext>())
+                .andReturn(
+                    GraphQLContext.of(
+                        getGraphQLContextMap(
+                            this,
+                            UserPrincipal(
+                                User(userId, UUID.randomUUID(), "user", "user@user.com", "", false, ""),
+                                null,
+                            ),
                         ),
                     ),
-                ),
-            ).atLeastOnce()
+                ).atLeastOnce()
             EasyMock.replay(responseDAO, mockEnv)
             val insts = loader.load(questionResponses.mapNotNull { it.key }.toSet(), mockEnv).await()
             assertThat(insts).isEqualTo(questionResponses)
@@ -58,8 +61,10 @@ class QuestionResponseLoaderTest {
             val responseDAO = LeakyMock.mock<ResponseDAO>()
             val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
             val loader = QuestionResponseLoader(responseDAO)
-            EasyMock.expect(mockEnv.getContext<GraphQLContext?>())
-                .andReturn(GraphQLContext.of(getGraphQLContextMap(this))).atLeastOnce()
+            EasyMock
+                .expect(mockEnv.getContext<GraphQLContext?>())
+                .andReturn(GraphQLContext.of(getGraphQLContextMap(this)))
+                .atLeastOnce()
             EasyMock.replay(responseDAO, mockEnv)
             val insts = loader.load(setOf(UUID.randomUUID(), UUID.randomUUID()), mockEnv).await()
             assertThat(insts).isEqualTo(mapOf())

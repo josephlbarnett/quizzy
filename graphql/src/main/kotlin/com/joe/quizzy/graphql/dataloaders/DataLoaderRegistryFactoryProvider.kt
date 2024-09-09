@@ -28,8 +28,8 @@ class DataLoaderRegistryFactoryProvider
         private val seasonDAO: SeasonDAO,
         private val groupMeServiceFactory: GroupMeServiceFactory,
     ) : Provider<KotlinDataLoaderRegistryFactory> {
-        override fun get(): KotlinDataLoaderRegistryFactory {
-            return KotlinDataLoaderRegistryFactory(
+        override fun get(): KotlinDataLoaderRegistryFactory =
+            KotlinDataLoaderRegistryFactory(
                 ResponseGradeLoader(gradeDAO),
                 UserGradeLoader(gradeDAO),
                 BatchUserLoader(userDAO),
@@ -40,5 +40,4 @@ class DataLoaderRegistryFactoryProvider
                 GroupMeServiceLoader(groupMeServiceFactory),
                 QuestionStatsLoader(responseDAO),
             )
-        }
     }

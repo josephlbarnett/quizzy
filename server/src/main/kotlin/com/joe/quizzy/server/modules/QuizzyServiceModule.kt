@@ -53,9 +53,7 @@ import java.security.Principal
 @Produces(MediaType.APPLICATION_JSON)
 class RedirectResource {
     @GET
-    fun root(): Response {
-        return Response.status(Response.Status.FOUND).location(URI("/app/assets")).build()
-    }
+    fun root(): Response = Response.status(Response.Status.FOUND).location(URI("/app/assets")).build()
 }
 
 private const val X_FORWARDED_PROTOCOL = "X-Forwarded-Proto"
@@ -86,26 +84,28 @@ class QuizzyAuthFilterProvider
         val hasher: Hasher,
         val authorizer: Authorizer<Principal>,
     ) : Provider<AuthFilter<*, *>> {
-        override fun get(): AuthFilter<*, *> {
-            return ChainedAuthFilter<Any, Principal>(
+        override fun get(): AuthFilter<*, *> =
+            ChainedAuthFilter<Any, Principal>(
                 listOf(
                     // Use BASIC auth to get a User from credentials
-                    BasicCredentialAuthFilter.Builder<Principal>()
+                    BasicCredentialAuthFilter
+                        .Builder<Principal>()
                         .setAuthenticator(UserAuthenticator(userDAO, hasher))
                         .setAuthorizer(authorizer)
                         .buildAuthFilter(),
                     // Use cookie-based session auth to get a User from browser session
-                    CookieTokenAuthFilter.Builder<Principal>("x-quizzy-session")
+                    CookieTokenAuthFilter
+                        .Builder<Principal>("x-quizzy-session")
                         .setAuthenticator(SessionAuthenticator(sessionDAO, userDAO))
                         .setAuthorizer(authorizer)
                         .buildAuthFilter(),
-                    CookieTokenAuthFilter.Builder<Principal>("QUIZZY_AUTHORIZATION")
+                    CookieTokenAuthFilter
+                        .Builder<Principal>("QUIZZY_AUTHORIZATION")
                         .setAuthenticator(SessionAuthenticator(sessionDAO, userDAO))
                         .setAuthorizer(authorizer)
                         .buildAuthFilter(),
                 ),
             )
-        }
     }
 
 /**
@@ -122,7 +122,9 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
         graphQLQueriesBinder().addBinding().to<Query>()
         graphQLMutationsBinder().addBinding().to<Mutation>()
         // graphQLSubscriptionsBinder().addBinding().to<Subscription>()
-        KotlinMultibinder.newSetBinder<ConfiguredBundle<Configuration>>(kotlinBinder).addBinding()
+        KotlinMultibinder
+            .newSetBinder<ConfiguredBundle<Configuration>>(kotlinBinder)
+            .addBinding()
             .to<ScheduledEmailBundle>()
         resourceBinder().addBinding().to<RedirectResource>()
         resourceBinder().addBinding().to<GroupMeResource>()

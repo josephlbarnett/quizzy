@@ -20,21 +20,24 @@ class EmailNotificationDAOJooq
             if (questionUUIDs.isNotEmpty()) {
                 ctx.transaction { config ->
                     val firstRecord =
-                        config.dsl().insertInto(Tables.EMAIL_NOTIFICATIONS)
+                        config
+                            .dsl()
+                            .insertInto(Tables.EMAIL_NOTIFICATIONS)
                             .set(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE, notificationType.name)
                             .set(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID, questionUUIDs.first())
-                    questionUUIDs.slice(1 until questionUUIDs.size)
+                    questionUUIDs
+                        .slice(1 until questionUUIDs.size)
                         .fold(firstRecord) { step, questionUUID ->
-                            step.newRecord()
+                            step
+                                .newRecord()
                                 .set(Tables.EMAIL_NOTIFICATIONS.NOTIFICATION_TYPE, notificationType.name)
                                 .set(Tables.EMAIL_NOTIFICATIONS.QUESTION_ID, questionUUID)
-                        }
-                        .onDuplicateKeyIgnore().execute()
+                        }.onDuplicateKeyIgnore()
+                        .execute()
                 }
             }
         }
 
-        override fun all(): List<EmailNotification> {
-            return ctx.select().from(Tables.EMAIL_NOTIFICATIONS).fetchInto(EmailNotification::class.java)
-        }
+        override fun all(): List<EmailNotification> =
+            ctx.select().from(Tables.EMAIL_NOTIFICATIONS).fetchInto(EmailNotification::class.java)
     }

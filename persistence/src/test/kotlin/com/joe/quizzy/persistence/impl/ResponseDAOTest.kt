@@ -86,12 +86,13 @@ class ResponseDAOTest : PostgresDAOTestBase() {
         assertThat(dao.forInstance(instanceId, true).toSet()).isEqualTo(all)
         assertThat(dao.forInstance(instanceId, false).toSet()).isEqualTo(all)
         assertThat(
-            dao.forInstance(
-                instanceId,
-                false,
-                EARLY_START_TIME,
-                OffsetDateTime.now(),
-            ).toSet(),
+            dao
+                .forInstance(
+                    instanceId,
+                    false,
+                    EARLY_START_TIME,
+                    OffsetDateTime.now(),
+                ).toSet(),
         ).isEqualTo(all)
         assertThat(
             dao.forInstance(

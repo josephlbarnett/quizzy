@@ -31,9 +31,12 @@ class GroupMeInfoDAOTest : PostgresDAOTestBase() {
     fun testGroupMeInfo() {
         val instance = instanceDAO.save(Instance(null, "groupmedaoinstance", "ACTIVE"))
         ctx.transaction { config: Configuration ->
-            config.dsl().insertInto(Tables.GROUPME_INFO)
+            config
+                .dsl()
+                .insertInto(Tables.GROUPME_INFO)
                 .columns(Tables.GROUPME_INFO.INSTANCE_ID, Tables.GROUPME_INFO.GROUP_ID, Tables.GROUPME_INFO.API_KEY)
-                .values(instance.id, "groupId", "apiKey").execute()
+                .values(instance.id, "groupId", "apiKey")
+                .execute()
         }
 
         assertThat(dao.get(UUID.randomUUID())).isNull()

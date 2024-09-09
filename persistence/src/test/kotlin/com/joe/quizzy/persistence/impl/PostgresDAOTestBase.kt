@@ -12,7 +12,6 @@ val EARLY_END_TIME = OffsetDateTime.of(1990, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
  * Configure Flyway for .postgresql files
  */
 open class PostgresDAOTestBase : DAOTestBase() {
-    override fun getFlywayConfiguration(): FluentConfiguration {
-        return super.getFlywayConfiguration().sqlMigrationSuffixes(".sql", ".postgresql")
-    }
+    override fun getFlywayConfiguration(): FluentConfiguration =
+        super.getFlywayConfiguration().sqlMigrationSuffixes(".sql", ".postgresql")
 }

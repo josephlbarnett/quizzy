@@ -47,7 +47,9 @@ class ApiUserTest {
             val mockDataLoader = LeakyMock.mock<DataLoader<UserTimePeriod, List<Grade>>>()
             val t1 = OffsetDateTime.of(2022, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
             val t2 = OffsetDateTime.of(2023, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC)
-            EasyMock.expect(mockEnv.getDataLoader<UserTimePeriod, List<Grade>>("usergrades")).andReturn(mockDataLoader)
+            EasyMock
+                .expect(mockEnv.getDataLoader<UserTimePeriod, List<Grade>>("usergrades"))
+                .andReturn(mockDataLoader)
                 .anyTimes()
             EasyMock.expect(mockDataLoader.load(UserTimePeriod(u.id!!, null, null))).andReturn(
                 CompletableFuture.completedFuture(

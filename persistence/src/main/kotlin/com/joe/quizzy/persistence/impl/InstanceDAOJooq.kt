@@ -24,14 +24,10 @@ open class InstanceDAOJooq
         private fun getRecord(
             dsl: DSLContext,
             id: UUID,
-        ): InstancesRecord? {
-            return dsl.selectFrom(Tables.INSTANCES).where(Tables.INSTANCES.ID.eq(id)).fetchOne()
-        }
+        ): InstancesRecord? = dsl.selectFrom(Tables.INSTANCES).where(Tables.INSTANCES.ID.eq(id)).fetchOne()
 
         @Timed
-        override fun get(id: UUID): Instance? {
-            return getRecord(ctx, id)?.into(Instance::class.java)
-        }
+        override fun get(id: UUID): Instance? = getRecord(ctx, id)?.into(Instance::class.java)
 
         @Timed
         override fun get(ids: List<UUID>): List<Instance> {
@@ -41,8 +37,8 @@ open class InstanceDAOJooq
         }
 
         @Timed
-        override fun save(thing: Instance): Instance {
-            return ctx.transactionResult { config ->
+        override fun save(thing: Instance): Instance =
+            ctx.transactionResult { config ->
                 val thingId = thing.id
                 val record =
                     if (thingId == null) {
@@ -65,15 +61,11 @@ open class InstanceDAOJooq
                 record.store()
                 record.into(Instance::class.java)
             }
-        }
 
         @Timed
-        override fun all(): List<Instance> {
-            return ctx.select().from(Tables.INSTANCES).fetchInto(Instance::class.java)
-        }
+        override fun all(): List<Instance> = ctx.select().from(Tables.INSTANCES).fetchInto(Instance::class.java)
 
         @Timed
-        override fun stream(): Stream<Instance> {
-            return ctx.select().from(Tables.INSTANCES).fetchStreamInto(Instance::class.java)
-        }
+        override fun stream(): Stream<Instance> =
+            ctx.select().from(Tables.INSTANCES).fetchStreamInto(Instance::class.java)
     }

@@ -22,13 +22,13 @@
         </dependency>
 
         <dependency>
-            <groupId>com.trib3</groupId>
+            <groupId>io.github.josephlbarnett</groupId>
             <artifactId>db</artifactId>
             <version>${version.leakycauldron}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.trib3</groupId>
+            <groupId>io.github.josephlbarnett</groupId>
             <artifactId>json</artifactId>
             <version>${version.leakycauldron}</version>
             <scope>test</scope>
@@ -71,7 +71,7 @@
 
         <!-- test -->
         <dependency>
-            <groupId>com.trib3</groupId>
+            <groupId>io.github.josephlbarnett</groupId>
             <artifactId>testing</artifactId>
         </dependency>
     </dependencies>

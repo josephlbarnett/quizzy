@@ -47,9 +47,11 @@ class ApiInstanceTest {
         runBlocking {
             val mockDfe = LeakyMock.mock<DataFetchingEnvironment>()
             val mockLoader = LeakyMock.mock<DataLoader<InstanceTimePeriod, List<Season>>>()
-            EasyMock.expect(mockDfe.getDataLoader<InstanceTimePeriod, List<Season>>("instanceseasons"))
+            EasyMock
+                .expect(mockDfe.getDataLoader<InstanceTimePeriod, List<Season>>("instanceseasons"))
                 .andReturn(mockLoader)
-            EasyMock.expect(mockLoader.load(InstanceTimePeriod(i.id!!, null, null)))
+            EasyMock
+                .expect(mockLoader.load(InstanceTimePeriod(i.id!!, null, null)))
                 .andReturn(
                     CompletableFuture.completedFuture(
                         listOf(
@@ -69,9 +71,11 @@ class ApiInstanceTest {
         runBlocking {
             val mockDfe = LeakyMock.mock<DataFetchingEnvironment>()
             val mockLoader = LeakyMock.mock<DataLoader<UUID, GroupMeService?>>()
-            EasyMock.expect(mockDfe.getDataLoader<UUID, GroupMeService?>("groupmeservice"))
+            EasyMock
+                .expect(mockDfe.getDataLoader<UUID, GroupMeService?>("groupmeservice"))
                 .andReturn(mockLoader)
-            EasyMock.expect(mockLoader.load(i.id))
+            EasyMock
+                .expect(mockLoader.load(i.id))
                 .andReturn(
                     CompletableFuture.completedFuture(
                         null,

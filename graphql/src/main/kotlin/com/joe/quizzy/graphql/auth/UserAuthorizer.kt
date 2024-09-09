@@ -9,7 +9,5 @@ class UserAuthorizer : Authorizer<Principal> {
         principal: Principal,
         role: String,
         requestContext: ContainerRequestContext?,
-    ): Boolean {
-        return principal is UserPrincipal && (role != "ADMIN" || principal.user.admin)
-    }
+    ): Boolean = principal is UserPrincipal && (role != "ADMIN" || principal.user.admin)
 }

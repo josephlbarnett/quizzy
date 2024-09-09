@@ -66,11 +66,13 @@ class QuestionDAOTest : PostgresDAOTestBase() {
             dao.closed(user.copy(id = userId)).map { it.body }.first(),
         ).isEqualTo("past")
         assertThat(
-            dao.closed(
-                user.copy(id = userId),
-                EARLY_START_TIME,
-                OffsetDateTime.now(),
-            ).map { it.body }.first(),
+            dao
+                .closed(
+                    user.copy(id = userId),
+                    EARLY_START_TIME,
+                    OffsetDateTime.now(),
+                ).map { it.body }
+                .first(),
         ).isEqualTo("past")
         assertThat(
             dao.closed(

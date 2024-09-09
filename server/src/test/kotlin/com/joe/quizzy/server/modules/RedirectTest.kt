@@ -26,14 +26,14 @@ class RedirectTest
         @Named(TribeApplicationModule.APPLICATION_SERVLETS_BIND_NAME)
         val appServlets: Set<ServletConfig>,
     ) : ResourceTestBase<RedirectResource>() {
-        override fun getResource(): RedirectResource {
-            return RedirectResource()
-        }
+        override fun getResource(): RedirectResource = RedirectResource()
 
         @Test
         fun testAssetsRedirect() {
             val response =
-                resource.target("/").property(FOLLOW_REDIRECTS, false)
+                resource
+                    .target("/")
+                    .property(FOLLOW_REDIRECTS, false)
                     .request()
                     .get()
             assertThat(response.status).isEqualTo(302)

@@ -9,14 +9,10 @@ private const val PARALLELISM = 2
 class Argon2Hasher : Hasher {
     private val argon = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id)
 
-    override fun hash(password: String): String {
-        return argon.hash(ITERATIONS, MEMORY, PARALLELISM, password.toCharArray())
-    }
+    override fun hash(password: String): String = argon.hash(ITERATIONS, MEMORY, PARALLELISM, password.toCharArray())
 
     override fun verify(
         hash: String,
         password: String,
-    ): Boolean {
-        return argon.verify(hash, password.toCharArray())
-    }
+    ): Boolean = argon.verify(hash, password.toCharArray())
 }

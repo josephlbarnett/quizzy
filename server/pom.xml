@@ -17,7 +17,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.trib3</groupId>
+            <groupId>io.github.josephlbarnett</groupId>
             <artifactId>build-resources</artifactId>
             <version>${version.leakycauldron}</version>
             <scope>runtime</scope> <!-- needed for assembly, but excluded from actual runtime by shade config -->
@@ -37,13 +37,13 @@
         </dependency>
 
         <dependency>
-            <groupId>com.trib3</groupId>
+            <groupId>io.github.josephlbarnett</groupId>
             <artifactId>graphql</artifactId>
             <version>${version.leakycauldron}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.trib3</groupId>
+            <groupId>io.github.josephlbarnett</groupId>
             <artifactId>server</artifactId>
             <version>${version.leakycauldron}</version>
         </dependency>
@@ -135,7 +135,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.trib3</groupId>
+            <groupId>io.github.josephlbarnett</groupId>
             <artifactId>testing</artifactId>
             <version>${version.leakycauldron}</version>
             <scope>test</scope>

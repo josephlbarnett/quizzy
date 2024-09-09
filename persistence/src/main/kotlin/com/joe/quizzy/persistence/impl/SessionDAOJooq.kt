@@ -24,18 +24,14 @@ open class SessionDAOJooq
         private fun getRecord(
             dsl: DSLContext,
             id: UUID,
-        ): SessionsRecord? {
-            return dsl.selectFrom(Tables.SESSIONS).where(Tables.SESSIONS.ID.eq(id)).fetchOne()
-        }
+        ): SessionsRecord? = dsl.selectFrom(Tables.SESSIONS).where(Tables.SESSIONS.ID.eq(id)).fetchOne()
 
         @Timed
-        override fun get(id: UUID): Session? {
-            return getRecord(ctx, id)?.into(Session::class.java)
-        }
+        override fun get(id: UUID): Session? = getRecord(ctx, id)?.into(Session::class.java)
 
         @Timed
-        override fun save(thing: Session): Session {
-            return ctx.transactionResult { config ->
+        override fun save(thing: Session): Session =
+            ctx.transactionResult { config ->
                 val thingId = thing.id
                 val record =
                     if (thingId == null) {
@@ -58,24 +54,18 @@ open class SessionDAOJooq
                 record.store()
                 record.into(Session::class.java)
             }
-        }
 
         @Timed
-        override fun all(): List<Session> {
-            return ctx.select().from(Tables.SESSIONS).fetchInto(Session::class.java)
-        }
+        override fun all(): List<Session> = ctx.select().from(Tables.SESSIONS).fetchInto(Session::class.java)
 
         @Timed
-        override fun stream(): Stream<Session> {
-            return ctx.select().from(Tables.SESSIONS).fetchStreamInto(Session::class.java)
-        }
+        override fun stream(): Stream<Session> = ctx.select().from(Tables.SESSIONS).fetchStreamInto(Session::class.java)
 
         @Timed
-        override fun delete(thing: Session): Int {
-            return ctx.transactionResult { config ->
+        override fun delete(thing: Session): Int =
+            ctx.transactionResult { config ->
                 val query = config.dsl().deleteFrom(Tables.SESSIONS).where(Tables.SESSIONS.ID.eq(thing.id))
                 log.info("$query")
                 query.execute()
             }
-        }
     }

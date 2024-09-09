@@ -81,7 +81,8 @@ class Mutation
                 if (userId != null) {
                     val newSession = sessionDAO.save(Session(null, userId, OffsetDateTime.now(), OffsetDateTime.now()))
                     dfe.graphQlContext.get<ResponseBuilder>()?.cookie(
-                        NewCookie.Builder(COOKIE_NAME)
+                        NewCookie
+                            .Builder(COOKIE_NAME)
                             .value(newSession.id.toString())
                             .maxAge(MAX_COOKIE_AGE)
                             .secure(true)
@@ -114,9 +115,11 @@ class Mutation
             val principal = dfe.graphQlContext.get<Principal>()
             if (principal is UserPrincipal) {
                 val passCheck =
-                    userAuthenticator.authenticate(
-                        BasicCredentials(principal.user.email, oldPass),
-                    ).map { it as? UserPrincipal }.orElse(null)
+                    userAuthenticator
+                        .authenticate(
+                            BasicCredentials(principal.user.email, oldPass),
+                        ).map { it as? UserPrincipal }
+                        .orElse(null)
                 if (passCheck != null && passCheck.user.id != null && passCheck.user.id == principal.user.id) {
                     userDAO.savePassword(passCheck.user, userAuthenticator.hasher.hash(newPass))
                     return true
@@ -129,7 +132,8 @@ class Mutation
             val principal = dfe.graphQlContext.get<Principal>()
             if (principal is UserPrincipal) {
                 dfe.graphQlContext.get<ResponseBuilder>()?.cookie(
-                    NewCookie.Builder(COOKIE_NAME)
+                    NewCookie
+                        .Builder(COOKIE_NAME)
                         .value("")
                         .maxAge(-1)
                         .expiry(Date(0)) // expire 1970
@@ -150,7 +154,14 @@ class Mutation
             val user = userDAO.getByEmail(email)
             if (user != null) {
                 gmailServiceFactory.getService(user.instanceId)?.let { gmail ->
-                    val instanceAddress = gmail.oauth.userinfo().v2().me().get().execute().email
+                    val instanceAddress =
+                        gmail.oauth
+                            .userinfo()
+                            .v2()
+                            .me()
+                            .get()
+                            .execute()
+                            .email
                     val instanceName = instanceDAO.get(user.instanceId)?.name ?: "Quizzy"
                     val message = MimeMessage(jakarta.mail.Session.getDefaultInstance(Properties(), null))
                     val code = UUID.randomUUID().toString()
@@ -161,16 +172,17 @@ class Mutation
                     )
                     message.subject = "$instanceName Password Reset"
                     message.setContent(
-                        passwordResetHtmlTemplate?.execute(
-                            StringWriter(),
-                            mapOf(
-                                "instanceName" to instanceName,
-                                "user" to user,
-                                "code" to code,
-                                "link" to "https://${appConfig.corsDomains[0]}/app/assets#/passreset" +
-                                    "?code=$code&email=${URLEncoder.encode(user.email, "UTF-8")}",
-                            ),
-                        ).toString(),
+                        passwordResetHtmlTemplate
+                            ?.execute(
+                                StringWriter(),
+                                mapOf(
+                                    "instanceName" to instanceName,
+                                    "user" to user,
+                                    "code" to code,
+                                    "link" to "https://${appConfig.corsDomains[0]}/app/assets#/passreset" +
+                                        "?code=$code&email=${URLEncoder.encode(user.email, "UTF-8")}",
+                                ),
+                            ).toString(),
                         MediaType.TEXT_HTML,
                     )
                     userDAO.save(user.copy(passwordResetToken = userAuthenticator.hasher.hash(code)))
@@ -199,9 +211,7 @@ class Mutation
         fun users(
             dfe: DataFetchingEnvironment,
             users: List<User>,
-        ): List<User?> {
-            return users.map { user(dfe, it) }
-        }
+        ): List<User?> = users.map { user(dfe, it) }
 
         private fun sendNewUserEmail(
             principal: UserPrincipal,
@@ -209,7 +219,14 @@ class Mutation
             password: String?,
         ) {
             gmailServiceFactory.getService(principal.user.instanceId)?.let { gmail ->
-                val instanceAddress = gmail.oauth.userinfo().v2().me().get().execute().email
+                val instanceAddress =
+                    gmail.oauth
+                        .userinfo()
+                        .v2()
+                        .me()
+                        .get()
+                        .execute()
+                        .email
                 val instanceName = instanceDAO.get(principal.user.instanceId)?.name ?: "Quizzy"
                 val message = MimeMessage(jakarta.mail.Session.getDefaultInstance(Properties(), null))
                 message.setFrom("$instanceName <$instanceAddress>")
@@ -219,16 +236,17 @@ class Mutation
                 )
                 message.subject = "Welcome to $instanceName"
                 message.setContent(
-                    newUserHtmlTemplate?.execute(
-                        StringWriter(),
-                        mapOf(
-                            "instanceName" to instanceName,
-                            "user" to savedUser,
-                            "admin" to principal.user,
-                            "password" to password,
-                            "link" to "https://${appConfig.corsDomains[0]}/app/assets#/me",
-                        ),
-                    ).toString(),
+                    newUserHtmlTemplate
+                        ?.execute(
+                            StringWriter(),
+                            mapOf(
+                                "instanceName" to instanceName,
+                                "user" to savedUser,
+                                "admin" to principal.user,
+                                "password" to password,
+                                "link" to "https://${appConfig.corsDomains[0]}/app/assets#/me",
+                            ),
+                        ).toString(),
                     MediaType.TEXT_HTML,
                 )
                 gmail.gmail.sendEmail("me", message).execute()
@@ -271,9 +289,7 @@ class Mutation
             user: User,
             inviteCode: UUID,
             password: String,
-        ): User? {
-            return userDAO.create(user, inviteCode, userAuthenticator.hasher.hash(password))
-        }
+        ): User? = userDAO.create(user, inviteCode, userAuthenticator.hasher.hash(password))
 
         fun response(
             dfe: DataFetchingEnvironment,
@@ -298,12 +314,8 @@ class Mutation
         }
 
         @GraphQLAuth(["ADMIN"])
-        fun grade(grade: Grade): Grade? {
-            return gradeDAO.save(grade)
-        }
+        fun grade(grade: Grade): Grade? = gradeDAO.save(grade)
 
         @GraphQLAuth(["ADMIN"])
-        fun question(question: Question): Question? {
-            return questionDAO.save(question)
-        }
+        fun question(question: Question): Question? = questionDAO.save(question)
     }

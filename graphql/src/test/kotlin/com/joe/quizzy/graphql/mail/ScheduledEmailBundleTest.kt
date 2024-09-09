@@ -77,10 +77,12 @@ class ScheduledEmailBundleTest {
                     threadPool.asCoroutineDispatcher(),
                     1,
                 )
-            EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andAnswer {
-                latch.countDown()
-                listOf()
-            }.once()
+            EasyMock
+                .expect(mockQuestionDAO.active(NotificationType.REMINDER))
+                .andAnswer {
+                    latch.countDown()
+                    listOf()
+                }.once()
             EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(listOf()).once()
             support.replayAll()
             launch {
@@ -172,72 +174,82 @@ class ScheduledEmailBundleTest {
                 )
             val authorId = UUID.randomUUID()
             val instanceId = UUID.randomUUID()
-            EasyMock.expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
-                .andReturn(null).once()
-            EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
-                listOf(
-                    Question(
-                        UUID.randomUUID(),
-                        authorId,
-                        "q2",
-                        "a2",
-                        "r2",
-                        OffsetDateTime.now().minusDays(2),
-                        OffsetDateTime.now().minusHours(1),
+            EasyMock
+                .expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
+                .andReturn(null)
+                .once()
+            EasyMock
+                .expect(mockQuestionDAO.closed(NotificationType.ANSWER))
+                .andReturn(
+                    listOf(
+                        Question(
+                            UUID.randomUUID(),
+                            authorId,
+                            "q2",
+                            "a2",
+                            "r2",
+                            OffsetDateTime.now().minusDays(2),
+                            OffsetDateTime.now().minusHours(1),
+                        ),
                     ),
-                ),
-            ).once()
-            EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andReturn(
-                listOf(
-                    Question(
-                        UUID.randomUUID(),
-                        authorId,
-                        "q4",
-                        "a4",
-                        "r4",
-                        OffsetDateTime.now().minusDays(1),
-                        OffsetDateTime.now().plusHours(1),
+                ).once()
+            EasyMock
+                .expect(mockQuestionDAO.active(NotificationType.REMINDER))
+                .andReturn(
+                    listOf(
+                        Question(
+                            UUID.randomUUID(),
+                            authorId,
+                            "q4",
+                            "a4",
+                            "r4",
+                            OffsetDateTime.now().minusDays(1),
+                            OffsetDateTime.now().plusHours(1),
+                        ),
                     ),
-                ),
-            ).once()
-            EasyMock.expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>())).andReturn(
-                listOf(
-                    User(
-                        authorId,
-                        instanceId,
-                        "Joe",
-                        "joe@joe.com",
-                        "",
-                        true,
-                        "",
-                        false,
+                ).once()
+            EasyMock
+                .expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>()))
+                .andReturn(
+                    listOf(
+                        User(
+                            authorId,
+                            instanceId,
+                            "Joe",
+                            "joe@joe.com",
+                            "",
+                            true,
+                            "",
+                            false,
+                        ),
                     ),
-                ),
-            ).once()
-            EasyMock.expect(mockUserDAO.getByInstance(instanceId)).andReturn(
-                listOf(
-                    User(
-                        authorId,
-                        instanceId,
-                        "Joe",
-                        "joe@joe.com",
-                        "",
-                        true,
-                        "",
-                        false,
+                ).once()
+            EasyMock
+                .expect(mockUserDAO.getByInstance(instanceId))
+                .andReturn(
+                    listOf(
+                        User(
+                            authorId,
+                            instanceId,
+                            "Joe",
+                            "joe@joe.com",
+                            "",
+                            true,
+                            "",
+                            false,
+                        ),
+                        User(
+                            UUID.randomUUID(),
+                            instanceId,
+                            "jim",
+                            "jim@jim.com",
+                            "",
+                            false,
+                            "",
+                            true,
+                        ),
                     ),
-                    User(
-                        UUID.randomUUID(),
-                        instanceId,
-                        "jim",
-                        "jim@jim.com",
-                        "",
-                        false,
-                        "",
-                        true,
-                    ),
-                ),
-            ).once()
+                ).once()
             EasyMock.expect(mockGmailServiceFactory.getService(instanceId)).andReturn(null).once()
             support.replayAll()
             bundle.sendEmails(OffsetDateTime.now())
@@ -300,10 +312,13 @@ class ScheduledEmailBundleTest {
                         ),
                     ),
                 )
-            EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
-                closedQuestions,
-            ).once()
-            EasyMock.expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
+            EasyMock
+                .expect(mockQuestionDAO.closed(NotificationType.ANSWER))
+                .andReturn(
+                    closedQuestions,
+                ).once()
+            EasyMock
+                .expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
                 .andReturn(mockGroupMeService)
             val activeQuestions =
                 listOf(
@@ -331,47 +346,53 @@ class ScheduledEmailBundleTest {
                         ),
                     ),
                 )
-            EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andReturn(
-                activeQuestions,
-            ).once()
-            EasyMock.expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>())).andReturn(
-                listOf(
-                    User(
-                        authorId,
-                        instanceId,
-                        "Joe",
-                        "joe@joe.com",
-                        "",
-                        true,
-                        "",
-                        false,
+            EasyMock
+                .expect(mockQuestionDAO.active(NotificationType.REMINDER))
+                .andReturn(
+                    activeQuestions,
+                ).once()
+            EasyMock
+                .expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>()))
+                .andReturn(
+                    listOf(
+                        User(
+                            authorId,
+                            instanceId,
+                            "Joe",
+                            "joe@joe.com",
+                            "",
+                            true,
+                            "",
+                            false,
+                        ),
                     ),
-                ),
-            ).once()
-            EasyMock.expect(mockUserDAO.getByInstance(instanceId)).andReturn(
-                listOf(
-                    User(
-                        authorId,
-                        instanceId,
-                        "Joe",
-                        "joe@joe.com",
-                        "",
-                        true,
-                        "",
-                        false,
+                ).once()
+            EasyMock
+                .expect(mockUserDAO.getByInstance(instanceId))
+                .andReturn(
+                    listOf(
+                        User(
+                            authorId,
+                            instanceId,
+                            "Joe",
+                            "joe@joe.com",
+                            "",
+                            true,
+                            "",
+                            false,
+                        ),
+                        User(
+                            UUID.randomUUID(),
+                            instanceId,
+                            "jim",
+                            "jim@jim.com",
+                            "",
+                            false,
+                            "",
+                            true,
+                        ),
                     ),
-                    User(
-                        UUID.randomUUID(),
-                        instanceId,
-                        "jim",
-                        "jim@jim.com",
-                        "",
-                        false,
-                        "",
-                        true,
-                    ),
-                ),
-            ).once()
+                ).once()
             val sentMessageCapture = EasyMock.newCapture<Message>()
             val gmsMock: GmailService = support.mock()
             val gmailMock: Gmail = support.mock()
@@ -387,7 +408,8 @@ class ScheduledEmailBundleTest {
             EasyMock.expect(gmsMock.gmail).andReturn(gmailMock)
             EasyMock.expect(gmailMock.users()).andReturn(usersMock)
             EasyMock.expect(usersMock.messages()).andReturn(messagesMock)
-            EasyMock.expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
+            EasyMock
+                .expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
                 .andReturn(sendMock)
             EasyMock.expect(sendMock.execute()).andReturn(Message())
             EasyMock.expect(gmsMock.oauth).andReturn(oauthMock)
@@ -396,7 +418,8 @@ class ScheduledEmailBundleTest {
             EasyMock.expect(uiv2Mock.me()).andReturn(meMock)
             EasyMock.expect(meMock.get()).andReturn(meGetMock)
             EasyMock.expect(meGetMock.execute()).andReturn(Userinfo().apply { email = "admin@gmail.com" })
-            EasyMock.expect(mockInstanceDAO.get(instanceId))
+            EasyMock
+                .expect(mockInstanceDAO.get(instanceId))
                 .andReturn(Instance(instanceId, "Instance Name", "ACTIVE"))
             EasyMock.expect(mockGmailServiceFactory.getService(instanceId)).andReturn(gmsMock).once()
             EasyMock.expect(
@@ -477,10 +500,13 @@ class ScheduledEmailBundleTest {
             val authorId = UUID.randomUUID()
             val instanceId = UUID.randomUUID()
             val closedQuestions = listOf<Question>()
-            EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
-                closedQuestions,
-            ).once()
-            EasyMock.expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
+            EasyMock
+                .expect(mockQuestionDAO.closed(NotificationType.ANSWER))
+                .andReturn(
+                    closedQuestions,
+                ).once()
+            EasyMock
+                .expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
                 .andReturn(mockGroupMeService)
             val activeQuestions =
                 listOf(
@@ -494,47 +520,53 @@ class ScheduledEmailBundleTest {
                         OffsetDateTime.now().plusHours(1),
                     ),
                 )
-            EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andReturn(
-                activeQuestions,
-            ).once()
-            EasyMock.expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>())).andReturn(
-                listOf(
-                    User(
-                        authorId,
-                        instanceId,
-                        "Joe",
-                        "joe@joe.com",
-                        "",
-                        true,
-                        "",
-                        false,
+            EasyMock
+                .expect(mockQuestionDAO.active(NotificationType.REMINDER))
+                .andReturn(
+                    activeQuestions,
+                ).once()
+            EasyMock
+                .expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>()))
+                .andReturn(
+                    listOf(
+                        User(
+                            authorId,
+                            instanceId,
+                            "Joe",
+                            "joe@joe.com",
+                            "",
+                            true,
+                            "",
+                            false,
+                        ),
                     ),
-                ),
-            ).once()
-            EasyMock.expect(mockUserDAO.getByInstance(instanceId)).andReturn(
-                listOf(
-                    User(
-                        authorId,
-                        instanceId,
-                        "Joe",
-                        "joe@joe.com",
-                        "",
-                        true,
-                        "",
-                        false,
+                ).once()
+            EasyMock
+                .expect(mockUserDAO.getByInstance(instanceId))
+                .andReturn(
+                    listOf(
+                        User(
+                            authorId,
+                            instanceId,
+                            "Joe",
+                            "joe@joe.com",
+                            "",
+                            true,
+                            "",
+                            false,
+                        ),
+                        User(
+                            UUID.randomUUID(),
+                            instanceId,
+                            "jim",
+                            "jim@jim.com",
+                            "",
+                            false,
+                            "",
+                            true,
+                        ),
                     ),
-                    User(
-                        UUID.randomUUID(),
-                        instanceId,
-                        "jim",
-                        "jim@jim.com",
-                        "",
-                        false,
-                        "",
-                        true,
-                    ),
-                ),
-            ).once()
+                ).once()
             val sentMessageCapture = EasyMock.newCapture<Message>()
             val gmsMock: GmailService = support.mock()
             val gmailMock: Gmail = support.mock()
@@ -550,7 +582,8 @@ class ScheduledEmailBundleTest {
             EasyMock.expect(gmsMock.gmail).andReturn(gmailMock)
             EasyMock.expect(gmailMock.users()).andReturn(usersMock)
             EasyMock.expect(usersMock.messages()).andReturn(messagesMock)
-            EasyMock.expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
+            EasyMock
+                .expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
                 .andReturn(sendMock)
             EasyMock.expect(sendMock.execute()).andReturn(Message())
             EasyMock.expect(gmsMock.oauth).andReturn(oauthMock)
@@ -559,7 +592,8 @@ class ScheduledEmailBundleTest {
             EasyMock.expect(uiv2Mock.me()).andReturn(meMock)
             EasyMock.expect(meMock.get()).andReturn(meGetMock)
             EasyMock.expect(meGetMock.execute()).andReturn(Userinfo().apply { email = "admin@gmail.com" })
-            EasyMock.expect(mockInstanceDAO.get(instanceId))
+            EasyMock
+                .expect(mockInstanceDAO.get(instanceId))
                 .andReturn(Instance(instanceId, "Instance Name", "ACTIVE"))
             EasyMock.expect(mockGmailServiceFactory.getService(instanceId)).andReturn(gmsMock).once()
             EasyMock.expect(
@@ -642,53 +676,62 @@ class ScheduledEmailBundleTest {
                         OffsetDateTime.now().minusHours(1),
                     ),
                 )
-            EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(
-                closedQuestions,
-            ).once()
-            EasyMock.expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
+            EasyMock
+                .expect(mockQuestionDAO.closed(NotificationType.ANSWER))
+                .andReturn(
+                    closedQuestions,
+                ).once()
+            EasyMock
+                .expect(mockGroupMeServiceFactory.create(EasyMock.anyObject() ?: UUID.randomUUID()))
                 .andReturn(mockGroupMeService)
             val activeQuestions = listOf<Question>()
-            EasyMock.expect(mockQuestionDAO.active(NotificationType.REMINDER)).andReturn(
-                activeQuestions,
-            ).once()
-            EasyMock.expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>())).andReturn(
-                listOf(
-                    User(
-                        authorId,
-                        instanceId,
-                        "Joe",
-                        "joe@joe.com",
-                        "",
-                        true,
-                        "",
-                        false,
+            EasyMock
+                .expect(mockQuestionDAO.active(NotificationType.REMINDER))
+                .andReturn(
+                    activeQuestions,
+                ).once()
+            EasyMock
+                .expect(mockUserDAO.get(LeakyMock.anyObject<List<UUID>>()))
+                .andReturn(
+                    listOf(
+                        User(
+                            authorId,
+                            instanceId,
+                            "Joe",
+                            "joe@joe.com",
+                            "",
+                            true,
+                            "",
+                            false,
+                        ),
                     ),
-                ),
-            ).once()
-            EasyMock.expect(mockUserDAO.getByInstance(instanceId)).andReturn(
-                listOf(
-                    User(
-                        authorId,
-                        instanceId,
-                        "Joe",
-                        "joe@joe.com",
-                        "",
-                        true,
-                        "",
-                        false,
+                ).once()
+            EasyMock
+                .expect(mockUserDAO.getByInstance(instanceId))
+                .andReturn(
+                    listOf(
+                        User(
+                            authorId,
+                            instanceId,
+                            "Joe",
+                            "joe@joe.com",
+                            "",
+                            true,
+                            "",
+                            false,
+                        ),
+                        User(
+                            UUID.randomUUID(),
+                            instanceId,
+                            "jim",
+                            "jim@jim.com",
+                            "",
+                            false,
+                            "",
+                            true,
+                        ),
                     ),
-                    User(
-                        UUID.randomUUID(),
-                        instanceId,
-                        "jim",
-                        "jim@jim.com",
-                        "",
-                        false,
-                        "",
-                        true,
-                    ),
-                ),
-            ).once()
+                ).once()
             val sentMessageCapture = EasyMock.newCapture<Message>()
             val gmsMock: GmailService = support.mock()
             val gmailMock: Gmail = support.mock()
@@ -704,7 +747,8 @@ class ScheduledEmailBundleTest {
             EasyMock.expect(gmsMock.gmail).andReturn(gmailMock)
             EasyMock.expect(gmailMock.users()).andReturn(usersMock)
             EasyMock.expect(usersMock.messages()).andReturn(messagesMock)
-            EasyMock.expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
+            EasyMock
+                .expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
                 .andReturn(sendMock)
             EasyMock.expect(sendMock.execute()).andReturn(Message())
             EasyMock.expect(gmsMock.oauth).andReturn(oauthMock)
@@ -713,7 +757,8 @@ class ScheduledEmailBundleTest {
             EasyMock.expect(uiv2Mock.me()).andReturn(meMock)
             EasyMock.expect(meMock.get()).andReturn(meGetMock)
             EasyMock.expect(meGetMock.execute()).andReturn(Userinfo().apply { email = "admin@gmail.com" })
-            EasyMock.expect(mockInstanceDAO.get(instanceId))
+            EasyMock
+                .expect(mockInstanceDAO.get(instanceId))
                 .andReturn(Instance(instanceId, "Instance Name", "ACTIVE"))
             EasyMock.expect(mockGmailServiceFactory.getService(instanceId)).andReturn(gmsMock).once()
             EasyMock.expect(

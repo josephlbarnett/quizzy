@@ -54,21 +54,24 @@ data class ApiQuestion(
     fun response(dfe: DataFetchingEnvironment): CompletableFuture<ApiResponse?> {
         val principal = dfe.graphQlContext.get<Principal>()
         if (principal is UserPrincipal && id != null) {
-            return dfe.getDataLoader<UUID, Response>("questionresponses")
-                .load(id)
-                .thenApply { it?.let { r -> ApiResponse(r, defaultScore) } }
+            return dfe
+                .getDataLoader<UUID, Response>("questionresponses")
+                ?.load(id)
+                ?.thenApply { it?.let { r -> ApiResponse(r, defaultScore) } } ?: CompletableFuture.completedFuture(null)
         }
         return CompletableFuture.completedFuture(null)
     }
 
-    fun author(dfe: DataFetchingEnvironment): CompletableFuture<ApiUser?> {
-        return dfe.getDataLoader<UUID, User>("batchusers").load(authorId)
-            .thenApply { it?.let { u -> ApiUser(u, defaultScore) } }
-    }
+    fun author(dfe: DataFetchingEnvironment): CompletableFuture<ApiUser?> =
+        dfe
+            .getDataLoader<UUID, User>("batchusers")
+            ?.load(authorId)
+            ?.thenApply { it?.let { u -> ApiUser(u, defaultScore) } } ?: CompletableFuture.completedFuture(null)
 
     @GraphQLAuth(["ADMIN"])
-    fun percentCorrect(dfe: DataFetchingEnvironment): CompletableFuture<Double?> {
-        return dfe.getDataLoader<UUID, Pair<Int, Int>>("questionstats").load(id)
-            .thenApply { it?.let { p -> PERCENT * p.second / p.first } }
-    }
+    fun percentCorrect(dfe: DataFetchingEnvironment): CompletableFuture<Double?> =
+        dfe
+            .getDataLoader<UUID, Pair<Int, Int>>("questionstats")
+            ?.load(id)
+            ?.thenApply { it?.let { p -> PERCENT * p.second / p.first } } ?: CompletableFuture.completedFuture(null)
 }

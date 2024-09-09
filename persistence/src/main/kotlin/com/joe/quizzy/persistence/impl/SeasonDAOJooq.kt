@@ -18,8 +18,10 @@ open class SeasonDAOJooq
             instanceIds: List<UUID>,
             startTime: OffsetDateTime?,
             endTime: OffsetDateTime?,
-        ): Map<UUID, List<Season>> {
-            return ctx.select().from(Tables.SEASONS)
+        ): Map<UUID, List<Season>> =
+            ctx
+                .select()
+                .from(Tables.SEASONS)
                 .where(
                     DSL.and(
                         listOfNotNull(
@@ -28,8 +30,6 @@ open class SeasonDAOJooq
                             endTime?.let { Tables.SEASONS.START_TIME.le(it) },
                         ),
                     ),
-                )
-                .fetch()
+                ).fetch()
                 .intoGroups(Tables.SEASONS.INSTANCE_ID, Season::class.java)
-        }
     }

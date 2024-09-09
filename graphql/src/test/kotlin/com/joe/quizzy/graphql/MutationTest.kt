@@ -54,7 +54,9 @@ import java.util.UUID
  * [EasyMock.replay] will be called on all mocks after [initBlock] executes,
  * and [EasyMock.verify] will be called on all mocks after [test] executes.
  */
-class MockMutation(initBlock: MockMutation.() -> Unit) : EasyMockSupport() {
+class MockMutation(
+    initBlock: MockMutation.() -> Unit,
+) : EasyMockSupport() {
     val scope = CoroutineScope(Dispatchers.Default)
     val questionDAO: QuestionDAO = mock()
     val sessionDAO: SessionDAO = mock()
@@ -129,7 +131,8 @@ class MutationTest {
         MockMutation {
             EasyMock.expect(userDAO.getByEmail("user")).andReturn(user)
             EasyMock.expect(hasher.verify("pass", "pass")).andReturn(true)
-            EasyMock.expect(sessionDAO.save(EasyMock.anyObject() ?: session))
+            EasyMock
+                .expect(sessionDAO.save(EasyMock.anyObject() ?: session))
                 .andReturn(session)
         }.test {
             assertThat(mutation.login(emptyContext, "user", "pass")).isTrue()
@@ -209,7 +212,11 @@ class MutationTest {
         }.test {
             assertThat(mutation.logout(userSessionContext)).isTrue()
             val response = userSessionContext.graphQlContext.get<ResponseBuilder>()!!.build()
-            assertThat(response.cookies.entries.first().value.expiry.time).isEqualTo(0)
+            assertThat(
+                response.cookies.entries
+                    .first()
+                    .value.expiry.time,
+            ).isEqualTo(0)
         }
     }
 
@@ -221,7 +228,11 @@ class MutationTest {
         MockMutation { }.test {
             assertThat(mutation.logout(userNoSessionContext)).isTrue()
             val response = userNoSessionContext.graphQlContext.get<ResponseBuilder>()!!.build()
-            assertThat(response.cookies.entries.first().value.expiry.time).isEqualTo(0)
+            assertThat(
+                response.cookies.entries
+                    .first()
+                    .value.expiry.time,
+            ).isEqualTo(0)
         }
     }
 
@@ -336,9 +347,11 @@ class MutationTest {
         MockMutation {
             EasyMock.expect(userDAO.getByEmail(user.email)).andReturn(user)
             EasyMock.expect(instanceDAO.get(user.instanceId)).andReturn(persistedInstance)
-            EasyMock.expect(userAuthenticator.hasher.hash(EasyMock.capture(generatedCodeCapture) ?: ""))
+            EasyMock
+                .expect(userAuthenticator.hasher.hash(EasyMock.capture(generatedCodeCapture) ?: ""))
                 .andReturn("hashedCode")
-            EasyMock.expect(userDAO.save(user.copy(passwordResetToken = "hashedCode")))
+            EasyMock
+                .expect(userDAO.save(user.copy(passwordResetToken = "hashedCode")))
                 .andReturn(user.copy(passwordResetToken = "hashedCode"))
 
             val gmsMock: GmailService = mock()
@@ -356,7 +369,8 @@ class MutationTest {
             EasyMock.expect(gmsMock.gmail).andReturn(gmailMock)
             EasyMock.expect(gmailMock.users()).andReturn(usersMock)
             EasyMock.expect(usersMock.messages()).andReturn(messagesMock)
-            EasyMock.expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
+            EasyMock
+                .expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
                 .andReturn(sendMock)
             EasyMock.expect(sendMock.execute()).andReturn(Message())
             EasyMock.expect(gmsMock.oauth).andReturn(oauthMock)
@@ -421,9 +435,11 @@ class MutationTest {
         MockMutation {
             EasyMock.expect(hasher.hash("newpassword")).andReturn("newhash")
             EasyMock.expect(hasher.verify("secrethash", "secretcode")).andReturn(true)
-            EasyMock.expect(userDAO.getByEmail(user.email))
+            EasyMock
+                .expect(userDAO.getByEmail(user.email))
                 .andReturn(user.copy(passwordResetToken = "secrethash"))
-            EasyMock.expect(userDAO.savePassword(user.copy(passwordResetToken = "secrethash"), "newhash"))
+            EasyMock
+                .expect(userDAO.savePassword(user.copy(passwordResetToken = "secrethash"), "newhash"))
                 .andReturn(1)
         }.test {
             assertThat(
@@ -436,7 +452,8 @@ class MutationTest {
     fun testCompletePasswordResetFailed() {
         MockMutation {
             EasyMock.expect(hasher.verify("secrethash", "wrongsecretcode")).andReturn(false)
-            EasyMock.expect(userDAO.getByEmail(user.email))
+            EasyMock
+                .expect(userDAO.getByEmail(user.email))
                 .andReturn(user.copy(passwordResetToken = "secrethash"))
         }.test {
             assertThat(
@@ -448,7 +465,8 @@ class MutationTest {
     @Test
     fun testCompletePasswordResetNeverRequested() {
         MockMutation {
-            EasyMock.expect(userDAO.getByEmail(user.email))
+            EasyMock
+                .expect(userDAO.getByEmail(user.email))
                 .andReturn(user)
         }.test {
             assertThat(
@@ -460,7 +478,8 @@ class MutationTest {
     @Test
     fun testCompletePasswordResetNoUser() {
         MockMutation {
-            EasyMock.expect(userDAO.getByEmail(user.email))
+            EasyMock
+                .expect(userDAO.getByEmail(user.email))
                 .andReturn(null)
         }.test {
             assertThat(
@@ -489,9 +508,10 @@ class MutationTest {
             EasyMock.expect(questionDAO.save(question)).andReturn(question.copy(id = UUID.randomUUID()))
         }.test {
             assertThat(
-                mutation.question(
-                    question,
-                )?.id,
+                mutation
+                    .question(
+                        question,
+                    )?.id,
             ).isNotNull()
         }
     }
@@ -559,9 +579,10 @@ class MutationTest {
             EasyMock.expect(gradeDAO.save(grade)).andReturn(grade.copy(id = UUID.randomUUID()))
         }.test {
             assertThat(
-                mutation.grade(
-                    grade,
-                )?.id,
+                mutation
+                    .grade(
+                        grade,
+                    )?.id,
             ).isNotNull()
         }
     }
@@ -621,7 +642,8 @@ class MutationTest {
                     "an answer",
                     "with references",
                 )
-            EasyMock.expect(responseDAO.save(response.copy(userId = user.id!!)))
+            EasyMock
+                .expect(responseDAO.save(response.copy(userId = user.id!!)))
                 .andReturn(response.copy(id = UUID.randomUUID(), userId = user.id!!))
             EasyMock.expect(instanceDAO.get(EasyMock.anyObject<UUID>() ?: UUID.randomUUID())).andReturn(
                 Instance(
@@ -696,7 +718,8 @@ class MutationTest {
         MockMutation {
             userToEdit = User(null, user.instanceId, "bill", "bill@gmail.com", "pass", false, "UTC")
             EasyMock.expect(hasher.hash(LeakyMock.anyString())).andReturn("hashedsecret")
-            EasyMock.expect(userDAO.save(userToEdit.copy(authCrypt = "hashedsecret")))
+            EasyMock
+                .expect(userDAO.save(userToEdit.copy(authCrypt = "hashedsecret")))
                 .andReturn(
                     userToEdit.copy(
                         id = UUID.fromString("9eed42c1-4469-4b36-8417-e7e35fe45bd5"),
@@ -729,7 +752,8 @@ class MutationTest {
         MockMutation {
             userToEdit = User(null, user.instanceId, "bill", "bill@gmail.com", "pass", false, "UTC")
             EasyMock.expect(hasher.hash(LeakyMock.anyString())).andReturn("hashedsecret")
-            EasyMock.expect(userDAO.save(userToEdit.copy(authCrypt = "hashedsecret")))
+            EasyMock
+                .expect(userDAO.save(userToEdit.copy(authCrypt = "hashedsecret")))
                 .andReturn(
                     userToEdit.copy(
                         id = UUID.fromString("9eed42c1-4469-4b36-8417-e7e35fe45bd5"),
@@ -751,7 +775,8 @@ class MutationTest {
             EasyMock.expect(gmsMock.gmail).andReturn(gmailMock)
             EasyMock.expect(gmailMock.users()).andReturn(usersMock)
             EasyMock.expect(usersMock.messages()).andReturn(messagesMock)
-            EasyMock.expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
+            EasyMock
+                .expect(messagesMock.send(EasyMock.anyString(), EasyMock.capture(sentMessageCapture)))
                 .andReturn(sendMock)
             EasyMock.expect(sendMock.execute()).andReturn(Message())
             EasyMock.expect(gmsMock.oauth).andReturn(oauthMock)
@@ -760,7 +785,8 @@ class MutationTest {
             EasyMock.expect(uiv2Mock.me()).andReturn(meMock)
             EasyMock.expect(meMock.get()).andReturn(meGetMock)
             EasyMock.expect(meGetMock.execute()).andReturn(Userinfo().apply { email = admin.email })
-            EasyMock.expect(instanceDAO.get(admin.instanceId))
+            EasyMock
+                .expect(instanceDAO.get(admin.instanceId))
                 .andReturn(Instance(admin.instanceId, "Instance Name", "ACTIVE"))
         }.test {
             assertThat(

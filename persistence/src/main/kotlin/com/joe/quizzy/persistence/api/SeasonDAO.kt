@@ -15,7 +15,5 @@ interface SeasonDAO {
         instanceId: UUID,
         startTime: OffsetDateTime? = null,
         endTime: OffsetDateTime? = null,
-    ): List<Season> {
-        return getSeasons(listOf(instanceId), startTime, endTime)[instanceId].orEmpty()
-    }
+    ): List<Season> = getSeasons(listOf(instanceId), startTime, endTime)[instanceId].orEmpty()
 }

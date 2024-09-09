@@ -12,8 +12,10 @@ open class GroupMeInfoDAOJooq
     constructor(
         private val ctx: DSLContext,
     ) : GroupMeInfoDAO {
-        override fun get(instanceId: UUID): GroupMeInfo? {
-            return ctx.select().from(Tables.GROUPME_INFO).where(Tables.GROUPME_INFO.INSTANCE_ID.eq(instanceId))
+        override fun get(instanceId: UUID): GroupMeInfo? =
+            ctx
+                .select()
+                .from(Tables.GROUPME_INFO)
+                .where(Tables.GROUPME_INFO.INSTANCE_ID.eq(instanceId))
                 .fetchOneInto(GroupMeInfo::class.java)
-        }
     }
