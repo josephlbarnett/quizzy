@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@graphql-eslint/eslint-plugin": "3.20.1",
-    "@rollup/plugin-graphql": "2.0.4",
+    "@rollup/plugin-graphql": "2.0.5",
     "@types/papaparse": "5.3.14",
     "typescript-eslint": "8.6.0",
     "@vitejs/plugin-vue": "5.1.3",
