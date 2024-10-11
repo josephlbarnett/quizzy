@@ -3,7 +3,7 @@ Quizzy
 
 Description
 -----------
-A quiz application built using [Leaky Cauldron](https://github.com/trib3/leakycauldron)
+A quiz application built using [Leaky Cauldron](https://github.com/josephlbarnett/leakycauldron)
 
 Built primarily to serve the needs of an email based Rules Exchange.
 
