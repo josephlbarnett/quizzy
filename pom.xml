@@ -18,7 +18,7 @@
         <version.argon>2.11</version.argon>
         <version.google-http-client>1.45.3</version.google-http-client>
         <version.google-oauth-client>1.37.0</version.google-oauth-client>
-	<version.grpc-context>1.69.0</version.grpc-context>
+	<version.grpc-context>1.69.1</version.grpc-context>
 	<version.gson>2.11.0</version.gson>
         <version.jakarta-mail>2.1.3</version.jakarta-mail>
         <version.ktor>3.0.3</version.ktor>
