@@ -3,8 +3,8 @@ package com.joe.quizzy.graphql.auth
 import com.joe.quizzy.persistence.api.SessionDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import io.dropwizard.auth.Authenticator
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.inject.Inject
-import mu.KotlinLogging
 import java.security.Principal
 import java.time.Duration
 import java.time.OffsetDateTime
@@ -24,7 +24,7 @@ class SessionAuthenticator
                 try {
                     UUID.fromString(credentials)
                 } catch (e: Exception) {
-                    log.trace("Ignoring invalid session id $credentials", e)
+                    log.trace(e) { "Ignoring invalid session id $credentials" }
                     null
                 }
             val session = sessionId?.let { sessionDAO.get(it) }
