@@ -3,7 +3,7 @@ package com.joe.quizzy.graphql.dataloaders
 import com.joe.quizzy.graphql.groupme.GroupMeService
 import com.joe.quizzy.graphql.groupme.GroupMeServiceFactory
 import com.trib3.graphql.execution.CoroutineMappedBatchLoader
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.dataloader.BatchLoaderEnvironment
 import java.util.UUID
 
@@ -25,7 +25,7 @@ class GroupMeServiceLoader(
             try {
                 factory.create(it)
             } catch (e: IllegalStateException) {
-                log.trace("Invalid groupme for instance: $it", e)
+                log.trace(e) { "Invalid groupme for instance: $it" }
                 null
             }
         }

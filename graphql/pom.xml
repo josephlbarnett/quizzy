@@ -111,6 +111,7 @@
             <groupId>de.mkammerer</groupId>
             <artifactId>argon2-jvm-nolibs</artifactId>
             <version>${version.argon}</version>
+	    <exclusions><exclusion><groupId>net.java.dev.jna</groupId><artifactId>jna</artifactId></exclusion></exclusions>
         </dependency>
 
         <!-- guice -->

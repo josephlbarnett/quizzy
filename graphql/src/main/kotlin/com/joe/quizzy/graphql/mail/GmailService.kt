@@ -21,9 +21,9 @@ import com.google.inject.assistedinject.Assisted
 import com.google.inject.assistedinject.FactoryModuleBuilder
 import com.joe.quizzy.persistence.api.InstanceDAO
 import dev.misfitlabs.kotlinguice4.KotlinModule
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.inject.Inject
 import jakarta.mail.internet.MimeMessage
-import mu.KotlinLogging
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStreamReader
@@ -121,7 +121,7 @@ open class GmailServiceFactory
             return try {
                 factory.create(instanceId)
             } catch (e: Exception) {
-                log.warn("Could not create GmailSender for instance $instanceId", e)
+                log.warn(e) { "Could not create GmailSender for instance $instanceId" }
                 null
             } finally {
                 val refreshedRefreshToken = credStore.get(instanceId.toString())?.refreshToken

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.google.inject.assistedinject.Assisted
 import com.joe.quizzy.persistence.api.GroupMeInfoDAO
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.header
@@ -12,7 +13,6 @@ import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.utils.io.jvm.javaio.toByteReadChannel
 import jakarta.inject.Inject
-import mu.KotlinLogging
 import java.io.InputStream
 import java.util.UUID
 
@@ -81,6 +81,7 @@ open class GroupMeService
                     header("Content-Type", "application/json")
                     setBody(MessageRequest(Message(UUID.randomUUID(), message)))
                 }
-            log.trace(resp.body<String>())
+            val body = resp.body<String>()
+            log.trace { body }
         }
     }

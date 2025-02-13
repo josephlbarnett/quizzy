@@ -16,6 +16,7 @@ import com.trib3.server.config.TribeApplicationConfig
 import io.dropwizard.core.Configuration
 import io.dropwizard.core.ConfiguredBundle
 import io.dropwizard.core.setup.Environment
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
@@ -32,7 +33,6 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.time.delay
-import mu.KotlinLogging
 import java.io.InputStreamReader
 import java.io.StringWriter
 import java.time.Duration
@@ -110,7 +110,7 @@ class ScheduledEmailBundle(
             val groupMe = groupMeServiceFactory.create(instanceId)
             groupMe?.postMessage("New $questionAnswerString Available: https://${appConfig.corsDomains[0]}/app/assets")
         } catch (e: Exception) {
-            log.error("Error sending text: ${e.message}", e)
+            log.error(e) { "Error sending text: ${e.message}" }
         }
     }
 
@@ -184,10 +184,10 @@ class ScheduledEmailBundle(
             )
             emailNotificationDAO.markNotified(NotificationType.REMINDER, (questions + answers).mapNotNull { it.id })
             emailNotificationDAO.markNotified(NotificationType.ANSWER, answers.mapNotNull { it.id })
-            log.info(
+            log.info {
                 "Sending email for ${questions.size} questions and ${answers.size} answers " +
-                    "to ${usersToNotify.size} users for instance $instanceName",
-            )
+                    "to ${usersToNotify.size} users for instance $instanceName"
+            }
             gmail.gmail.sendEmail("me", message).execute()
         }
     }
@@ -269,9 +269,14 @@ class ScheduledEmailBundle(
                         val now = OffsetDateTime.now()
                         if (now.minute % minuteMod == 0) {
                             runCatching {
-                                log.trace(
-                                    client.get { url("https://${appConfig.corsDomains[0]}/app/ping") }.body<String>(),
-                                )
+                                val resp =
+                                    client
+                                        .get {
+                                            url(
+                                                "https://${appConfig.corsDomains[0]}/app/ping",
+                                            )
+                                        }.body<String>()
+                                log.trace { resp }
                             }
                             sendEmails(now)
                         }

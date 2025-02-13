@@ -8,8 +8,8 @@ import com.joe.quizzy.api.models.QuestionType
 import com.joe.quizzy.api.models.User
 import com.joe.quizzy.persistence.api.QuestionDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.inject.Inject
-import mu.KotlinLogging
 import org.jooq.DSLContext
 import org.jooq.Record
 import org.jooq.ResultQuery
@@ -71,7 +71,7 @@ open class QuestionDAOJooq
         @Timed
         override fun get(ids: List<UUID>): List<Question> {
             val query = ctx.selectFrom(questionsAndChoices).where(Tables.QUESTIONS.ID.`in`(ids))
-            log.info("batch get questions: $query")
+            log.info { "batch get questions: $query" }
             return query.collectAndMap()
         }
 
@@ -163,7 +163,7 @@ open class QuestionDAOJooq
                                 gradeExists(user),
                             ),
                     ).orderBy(Tables.QUESTIONS.ACTIVE_AT)
-            log.info("active questions query: $query")
+            log.info { "active questions query: $query" }
             return query.collectAndMap()
         }
 
@@ -213,7 +213,7 @@ open class QuestionDAOJooq
                             ),
                         ),
                     ).orderBy(Tables.QUESTIONS.ACTIVE_AT.desc())
-            log.info("closed questions query: $query")
+            log.info { "closed questions query: $query" }
             return query.collectAndMap()
         }
 
@@ -249,7 +249,7 @@ open class QuestionDAOJooq
                 instanceQuestions(user)
                     .where(Tables.QUESTIONS.ACTIVE_AT.gt(now))
                     .orderBy(Tables.QUESTIONS.ACTIVE_AT)
-            log.info("future questions query: $query")
+            log.info { "future questions query: $query" }
             return query.collectAndMap()
         }
 
