@@ -5,8 +5,8 @@ import com.joe.quizzy.api.models.Grade
 import com.joe.quizzy.persistence.api.GradeDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.GradesRecord
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.inject.Inject
-import mu.KotlinLogging
 import org.jooq.Configuration
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
@@ -102,7 +102,7 @@ open class GradeDAOJooq
                             ),
                         ),
                     )
-            log.info("get grades for users: $query")
+            log.info { "get grades for users: $query" }
             return query
                 .fetch()
                 .intoGroups(Tables.RESPONSES.USER_ID, Grade::class.java)
@@ -115,7 +115,7 @@ open class GradeDAOJooq
                     .select(Tables.GRADES.asterisk())
                     .from(Tables.GRADES)
                     .where(Tables.GRADES.RESPONSE_ID.eq(responseId))
-            log.info("get grade for response: $query")
+            log.info { "get grade for response: $query" }
             return query.fetchOneInto(Grade::class.java)
         }
 
@@ -126,7 +126,7 @@ open class GradeDAOJooq
                     .select(Tables.GRADES.asterisk())
                     .from(Tables.GRADES)
                     .where(Tables.GRADES.RESPONSE_ID.`in`(responseIds))
-            log.info("get grade for responses: $query")
+            log.info { "get grade for responses: $query" }
             return query
                 .fetch()
                 .intoMap(Tables.GRADES.RESPONSE_ID, Grade::class.java)
