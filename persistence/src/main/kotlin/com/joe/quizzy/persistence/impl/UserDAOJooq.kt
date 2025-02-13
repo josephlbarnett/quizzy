@@ -6,8 +6,8 @@ import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.Tables.USER_INVITE
 import com.joe.quizzy.persistence.impl.jooq.tables.records.UsersRecord
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.inject.Inject
-import mu.KotlinLogging
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import java.util.UUID
@@ -34,7 +34,7 @@ open class UserDAOJooq
         @Timed
         override fun get(ids: List<UUID>): List<User> {
             val query = ctx.selectFrom(Tables.USERS).where(Tables.USERS.ID.`in`(ids))
-            log.info("Batch get users: $query")
+            log.info { "Batch get users: $query" }
             return query
                 .fetch()
                 .into(User::class.java)
@@ -51,7 +51,7 @@ open class UserDAOJooq
                     .selectFrom(Tables.USERS)
                     .where(Tables.USERS.INSTANCE_ID.eq(instanceId))
                     .orderBy(DSL.lower(Tables.USERS.NAME))
-            log.info("get users by instance: $query")
+            log.info { "get users by instance: $query" }
             return query
                 .fetchInto(User::class.java)
         }

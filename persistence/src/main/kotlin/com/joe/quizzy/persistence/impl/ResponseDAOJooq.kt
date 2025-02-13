@@ -10,8 +10,8 @@ import com.joe.quizzy.persistence.api.ResponseDAO
 import com.joe.quizzy.persistence.api.UserDAO
 import com.joe.quizzy.persistence.impl.jooq.Tables
 import com.joe.quizzy.persistence.impl.jooq.tables.records.ResponsesRecord
+import io.github.oshai.kotlinlogging.KotlinLogging
 import jakarta.inject.Inject
-import mu.KotlinLogging
 import org.jooq.DSLContext
 import org.jooq.impl.DSL
 import java.time.OffsetDateTime
@@ -101,7 +101,7 @@ open class ResponseDAOJooq
                             .eq(userId)
                             .and(Tables.RESPONSES.QUESTION_ID.eq(questionId)),
                     )
-            log.info("user question responses query : $query")
+            log.info { "user question responses query : $query" }
             return query.fetchOneInto(Response::class.java)
         }
 
@@ -119,7 +119,7 @@ open class ResponseDAOJooq
                             .eq(userId)
                             .and(Tables.RESPONSES.QUESTION_ID.`in`(questionIds)),
                     )
-            log.info("batch user question responses query : $query")
+            log.info { "batch user question responses query : $query" }
             return query.fetch().intoMap(Tables.RESPONSES.QUESTION_ID, Response::class.java)
         }
 
@@ -142,7 +142,7 @@ open class ResponseDAOJooq
                             .eq(questionId)
                             .and(Tables.USERS.INSTANCE_ID.eq(instanceId)),
                     )
-            log.info("question responses query : $query")
+            log.info { "question responses query : $query" }
             return query.fetchInto(Response::class.java)
         }
 
@@ -167,7 +167,7 @@ open class ResponseDAOJooq
                             .`in`(questionIds)
                             .and(Tables.USERS.INSTANCE_ID.eq(instanceId)),
                     ).groupBy(Tables.RESPONSES.QUESTION_ID)
-            log.info("question stats query : $query")
+            log.info { "question stats query : $query" }
             return query.fetch().intoMap(Tables.RESPONSES.QUESTION_ID) { record ->
                 record.component2() to record.component3()
             }
@@ -215,7 +215,7 @@ open class ResponseDAOJooq
                     ),
                 ).orderBy(Tables.QUESTIONS.ACTIVE_AT.desc(), Tables.USERS.NAME)
 
-            log.info("graded query : $query")
+            log.info { "graded query : $query" }
             return query.fetchInto(Response::class.java)
         }
 
@@ -227,7 +227,7 @@ open class ResponseDAOJooq
                         Tables.RESPONSES.asterisk(),
                     ).from(Tables.RESPONSES)
                     .where(Tables.RESPONSES.USER_ID.eq(userId))
-            log.info("user responses query : $query")
+            log.info { "user responses query : $query" }
             return query.fetchInto(Response::class.java)
         }
 
