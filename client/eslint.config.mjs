@@ -17,7 +17,7 @@ const compat = new FlatCompat({
 export default [{
     ignores: ["**/generated/**/*"],
 }, ...compat.extends(
-    "plugin:vue/vue3-recommended",
+    "plugin:vue/recommended",
     "eslint:recommended",
 ), ...vueTsEslintConfig(), {
     languageOptions: {
@@ -30,10 +30,6 @@ export default [{
     },
 
     rules: {
-        "vue/custom-event-name-casing": ["error", {
-            ignores: ["/^[a-z]+(?:-[a-z]+)*:[a-z]+(?:-[a-z]+)*$/u"],
-        }],
-
         "vue/valid-v-slot": ["error", {
             allowModifiers: true,
         }],
