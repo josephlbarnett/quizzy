@@ -19,7 +19,7 @@
         <version.google-http-client>1.46.3</version.google-http-client>
         <version.google-oauth-client>1.39.0</version.google-oauth-client>
         <version.grpc-context>1.72.0</version.grpc-context>
-        <version.gson>2.13.0</version.gson>
+        <version.gson>2.13.1</version.gson>
         <version.jakarta-mail>2.1.3</version.jakarta-mail>
         <version.ktor>3.1.2</version.ktor>
         <version.mockk>1.14.0</version.mockk>
