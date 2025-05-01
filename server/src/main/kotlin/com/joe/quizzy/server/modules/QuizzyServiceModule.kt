@@ -27,6 +27,7 @@ import io.dropwizard.auth.basic.BasicCredentialAuthFilter
 import io.dropwizard.auth.chained.ChainedAuthFilter
 import io.dropwizard.core.Configuration
 import io.dropwizard.core.ConfiguredBundle
+import io.dropwizard.servlets.CacheBustingFilter
 import io.dropwizard.servlets.assets.AssetServlet
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -156,8 +157,16 @@ class QuizzyServiceModule : GraphQLApplicationModule() {
                 listOf(""),
             ),
         )
-        KotlinMultibinder.newSetBinder<ServletFilterConfig>(kotlinBinder).addBinding().toInstance(
+        val servletFilters = KotlinMultibinder.newSetBinder<ServletFilterConfig>(kotlinBinder)
+        servletFilters.addBinding().toInstance(
             ServletFilterConfig(HttpsFilter::class.java.simpleName, HttpsFilter::class.java),
+        )
+        servletFilters.addBinding().toInstance(
+            ServletFilterConfig(
+                CacheBustingFilter::class.java.simpleName,
+                CacheBustingFilter::class.java,
+                urlPatterns = listOf("/app/assets", "/app/assets/", "/app/assets/index.html"),
+            ),
         )
         dataLoaderRegistryFactoryBinder().setBinding().toProvider<DataLoaderRegistryFactoryProvider>()
         authorizerBinder().setBinding().to<UserAuthorizer>()
