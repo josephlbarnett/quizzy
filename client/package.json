@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@apollo/client": "3.13.8",
-    "@graphql-codegen/cli": "5.0.5",
+    "@graphql-codegen/cli": "5.0.6",
     "@graphql-codegen/typescript": "4.1.6",
     "@vue/apollo-components": "4.2.2",
     "@vue/apollo-option": "4.2.2",
