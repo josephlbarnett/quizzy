@@ -18,5 +18,6 @@ const ResizeObserverMock = vi.fn(() => ({
   disconnect: vi.fn(),
 }));
 
-// Stub the global ResizeObserver
+// Stub referenced globals: ResizeObserver and visualViewport
 vi.stubGlobal("ResizeObserver", ResizeObserverMock);
+vi.stubGlobal("visualViewport", null);
