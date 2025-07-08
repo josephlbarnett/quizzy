@@ -51,7 +51,6 @@
 </template>
 <script lang="ts">
 import moment from "moment-timezone";
-import { VTimePicker } from "vuetify/labs/VTimePicker";
 
 function modelTime(date: string): string {
   const zonedMoment = moment(date, moment.ISO_8601);
@@ -73,7 +72,6 @@ function modelDate(date: string): Date | null {
 }
 
 export default {
-  components: { VTimePicker },
   props: {
     modelValue: { type: String, default: null },
     timezone: { type: String, default: null },
