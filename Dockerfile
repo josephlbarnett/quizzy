@@ -1,5 +1,5 @@
-#FROM eclipse-temurin:17-jre-jammy
-FROM ibm-semeru-runtimes:open-17-jre-focal
+#FROM eclipse-temurin:21-jre-jammy
+FROM ibm-semeru-runtimes:open-21-jre-focal
 
 ARG CURRENT_VERSION
 
