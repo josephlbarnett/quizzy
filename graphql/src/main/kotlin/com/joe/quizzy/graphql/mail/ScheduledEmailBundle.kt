@@ -19,8 +19,10 @@ import io.dropwizard.core.setup.Environment
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.accept
 import io.ktor.client.request.get
 import io.ktor.client.request.url
+import io.ktor.http.ContentType
 import jakarta.inject.Inject
 import jakarta.mail.Message
 import jakarta.mail.Session
@@ -275,6 +277,7 @@ class ScheduledEmailBundle(
                                             url(
                                                 "https://${appConfig.corsDomains[0]}/app/ping",
                                             )
+                                            accept(ContentType.Any)
                                         }.body<String>()
                                 log.trace { resp }
                             }
