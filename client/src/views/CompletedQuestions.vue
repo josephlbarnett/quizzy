@@ -22,7 +22,9 @@
         <div v-if="isLoading">
           <v-progress-circular :indeterminate="true" />
         </div>
-        <div v-else-if="error" class="bg-error">An error occurred</div>
+        <div v-else-if="error && !data.closedQuestions" class="bg-error">
+          An error occurred
+        </div>
         <v-dialog v-model="resultsDialog">
           <v-card>
             <v-card-title

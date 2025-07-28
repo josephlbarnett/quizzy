@@ -55,7 +55,9 @@
           <div v-if="isLoading">
             <v-progress-circular :indeterminate="true" />
           </div>
-          <div v-else-if="error" class="bg-error">An error occurred</div>
+          <div v-else-if="error && !currentQuestion" class="bg-error">
+            An error occurred
+          </div>
           <div v-else-if="!currentQuestion">
             <v-card-title>No Questions</v-card-title>
             <v-card-text>
