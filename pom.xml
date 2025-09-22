@@ -20,7 +20,7 @@
         <version.google-oauth-client>1.39.0</version.google-oauth-client>
         <version.grpc-context>1.75.0</version.grpc-context>
         <version.gson>2.13.2</version.gson>
-        <version.jakarta-mail>2.1.4</version.jakarta-mail>
+        <version.jakarta-mail>2.1.5</version.jakarta-mail>
         <version.ktor>3.3.0</version.ktor>
         <version.mockk>1.14.6</version.mockk>
     </properties>
