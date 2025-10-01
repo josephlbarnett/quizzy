@@ -22,7 +22,7 @@
         <version.gson>2.13.2</version.gson>
         <version.jakarta-mail>2.1.4</version.jakarta-mail>
         <version.ktor>3.3.0</version.ktor>
-        <version.mockk>1.14.5</version.mockk>
+        <version.mockk>1.14.6</version.mockk>
     </properties>
 
     <!--repositories>
