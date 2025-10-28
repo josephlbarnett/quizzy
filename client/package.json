@@ -12,7 +12,7 @@
     "test": "npm run test:unit"
   },
   "dependencies": {
-    "@apollo/client": "3.13.9",
+    "@apollo/client": "4.0.8",
     "@graphql-codegen/cli": "6.0.0",
     "@graphql-codegen/typescript": "5.0.2",
     "@vue/apollo-components": "4.2.2",
