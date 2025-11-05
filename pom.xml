@@ -21,7 +21,7 @@
         <version.grpc-context>1.76.0</version.grpc-context>
         <version.gson>2.13.2</version.gson>
         <version.jakarta-mail>2.1.5</version.jakarta-mail>
-        <version.ktor>3.3.1</version.ktor>
+        <version.ktor>3.3.2</version.ktor>
         <version.mockk>1.14.6</version.mockk>
     </properties>
 
