@@ -23,7 +23,7 @@
     "moment-timezone": "0.6.0",
     "papaparse": "5.5.3",
     "pinia": "^3.0.3",
-    "vue": "3.5.22",
+    "vue": "3.5.24",
     "vue-router": "4.6.3",
     "vuetify": "3.10.11"
   },
