@@ -12,11 +12,9 @@ import { vi } from "vitest";
 //   config.plugins.VueWrapper.install(PiniaVuePlugin);
 // });
 
-const ResizeObserverMock = vi.fn(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}));
+const ResizeObserverMock = vi.fn(function () {
+  return { observe: vi.fn(), unobserve: vi.fn(), disconnect: vi.fn() };
+});
 
 // Stub referenced globals: ResizeObserver and visualViewport
 vi.stubGlobal("ResizeObserver", ResizeObserverMock);
