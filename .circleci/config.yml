@@ -34,6 +34,8 @@ jobs:
           name: npm build emails
           command: |
             cd emails
+            nvm install 20.19
+            nvm use 20.19
             npm install
             mkdir -p dist/emails
             npm run mjml
@@ -60,6 +62,8 @@ jobs:
           name: npm build client
           command: |
             cd client
+            nvm install 20.19
+            nvm use 20.19
             npm install
             npm run generate
             npm run lint
