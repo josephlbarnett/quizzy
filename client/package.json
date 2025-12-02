@@ -30,7 +30,7 @@
   "devDependencies": {
     "@graphql-eslint/eslint-plugin": "4.4.0",
     "@rollup/plugin-graphql": "2.0.5",
-    "@types/papaparse": "5.5.0",
+    "@types/papaparse": "5.5.1",
     "typescript-eslint": "8.46.4",
     "@vitejs/plugin-vue": "6.0.2",
     "@vitest/coverage-v8": "4.0.10",
