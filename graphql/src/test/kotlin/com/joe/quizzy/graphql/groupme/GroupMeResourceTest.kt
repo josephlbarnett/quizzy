@@ -44,7 +44,9 @@ class GroupMeResourceTest : ResourceTestBase<GroupMeResource>() {
                             mockService
                         }
 
-                        else -> null
+                        else -> {
+                            null
+                        }
                     }
             },
         )
