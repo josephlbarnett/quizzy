@@ -59,7 +59,7 @@ class ApiUserTest {
                     ),
                 ),
             )
-            EasyMock.expect(mockDataLoader.load(UserTimePeriod(u.id!!, t1, t2))).andReturn(
+            EasyMock.expect(mockDataLoader.load(UserTimePeriod(u.id, t1, t2))).andReturn(
                 CompletableFuture.completedFuture(
                     listOf(
                         Grade(UUID.randomUUID(), UUID.randomUUID(), true, 2),

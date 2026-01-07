@@ -55,8 +55,8 @@ class ApiInstanceTest {
                 .andReturn(
                     CompletableFuture.completedFuture(
                         listOf(
-                            Season(UUID.randomUUID(), i.id!!, "s1", OffsetDateTime.now(), OffsetDateTime.now()),
-                            Season(UUID.randomUUID(), i.id!!, "s2", OffsetDateTime.now(), OffsetDateTime.now()),
+                            Season(UUID.randomUUID(), i.id, "s1", OffsetDateTime.now(), OffsetDateTime.now()),
+                            Season(UUID.randomUUID(), i.id, "s2", OffsetDateTime.now(), OffsetDateTime.now()),
                         ),
                     ),
                 )
