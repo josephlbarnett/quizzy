@@ -188,6 +188,7 @@ describe("CreateUserButton tests", () => {
     await input.trigger("change");
     await awaitVm(component);
     await awaitVm(component);
+    await awaitVm(component);
     expect(component.vm.$data.uploadedCsv).toBeTruthy();
     expect(component.vm.$data.users).toEqual([
       { name: "name1", email: "a@b.com" },
