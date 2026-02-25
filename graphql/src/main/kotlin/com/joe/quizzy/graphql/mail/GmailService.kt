@@ -5,7 +5,7 @@ import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInsta
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
+import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.gson.GsonFactory
 import com.google.api.client.util.store.DataStoreFactory
@@ -54,11 +54,12 @@ open class GmailService
                 secretsReader?.use { reader ->
                     GoogleClientSecrets.load(jsonFactory, reader)
                 }
+            val transport = NetHttpTransport.Builder().build()
             val credential =
                 AuthorizationCodeInstalledApp(
                     GoogleAuthorizationCodeFlow
                         .Builder(
-                            GoogleNetHttpTransport.newTrustedTransport(),
+                            transport,
                             jsonFactory,
                             secrets,
                             listOf(GmailScopes.GMAIL_SEND, Oauth2Scopes.USERINFO_EMAIL),
@@ -83,7 +84,7 @@ open class GmailService
             gmail =
                 Gmail
                     .Builder(
-                        GoogleNetHttpTransport.newTrustedTransport(),
+                        transport,
                         jsonFactory,
                         credential,
                     ).setApplicationName("rules exchange")
@@ -92,7 +93,7 @@ open class GmailService
             oauth =
                 Oauth2
                     .Builder(
-                        GoogleNetHttpTransport.newTrustedTransport(),
+                        transport,
                         jsonFactory,
                         credential,
                     ).setApplicationName("rules exchange")
