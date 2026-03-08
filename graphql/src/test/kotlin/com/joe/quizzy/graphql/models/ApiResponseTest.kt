@@ -108,7 +108,7 @@ class ApiResponseTest {
             EasyMock.expect(mockDataLoader.load(r.questionId)).andReturn(
                 CompletableFuture.completedFuture(q),
             )
-            EasyMock.expect(mockGradeLoader.load(r.id)).andReturn(
+            EasyMock.expect(mockGradeLoader.load(r.id!!)).andReturn(
                 CompletableFuture.completedFuture(null),
             )
             EasyMock.replay(mockEnv, mockDataLoader, mockGradeLoader)
@@ -133,8 +133,8 @@ class ApiResponseTest {
             EasyMock.expect(mockDataLoader.load(r.questionId)).andReturn(
                 CompletableFuture.completedFuture(q),
             )
-            EasyMock.expect(mockGradeLoader.load(r.id)).andReturn(
-                CompletableFuture.completedFuture(Grade(null, r.id!!, true, 0)),
+            EasyMock.expect(mockGradeLoader.load(r.id!!)).andReturn(
+                CompletableFuture.completedFuture(Grade(null, r.id, true, 0)),
             )
             EasyMock.replay(mockEnv, mockDataLoader, mockGradeLoader)
             assertThat(r.question(mockEnv).await()).isEqualTo(ApiQuestion(q, 15))
@@ -157,7 +157,7 @@ class ApiResponseTest {
             EasyMock.expect(mockDataLoader.load(r.questionId)).andReturn(
                 CompletableFuture.completedFuture(null),
             )
-            EasyMock.expect(mockGradeLoader.load(r.id)).andReturn(
+            EasyMock.expect(mockGradeLoader.load(r.id!!)).andReturn(
                 CompletableFuture.completedFuture(null),
             )
             EasyMock.replay(mockEnv, mockDataLoader, mockGradeLoader)
@@ -207,7 +207,7 @@ class ApiResponseTest {
             val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Grade>>()
             EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
             EasyMock.expect(mockEnv.getDataLoader<UUID, Grade>("responsegrades")).andReturn(mockDataLoader)
-            EasyMock.expect(mockDataLoader.load(r.id)).andReturn(
+            EasyMock.expect(mockDataLoader.load(r.id!!)).andReturn(
                 CompletableFuture.completedFuture(null),
             )
             EasyMock.replay(mockEnv, mockDataLoader)

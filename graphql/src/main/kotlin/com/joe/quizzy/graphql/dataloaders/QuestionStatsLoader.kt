@@ -21,7 +21,7 @@ class QuestionStatsLoader(
         keys: Set<UUID>,
         environment: BatchLoaderEnvironment,
     ): Map<UUID, Pair<Int, Int>> {
-        val principal = environment.getContext<GraphQLContext>().get<Principal>()
+        val principal = environment.getContext<GraphQLContext>()?.get<Principal>()
         return if (principal is UserPrincipal) {
             responseDAO.statsForQuestions(principal.user.instanceId, keys.toList())
         } else {
