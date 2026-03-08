@@ -73,12 +73,12 @@ class ApiQuestionTest {
             val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Response>>()
             EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
             EasyMock.expect(mockEnv.getDataLoader<UUID, Response>("questionresponses")).andReturn(mockDataLoader)
-            EasyMock.expect(mockDataLoader.load(q.id)).andReturn(
+            EasyMock.expect(mockDataLoader.load(q.id!!)).andReturn(
                 CompletableFuture.completedFuture(
                     Response(
                         UUID.randomUUID(),
                         u.id!!,
-                        q.id!!,
+                        q.id,
                         "answer",
                         "reference",
                     ),
@@ -102,7 +102,7 @@ class ApiQuestionTest {
             val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Response>>()
             EasyMock.expect(mockEnv.graphQlContext).andReturn(context)
             EasyMock.expect(mockEnv.getDataLoader<UUID, Response>("questionresponses")).andReturn(mockDataLoader)
-            EasyMock.expect(mockDataLoader.load(q.id)).andReturn(
+            EasyMock.expect(mockDataLoader.load(q.id!!)).andReturn(
                 CompletableFuture.completedFuture(null),
             )
             EasyMock.replay(mockEnv, mockDataLoader)
@@ -175,7 +175,7 @@ class ApiQuestionTest {
             val mockEnv = LeakyMock.mock<DataFetchingEnvironment>()
             val mockDataLoader = LeakyMock.mock<DataLoader<UUID, Pair<Int, Int>>>()
             EasyMock.expect(mockEnv.getDataLoader<UUID, Pair<Int, Int>>("questionstats")).andReturn(mockDataLoader)
-            EasyMock.expect(mockDataLoader.load(q.id)).andReturn(CompletableFuture.completedFuture(5 to 4))
+            EasyMock.expect(mockDataLoader.load(q.id!!)).andReturn(CompletableFuture.completedFuture(5 to 4))
             EasyMock.replay(mockEnv, mockDataLoader)
             val resp = q.percentCorrect(mockEnv).await()
             assertThat(resp).isEqualTo(80.0)

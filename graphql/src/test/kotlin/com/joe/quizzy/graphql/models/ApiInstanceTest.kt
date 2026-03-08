@@ -75,7 +75,7 @@ class ApiInstanceTest {
                 .expect(mockDfe.getDataLoader<UUID, GroupMeService?>("groupmeservice"))
                 .andReturn(mockLoader)
             EasyMock
-                .expect(mockLoader.load(i.id))
+                .expect(mockLoader.load(i.id!!))
                 .andReturn(
                     CompletableFuture.completedFuture(
                         null,

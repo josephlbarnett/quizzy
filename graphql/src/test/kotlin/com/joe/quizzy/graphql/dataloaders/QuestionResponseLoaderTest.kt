@@ -62,7 +62,7 @@ class QuestionResponseLoaderTest {
             val mockEnv = LeakyMock.mock<BatchLoaderEnvironment>()
             val loader = QuestionResponseLoader(responseDAO)
             EasyMock
-                .expect(mockEnv.getContext<GraphQLContext?>())
+                .expect(mockEnv.getContext<GraphQLContext>())
                 .andReturn(GraphQLContext.of(getGraphQLContextMap(this)))
                 .atLeastOnce()
             EasyMock.replay(responseDAO, mockEnv)

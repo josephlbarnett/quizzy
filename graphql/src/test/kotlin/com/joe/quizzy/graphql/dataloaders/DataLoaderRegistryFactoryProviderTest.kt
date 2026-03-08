@@ -71,10 +71,10 @@ class DataLoaderRegistryFactoryProviderTest : EasyMockSupport() {
 
         val questionResponseLoader = registry.getDataLoader<UUID, Response>("questionresponses")
         assertThat(questionResponseLoader).isNotNull()
-        val loadedQR = questionResponseLoader.load(questionUUID)
-        questionResponseLoader.dispatch()
+        val loadedQR = questionResponseLoader?.load(questionUUID)
+        questionResponseLoader?.dispatch()
         runBlocking {
-            assertThat(loadedQR.await().response).isEqualTo("r")
+            assertThat(loadedQR?.await()?.response).isEqualTo("r")
         }
 
         val batchInstanceLoader = registry.getDataLoader<UUID, Instance>("batchinstances")

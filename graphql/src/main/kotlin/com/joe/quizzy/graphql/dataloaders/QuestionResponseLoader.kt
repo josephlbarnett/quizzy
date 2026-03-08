@@ -22,7 +22,7 @@ class QuestionResponseLoader(
         keys: Set<UUID>,
         environment: BatchLoaderEnvironment,
     ): Map<UUID, Response> {
-        val principal = environment.getContext<GraphQLContext>().get<Principal>()
+        val principal = environment.getContext<GraphQLContext>()?.get<Principal>()
         return if (principal is UserPrincipal) {
             val id = principal.user.id
             requireNotNull(id)
