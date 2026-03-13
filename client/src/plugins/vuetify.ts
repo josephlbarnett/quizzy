@@ -25,6 +25,9 @@ const vuetify = createVuetify({
     VDataTable: {
       mobile: null,
     },
+    VBtn: {
+      class: "text-uppercase",
+    },
   },
 });
 

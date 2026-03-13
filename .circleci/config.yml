@@ -17,19 +17,19 @@ jobs:
       # handle dependency caching and run build
       #- restore_cache:
       #    keys:
-      #      - v8-dependencies-{{ .Branch }}-{{ .Revision }}
-      #      - v8-dependencies-{{ .Branch }}
-      #      - v8-dependencies-
+      #      - v9-dependencies-{{ .Branch }}-{{ .Revision }}
+      #      - v9-dependencies-{{ .Branch }}
+      #      - v9-dependencies-
       - restore_cache:
           keys:
-            - v8-npms-{{ .Branch }}-{{ .Revision }}
-            - v8-npms-{{ .Branch }}
-            - v8-npms-
+            - v9-npms-{{ .Branch }}-{{ .Revision }}
+            - v9-npms-{{ .Branch }}
+            - v9-npms-
       - restore_cache:
           keys:
-            - v8-email-npms-{{ .Branch }}-{{ .Revision }}
-            - v8-email-npms-{{ .Branch }}
-            - v8-email-npms-
+            - v9-email-npms-{{ .Branch }}-{{ .Revision }}
+            - v9-email-npms-{{ .Branch }}
+            - v9-email-npms-
       - run:
           name: npm build emails
           command: |
@@ -42,7 +42,7 @@ jobs:
       - save_cache:
           paths:
             - ~/repo/emails/node_modules
-          key: v8-email-npms-{{ .Branch }}-{{ .Revision }}
+          key: v9-email-npms-{{ .Branch }}-{{ .Revision }}
       - run:
           name: Set JAVA_HOME for mvnw commands
           command: echo 'export JAVA_HOME=`java -XshowSettings:properties -version 2>&1 |grep java.home | sed "s/.*java\.home = //"`' >> "$BASH_ENV"
@@ -72,12 +72,12 @@ jobs:
       - save_cache:
           paths:
             - ~/repo/client/node_modules
-          key: v8-npms-{{ .Branch }}-{{ .Revision }}
+          key: v9-npms-{{ .Branch }}-{{ .Revision }}
       - run: ./mvnw install -U -pl client,server
       #- save_cache:
       #    paths:
       #      - ~/.m2
-      #    key: v8-dependencies-{{ .Branch }}-{{ .Revision }}
+      #    key: v9-dependencies-{{ .Branch }}-{{ .Revision }}
       # collect test results and upload coverage
       - run: mkdir -p ~/test_results
       - run: find . -type f -regex ".*/target/surefire-reports/junitreports/.*xml" -exec cp {} ~/test_results/ \;

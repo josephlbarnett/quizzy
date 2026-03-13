@@ -280,8 +280,8 @@ class ScheduledEmailBundle(
                                             accept(ContentType.Any)
                                         }.body<String>()
                                 log.trace { resp }
+                                sendEmails(now)
                             }
-                            sendEmails(now)
                         }
                         val newNow = OffsetDateTime.now()
                         delay(Duration.ofSeconds(Duration.ofMinutes(1).seconds - newNow.second))

@@ -218,6 +218,23 @@
                         >mdi-minus-circle</v-icon
                       >
                     </template>
+                    <template #item.G="{ item: colItem }">
+                      <v-icon
+                        v-if="colItem.response == 'G' && colItem.grade.correct"
+                        color="green-darken-2"
+                        >mdi-check-circle
+                      </v-icon>
+                      <v-icon
+                        v-else-if="
+                          colItem.response == 'G' && !colItem.grade.correct
+                        "
+                        color="red-darken-2"
+                        >mdi-close-circle
+                      </v-icon>
+                      <v-icon v-else color="grey-darken-2"
+                        >mdi-minus-circle</v-icon
+                      >
+                    </template>
                   </v-data-table>
                 </template>
               </ApolloQuery>
