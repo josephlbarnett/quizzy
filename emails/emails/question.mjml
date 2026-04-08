@@ -1,9 +1,9 @@
 <mjml>
   <mj-head>
-    <mj-include path="./attributes.mjml"></mj-include>
+    <mj-include path="common/attributes.mjml"></mj-include>
   </mj-head>
   <mj-body>
-    <mj-include path="./header.mjml"></mj-include>
+    <mj-include path="common/header.mjml"></mj-include>
     <mj-section>
       <mj-column>
         <mj-text>Hello,</mj-text>

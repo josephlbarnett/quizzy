@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "mjml": "mjml emails/* -o dist/emails/"
+    "mjml": "mjml emails/* -o dist/emails/ --config.includePath=emails/common --config.allowIncludes=true"
   },
   "devDependencies": {
-    "mjml": "^4.18.0"
+    "mjml": "5.0.0-beta.2"
   },
   "eslintConfig": {
     "root": true,
