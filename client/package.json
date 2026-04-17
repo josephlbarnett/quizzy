@@ -48,7 +48,7 @@
     "prettier": "3.8.1",
     "regenerator-runtime": "^0.14.1",
     "sass": "^1.99.0",
-    "typescript": "6.0.2",
+    "typescript": "6.0.3",
     "typescript-eslint": "8.58.2",
     "vite": "8.0.9",
     "vite-plugin-vuetify": "^2.1.3",
