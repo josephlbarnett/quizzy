@@ -6,7 +6,7 @@
     "mjml": "mjml emails/* -o dist/emails/ --config.includePath=emails/common --config.allowIncludes=true"
   },
   "devDependencies": {
-    "mjml": "5.0.1"
+    "mjml": "5.1.0"
   },
   "eslintConfig": {
     "root": true,
