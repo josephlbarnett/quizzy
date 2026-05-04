@@ -42,7 +42,7 @@
     "eslint-plugin-prettier": "5.5.5",
     "eslint-plugin-vue": "10.9.0",
     "flush-promises": "1.0.2",
-    "globals": "^17.5.0",
+    "globals": "^17.6.0",
     "graphql-tag": "2.12.6",
     "jsdom": "^29.0.2",
     "lint-staged": "16.4.0",
