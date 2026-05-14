@@ -34,6 +34,8 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import jakarta.mail.Session
 import jakarta.mail.internet.MimeMessage
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExecutorCoroutineDispatcher
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.isActive
@@ -46,46 +48,45 @@ import java.io.ByteArrayInputStream
 import java.time.OffsetDateTime
 import java.util.Properties
 import java.util.UUID
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 
 class ScheduledEmailBundleTest {
     @Test
-    fun testPollingLoopEnabledByConfig() =
-        runBlocking<Unit> {
-            val support = EasyMockSupport()
-            val mockQuestionDAO = support.mock<QuestionDAO>()
-            val mockInstanceDAO = support.mock<InstanceDAO>()
-            val mockUserDAO = support.mock<UserDAO>()
-            val mockEmailNotificationDAO = support.mock<EmailNotificationDAO>()
-            val mockGmailServiceFactory = support.mock<GmailServiceFactory>()
-            val mockGroupMeServiceFactory = support.mock<GroupMeServiceFactory>()
-            val threadPool = Executors.newSingleThreadExecutor()
-            val latch = CountDownLatch(1)
-            val client = HttpClient(MockEngine) { engine { addHandler { respond("pong") } } }
-            val bundle =
-                ScheduledEmailBundle(
-                    ConfigLoader("test_override_send_email"),
-                    TribeApplicationConfig(ConfigLoader()),
-                    mockQuestionDAO,
-                    mockUserDAO,
-                    mockInstanceDAO,
-                    mockEmailNotificationDAO,
-                    mockGmailServiceFactory,
-                    mockGroupMeServiceFactory,
-                    client,
-                    threadPool.asCoroutineDispatcher(),
-                    1,
-                )
-            EasyMock
-                .expect(mockQuestionDAO.active(NotificationType.REMINDER))
-                .andAnswer {
-                    latch.countDown()
-                    listOf()
-                }.once()
-            EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(listOf()).once()
-            support.replayAll()
-            launch {
+    fun testPollingLoopEnabledByConfig() {
+        val support = EasyMockSupport()
+        val mockQuestionDAO = support.mock<QuestionDAO>()
+        val mockInstanceDAO = support.mock<InstanceDAO>()
+        val mockUserDAO = support.mock<UserDAO>()
+        val mockEmailNotificationDAO = support.mock<EmailNotificationDAO>()
+        val mockGmailServiceFactory = support.mock<GmailServiceFactory>()
+        val mockGroupMeServiceFactory = support.mock<GroupMeServiceFactory>()
+        val threadPool = Executors.newSingleThreadExecutor()
+        val latch = CompletableDeferred<Boolean>()
+        val client = HttpClient(MockEngine) { engine { addHandler { respond("pong") } } }
+        val bundle =
+            ScheduledEmailBundle(
+                ConfigLoader("test_override_send_email"),
+                TribeApplicationConfig(ConfigLoader()),
+                mockQuestionDAO,
+                mockUserDAO,
+                mockInstanceDAO,
+                mockEmailNotificationDAO,
+                mockGmailServiceFactory,
+                mockGroupMeServiceFactory,
+                client,
+                threadPool.asCoroutineDispatcher(),
+                1,
+            )
+        EasyMock
+            .expect(mockQuestionDAO.active(NotificationType.REMINDER))
+            .andAnswer {
+                latch.complete(true)
+                listOf()
+            }.once()
+        EasyMock.expect(mockQuestionDAO.closed(NotificationType.ANSWER)).andReturn(listOf()).once()
+        support.replayAll()
+        runBlocking {
+            launch(Dispatchers.IO) {
                 assertThat(client.isActive).isTrue()
                 latch.await()
                 bundle.pollJob?.cancel()
@@ -95,6 +96,7 @@ class ScheduledEmailBundleTest {
             assertThat(threadPool.isShutdown).isTrue()
             support.verifyAll()
         }
+    }
 
     @Test
     fun testInjectConstructorAndPollingLoopDisabledByConfig() {
