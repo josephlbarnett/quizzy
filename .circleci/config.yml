@@ -171,7 +171,7 @@ jobs:
             cd ~/jars/fly
             flyctl wireguard reset
             flyctl wireguard websockets enable
-            flyctl deploy --local-only --build-arg CURRENT_VERSION=${CURRENT_VERSION}
+            LOG_LEVEL=debug flyctl deploy --local-only --build-arg CURRENT_VERSION=${CURRENT_VERSION} --verbose
       - run:
           name: Create Release Notes
           command: |
