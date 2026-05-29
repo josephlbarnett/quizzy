@@ -305,6 +305,7 @@ export default {
       this.addDialogAnswerChoices = ["", "", "", ""];
       this.addDialogImage = null;
       this.clickedImage = null;
+      this.addDialog = true;
     },
     clickRow(event: Event, { item }: { item: Question }) {
       this.addDialogId = item.id;
