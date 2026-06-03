@@ -14,19 +14,20 @@ private val log = KotlinLogging.logger { }
  */
 class GroupMeServiceLoader(
     private val factory: GroupMeServiceFactory,
-) : CoroutineMappedBatchLoader<UUID, GroupMeService?>() {
+) : CoroutineMappedBatchLoader<UUID, GroupMeService>() {
     override val dataLoaderName = "groupmeservice"
 
     override suspend fun loadSuspend(
         keys: Set<UUID>,
         environment: BatchLoaderEnvironment,
-    ): Map<UUID, GroupMeService?> =
-        keys.associateWith {
-            try {
-                factory.create(it)
-            } catch (e: IllegalStateException) {
-                log.trace(e) { "Invalid groupme for instance: $it" }
-                null
-            }
-        }
+    ): Map<UUID, GroupMeService> =
+        keys
+            .mapNotNull { key ->
+                try {
+                    factory.create(key)?.let { Pair(key, it) }
+                } catch (e: IllegalStateException) {
+                    log.trace(e) { "Invalid groupme for instance: $key" }
+                    null
+                }
+            }.toMap()
 }

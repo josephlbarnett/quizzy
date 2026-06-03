@@ -70,8 +70,10 @@ data class ApiQuestion(
 
     @GraphQLAuth(["ADMIN"])
     fun percentCorrect(dfe: DataFetchingEnvironment): CompletableFuture<Double?> =
-        dfe
-            .getDataLoader<UUID, Pair<Int, Int>>("questionstats")
-            ?.load(id)
-            ?.thenApply { it?.let { p -> PERCENT * p.second / p.first } } ?: CompletableFuture.completedFuture(null)
+        id
+            ?.let {
+                dfe
+                    .getDataLoader<UUID, Pair<Int, Int>>("questionstats")
+                    ?.load(it)
+            }?.thenApply { it?.let { p -> PERCENT * p.second / p.first } } ?: CompletableFuture.completedFuture(null)
 }

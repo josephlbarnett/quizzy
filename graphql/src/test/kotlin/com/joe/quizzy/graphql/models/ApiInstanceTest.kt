@@ -70,9 +70,9 @@ class ApiInstanceTest {
     fun testGroupMeLoader() =
         runBlocking {
             val mockDfe = LeakyMock.mock<DataFetchingEnvironment>()
-            val mockLoader = LeakyMock.mock<DataLoader<UUID, GroupMeService?>>()
+            val mockLoader = LeakyMock.mock<DataLoader<UUID, GroupMeService>>()
             EasyMock
-                .expect(mockDfe.getDataLoader<UUID, GroupMeService?>("groupmeservice"))
+                .expect(mockDfe.getDataLoader<UUID, GroupMeService>("groupmeservice"))
                 .andReturn(mockLoader)
             EasyMock
                 .expect(mockLoader.load(i.id!!))

@@ -42,7 +42,7 @@ data class ApiInstance(
 
     fun supportsGroupMe(dfe: DataFetchingEnvironment): CompletableFuture<Boolean> =
         id?.let {
-            dfe.getDataLoader<UUID, GroupMeService?>("groupmeservice")?.let { loader ->
+            dfe.getDataLoader<UUID, GroupMeService>("groupmeservice")?.let { loader ->
                 loader.load(it).thenApply { it != null }
             }
         } ?: CompletableFuture.completedFuture(false)

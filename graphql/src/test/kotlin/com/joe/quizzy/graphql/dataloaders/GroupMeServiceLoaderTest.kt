@@ -36,9 +36,7 @@ class GroupMeServiceLoaderTest {
                 )
             assertThat(loaded).isEqualTo(
                 mapOf(
-                    instances[0] to null,
                     instances[1] to mockService,
-                    instances[2] to null,
                 ),
             )
             EasyMock.verify(factory, mockEnv, mockService)
