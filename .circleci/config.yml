@@ -136,6 +136,11 @@ jobs:
           release_dir: ~/jars/release
           current_version: ~/repo/current_version.txt
           current_version_import: True
+      - run:
+          name: Augment Release Notes
+          command: |
+            LC_VERSION=$(./mvnw dependency:list --non-recursive -DincludeGroupIds=io.github.josephlbarnett |grep josephlbarnett | sed 's/.*io.github.josephlbarnett:build-resources:jar://;s/:test.*//')
+            echo "\r\nBuilt with LeakyCauldron ${LC_VERSION}" >> ~/jars/release/release_notes.txt
       - store_artifacts:
           path: ~/jars
       - persist_to_workspace:
@@ -171,7 +176,7 @@ jobs:
             cd ~/jars/fly
             flyctl wireguard reset
             flyctl wireguard websockets enable
-            LOG_LEVEL=debug flyctl deploy --local-only --build-arg CURRENT_VERSION=${CURRENT_VERSION} --verbose
+            flyctl deploy --local-only --build-arg CURRENT_VERSION=${CURRENT_VERSION}
       - run:
           name: Create Release Notes
           command: |
