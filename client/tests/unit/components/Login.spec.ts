@@ -56,9 +56,7 @@ async function mountLogin(
       plugins: [
         VueApolloPlugin,
         createProvider({ defaultClient: mockClient }),
-        createVuetify({
-          /*components, directives */
-        }),
+        createVuetify({/*components, directives */}),
       ],
     },
   });
