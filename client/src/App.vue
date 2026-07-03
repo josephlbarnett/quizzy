@@ -180,11 +180,11 @@ export default {
   },
   mounted() {
     if (window.matchMedia) {
-      this.theme.global.name.value = window.matchMedia(
-        "(prefers-color-scheme: dark)",
-      ).matches
-        ? "dark"
-        : "light";
+      this.theme.change(
+        window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light",
+      );
     }
   },
   methods: {
