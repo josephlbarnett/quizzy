@@ -20,7 +20,7 @@
     "core-js": "3.49.0",
     "graphql": "16.14.2",
     "graphql-combine-query": "1.2.4",
-    "moment-timezone": "0.6.2",
+    "moment-timezone": "0.6.3",
     "papaparse": "5.5.4",
     "pinia": "^4.0.2",
     "vue": "3.5.39",
