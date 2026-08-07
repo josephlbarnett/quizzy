@@ -30,7 +30,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.6",
     "@eslint/js": "^10.0.1",
-    "@graphql-eslint/eslint-plugin": "4.4.0",
+    "@graphql-eslint/eslint-plugin": "4.4.1",
     "@rollup/plugin-graphql": "3.0.0",
     "@types/papaparse": "5.5.2",
     "@typescript/native": "npm:typescript@7.0.2",
