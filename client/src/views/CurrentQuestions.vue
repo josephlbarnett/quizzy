@@ -2,6 +2,7 @@
   <div class="home">
     <ApolloQuery
       :query="CurrentUser"
+      :variables="{ endTime: now }"
       @result="
         (result) => {
           result &&
@@ -201,6 +202,11 @@ export default {
     CurrentQuestions,
     SaveResponse,
   }),
+  computed: {
+    now() {
+      return moment().startOf("hour").format();
+    },
+  },
   methods: {
     renderDateTime(date: string) {
       const browserTZ =

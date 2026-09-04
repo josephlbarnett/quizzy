@@ -2,6 +2,7 @@
   <div class="futureQuestions">
     <ApolloQuery
       :query="CurrentUser"
+      :variables="{ endTime: now }"
       @result="
         (result: ApolloQueryResult<Query>) => {
           setUser(result);
@@ -291,6 +292,9 @@ export default {
         return this.clickedImage;
       }
       return URL.createObjectURL(this.addDialogImage);
+    },
+    now() {
+      return moment().startOf("hour").format();
     },
   },
   methods: {

@@ -2,6 +2,7 @@
   <div class="grade">
     <ApolloQuery
       :query="CurrentUser"
+      :variables="{ endTime: now }"
       @result="
         (result) => {
           result &&
@@ -321,6 +322,9 @@ export default {
         startTime: season?.startTime,
         endTime: season?.endTime,
       };
+    },
+    now() {
+      return moment().startOf("hour").format();
     },
   },
   methods: {

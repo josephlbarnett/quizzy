@@ -29,6 +29,7 @@
     <div v-else-if="created">
       <ApolloQuery
         :query="CurrentUser"
+        :variables="{ endTime: now }"
         @result="
           (result) => {
             result &&
@@ -200,6 +201,9 @@ export default {
       const q = Object.assign({}, this.quizQuestions[this.reviewIndex]);
       q.response = this.responses[this.reviewIndex];
       return q;
+    },
+    now() {
+      return moment().startOf("hour").format();
     },
   },
   watch: {

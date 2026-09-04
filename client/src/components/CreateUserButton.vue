@@ -1,6 +1,10 @@
 <template>
   <div>
-    <ApolloQuery :query="CurrentUser" @result="setInstance">
+    <ApolloQuery
+      :query="CurrentUser"
+      :variables="{ endTime: now }"
+      @result="setInstance"
+    >
       <template #default="{}" />
     </ApolloQuery>
     <v-dialog v-model="dialog" :attach="inTest">
@@ -89,6 +93,7 @@ import { ExecutionResult } from "graphql";
 import AddUser from "@/graphql/AddUser.gql";
 import combinedQuery, { CombinedQueryBuilder } from "graphql-combine-query";
 import CurrentUser from "@/graphql/CurrentUser.gql";
+import moment from "moment-timezone";
 import { ApolloQueryResult } from "@apollo/client/core";
 
 type AddUserInfo = {
@@ -116,6 +121,11 @@ export default {
       instanceId: "",
       CurrentUser,
     };
+  },
+  computed: {
+    now() {
+      return moment().startOf("hour").format();
+    },
   },
   watch: {
     async tabs() {

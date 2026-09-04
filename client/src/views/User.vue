@@ -2,6 +2,7 @@
   <div class="user">
     <ApolloQuery
       :query="CurrentUser"
+      :variables="{ endTime: now }"
       @result="
         (result) => {
           if (result && result.data && result.data.user) {
@@ -202,6 +203,9 @@ export default {
       } else {
         return null;
       }
+    },
+    now() {
+      return moment().startOf("hour").format();
     },
   },
   methods: {

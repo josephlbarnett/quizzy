@@ -10,10 +10,11 @@ export default defineConfig({
   plugins: [vuePlugin(), graphqlPlugin(), vuetify({ autoImport: true })],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
   server: { port: 8080 },
+  legacy: { inconsistentCjsInterop: true },
   build: {
     sourcemap: true,
     rollupOptions: {

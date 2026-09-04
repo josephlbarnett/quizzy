@@ -2,6 +2,7 @@
   <div class="home">
     <ApolloQuery
       :query="CurrentUser"
+      :variables="{ endTime: now }"
       @result="(result: ApolloQueryResult<Query>) => setUser(result)"
     >
       <template #default="{}" />
@@ -387,6 +388,9 @@ export default {
       } else {
         return this.baseheaders;
       }
+    },
+    now() {
+      return moment().startOf("hour").format();
     },
   },
   methods: {

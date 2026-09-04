@@ -175,7 +175,7 @@ export default {
   }),
   computed: {
     now() {
-      return moment().format();
+      return moment().startOf("hour").format();
     },
   },
   mounted() {

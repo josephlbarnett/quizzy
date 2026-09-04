@@ -1,5 +1,5 @@
 <template>
-  <ApolloQuery :query="CurrentUser">
+  <ApolloQuery :query="CurrentUser" :variables="{ endTime: now }">
     <template #default="{ result: { error, data }, isLoading }">
       <!-- Loading -->
       <v-progress-circular v-if="isLoading" :indeterminate="true" />
@@ -188,6 +188,7 @@ import CurrentUser from "@/graphql/CurrentUser.gql";
 import Login from "@/graphql/Login.gql";
 import RequestPasswordReset from "@/graphql/RequestPasswordReset.gql";
 import CompletePasswordReset from "@/graphql/CompletePasswordReset.gql";
+import moment from "moment-timezone";
 
 export default {
   name: "LoginRouterWrapper",
@@ -228,6 +229,9 @@ export default {
       } else {
         return null;
       }
+    },
+    now() {
+      return moment().startOf("hour").format();
     },
   },
   methods: {
