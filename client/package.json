@@ -34,7 +34,7 @@
     "@rollup/plugin-graphql": "3.0.0",
     "@types/papaparse": "5.5.2",
     "@typescript/native": "npm:typescript@7.0.2",
-    "@vitejs/plugin-vue": "6.0.8",
+    "@vitejs/plugin-vue": "6.0.9",
     "@vitest/coverage-v8": "5.0.1",
     "@vue/eslint-config-prettier": "10.2.0",
     "@vue/eslint-config-typescript": "14.9.0",
